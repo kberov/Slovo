@@ -1,0 +1,35 @@
+workspace
+Makefile
+Makefile.old
+Build
+# Files created during the build process
+Build.bat
+META.*
+MYMETA.*
+MANIFEST.bak
+.build/
+_build/
+cover_db/
+blib/
+inc/
+.lwpcookies
+.last_cover_stats
+nytprof.out
+pod2htm*.tmp
+pm_to_blib
+Mojolicious-*
+Mojolicious-*.tar.gz
+test.db
+
+# Files created by IDEs and Editors
+*.swp
+/*.komodoproject
+/tags
+.tags*
+*.iml
+.idea
+_Deparsed_XSubs.pm
+
+*.sublime-project
+*.sublime-workspace
+

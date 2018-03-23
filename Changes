@@ -1,0 +1,8 @@
+Revision history for Perl module Slovo
+
+2018.03.23 Fri Mar 23 18:58:08 CET 2018
+    - Original version; created by ExtUtils::ModuleMaker 0.56
+    - Generated application using `mojo generate app Slovo`
+    - Modified Makefile.PL and whatever needed so most basic tests pass.
+    - Used $CODENAME from Ado to indicate that this project is continuation of
+      Ado (in a way).

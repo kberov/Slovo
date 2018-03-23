@@ -1,0 +1,31 @@
+use 5.020000;
+use ExtUtils::MakeMaker;
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+my $module_file = 'lib/Slovo.pm';
+my $preop = qq 'podselect $module_file > README.pod;';
+my $git_url     = 'https://github.com/kberov/Slovo';
+WriteMakefile(
+    NAME         => 'Slovo',
+  VERSION_FROM =>    $module_file,    # finds \$VERSION
+  AUTHOR        => 'Красимир Беров (berov@cpan.org)',
+  ABSTRACT_FROM => $module_file,
+  PREREQ_PM     => {'Mojolicious' => '7.71', perl => '5.020001'},
+  TEST_REQUIRES =>
+    {'Mojo::SQLite' => '3.000', 'Mojolicious::Plugin::OpenAPI' => '1.25'},
+  test       => {TESTS => 't/*.t'},
+  clean      => {FILES => 'Slovo-*'},
+  dist       => {PREOP => $preop},
+     META_MERGE => {
+       dynamic_config => 0,
+       'meta-spec'    => {version => 2},
+       no_index       => {directory => ['t']},
+       prereqs        => {runtime => {requires => {perl => '5.020000'}}},
+       resources      => {
+         bugtracker => {web => "$git_url/issues"},
+         homepage   => $git_url,
+         license => ['http://www.opensource.org/licenses/artistic-license-2.0'],
+         repository => {type => 'git', url => "$git_url.git", web => $git_url,},
+       },
+     },
+);
