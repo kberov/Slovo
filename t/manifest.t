@@ -1,4 +1,4 @@
-#manifest.t
+# manifest.t
 use strict;
 use warnings FATAL => 'all';
 use Test::More;

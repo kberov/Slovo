@@ -6,29 +6,70 @@ Slovo - В началѣ бѣ Слово
 
 =head1 SYNOPSIS
 
-  use Slovo;
-  blah blah blah
-
+    Mojolicious::Commands->start_app('Slovo');
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
+This is a very early pre-pre-release!
+L<Slovo> is a tiny L<Mojolicious>
+L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system> which can be
+extended in various ways.
 
-Blah blah blah.
+=head1 INSTALL
 
+  All you need is a one-liner, it takes less than a minute.
+
+    $ curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Slovo
+
+  We recommend the use of a [Perlbrew](http://perlbrew.pl) environment.
+
+If you already downloaded it and you have L<cpanm> already.
+
+    $ cpanm -l /install/target/slovo Slovo-XXXX.XX.XX.tar.gz
+
+Or even if you don't have C<cpanm>.
+
+    tar zxf Slovo-XXXX.XX.XX.tar.gz
+    cd  Slovo-XXXX.XX.XX
+    perl Makefile.PL INSTALL_BASE=~/opt/slovo && make && make test && make install
 
 =head1 USAGE
 
+    cd /path/to/installed/slovo
+    # see various options
+    ./bin/slovo
+
+=head1 ATTRIBUTES
+
+L<Slovo> inherits all attributes from L<Mojolicious> and implements
+the following new ones.
+
+=head2 resources_path
+
+  push @{$app->static->paths}, $app->resources_path->child('public');
+
+Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
+C<Slovo.pm> is installed.
+
+=head1 METHODS
+
+L<Slovo> inherits all methods from L<Mojolicious> and implements
+the following new ones.
+
+=head2 startup
+
+    my $app = Slovo->new->startup;
+
+Starts the application, sets defaults, reads configuration file(s) and returns
+the application instance.
 
 =head1 BUGS
 
-Please open issues at L<https://github.com/kberov/Slovo>.
+Please open issues at L<https://github.com/kberov/Slovo/issues>.
 
 =head1 SUPPORT
 
-
+Please open issues at L<https://github.com/kberov/Slovo/issues>.
 
 =head1 AUTHOR
 
@@ -45,8 +86,7 @@ This program is free software licensed under the Artistic License 2.0.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-
 =head1 SEE ALSO
 
-L<Mojolicious>
+L<Mojolicious>, L<Mojolicious::Guides>
 

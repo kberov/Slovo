@@ -81,4 +81,4 @@ _Deparsed_XSubs.pm$
 # Avoid CI tools files
 \.travis.yml
 .+\.tdy
-
+^README.pod

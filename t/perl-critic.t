@@ -1,4 +1,4 @@
-#t/perl-critic.t
+# t/perl-critic.t
 use Mojo::Base -strict;
 use Test::More;
 use English qw(-no_match_vars);
@@ -19,3 +19,4 @@ my $rcfile = dirname(__FILE__) . '/.perlcriticrc';
 
 Test::Perl::Critic->import(-profile => $rcfile, -verbose => 10);
 all_critic_ok();
+
