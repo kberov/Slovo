@@ -1,5 +1,6 @@
 package Slovo;
 use Mojo::Base 'Mojolicious';
+use experimental 'signatures';
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
 
@@ -13,14 +14,41 @@ has resources_path => sub {
 };
 
 # This method will run once at server start
-sub startup {
-  my $app = shift;
+sub startup($app) {
+  $app->_load_pugins()->_default_paths();
+  return $app;
+}
+
+sub _load_pugins($app) {
+  my $etc     = $app->resources_path->child('etc');
+  my $moniker = $app->moniker;
+  my $mode    = $app->mode;
 
   # Load configuration from hash returned by "slovo.conf"
-  my $config_file
-    = $app->resources_path->child('etc/' . $app->moniker . '.conf');
-  $ENV{MOJO_CONFIG} ||= $config_file;
+  my $config_file      = "$etc/$moniker.conf";
+  my $mode_config_file = "$etc/$moniker.$mode.conf";
+  $ENV{MOJO_CONFIG} ||= -e $mode_config_file ? $mode_config_file : $config_file;
   my $config = $app->plugin('Config');
+
+  # Namespaces to load plugins from
+  # See /perldoc/Mojolicious#plugins
+  # See /perldoc/Mojolicious/Plugins#PLUGINS
+  $app->plugins->namespaces(['Mojolicious::Plugin', 'Slovo::Plugin']);
+  my $plugins = $app->config('plugins') || [];
+  foreach my $plugin (@$plugins) {
+    $app->log->debug(
+              'Loading Plugin ' . (ref $plugin ? (keys %$plugin)[0] : $plugin));
+    if (ref $plugin eq 'HASH') {
+      $app->plugin(%$plugin);
+    }
+    elsif ($plugin) {
+      $app->plugin($plugin);
+    }
+  }
+  return $app;
+}
+
+sub _default_paths($app) {
 
   # Use also the installable "public" directory
   push @{$app->static->paths}, $app->resources_path->child('public');
@@ -29,14 +57,6 @@ sub startup {
   # See /perldoc/Mojolicious/Renderer#paths
   push @{$app->renderer->paths}, $app->resources_path->child('templates');
 
-  # Documentation browser under "/perldoc"
-  $app->plugin('PODRenderer') if $config->{perldoc};
-
-  # Router
-  my $r = $app->routes;
-
-  # Normal route to controller
-  $r->get('/')->to('example#welcome');
   return $app;
 }
 
@@ -61,11 +81,11 @@ extended in various ways.
 
 =head1 INSTALL
 
-  All you need is a one-liner, it takes less than a minute.
+All you need is a one-liner, it takes less than a minute.
 
     $ curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Slovo
 
-  We recommend the use of a [Perlbrew](http://perlbrew.pl) environment.
+We recommend the use of a L<Perlbrew|http://perlbrew.pl> environment.
 
 If you already downloaded it and you have L<cpanm> already.
 
@@ -82,6 +102,12 @@ Or even if you don't have C<cpanm>.
     cd /path/to/installed/slovo
     # see various options
     ./bin/slovo
+
+=head1 CONFIGURATION
+
+L<Slovo> configuration files are in C<lib/Slovo/resourses/etc>. New routes can
+be described in C<routes.conf>. See L<Mojolicious::Plugin::RoutesConfig> for
+details and examples.
 
 =head1 ATTRIBUTES
 

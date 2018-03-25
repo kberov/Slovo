@@ -13,7 +13,11 @@ WriteMakefile(
   VERSION_FROM  => $module_file,                        # finds \$VERSION
   AUTHOR        => 'Красимир Беров (berov@cpan.org)',
   ABSTRACT_FROM => $module_file,
-  PREREQ_PM => {'Mojolicious' => '7.71', perl => '5.020001'},
+  PREREQ_PM     => {
+                'Mojolicious'                       => '7.71',
+                perl                                => '5.020001',
+                'Mojolicious::Plugin::RoutesConfig' => '0.04'
+               },
   TEST_REQUIRES =>
     {'Mojo::SQLite' => '3.000', 'Mojolicious::Plugin::OpenAPI' => '1.25'},
   test       => {TESTS => 't/*.t'},

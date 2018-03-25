@@ -1,5 +1,9 @@
 Revision history for Mojolicious application Slovo
 
+2018.03.25
+    - Improved documentation.
+    - Implemented loading of plugins specified in slovo.conf.
+    - Added dependency Mojolicious::Plugin::RoutesConfig.
 
 2018.03.24
     - Made the application installable as any perl module.

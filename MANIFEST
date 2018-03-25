@@ -2,6 +2,8 @@
 Changes
 lib/Slovo.pm
 lib/Slovo/Controller/Example.pm
+lib/Slovo/resources/etc/README
+lib/Slovo/resources/etc/routes.conf
 lib/Slovo/resources/etc/slovo.conf
 lib/Slovo/resources/public/index.html
 lib/Slovo/resources/templates/example/welcome.html.ep

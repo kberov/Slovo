@@ -17,11 +17,11 @@ extended in various ways.
 
 =head1 INSTALL
 
-  All you need is a one-liner, it takes less than a minute.
+All you need is a one-liner, it takes less than a minute.
 
     $ curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Slovo
 
-  We recommend the use of a [Perlbrew](http://perlbrew.pl) environment.
+We recommend the use of a L<Perlbrew|http://perlbrew.pl> environment.
 
 If you already downloaded it and you have L<cpanm> already.
 
@@ -38,6 +38,12 @@ Or even if you don't have C<cpanm>.
     cd /path/to/installed/slovo
     # see various options
     ./bin/slovo
+
+=head1 CONFIGURATION
+
+L<Slovo> configuration files are in C<lib/Slovo/resourses/etc>. New routes can
+be described in C<routes.conf>. See L<Mojolicious::Plugin::RoutesConfig> for
+details and examples.
 
 =head1 ATTRIBUTES
 
