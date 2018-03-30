@@ -1,0 +1,4 @@
+% layout 'blog', title => $groups->{title};
+<h2><%= $groups->{title} %></h2>
+<p><%= $groups->{body} %></p>
+%= link_to 'Edit' => edit_groups => {id => $groups->{id}}

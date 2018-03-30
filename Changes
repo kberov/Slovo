@@ -1,5 +1,19 @@
 Revision history for Mojolicious application Slovo
 
+2018.04
+    - Switched $CODENAME to U+2C0B GLAGOLITIC CAPITAL LETTER I (Ⰻ)
+    - Improved documentation.
+    - Added sqlite.conf which can be switched with pg.conf or mysql.conf.
+      This way the database can be easily switched by adding specific
+      adapter configuration files.
+    - Added helper 'dbx' which will be instance of Mojo::SQLite, Mojo::Pg or
+      Mojo::mysql instead of corresponding 'sqlite', 'pg', or 'mysql'.
+    - Added a lot of generated code for tables 'groups' and 'users' with
+      Mojolicious::Command::generate::resources.
+    - Added Slovo::Cotroller.
+    - Added first migration file. Table definitions and initial data are taken
+      from Ado.
+
 2018.03.25
     - Improved documentation.
     - Implemented loading of plugins specified in slovo.conf.

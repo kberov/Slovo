@@ -8,6 +8,7 @@ use utf8;
 # the contents of the Makefile that is written.
 my $module_file = 'lib/Slovo.pm';
 my $git_url     = 'https://github.com/kberov/Slovo';
+
 WriteMakefile(
   NAME          => 'Slovo',
   VERSION_FROM  => $module_file,                        # finds \$VERSION
@@ -15,15 +16,16 @@ WriteMakefile(
   ABSTRACT_FROM => $module_file,
   PREREQ_PM     => {
                 'Mojolicious'                       => '7.71',
-                perl                                => '5.020001',
-                'Mojolicious::Plugin::RoutesConfig' => '0.04'
+                'Mojolicious::Plugin::OpenAPI'      => '1.25',
+                'Mojolicious::Plugin::RoutesConfig' => '0.04',
+                'Mojo::SQLite'                      => '3.000',
                },
-  TEST_REQUIRES =>
-    {'Mojo::SQLite' => '3.000', 'Mojolicious::Plugin::OpenAPI' => '1.25'},
-  test       => {TESTS => 't/*.t'},
-  EXE_FILES  => ['script/slovo'],
-  clean      => {FILES => 'Slovo-* READM*'},
-  META_MERGE => {
+  TEST_REQUIRES => {},
+  test          => {TESTS => 't/*.t'},
+  EXE_FILES     => ['script/slovo'],
+  clean => {FILES => 'Slovo-* READM* lib/Slovo/resources/data/*.sqlite'},
+  MIN_PERL_VERSION => '5.020000',
+  META_MERGE       => {
        dynamic_config => 0,
        'meta-spec'    => {version => 2},
        no_index       => {directory => ['t']},

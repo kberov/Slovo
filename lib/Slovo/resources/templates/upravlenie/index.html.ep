@@ -1,0 +1,5 @@
+<div>
+% foreach my $el (@$menu) {
+%= link_to $el => "home_$el";    
+%}
+</div>

@@ -1,0 +1,4 @@
+%= form_for $target => begin
+
+  %= submit_button $caption
+% end

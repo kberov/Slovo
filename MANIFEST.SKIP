@@ -64,6 +64,7 @@
 
 # Avoid some SQLite files
 \b.+\.db
+\b.+\.sqlite
 .+\.sqlite-journal$
 .+\.sqlite-shm$
 .+\.sqlite-wal$

@@ -11,21 +11,20 @@ Slovo - В началѣ бѣ Слово
 =head1 DESCRIPTION
 
 This is a very early pre-pre-release!
-L<Slovo> is a tiny L<Mojolicious>
-L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system> which can be
-extended in various ways.
+L<Slovo> is a simple extensible L<Mojolicious>
+L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>.
 
 =head1 INSTALL
 
 All you need is a one-liner, it takes less than a minute.
 
-    $ curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Slovo
+    $ curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n -l ~/opt/slovo Slovo
 
 We recommend the use of a L<Perlbrew|http://perlbrew.pl> environment.
 
 If you already downloaded it and you have L<cpanm> already.
 
-    $ cpanm -l /install/target/slovo Slovo-XXXX.XX.XX.tar.gz
+    $ cpanm -l ~/opt/slovo Slovo-XXXX.XX.XX.tar.gz
 
 Or even if you don't have C<cpanm>.
 
@@ -39,20 +38,35 @@ Or even if you don't have C<cpanm>.
     # see various options
     ./bin/slovo
 
-=head1 CONFIGURATION
+=head1 CONFIGURATION, PATHS and UPGRADING
 
-L<Slovo> configuration files are in C<lib/Slovo/resourses/etc>. New routes can
-be described in C<routes.conf>. See L<Mojolicious::Plugin::RoutesConfig> for
-details and examples.
+L<Slovo> is a L<Mojolicious> application which means that everything
+applying to Mojolicious applies to it too. Slovo main configuration file is
+in C<lib/Slovo/resourses/etc/slovo.conf>. You can use your own by setting
+C<$ENV{MOJO_CONFIG}>. New routes can be described in C<routes.conf>. See
+L<Mojolicious::Plugin::RoutesConfig> for details and examples.
+
+C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and
+used. All paths then are expected to be its children. You can add your own
+templates in C<$ENV{MOJO_HOME}/templates> and they will be loaded and used with
+priority. You can theme your own instance of Slovo by just copying
+C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
+C<$ENV{MOJO_HOME}/templates> and modify them. You can add your own static files
+to C<$ENV{MOJO_HOME}/public>. Last but not least, you can add your own classes
+into C<$ENV{MOJO_HOME}/site/lib> and (why not) replace classes form Slovo.
+
+With all the above, you can update L<Slovo> by just installing new versions
+over it and your files will not be touched. And of course, we know that you are
+using versioning just in case anything goes wrong.
 
 =head1 ATTRIBUTES
 
 L<Slovo> inherits all attributes from L<Mojolicious> and implements
 the following new ones.
 
-=head2 resources_path
+=head2 resources
 
-  push @{$app->static->paths}, $app->resources_path->child('public');
+  push @{$app->static->paths}, $app->resources->child('public');
 
 Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.

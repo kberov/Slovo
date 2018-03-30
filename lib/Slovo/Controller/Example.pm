@@ -1,5 +1,5 @@
 package Slovo::Controller::Example;
-use Mojo::Base 'Mojolicious::Controller';
+use Mojo::Base 'Slovo::Controller';
 
 # This action will render a template
 sub welcome {
