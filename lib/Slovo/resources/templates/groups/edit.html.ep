@@ -1,0 +1,4 @@
+% layout 'default', title => 'Edit groups';
+<h2>Edit groups</h2>
+%= include 'groups/_form', caption => 'Update', target => 'update_groups'
+%= button_to Remove => remove_groups => {id => $groups->{id}}

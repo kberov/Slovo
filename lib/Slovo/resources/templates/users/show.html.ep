@@ -1,0 +1,18 @@
+% layout 'default', title => 'Showing User ' . $users->{login_name};
+<h2><%= $users->{id} %></h2>
+<p><%= $users->{'id'} %></p>
+<p><%= $users->{'group_id'} %></p>
+<p><%= $users->{'login_name'} %></p>
+<p><%= $users->{'login_password'} %></p>
+<p><%= $users->{'first_name'} %></p>
+<p><%= $users->{'last_name'} %></p>
+<p><%= $users->{'email'} %></p>
+<p><%= $users->{'description'} %></p>
+<p><%= $users->{'created_by'} %></p>
+<p><%= $users->{'changed_by'} %></p>
+<p><%= $users->{'tstamp'} %></p>
+<p><%= $users->{'reg_time'} %></p>
+<p><%= $users->{'disabled'} %></p>
+<p><%= $users->{'start_date'} %></p>
+<p><%= $users->{'stop_date'} %></p>
+%= link_to 'Edit' => edit_users => {id => $users->{id}}

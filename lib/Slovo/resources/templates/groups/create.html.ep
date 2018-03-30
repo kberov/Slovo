@@ -1,0 +1,4 @@
+% my $title = 'New record in table "groups"';
+% layout 'default', title => $title;
+<h2><%= $title %></h2>
+%= include 'groups/_form', caption => 'Create', target => 'store_groups'

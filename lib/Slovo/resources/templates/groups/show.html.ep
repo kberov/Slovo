@@ -1,0 +1,9 @@
+% layout 'default', title => $groups->{title};
+<h2><%= $groups->{id} %></h2>
+<p><%= $groups->{'id'} %></p>
+<p><%= $groups->{'name'} %></p>
+<p><%= $groups->{'description'} %></p>
+<p><%= $groups->{'created_by'} %></p>
+<p><%= $groups->{'changed_by'} %></p>
+<p><%= $groups->{'disabled'} %></p>
+%= link_to 'Edit' => edit_groups => {id => $groups->{id}}

@@ -19,7 +19,13 @@ pod2htm*.tmp
 pm_to_blib
 Mojolicious-*
 Mojolicious-*.tar.gz
-test.db
+
+# Avoid some SQLite files
+*.db
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
 
 # Files created by IDEs and Editors
 *.swp

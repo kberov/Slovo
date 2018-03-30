@@ -1,0 +1,43 @@
+%= form_for $target => begin
+
+%=hidden_field 'id' => $users->{id} if ($action ne 'create');
+<br />
+  %= label_for login_name =>'Login_name'
+<br />
+  %= text_field login_name => $users->{login_name},  size => 100
+<br />
+  %= label_for login_password =>'Login_password'
+<br />
+  %= text_field login_password => $users->{login_password}, required => 1, size => 40
+<br />
+  %= label_for first_name =>'First_name'
+<br />
+  %= text_field first_name => $users->{first_name}, required => 1, size => 100
+<br />
+  %= label_for last_name =>'Last_name'
+<br />
+  %= text_field last_name => $users->{last_name}, required => 1, size => 100
+<br />
+  %= label_for email =>'Email'
+<br />
+  %= text_field email => $users->{email}, required => 1, size => 255
+<br />
+  %= label_for description =>'Description'
+<br />
+  %= text_field description => $users->{description},  size => 255
+<br />
+  %= label_for disabled => 'Disabled'
+<br />
+  %= number_field disabled => $users->{disabled}, size => 1
+<br />
+  %= label_for start_date => 'Start_date'
+<br />
+  %= number_field start_date => $users->{start_date}, 
+<br />
+  %= label_for stop_date => 'Stop_date'
+<br />
+  %= number_field stop_date => $users->{stop_date}, 
+<br />
+
+  %= submit_button $caption
+% end

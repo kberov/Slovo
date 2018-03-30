@@ -1,0 +1,25 @@
+% my $title =  'Ꙋправленѥ/Потребители';
+% layout 'default'; title $title;
+<h1><%== $title %></h1>
+
+% my @columns = qw(login_name first_name last_name start_date stop_date); #table columns
+%= link_to 'New record in table "users"' => 'create_users'
+<table>
+    <thead>
+        <tr>
+    % for my $column (@columns) {
+            <th><%= uc($column) %></th>
+    % }
+        </tr>
+    </thead>
+    <tbody>
+% for my $item (@$users) {
+        <tr>
+            <td><%= link_to $item->{id} => show_users => {id => $item->{id}} %></td>
+    % for my $column (@columns[1 .. $#columns]) {
+            <td><%= $item->{$column} %></td>
+    % }
+        </tr>
+% }
+    </tbody>
+</table>

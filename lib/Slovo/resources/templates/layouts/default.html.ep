@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <html>
-  <head><title><%= title %></title></head>
+    <head>
+        <meta charset="utf-8">
+        <title><%= title %></title>
+        <style>
+          label.field-with-error { color: #dd7e5e }
+          input.field-with-error { background-color: #fd9e7e }
+        </style>
+    </head>
   <body><%= content %></body>
 </html>

@@ -1,0 +1,25 @@
+% my $title =  'Ꙋправленѥ/Множества';
+% layout 'default'; title $title;
+
+<h1><%== $title %></h1>
+% my @columns = qw(id name description created_by changed_by disabled); #table columns
+%= link_to 'New record in table "groups"' => 'create_groups'
+<table>
+    <thead>
+        <tr>
+    % for my $column (@columns) {
+            <th><%= uc($column) %></th>
+    % }
+        </tr>
+    </thead>
+    <tbody>
+% for my $item (@$groups) {
+        <tr>
+            <td><%= link_to $item->{id} => show_groups => {id => $item->{id}} %></td>
+    % for my $column (@columns[1 .. $#columns]) {
+            <td><%= $item->{$column} %></td>
+    % }
+        </tr>
+% }
+    </tbody>
+</table>

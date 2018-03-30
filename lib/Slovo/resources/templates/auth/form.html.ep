@@ -1,0 +1,37 @@
+% layout 'default';
+% title 'Входъ';
+% if(stash->{error_login}) {
+<div id="error_login" class="error message"><%= stash->{error_login} %></div>
+% }
+%= form_for sign_in => (id => 'sign_in') => begin
+%= label_for login_name => '"Име за входъ" е задължително (ѿ 1 до 100 знака).'
+<br>
+%= text_field 'login_name', placeholder => 'Име за входъ', title => 'Име за входъ'
+<br>
+%= label_for login_password => '"Тайно слово" е задължително (ѿ 1 до 40 знака).'
+<br>
+%= password_field login_password => title => 'Тайна' 
+    %= hidden_field 'digest'
+    %= csrf_field
+<br>
+%= submit_button 'Входъ'
+%= end
+%= javascript 'js/CryptoJS-v3.1.2/sha1.js'
+%= javascript begin
+'use strict';
+const name_field   = document.querySelector('[name="login_name"]'); 
+const passw_field  = document.querySelector('[name="login_password"]');
+const dijest_field = document.querySelector('[name="digest"]');
+const csrf_field   = document.querySelector('[name="csrf_token"]'); 
+const login_form   = document.querySelector('#sign_in');
+login_form.onsubmit = function() {
+    const concat_ln_lp   = new String(name_field.value)  + new String(passw_field.value)
+    console.log(concat_ln_lp);
+    const passw_sha1     = CryptoJS.SHA1(CryptoJS.enc.Utf8.stringify(concat_ln_lp));
+    dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
+    console.log(passw_sha1 + '');
+    console.log(dijest_field.value);
+    return true;
+};
+%= end
+

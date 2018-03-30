@@ -8,22 +8,26 @@ use utf8;
 # the contents of the Makefile that is written.
 my $module_file = 'lib/Slovo.pm';
 my $git_url     = 'https://github.com/kberov/Slovo';
+
 WriteMakefile(
   NAME          => 'Slovo',
   VERSION_FROM  => $module_file,                        # finds \$VERSION
   AUTHOR        => 'Красимир Беров (berov@cpan.org)',
   ABSTRACT_FROM => $module_file,
   PREREQ_PM     => {
-                'Mojolicious'                       => '7.71',
-                perl                                => '5.020001',
-                'Mojolicious::Plugin::RoutesConfig' => '0.04'
+                'Mojolicious'                         => '7.74',
+                'Mojolicious::Plugin::Authentication' => '1.32',
+                'Mojolicious::Plugin::OpenAPI'        => '1.25',
+                'Mojolicious::Plugin::RoutesConfig'   => '0.05',
+                'Mojo::SQLite'                        => '3.000',
+                'Role::Tiny'                          => '2.000006',
                },
-  TEST_REQUIRES =>
-    {'Mojo::SQLite' => '3.000', 'Mojolicious::Plugin::OpenAPI' => '1.25'},
-  test       => {TESTS => 't/*.t'},
-  EXE_FILES  => ['script/slovo'],
-  clean      => {FILES => 'Slovo-* READM*'},
-  META_MERGE => {
+  TEST_REQUIRES => {},
+  test          => {TESTS => 't/*.t'},
+  EXE_FILES     => ['script/slovo'],
+  clean         => {FILES => 'Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
+  MIN_PERL_VERSION => '5.020000',
+  META_MERGE       => {
        dynamic_config => 0,
        'meta-spec'    => {version => 2},
        no_index       => {directory => ['t']},
@@ -63,21 +67,38 @@ __END__
 
 =encoding utf8
 
+=head1 NAME
+
+Makefile.PL for the Slovo project
+
 =head1 SYNOPSIS
 
 Some commands;
+
+Install
 
     $ INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
     perl Makefile.PL INSTALL_BASE=$INSTALL_BASE && make && make test && make install \
     && $INSTALL_BASE/bin/slovo
 
+Start the server and open a browser
+
     $ daemon -l http://*:8080 & sleep 1 exo-open http://localhost:8080
 
-    # even directly in vim
+Build Makefile even directly in vim
+
     !perl Makefile.PL
-    # when you want to add ne files to the ditribution
+    
+When you want to add new files to the ditribution
+
     make manifest
+
+Beautify your code
+
     make perltidy
+
+Generate README and README.POD
+
     make readme
 
 =cut
