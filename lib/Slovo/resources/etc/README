@@ -7,12 +7,12 @@ changed locally for experimenting but local changes usualy do not have to go
 upstream. To ignore such files but keep them versioned one have to run the
 command "git update-index". Here is an example with slovo.conf.
 
-  git update-index --assume-unchanged etc/slovo.conf
+  git update-index --assume-unchanged etc/slovo.development.conf
 
 To make git track the file again, when you have a change that you want to push
 upstream, simply run:
 
-  git update-index --no-assume-unchanged etc/slovo.conf.
+  git update-index --no-assume-unchanged etc/slovo.development.conf.
 
 See also:
 https://help.github.com/articles/ignoring-files#ignoring-versioned-files

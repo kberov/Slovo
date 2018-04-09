@@ -1,0 +1,680 @@
+{
+   "produces" : [
+      "application/json",
+      "text/plain",
+      "text/html"
+   ],
+   "basePath" : "/api",
+   "parameters" : {
+      "limit" : {
+         "type" : "integer",
+         "description" : "How many, items to return at once (max: 100; min: 1)",
+         "name" : "limit",
+         "minimum" : 1,
+         "in" : "query",
+         "default" : 100,
+         "maximum" : 100
+      },
+      "offset" : {
+         "default" : 0,
+         "in" : "query",
+         "name" : "offset",
+         "minimum" : 0,
+         "type" : "integer",
+         "description" : "At what offset (min: 0)?"
+      }
+   },
+   "schemes" : [
+      "http",
+      "https"
+   ],
+   "consumes" : [
+      "application/json",
+      "multipart/form-data",
+      "application/x-www-form-urlencoded"
+   ],
+   "info" : {
+      "version" : "1.0",
+      "description" : "This is the OpenAPI specification for Slovo OpenAPI.",
+      "contact" : {
+         "email" : "company_api@example.com",
+         "name" : "Company name here"
+      },
+      "title" : "Slovo OpenAPI",
+      "license" : {
+         "name" : "restricted"
+      }
+   },
+   "definitions" : {
+      "Users" : {
+         "type" : "array",
+         "items" : {
+            "$ref" : "#/definitions/UsersItem"
+         }
+      },
+      "ErrorResponse" : {
+         "properties" : {
+            "valid" : {
+               "type" : "boolean"
+            },
+            "errors:" : {
+               "$ref" : "#/definitions/Errors"
+            }
+         },
+         "type" : "object"
+      },
+      "Error" : {
+         "required" : [
+            "message"
+         ],
+         "properties" : {
+            "message" : {
+               "type" : "string"
+            },
+            "path" : {
+               "type" : "string"
+            }
+         }
+      },
+      "GroupsItem" : {
+         "required" : [
+            "name",
+            "description",
+            "disabled"
+         ],
+         "properties" : {
+            "name" : {
+               "type" : "string",
+               "maxLength" : "100"
+            },
+            "disabled" : {
+               "type" : "integer",
+               "maxLength" : "1"
+            },
+            "description" : {
+               "maxLength" : "255",
+               "type" : "string"
+            },
+            "created_by" : {
+               "type" : "integer"
+            },
+            "changed_by" : {
+               "type" : "integer"
+            },
+            "id" : {
+               "type" : "integer"
+            }
+         },
+         "description" : "An object, representing one item of Groups."
+      },
+      "Groups" : {
+         "items" : {
+            "$ref" : "#/definitions/GroupsItem"
+         },
+         "type" : "array"
+      },
+      "UsersItem" : {
+         "properties" : {
+            "reg_time" : {
+               "type" : "integer"
+            },
+            "tstamp" : {
+               "type" : "integer"
+            },
+            "group_id" : {
+               "type" : "integer"
+            },
+            "email" : {
+               "type" : "string",
+               "maxLength" : "255"
+            },
+            "disabled" : {
+               "maxLength" : "1",
+               "type" : "integer"
+            },
+            "login_password" : {
+               "maxLength" : "40",
+               "type" : "string"
+            },
+            "description" : {
+               "maxLength" : "255",
+               "type" : "string"
+            },
+            "last_name" : {
+               "maxLength" : "100",
+               "type" : "string"
+            },
+            "start_date" : {
+               "type" : "integer"
+            },
+            "first_name" : {
+               "type" : "string",
+               "maxLength" : "100"
+            },
+            "stop_date" : {
+               "type" : "integer"
+            },
+            "id" : {
+               "type" : "integer"
+            },
+            "changed_by" : {
+               "type" : "integer"
+            },
+            "login_name" : {
+               "type" : "string",
+               "maxLength" : "100"
+            },
+            "created_by" : {
+               "type" : "integer"
+            }
+         },
+         "description" : "An object, representing one item of Users.",
+         "required" : [
+            "login_password",
+            "first_name",
+            "last_name",
+            "email",
+            "tstamp",
+            "reg_time",
+            "disabled",
+            "start_date",
+            "stop_date"
+         ]
+      },
+      "Errors" : {
+         "items" : {
+            "$ref" : "#/definitions/Error"
+         },
+         "type" : "array"
+      }
+   },
+   "paths" : {
+      "/groups" : {
+         "post" : {
+            "x-mojo-to" : "groups#store",
+            "operationId" : "api.store_groups",
+            "summary" : "Create and store an object of type GroupsItem.",
+            "responses" : {
+               "201" : {
+                  "headers" : {
+                     "Location" : {
+                        "description" : "The URL of the newly created resource.",
+                        "type" : "string"
+                     }
+                  },
+                  "description" : "Expect this response to a valid request. The body  of the response will be empty."
+               },
+               "400" : {
+                  "schema" : {
+                     "$ref" : "#/definitions/Error"
+                  },
+                  "description" : "Bad Request"
+               }
+            },
+            "parameters" : [
+               {
+                  "required" : true,
+                  "maxLength" : "100",
+                  "in" : "formData",
+                  "name" : "name",
+                  "type" : "string"
+               },
+               {
+                  "name" : "description",
+                  "type" : "string",
+                  "required" : true,
+                  "maxLength" : "255",
+                  "in" : "formData"
+               },
+               {
+                  "in" : "formData",
+                  "name" : "created_by",
+                  "type" : "integer"
+               },
+               {
+                  "in" : "formData",
+                  "type" : "integer",
+                  "name" : "changed_by"
+               },
+               {
+                  "type" : "integer",
+                  "name" : "disabled",
+                  "in" : "formData",
+                  "maxLength" : "1",
+                  "required" : true
+               }
+            ],
+            "description" : "Create  and store an object of type GroupsItem."
+         },
+         "get" : {
+            "parameters" : [
+               {
+                  "$ref" : "#/parameters/limit"
+               },
+               {
+                  "$ref" : "#/parameters/offset"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "schema" : {
+                     "$ref" : "#/definitions/Groups"
+                  },
+                  "description" : "An array of Groups."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            },
+            "summary" : "List all records of type Groups.",
+            "description" : "List all records of type Groups according to the client's priviledges.",
+            "operationId" : "api.home_groups",
+            "x-mojo-to" : "groups#index"
+         }
+      },
+      "/users/{id}" : {
+         "delete" : {
+            "parameters" : [
+               {
+                  "type" : "integer",
+                  "name" : "id",
+                  "in" : "path",
+                  "required" : true
+               }
+            ],
+            "responses" : {
+               "404" : {
+                  "description" : "Not Found. The resource is already gone."
+               },
+               "204" : {
+                  "description" : "No content. The resource is deleted."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            },
+            "summary" : "Delete an object of type UsersItem.",
+            "description" : "Delete an object of type UsersItem.",
+            "x-mojo-to" : "users#remove",
+            "operationId" : "api.remove_users"
+         },
+         "get" : {
+            "summary" : "Show an object of type UsersItem.",
+            "parameters" : [
+               {
+                  "type" : "integer",
+                  "name" : "id",
+                  "in" : "path",
+                  "required" : true
+               }
+            ],
+            "description" : "Show an object of type UsersItem.",
+            "responses" : {
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               },
+               "200" : {
+                  "description" : "An object of type UsersItem.",
+                  "schema" : {
+                     "$ref" : "#/definitions/UsersItem"
+                  }
+               }
+            },
+            "operationId" : "api.show_users",
+            "x-mojo-to" : "users#show"
+         },
+         "put" : {
+            "operationId" : "api.update_users",
+            "x-mojo-to" : "users#update",
+            "description" : "Update an object of type UsersItem.",
+            "parameters" : [
+               {
+                  "name" : "id",
+                  "type" : "integer",
+                  "required" : true,
+                  "in" : "path"
+               },
+               {
+                  "in" : "formData",
+                  "name" : "group_id",
+                  "type" : "integer"
+               },
+               {
+                  "type" : "string",
+                  "name" : "login_name",
+                  "in" : "formData",
+                  "maxLength" : "100"
+               },
+               {
+                  "maxLength" : "40",
+                  "required" : true,
+                  "in" : "formData",
+                  "name" : "login_password",
+                  "type" : "string"
+               },
+               {
+                  "name" : "first_name",
+                  "type" : "string",
+                  "maxLength" : "100",
+                  "required" : true,
+                  "in" : "formData"
+               },
+               {
+                  "name" : "last_name",
+                  "type" : "string",
+                  "maxLength" : "100",
+                  "required" : true,
+                  "in" : "formData"
+               },
+               {
+                  "type" : "string",
+                  "name" : "email",
+                  "in" : "formData",
+                  "maxLength" : "255",
+                  "required" : true
+               },
+               {
+                  "maxLength" : "255",
+                  "in" : "formData",
+                  "name" : "description",
+                  "type" : "string"
+               },
+               {
+                  "in" : "formData",
+                  "name" : "created_by",
+                  "type" : "integer"
+               },
+               {
+                  "in" : "formData",
+                  "name" : "changed_by",
+                  "type" : "integer"
+               },
+               {
+                  "in" : "formData",
+                  "required" : true,
+                  "type" : "integer",
+                  "name" : "tstamp"
+               },
+               {
+                  "type" : "integer",
+                  "name" : "reg_time",
+                  "in" : "formData",
+                  "required" : true
+               },
+               {
+                  "type" : "integer",
+                  "name" : "disabled",
+                  "in" : "formData",
+                  "required" : true,
+                  "maxLength" : "1"
+               },
+               {
+                  "type" : "integer",
+                  "name" : "start_date",
+                  "in" : "formData",
+                  "required" : true
+               },
+               {
+                  "type" : "integer",
+                  "name" : "stop_date",
+                  "in" : "formData",
+                  "required" : true
+               }
+            ],
+            "summary" : "Update an object of type UsersItem.",
+            "responses" : {
+               "204" : {
+                  "description" : "Response to a valid PUT request. Response body will be empty."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            }
+         }
+      },
+      "/groups/{id}" : {
+         "delete" : {
+            "responses" : {
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               },
+               "404" : {
+                  "description" : "Not Found. The resource is already gone."
+               },
+               "204" : {
+                  "description" : "No content. The resource is deleted."
+               }
+            },
+            "description" : "Delete an object of type GroupsItem.",
+            "summary" : "Delete an object of type GroupsItem.",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "required" : true,
+                  "type" : "integer",
+                  "name" : "id"
+               }
+            ],
+            "x-mojo-to" : "groups#remove",
+            "operationId" : "api.remove_groups"
+         },
+         "get" : {
+            "description" : "Show an object of type GroupsItem.",
+            "parameters" : [
+               {
+                  "type" : "integer",
+                  "name" : "id",
+                  "in" : "path",
+                  "required" : true
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "schema" : {
+                     "$ref" : "#/definitions/GroupsItem"
+                  },
+                  "description" : "An object of type GroupsItem."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            },
+            "summary" : "Show an object of type GroupsItem.",
+            "operationId" : "api.show_groups",
+            "x-mojo-to" : "groups#show"
+         },
+         "put" : {
+            "responses" : {
+               "204" : {
+                  "description" : "Response to a valid PUT request. Response body will be empty."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            },
+            "summary" : "Update an object of type GroupsItem.",
+            "description" : "Update an object of type GroupsItem.",
+            "parameters" : [
+               {
+                  "name" : "id",
+                  "type" : "integer",
+                  "required" : true,
+                  "in" : "path"
+               },
+               {
+                  "in" : "formData",
+                  "maxLength" : "100",
+                  "required" : true,
+                  "type" : "string",
+                  "name" : "name"
+               },
+               {
+                  "maxLength" : "255",
+                  "required" : true,
+                  "in" : "formData",
+                  "name" : "description",
+                  "type" : "string"
+               },
+               {
+                  "in" : "formData",
+                  "type" : "integer",
+                  "name" : "created_by"
+               },
+               {
+                  "in" : "formData",
+                  "name" : "changed_by",
+                  "type" : "integer"
+               },
+               {
+                  "in" : "formData",
+                  "maxLength" : "1",
+                  "required" : true,
+                  "type" : "integer",
+                  "name" : "disabled"
+               }
+            ],
+            "operationId" : "api.update_groups",
+            "x-mojo-to" : "groups#update"
+         }
+      },
+      "/users" : {
+         "get" : {
+            "description" : "List all records of type Users according to the client's priviledges.",
+            "parameters" : [
+               {
+                  "$ref" : "#/parameters/limit"
+               },
+               {
+                  "$ref" : "#/parameters/offset"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "description" : "An array of Users.",
+                  "schema" : {
+                     "$ref" : "#/definitions/Users"
+                  }
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            },
+            "summary" : "List all records of type Users.",
+            "x-mojo-to" : "users#index",
+            "operationId" : "api.home_users"
+         },
+         "post" : {
+            "responses" : {
+               "400" : {
+                  "description" : "Bad Request",
+                  "schema" : {
+                     "$ref" : "#/definitions/Error"
+                  }
+               },
+               "201" : {
+                  "description" : "Expect this response to a valid request. The body  of the response will be empty.",
+                  "headers" : {
+                     "Location" : {
+                        "description" : "The URL of the newly created resource.",
+                        "type" : "string"
+                     }
+                  }
+               }
+            },
+            "summary" : "Create and store an object of type UsersItem.",
+            "description" : "Create  and store an object of type UsersItem.",
+            "parameters" : [
+               {
+                  "in" : "formData",
+                  "type" : "integer",
+                  "name" : "group_id"
+               },
+               {
+                  "name" : "login_name",
+                  "type" : "string",
+                  "maxLength" : "100",
+                  "in" : "formData"
+               },
+               {
+                  "type" : "string",
+                  "name" : "login_password",
+                  "in" : "formData",
+                  "required" : true,
+                  "maxLength" : "40"
+               },
+               {
+                  "maxLength" : "100",
+                  "required" : true,
+                  "in" : "formData",
+                  "name" : "first_name",
+                  "type" : "string"
+               },
+               {
+                  "type" : "string",
+                  "name" : "last_name",
+                  "in" : "formData",
+                  "required" : true,
+                  "maxLength" : "100"
+               },
+               {
+                  "type" : "string",
+                  "name" : "email",
+                  "in" : "formData",
+                  "maxLength" : "255",
+                  "required" : true
+               },
+               {
+                  "type" : "string",
+                  "name" : "description",
+                  "in" : "formData",
+                  "maxLength" : "255"
+               },
+               {
+                  "in" : "formData",
+                  "type" : "integer",
+                  "name" : "created_by"
+               },
+               {
+                  "in" : "formData",
+                  "type" : "integer",
+                  "name" : "changed_by"
+               },
+               {
+                  "required" : true,
+                  "in" : "formData",
+                  "name" : "tstamp",
+                  "type" : "integer"
+               },
+               {
+                  "in" : "formData",
+                  "required" : true,
+                  "type" : "integer",
+                  "name" : "reg_time"
+               },
+               {
+                  "maxLength" : "1",
+                  "required" : true,
+                  "in" : "formData",
+                  "name" : "disabled",
+                  "type" : "integer"
+               },
+               {
+                  "type" : "integer",
+                  "name" : "start_date",
+                  "in" : "formData",
+                  "required" : true
+               },
+               {
+                  "in" : "formData",
+                  "required" : true,
+                  "type" : "integer",
+                  "name" : "stop_date"
+               }
+            ],
+            "x-mojo-to" : "users#store",
+            "operationId" : "api.store_users"
+         }
+      }
+   },
+   "swagger" : "2.0"
+}

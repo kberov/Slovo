@@ -18,7 +18,7 @@ pager     = less
 short_subroutine_statements = 4
 
 [Variables::ProhibitPackageVars]
-add_packages = Carp
+add_packages = Carp 
 
 #Shorten allowed lenght of regexp for more readability.
 [RegularExpressions::ProhibitComplexRegexes]
@@ -33,4 +33,5 @@ minimum_regex_length_to_complain_about = 30
 
 # Strangely enough, 4 arguments (including $self) in signature are counted as 6
 [Subroutines::ProhibitManyArgs]
-max_arguments = 7 
+max_arguments = 7
+

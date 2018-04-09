@@ -1,0 +1,26 @@
+%= form_for $target => begin
+
+%=hidden_field 'id' => $groups->{id} if ($action ne 'create');
+  %= label_for name =>'Name'
+<br />
+  %= text_field name => $groups->{name}, required => 1, size => 100
+<br />
+  %= label_for description =>'Description'
+<br />
+  %= text_field description => $groups->{description}, required => 1, size => 255
+<br />
+  %= label_for created_by => 'Created_by'
+<br />
+  %= number_field created_by => $groups->{created_by},  
+<br />
+  %= label_for changed_by => 'Changed_by'
+<br />
+  %= number_field changed_by => $groups->{changed_by},  
+<br />
+  %= label_for disabled => 'Disabled'
+<br />
+  %= number_field disabled => $groups->{disabled}, required => 1, size => 1
+<br />
+
+  %= submit_button $caption
+% end

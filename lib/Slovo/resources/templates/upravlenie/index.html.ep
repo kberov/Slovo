@@ -1,0 +1,8 @@
+% my $title ='Ꙋправленѥ'; 
+% layout 'default'; title $title;
+<h1><%== $title %></h1>
+<nav>
+% foreach my $el (@$menu) {
+%= link_to $el => "home_$el";    
+%}
+</nav>
