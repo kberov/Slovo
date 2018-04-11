@@ -1,0 +1,4 @@
+% layout 'blog', title => 'Edit stranici';
+<h2>Edit stranici</h2>
+%= include 'stranici/_form', caption => 'Update', target => 'update_stranici'
+%= button_to Remove => remove_stranici => {id => $stranici->{id}}

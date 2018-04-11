@@ -5,7 +5,7 @@ use Mojo::Base 'Slovo::Controller';
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index {
   my $self = shift;
-  state $menu = [qw(groups users)];
+  state $menu = [qw(groups users domove stranici celini)];
   return $self->render(menu => $menu);
 }
 

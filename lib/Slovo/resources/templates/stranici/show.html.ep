@@ -1,0 +1,20 @@
+% layout 'blog', title => 'Record from table stranici with id ' . $stranici->{id};
+<h2><%= $stranici->{id} %></h2>
+<p><%= $stranici->{'id'} %></p>
+<p><%= $stranici->{'pid'} %></p>
+<p><%= $stranici->{'dom_id'} %></p>
+<p><%= $stranici->{'alias'} %></p>
+<p><%= $stranici->{'page_type'} %></p>
+<p><%= $stranici->{'sorting'} %></p>
+<p><%= $stranici->{'template'} %></p>
+<p><%= $stranici->{'permissions'} %></p>
+<p><%= $stranici->{'user_id'} %></p>
+<p><%= $stranici->{'group_id'} %></p>
+<p><%= $stranici->{'tstamp'} %></p>
+<p><%= $stranici->{'start'} %></p>
+<p><%= $stranici->{'stop'} %></p>
+<p><%= $stranici->{'published'} %></p>
+<p><%= $stranici->{'hidden'} %></p>
+<p><%= $stranici->{'deleted'} %></p>
+<p><%= $stranici->{'changed_by'} %></p>
+%= link_to 'Edit' => edit_stranici => {id => $stranici->{id}}

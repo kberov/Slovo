@@ -1,0 +1,22 @@
+% layout 'blog', title => 'Blog/Stranici';
+% my @columns = qw(id pid dom_id alias page_type sorting template permissions user_id group_id tstamp start stop published hidden deleted changed_by); #table columns
+%= link_to 'New record in table "stranici"' => 'create_stranici'
+<table>
+    <thead>
+        <tr>
+    % for my $column (@columns) {
+            <th><%= uc($column) %></th>
+    % }
+        </tr>
+    </thead>
+    <tbody>
+% for my $item (@$stranici) {
+        <tr>
+            <td><%= link_to $item->{id} => show_stranici => {id => $item->{id}} %></td>
+    % for my $column (@columns[1 .. $#columns]) {
+            <td><%= $item->{$column} %></td>
+    % }
+        </tr>
+% }
+    </tbody>
+</table>

@@ -1,5 +1,20 @@
 Revision history for Mojolicious application Slovo
 
+2018.04.15
+        Unstable: WIP!
+        - Changes
+            * Improved documentation.
+            * Switched $CODENAME to U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)
+        - Features
+            * Implemented Slovo::Plugin::MojoDBx. Not using sqlite.conf
+            anymore. This plugin can be moved to Mojolicious namespace.
+            There is nothing specific to Slovo in it.
+            * WIP - Added tables 'domove', 'stranici' and 'celini'. Beginning
+            of a site.
+            * Generated MVC and OpenAPI from the tables using
+            Mojolicious::Command::generate::resources.
+        - Bugs
+
 2018.04.09
     - Христос воскресе
     - Switched $CODENAME to U+2C0B GLAGOLITIC CAPITAL LETTER I (Ⰻ)

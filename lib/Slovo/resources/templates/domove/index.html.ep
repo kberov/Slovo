@@ -1,0 +1,22 @@
+% layout 'blog', title => 'Blog/Domove';
+% my @columns = qw(id domain site_name description owner_id group_id permissions published); #table columns
+%= link_to 'New record in table "domove"' => 'create_domove'
+<table>
+    <thead>
+        <tr>
+    % for my $column (@columns) {
+            <th><%= uc($column) %></th>
+    % }
+        </tr>
+    </thead>
+    <tbody>
+% for my $item (@$domove) {
+        <tr>
+            <td><%= link_to $item->{id} => show_domove => {id => $item->{id}} %></td>
+    % for my $column (@columns[1 .. $#columns]) {
+            <td><%= $item->{$column} %></td>
+    % }
+        </tr>
+% }
+    </tbody>
+</table>

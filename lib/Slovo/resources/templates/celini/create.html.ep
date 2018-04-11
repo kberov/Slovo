@@ -1,0 +1,4 @@
+% my $title = 'New record in table "celini"';
+% layout 'blog', title => $title;
+<h2><%= $title %></h2>
+%= include 'celini/_form', caption => 'Create', target => 'store_celini'

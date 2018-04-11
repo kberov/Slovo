@@ -1,0 +1,11 @@
+% layout 'blog', title => 'Record from table domove with id ' . $domove->{id};
+<h2><%= $domove->{id} %></h2>
+<p><%= $domove->{'id'} %></p>
+<p><%= $domove->{'domain'} %></p>
+<p><%= $domove->{'site_name'} %></p>
+<p><%= $domove->{'description'} %></p>
+<p><%= $domove->{'owner_id'} %></p>
+<p><%= $domove->{'group_id'} %></p>
+<p><%= $domove->{'permissions'} %></p>
+<p><%= $domove->{'published'} %></p>
+%= link_to 'Edit' => edit_domove => {id => $domove->{id}}

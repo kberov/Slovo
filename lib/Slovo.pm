@@ -7,8 +7,8 @@ use Mojo::File 'path';
 use Slovo::Controller;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.04.09';
-our $CODENAME  = 'U+2C0B GLAGOLITIC CAPITAL LETTER I (Ⰻ)';
+our $VERSION   = '2018.04.15';
+our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
 
@@ -18,6 +18,7 @@ has resources => sub {
 
 # This method will run once at server start
 sub startup($app) {
+  $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
   $app->controller_class('Slovo::Controller');
   $app->_load_config()->_load_pugins()->_default_paths();
   return $app;
@@ -104,7 +105,7 @@ Slovo - В началѣ бѣ Слово
 =head1 DESCRIPTION
 
 This is a very early pre-pre-release!
-L<Slovo> is a simple extensible L<Mojolicious>
+L<Slovo> is a simple, installable and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>.
 
 =head1 INSTALL
@@ -115,7 +116,7 @@ All you need is a one-liner, it takes less than a minute.
 
 We recommend the use of a L<Perlbrew|http://perlbrew.pl> environment.
 
-If you already downloaded it and you have L<cpanm> already.
+If you already downloaded it and you have L<cpanm>.
 
     $ cpanm -l ~/opt/slovo Slovo-XXXX.XX.XX.tar.gz
 
@@ -140,15 +141,15 @@ C<$ENV{MOJO_CONFIG}>. New routes can be described in C<routes.conf>. See
 L<Mojolicious::Plugin::RoutesConfig> for details and examples.
 
 C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and
-used. All paths then are expected to be its children. You can add your own
-templates in C<$ENV{MOJO_HOME}/templates> and they will be loaded and used with
-priority. You can theme your own instance of Slovo by just copying
-C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
+used. All paths, used in the application, then are expected to be its children.
+You can add your own templates in C<$ENV{MOJO_HOME}/templates> and they will be
+loaded and used with priority. You can theme your own instance of Slovo by just
+copying C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
 C<$ENV{MOJO_HOME}/templates> and modify them. You can add your own static files
 to C<$ENV{MOJO_HOME}/public>. Last but not least, you can add your own classes
 into C<$ENV{MOJO_HOME}/site/lib> and (why not) replace classes form Slovo.
 
-With all the above, you can update L<Slovo> by just installing new versions
+With all the above, you can upgrade L<Slovo> by just installing new versions
 over it and your files will not be touched. And of course, we know that you are
 using versioning just in case anything goes wrong.
 
@@ -214,8 +215,11 @@ together with Pure CSS for styling.
   (https://github.com/pure-css/pure)
 
 Move from sqlite|pg|mysql.conf to a plugin with config file. Move the code from
-the config file to the plugin and leave only sencible settings in the config
-file file.
+the config file to the plugin and leave only sensible settings in the config
+file.
+
+Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
+administrative panel.
 
 =head1 SEE ALSO
 

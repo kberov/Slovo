@@ -1,0 +1,106 @@
+%= form_for $target => begin
+
+%=hidden_field 'id' => $celini->{id} if ($action ne 'create');
+  %= label_for alias =>'Alias'
+<br />
+  %= text_field alias => $celini->{alias}, required => 1, size => 255
+<br />
+  %= label_for pid => 'Pid'
+<br />
+  %= number_field pid => $celini->{pid},  
+<br />
+  %= label_for from_id => 'From_id'
+<br />
+  %= number_field from_id => $celini->{from_id},  
+<br />
+  %= label_for page_id => 'Page_id'
+<br />
+  %= number_field page_id => $celini->{page_id},  
+<br />
+  %= label_for user_id => 'User_id'
+<br />
+  %= number_field user_id => $celini->{user_id}, required => 1, 
+<br />
+  %= label_for group_id => 'Group_id'
+<br />
+  %= number_field group_id => $celini->{group_id}, required => 1, 
+<br />
+  %= label_for sorting => 'Sorting'
+<br />
+  %= number_field sorting => $celini->{sorting},  size => 10
+<br />
+  %= label_for data_type =>'Data_type'
+<br />
+  %= text_field data_type => $celini->{data_type},  size => 32
+<br />
+  %= label_for data_format =>'Data_format'
+<br />
+  %= text_field data_format => $celini->{data_format},  size => 32
+<br />
+  %= label_for created_at => 'Created_at'
+<br />
+  %= number_field created_at => $celini->{created_at}, required => 1, 
+<br />
+  %= label_for tstamp => 'Tstamp'
+<br />
+  %= number_field tstamp => $celini->{tstamp},  
+<br />
+  %= label_for title =>'Title'
+<br />
+  %= text_field title => $celini->{title}, required => 1, size => 255
+<br />
+  %= label_for description =>'Description'
+<br />
+  %= text_field description => $celini->{description},  size => 255
+<br />
+  %= label_for keywords =>'Keywords'
+<br />
+  %= text_field keywords => $celini->{keywords},  size => 255
+<br />
+  %= label_for tags =>'Tags'
+<br />
+  %= text_field tags => $celini->{tags},  size => 100
+<br />
+  %= label_for 'body' => 'Body'
+<br />
+  %= text_area 'body' => $celini->{body}, required => 1, 
+<br />
+  %= label_for box =>'Box'
+<br />
+  %= text_field box => $celini->{box},  size => 35
+<br />
+  %= label_for language =>'Language'
+<br />
+  %= text_field language => $celini->{language},  size => 5
+<br />
+  %= label_for permissions =>'Permissions'
+<br />
+  %= text_field permissions => $celini->{permissions},  size => 10
+<br />
+  %= label_for featured => 'Featured'
+<br />
+  %= number_field featured => $celini->{featured},  size => 1
+<br />
+  %= label_for accepted => 'Accepted'
+<br />
+  %= number_field accepted => $celini->{accepted},  size => 1
+<br />
+  %= label_for bad => 'Bad'
+<br />
+  %= number_field bad => $celini->{bad},  size => 2
+<br />
+  %= label_for deleted => 'Deleted'
+<br />
+  %= number_field deleted => $celini->{deleted},  size => 1
+<br />
+  %= label_for start => 'Start'
+<br />
+  %= number_field start => $celini->{start},  
+<br />
+  %= label_for stop => 'Stop'
+<br />
+  %= number_field stop => $celini->{stop},  
+<br />
+
+  %= submit_button $caption
+% end

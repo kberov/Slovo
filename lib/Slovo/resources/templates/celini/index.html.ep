@@ -1,0 +1,22 @@
+% layout 'blog', title => 'Blog/Celini';
+% my @columns = qw(id alias pid from_id page_id user_id group_id sorting data_type data_format created_at tstamp title description keywords tags body box language permissions featured accepted bad deleted start stop); #table columns
+%= link_to 'New record in table "celini"' => 'create_celini'
+<table>
+    <thead>
+        <tr>
+    % for my $column (@columns) {
+            <th><%= uc($column) %></th>
+    % }
+        </tr>
+    </thead>
+    <tbody>
+% for my $item (@$celini) {
+        <tr>
+            <td><%= link_to $item->{id} => show_celini => {id => $item->{id}} %></td>
+    % for my $column (@columns[1 .. $#columns]) {
+            <td><%= $item->{$column} %></td>
+    % }
+        </tr>
+% }
+    </tbody>
+</table>
