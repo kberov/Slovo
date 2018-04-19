@@ -5,9 +5,10 @@ use experimental 'signatures';
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
 use Slovo::Controller;
+use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.04.15';
+our $VERSION   = '2018.04.30';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
@@ -15,6 +16,8 @@ my $CLASS = __PACKAGE__;
 has resources => sub {
   path($INC{class_to_path $CLASS})->sibling("$CLASS/resources")->realpath;
 };
+
+has validator => sub { Slovo::Validator->new };
 
 # This method will run once at server start
 sub startup($app) {
@@ -36,7 +39,6 @@ sub _load_config($app) {
 
   my $config = $app->plugin('Config');
   for my $class (@{$config->{load_classes} // []}) {
-    $app->log->debug("Loading $class");
     $app->load_class($class);
   }
   $app->secrets($config->{secrets});
@@ -74,17 +76,21 @@ sub _load_pugins($app) {
 
 sub _default_paths($app) {
 
-  # Use also the installable "public" directory
-  push @{$app->static->paths}, $app->resources->child('public')->to_string;
+  # Application/site specific "public" directory
+  my $public = $app->resources->child('public')->to_string;
+  unshift @{$app->static->paths}, $public if -d $public;
 
   # Application/site specific templates
   # See /perldoc/Mojolicious/Renderer#paths
-  push @{$app->renderer->paths}, $app->resources->child('templates')->to_string;
+  my $templates = $app->resources->child('templates')->to_string;
+  push @{$app->renderer->paths}, $templates if -d $templates;
 
   return $app;
 }
 
 sub load_class ($app, $class) {
+  state $log = $app->log;
+  $log->debug("Loading $class");
   if (my $e = Mojo::Loader::load_class $class) {
     Carp::croak ref $e ? "Exception: $e" : "$class - Not found!";
   }
@@ -165,10 +171,34 @@ the following new ones.
 Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
+=head2 validator
+
+  my $validator = $app->validator;
+  $app          = $app->validator(Slovo::Validator->new);
+
+Validate values, defaults to a L<Slovo::Validator> object.
+
+  # Add validation check
+  $app->validator->add_check(foo => sub {
+    my ($v, $name, $value) = @_;
+    return $value ne 'foo';
+  });
+
+  # Add validation filter
+  $app->validator->add_filter(quotemeta => sub {
+    my ($v, $name, $value) = @_;
+    return quotemeta $value;
+  });
+
 =head1 METHODS
 
 L<Slovo> inherits all methods from L<Mojolicious> and implements
 the following new ones.
+
+=head2 load_class
+
+A convenient wrapper with check for L<Mojo::Loader/load_class>.
+Loads a class and croaks if something is wrong. This could be a helper.
 
 =head2 startup
 
@@ -213,10 +243,6 @@ Consider (preferred) using Mithril as frontend framework for building UI
 together with Pure CSS for styling.
   (https://github.com/MithrilJS/mithril.js)
   (https://github.com/pure-css/pure)
-
-Move from sqlite|pg|mysql.conf to a plugin with config file. Move the code from
-the config file to the plugin and leave only sensible settings in the config
-file.
 
 Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
 administrative panel.

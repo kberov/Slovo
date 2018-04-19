@@ -31,11 +31,24 @@
 <br />
   %= label_for data_type =>'Data_type'
 <br />
-  %= text_field data_type => $celini->{data_type},  size => 32
+<%= select_field data_type => [
+    [заглавѥ => 'заглавѥ'],
+    [целина => 'целина'],
+    [бележка=>'бележка']
+    [писанѥ => 'писанѥ'],
+    [въпрос => 'въпрос'],
+    [ѿговор=>'ѿговор'],
+    [книга=>'книга'],
+] %>
 <br />
   %= label_for data_format =>'Data_format'
 <br />
-  %= text_field data_format => $celini->{data_format},  size => 32
+<%= select_field data_format => [
+    [текст => 'text'],
+    [html =>'html'],
+    [markdown => 'markdown'],
+    [asc =>'asc']
+] %>
 <br />
   %= label_for created_at => 'Created_at'
 <br />

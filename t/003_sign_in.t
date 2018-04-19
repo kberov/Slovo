@@ -8,7 +8,8 @@ my $t = Test::Mojo->with_roles('+Slovo')->install()->new('Slovo');
 isa_ok($t->app, 'Slovo');
 $t->login_ok('краси', 'беров');
 
-# TODO: ->text_is('head title' => 'Ꙋправленѥ');
+# TODO: Depending on the user and to where he headed redirect him after login
+# to eventually ->text_is('head title' => 'Ꙋправленѥ');
 
 done_testing;
 

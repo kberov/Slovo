@@ -1,4 +1,4 @@
-% layout 'default';
+% layout 'upravlenie';
 % title 'Входъ';
 % if(stash->{error_login}) {
 <div id="error_login" class="error message"><%= stash->{error_login} %></div>

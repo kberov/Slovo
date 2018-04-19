@@ -1,4 +1,4 @@
 % my $title = 'New record in table "users"';
-% layout 'default', title => $title;
+% layout 'upravlenie', title => $title;
 <h2><%= $title %></h2>
 %= include 'users/_form', caption => 'Create', target => 'store_users'

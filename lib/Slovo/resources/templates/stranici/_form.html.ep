@@ -1,13 +1,14 @@
 %= form_for $target => begin
-
-%=hidden_field 'id' => $stranici->{id} if ($action ne 'create');
+%=t fieldset => (id=>'page_attributes') => begin
+%=t legend =>'Page Attributes'
+  %=hidden_field 'id' => $stranici->{id} if ($action ne 'create');
   %= label_for pid => 'Pid'
 <br />
-  %= number_field pid => $stranici->{pid}, required => 1, 
+  %= number_field pid => $stranici->{pid}, 
 <br />
   %= label_for dom_id => 'Dom_id'
 <br />
-  %= number_field dom_id => $stranici->{dom_id}, required => 1, 
+  %= number_field dom_id => $stranici->{dom_id}, 
 <br />
   %= label_for alias =>'Alias'
 <br />
@@ -15,19 +16,22 @@
 <br />
   %= label_for page_type =>'Page_type'
 <br />
-  %= text_field page_type => $stranici->{page_type}, required => 1, size => 32
+  %= select_field page_type => ['regular', 'folder', 'root'], required => 1
 <br />
-  %= label_for sorting => 'Sorting'
+%= label_for sorting => 'Sorting'
 <br />
-  %= number_field sorting => $stranici->{sorting}, required => 1, 
+  %= number_field sorting => $stranici->{sorting}, size => 3
 <br />
-  %= label_for template =>'Template'
+  %= label_for template => 'Template'
 <br />
-  %= text_field template => $stranici->{template},  size => 255
+%= text_field template => $stranici->{template},  size => 255, style =>'width:100%'
 <br />
-  %= label_for permissions =>'Permissions'
+%= label_for permissions => 'Permissions'
 <br />
-  %= text_field permissions => $stranici->{permissions}, required => 1, size => 10
+  <%= select_field permissions => [
+  # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
+  '-rwxr-xr-x', 'drwxr-xr-x','-rwxr--r-x'], required => 1 
+  %>
 <br />
   %= label_for user_id => 'User_id'
 <br />
@@ -39,32 +43,42 @@
 <br />
   %= label_for tstamp => 'Tstamp'
 <br />
-  %= number_field tstamp => $stranici->{tstamp}, required => 1, 
+  %= number_field tstamp => $stranici->{tstamp}, 
 <br />
   %= label_for start => 'Start'
 <br />
-  %= number_field start => $stranici->{start}, required => 1, 
+  %= number_field start => $stranici->{start}, 
 <br />
   %= label_for stop => 'Stop'
 <br />
-  %= number_field stop => $stranici->{stop}, required => 1, 
+  %= number_field stop => $stranici->{stop}, 
 <br />
   %= label_for published => 'Published'
 <br />
-  %= number_field published => $stranici->{published}, required => 1, size => 1
+<%= select_field published => [
+['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]], size => 1 %>
 <br />
   %= label_for hidden => 'Hidden'
 <br />
-  %= number_field hidden => $stranici->{hidden}, required => 1, size => 1
+  %= number_field hidden => $stranici->{hidden}, size => 1
 <br />
   %= label_for deleted => 'Deleted'
 <br />
-  %= number_field deleted => $stranici->{deleted}, required => 1, size => 1
+  %= number_field deleted => $stranici->{deleted}, size => 1
 <br />
   %= label_for changed_by => 'Changed_by'
 <br />
   %= number_field changed_by => $stranici->{changed_by},  
-<br />
-
+% end
+%=t fieldset => (id=>'title') => begin
+      %=t legend => 'Page Content'
+      %= label_for title => 'Title'
+      %= text_field title => required => 1 , placeholder =>'Title for the page'
+      %= label_for language =>'Language'
+      %= text_field language => 'bg-bg', size => 5
+      <br />
+      %= label_for body =>'Body'
+      %= text_area body => 'Задайте основен текст за страницата.',(style=>'width:100%;height:5em')
+      % end
   %= submit_button $caption
 % end

@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+%= t html => begin
+    %= t head => begin
+    %= t meta => (charset => 'utf-8')
+        %= t 'title' => title
+        %= stylesheet '/css/upravlenie.css'
+    % end
+    %= t body => content 
+% end

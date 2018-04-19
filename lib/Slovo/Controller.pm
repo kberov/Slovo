@@ -18,9 +18,14 @@ sub debug;
 if ($DEV_MODE) {
 
   sub debug {
+    my ($c, @params) = @_;
     my ($package, $filename, $line, $subroutine) = caller(0);
-    state $log = $_[0]->app->log;
-    return $log->debug(@_[1 .. $#_], "    at $filename:$line");
+    state $log = $c->app->log;
+    for my $pp (@params) {
+      $log->debug(ref $pp ? $c->dumper($pp) : $pp,
+                  ($pp eq $params[-1] ? "    at $filename:$line" : ''));
+    }
+    return;
   }
 }
 

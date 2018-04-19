@@ -1,4 +1,4 @@
-% layout 'default', title => $groups->{title};
+% layout 'upravlenie', title => $groups->{title};
 <h2><%= $groups->{id} %></h2>
 <p><%= $groups->{'id'} %></p>
 <p><%= $groups->{'name'} %></p>

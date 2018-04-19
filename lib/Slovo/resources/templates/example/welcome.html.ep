@@ -11,3 +11,12 @@
     <%= link_to 'here' => '/perldoc' %>.
   % }
 </p>
+<p>
+  % if($c->user){
+  As authenticated user, <b><%= $c->user->{login_name} %></b>,
+  you can go and <%= link_to manage => url_for('under_management')%> some resources.
+  % }
+  % else {
+  You may want to <%=link_to 'sign in' => url_for('sign_in') %> to interact with this application.
+  % }
+</p>

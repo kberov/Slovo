@@ -16,20 +16,21 @@ CREATE TABLE groups (
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   login_name varchar(100) UNIQUE,
--- sha1_sum($login_name.$login_password)
-login_password varchar(40) NOT NULL,
+  -- sha1_sum($login_name.$login_password)
+  login_password varchar(40) NOT NULL,
   first_name varchar(100) NOT NULL DEFAULT '',
   last_name varchar(100) NOT NULL DEFAULT '',
   email varchar(255) NOT NULL UNIQUE,
   description varchar(255) DEFAULT NULL,
---  'last modification time'
---  'All dates are stored as seconds since the epoch(1970) in GMT. In Perl we use gmtime as object from Time::Piece'
-  tstamp INTEGER NOT NULL DEFAULT 0,
---  'registration time',,
-  reg_time INTEGER NOT NULL DEFAULT 0, 
-  disabled INT(1) NOT NULL DEFAULT 1,
-  start_date INTEGER NOT NULL DEFAULT 0,
-  stop_date INTEGER NOT NULL DEFAULT 0
+  -- 'last modification time'
+  -- 'All dates are stored as seconds since the epoch(1970) in GMT.
+  -- In Perl we use gmtime as object from Time::Piece'
+  tstamp INTEGER DEFAULT 0,
+  -- 'registration time',,
+  reg_time INTEGER DEFAULT 0, 
+  disabled INT(1) DEFAULT 1,
+  start_date INTEGER DEFAULT 0,
+  stop_date INTEGER DEFAULT 0
 );
 CREATE INDEX user_start_date ON users(start_date);
 CREATE INDEX user_stop_date ON users(stop_date);
@@ -94,13 +95,13 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 
 -- YYYYmmddHHMM
--- 201804152200 up
+-- 201804153022 up
 -- 'Sites managed by this system'
 CREATE TABLE domove (
 -- domove is the plural form of 'dom' in Bulgarian, meaning 'home'.
 -- The similarity with domains is not a coincidence
 --  'Id referenced by stranici that belong to this domain.'
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
 --  'Domain name as in $ENV{HTTP_HOST}.'
   domain VARCHAR(63) UNIQUE NOT NULL, 
 --  'The name of this site.'
@@ -112,9 +113,9 @@ CREATE TABLE domove (
 --  'Group for which the permissions apply.'
   group_id INTEGER  REFERENCES groups(id),
 --  'Domain permissions',
-  permissions VARCHAR(10) NOT NULL DEFAULT '-rwxr-xr-x' ,
+  permissions VARCHAR(10) DEFAULT '-rwxr-xr-x' ,
 --  '0:not published, 1:for review, >=2:published'
-  published INT(1) NOT NULL DEFAULT 0
+  published INT(1) DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS domove_published ON domove(published);
@@ -124,33 +125,33 @@ INSERT INTO domove (id, domain, description, site_name, owner_id, permissions, p
 
 CREATE TABLE stranici (
   -- 'stranica' in Bulgarian means 'page'.
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   -- Parent page id
-  pid INTEGER NOT NULL DEFAULT '0',
+  pid INTEGER DEFAULT 0,
   -- Refrerence to domove.id to which this page belongs.
-  dom_id INTEGER NOT NULL DEFAULT '0',
+  dom_id INTEGER DEFAULT 0,
   -- Alias for the page which may be used instead of the id.
-  alias VARCHAR(32) NOT NULL DEFAULT '',
+  alias VARCHAR(32) NOT NULL,
   -- 'regular','folder','root' etc.
   page_type VARCHAR(32) NOT NULL,
-  sorting INTEGER NOT NULL DEFAULT '1',
+  sorting INTEGER DEFAULT 1,
   -- MT code to display this page. Default template is used if not specified.
   template VARCHAR(255),
   -- Page editing permissions.
-  permissions varchar(10) NOT NULL DEFAULT '-rwxr-xr-xr',
-  -- User for which the permissions apply (owner).
+  permissions varchar(10) DEFAULT '-rwxr-xr-x',
+  -- User for which the permissions apply (owner/creator).
   user_id INTEGER,
-  -- Group for which the permissions apply.
-  group_id INTEGER DEFAULT '1',
-  tstamp INTEGER NOT NULL DEFAULT '0',
-  start INTEGER NOT NULL DEFAULT '0',
-  stop INTEGER NOT NULL DEFAULT '0',
-  -- 0:not published, 1:for review, >=2:published
-  published int(1) NOT NULL DEFAULT '0',
+  -- Group for which the permissions apply (usually primary group of the owner).
+  group_id INTEGER,
+  tstamp INTEGER DEFAULT 0,
+  start INTEGER DEFAULT 0,
+  stop INTEGER DEFAULT 0,
+  -- 0: not published, 1: for review/preview, >=2: published
+  published int(1) DEFAULT 1,
   -- Is this page hidden? 0=No, 1=Yes
-  hidden int(1) NOT NULL DEFAULT '1',
+  hidden int(1) DEFAULT 0,
   -- Is this page deleted? 0=No, 1=Yes
-  deleted int(1) NOT NULL DEFAULT '0',
+  deleted int(1) DEFAULT 0,
   -- Who modified this page the last time?
   changed_by INTEFER REFERENCES users(id),
   FOREIGN KEY (pid)       REFERENCES stranici(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -158,7 +159,7 @@ CREATE TABLE stranici (
   FOREIGN KEY (user_id)   REFERENCES users(id)    ON UPDATE CASCADE,
   FOREIGN KEY (group_id)  REFERENCES groups(id)   ON UPDATE CASCADE
 );
-CREATE UNIQUE INDEX IF NOT EXISTS stranici_alias_in_doma_id ON stranici(alias, dom_id);
+CREATE UNIQUE INDEX IF NOT EXISTS stranici_alias_in_domove ON stranici(alias, dom_id);
 CREATE INDEX IF NOT EXISTS stranici_user_id_group_id ON stranici(user_id, group_id);
 CREATE INDEX IF NOT EXISTS stranici_hidden ON stranici(hidden);
 
@@ -171,7 +172,7 @@ VALUES (
     '-rwxr-xr-x', 0, 1, 0, 0, 0, 1523795424, 0);
 
 
- -- Created by SQL::Translator::Producer::SQLite
+ -- Initially created by SQL::Translator::Producer::SQLite
  -- Created on Sat Apr 14 13:32:46 2018
  -- 
  
@@ -182,9 +183,9 @@ VALUES (
  -- 'celina' is the original Bulgarian word for 'paragraph'.
  
    -- Primary unique identifier
-   id INTEGER PRIMARY KEY NOT NULL,
+   id INTEGER PRIMARY KEY,
    -- Lowercased and trimmed of \W characters unique identifier for the row data_type
-   alias VARCHAR(255) NOT NULL DEFAULT 'seo-friendly-id',
+   alias VARCHAR(255) DEFAULT 'seo-friendly-id',
    -- Parent content: Question, Article, Note, Book ID etc.
    pid INTEGER DEFAULT 0,
    -- Id from which this content is copied (translated), if not original content.
@@ -197,16 +198,16 @@ VALUES (
    group_id INTEGER NOT NULL,
    -- For sorting chapters in a book, stranici in a menu etc.
    sorting int(10) DEFAULT 0,
-   -- Semantic content types. 'question', 'answer', 'article', 'note', 'book', 'page'.
-   data_type VARCHAR(32) DEFAULT 'note',
-   -- html, markdown, asc... 
+   -- Semantic content types. 'въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ', 'целина'…
+   data_type VARCHAR(32) DEFAULT 'бележка',
+   -- text, html, markdown, asc…
    data_format VARCHAR(32) DEFAULT 'text',
    -- When this content was inserted
    created_at INTEGER NOT NULL DEFAULT 0,
    -- Last time the record was touched
    tstamp INTEGER DEFAULT 0,
    -- Used in title html tag for stranici or or as h1 for other data types.
-   title VARCHAR(255) NOT NULL,
+   title VARCHAR(255) DEFAULT '',
    -- Used in description meta tag when appropriate.
    description VARCHAR(255) DEFAULT '',
    -- Used in keywords meta tag.
@@ -214,13 +215,14 @@ VALUES (
    -- Used in tag cloud boxes. merged with keywords and added to keywords meta tag.
    tags VARCHAR(100) DEFAULT '',
    -- Main celini when applicable.
-   body TEXT NOT NULL,
+   body TEXT DEFAULT '',
    -- celini box in which this element should be displayed (e.g. main, left, right, header, footer, foo, bar).
    box VARCHAR(35) DEFAULT 'main',
    -- Language of this content. All languages when empty string
    language VARCHAR(5) DEFAULT '',
    -- tuuugggooo - Experimental permissions for the content. Who can see/edit/delete it.
-   permissions char(10) DEFAULT '-rw-r--r--r',
+   -- TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
+   permissions char(10) DEFAULT '-rwxr-xr-x',
    -- Show on top independently of other sorting.
    featured int(1) DEFAULT 0,
    -- Answer accepted?
@@ -253,11 +255,11 @@ VALUES (
       id, alias, body, created_at, data_format, data_type, group_id, 
       keywords, language, page_id, pid, tags, title, user_id)
   VALUES (
-      0, 'начало', '', 1523807733, 'html', 'page', 0,
+      0, 'начало', '', 1523807733, 'text', 'заглавѥ', 0,
       'Slovo, Слово', 'bg', 0, 0, 'начало, home', 'Слово', 0);
  
 
--- 201804152200 down
+-- 201804153022 down
 DROP TABLE domove;
 DROP INDEX domove_published;
 DROP TABLE stranici;

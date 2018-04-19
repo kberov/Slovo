@@ -1,7 +1,9 @@
 package Slovo::Model::Celini;
-use Mojo::Base -base, -signatures;
+use Mojo::Base 'Slovo::Model', -signatures;
 
-has 'dbx';
+my $table = 'celini';
+
+sub table { return $table }
 
 sub add ($self, $row) {
   return $self->dbx->db->insert('celini', $row)->last_insert_id;

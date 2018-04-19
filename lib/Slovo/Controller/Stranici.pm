@@ -11,9 +11,11 @@ sub create($c) {
 # POST /stranici
 # Add a new record to table stranici.
 sub store($c) {
+  my $user = $c->user;
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
+    @$in{qw(user_id group_id)} = ($user->{id}, $user->{group_id});
     my $id = $c->stranici->add($in);
     $c->res->headers->location(
                         $c->url_for("api.show_stranici", id => $id)->to_string);
@@ -21,16 +23,21 @@ sub store($c) {
   }
 
   # 1. Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'create', stranici => {})
-    if $validation->has_error;
+  my $v = $c->_validation;
+  $c->debug('failed:', $v->failed);
+  return $c->render(action => 'create', stranici => {}) if $v->has_error;
 
   # 2. Insert it into the database
-  my $id = $c->stranici->add($validation->output);
+  my $in = $v->output;
+  @$in{qw(user_id group_id)} = ($user->{id}, $user->{group_id});
+
+  my $id = $c->stranici->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
-  return $c->redirect_to('show_stranici', id => $id);
+  # TODO: make it more user friendly.
+  $c->res->headers->location($c->url_for(show_stranici => {id => $id}));
+  return $c->render(text => '', status => 201);
 }
 
 # GET /stranici/:id/edit
@@ -111,23 +118,28 @@ sub _validation($c) {
 
   # Add validation rules for the record to be stored in the database
   $v->required('id') if $c->stash->{action} ne 'store';
-  $v->required('pid',       'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('dom_id',    'trim')->like(qr/\d+(\.\d+)?/);
+  $v->optional('pid',    'trim')->like(qr/^\d+$/);
+  $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
   $v->required('alias',     'trim')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
-  $v->required('sorting',   'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('template', 'trim')->size(0, 255);
-  $v->required('permissions', 'trim')->size(0, 10);
-  $v->optional('user_id',  'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('group_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('tstamp',    'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('start',     'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('stop',      'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('published', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('hidden',    'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('deleted',   'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('changed_by', 'trim')->like(qr/\d+(\.\d+)?/);
+  $v->optional('sorting',     'trim')->like(qr/^\d+$/);
+  $v->optional('template',    'trim')->size(0, 255);
+  $v->optional('permissions', 'trim')->size(0, 10);
+  $v->optional('user_id',     'trim')->like(qr/^\d+$/);
+  $v->optional('group_id',    'trim')->like(qr/^\d+$/);
+  $v->optional('tstamp',      'trim')->like(qr/^\d+$/);
+  $v->optional('start',       'trim')->like(qr/^\d+$/);
+  $v->optional('stop',        'trim')->like(qr/^\d+$/);
+  $v->optional('published',   'trim')->like(qr/^\d+$/);
+  $v->optional('hidden',      'trim')->like(qr/^\d+$/);
+  $v->optional('deleted',     'trim')->like(qr/^\d+$/);
+  $v->optional('changed_by',  'trim')->like(qr/^\d+$/);
 
+  # Page attributes
+  $v->required('title', 'xml_escape', 'trim')->size(3, 32);
+  $v->optional('body', 'trim');
+
+  $v->required('language', 'trim')->size(5, 5);
   return $v;
 }
 

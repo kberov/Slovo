@@ -24,6 +24,7 @@ sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
 
   # idempotent
   $MOJO_HOME->remove_tree->make_path({mode => 0700});
+  ok(-d $MOJO_HOME, "created $MOJO_HOME");
   $MOJO_HOME->child('log')->make_path({mode => 0700})
     if $to_tempdir eq $random_tempdir;
   path($from, 'lib')->list_tree({dir => 1})->each(

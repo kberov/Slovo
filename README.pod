@@ -71,10 +71,34 @@ the following new ones.
 Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
+=head2 validator
+
+  my $validator = $app->validator;
+  $app          = $app->validator(Slovo::Validator->new);
+
+Validate values, defaults to a L<Slovo::Validator> object.
+
+  # Add validation check
+  $app->validator->add_check(foo => sub {
+    my ($v, $name, $value) = @_;
+    return $value ne 'foo';
+  });
+
+  # Add validation filter
+  $app->validator->add_filter(quotemeta => sub {
+    my ($v, $name, $value) = @_;
+    return quotemeta $value;
+  });
+
 =head1 METHODS
 
 L<Slovo> inherits all methods from L<Mojolicious> and implements
 the following new ones.
+
+=head2 load_class
+
+A convenient wrapper with check for L<Mojo::Loader/load_class>.
+Loads a class and croaks if something is wrong. This could be a helper.
 
 =head2 startup
 
@@ -119,10 +143,6 @@ Consider (preferred) using Mithril as frontend framework for building UI
 together with Pure CSS for styling.
   (https://github.com/MithrilJS/mithril.js)
   (https://github.com/pure-css/pure)
-
-Move from sqlite|pg|mysql.conf to a plugin with config file. Move the code from
-the config file to the plugin and leave only sensible settings in the config
-file.
 
 Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
 administrative panel.

@@ -1,7 +1,6 @@
 package Slovo::Controller::Users;
 use Mojo::Base 'Slovo::Controller', -signatures;
 
-
 # GET /users/create
 # Display form for creating resource in table users.
 sub create($c) {
@@ -28,8 +27,8 @@ sub store($c) {
   return $c->render(action => 'create', users => {}) if $v->has_error;
   my $in = $v->output;
   $in->{created_by} = $in->{changed_by} = $c->user->{id};
-  $in->{reg_time} = time;
-  $in->{start_date} //= time;
+  $in->{reg_time} = time - 1;
+  $in->{start_date} //= time - 1;
   $in->{disabled}   //= 0;
   $in->{stop_date} = 0;
 
@@ -40,7 +39,6 @@ sub store($c) {
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
   # TODO: make it more user friendly.
   $c->res->headers->location($c->url_for(show_users => {id => $id}));
-
   return $c->render(text => '', status => 201);
 }
 
@@ -55,16 +53,19 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'edit', users => {}) if $validation->has_error;
+  my $v = $c->_validation;
+  $c->debug('failed:', $c->dumper($v->failed));
+  return $c->render(action => 'edit', users => {}) if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
-  $c->users->save($id, $validation->output);
+  $c->users->save($id, $v->output);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
-  return $c->redirect_to('show_users', id => $id);
+  # return $c->redirect_to('show_users', id => $id);
+  $c->res->headers->location($c->url_for(show_users => {id => $id}));
+  return $c->render(text => '', status => 204);
 }
 
 # GET /users/:id
@@ -97,8 +98,9 @@ sub index($c) {
 
   my $input = $c->validation->output;
   my $users = $c->users->all($input);
-  $c->debug('$input:' . $c->dumper($input));
-  $c->debug('$users:' . $c->dumper($users));
+
+  #$c->debug('$input:' . $c->dumper($input));
+  #$c->debug('$users:' . $c->dumper($users));
   return $c->render($stashkey => $users);
 }
 
@@ -126,22 +128,31 @@ sub _validation($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->required('id') if $c->stash->{action} ne 'store';
-  $v->optional('group_id', 'trim')->like(qr/\d+(\.\d+)?/);
+  $v->optional('group_id', 'trim')->like(qr/^\d+$/);
   $v->optional('login_name', 'trim')->size(0, 100);
-  $v->required('login_password', 'trim')->size(0, 40);
-  $v->required('first_name',     'trim')->size(0, 100);
-  $v->required('last_name',      'trim')->size(0, 100);
-  $v->required('email',          'trim')->size(0, 255);
+  if ($c->stash->{action} eq 'store') {
+    $v->required('login_password', 'trim')->size(0, 40);
+    $v->required('first_name',     'trim')->size(0, 100);
+    $v->required('last_name',      'trim')->size(0, 100);
+    $v->required('email',          'trim')->size(0, 255);
+  }
+  else {
+    $v->optional('login_password', 'trim')->size(0, 40);
+    $v->optional('first_name',     'trim')->size(0, 100);
+    $v->optional('last_name',      'trim')->size(0, 100);
+    $v->optional('email',          'trim')->size(0, 255);
+    $v->optional('id',             'trim')->like(qr/^\d+$/);
+  }
   $v->optional('description', 'trim')->size(0, 255);
 
   #$v->optional('created_by',  'trim')->like(qr/\d+(\.\d+)?/);
   #$v->optional('changed_by',  'trim')->like(qr/\d+(\.\d+)?/);
   #$v->required('tstamp',     'trim')->like(qr/\d+(\.\d+)?/);
   #$v->required('reg_time',   'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('disabled',   'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('start_date', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('stop_date',  'trim')->like(qr/\d+(\.\d+)?/);
+  $v->optional('disabled', 'trim')->like(qr/^\d$/);
+  my $time_qr = qr/^\d{1,10}$/;
+  $v->optional('start_date', 'trim')->like($time_qr);
+  $v->optional('stop_date',  'trim')->like($time_qr);
 
   return $v;
 }

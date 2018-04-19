@@ -1,5 +1,5 @@
 % my $title =  'Ꙋправленѥ/Потребители';
-% layout 'default'; title $title;
+% layout 'upravlenie'; title $title;
 <h1><%== $title %></h1>
 
 % my @columns = qw(login_name first_name last_name start_date stop_date); #table columns

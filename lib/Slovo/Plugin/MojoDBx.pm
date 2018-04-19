@@ -41,7 +41,7 @@ sub register ($self, $app, $conf) {
       }
 
       $dbx->migrations->from_file($conf->{migration_file});
-      $dbx->auto_migrate($conf->{auto_migrate} // 1)
+      $dbx->auto_migrate($conf->{auto_migrate} // 0)
         ->max_connections($conf->{max_connections} // 3);
       return $dbx;
     }
@@ -49,7 +49,7 @@ sub register ($self, $app, $conf) {
 
 
 # Generated resources
-# ./script/slovo generate resources -D dbx -t "groups,users" \
+# ./script/slovo generate resources -D dbx -t "groups,users,domove,stranici,celini" \
 #   -T lib/Slovo/resources/templates --api_dir lib/Slovo/resources
 # helpers for most tables
   for my $t (@{$conf->{tables} // []}) {
@@ -57,7 +57,7 @@ sub register ($self, $app, $conf) {
     my $class = "Slovo::Model::$T";
     $log->debug("Loading model $class");
     $app->load_class($class);
-    $app->helper($t => sub { $class->new(dbx => shift->dbx) });
+    $app->helper($t => sub ($c) { $class->new(dbx => $c->dbx, c => $c) });
   }
   return $self;
 }
