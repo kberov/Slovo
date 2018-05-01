@@ -8,12 +8,6 @@ has keywords    => 'SSOT, CRM, ERP, CMS, Perl, Mojolicious, SQL';
 
 sub generator { return 'Slovo ' . $Slovo::VERSION . ' - ' . $Slovo::CODENAME }
 
-sub config {
-  state $app = $_[0]->app;
-  return $app->config(ref $_[0])->{$_[1]} if $_[1];    #if key
-  return $app->config(ref $_[0]);
-}
-
 sub debug;
 if ($DEV_MODE) {
 

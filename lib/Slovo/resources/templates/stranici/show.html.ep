@@ -1,5 +1,6 @@
-% layout 'blog', title => 'Record from table stranici with id ' . $stranici->{id};
+% layout 'upravlenie', title => 'Record from table stranici with id ' . $stranici->{id};
 <h2><%= $stranici->{id} %></h2>
+%= link_to 'Up to list of stranici' => 'home_stranici'
 <p><%= $stranici->{'id'} %></p>
 <p><%= $stranici->{'pid'} %></p>
 <p><%= $stranici->{'dom_id'} %></p>

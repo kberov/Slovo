@@ -15,7 +15,8 @@ sub store($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
-    @$in{qw(user_id group_id)} = ($user->{id}, $user->{group_id});
+    @$in{qw(user_id group_id changed_by)}
+      = ($user->{id}, $user->{group_id}, $user->{id});
     my $id = $c->stranici->add($in);
     $c->res->headers->location(
                         $c->url_for("api.show_stranici", id => $id)->to_string);
@@ -43,7 +44,12 @@ sub store($c) {
 # GET /stranici/:id/edit
 # Display form for edititing resource in table stranici.
 sub edit($c) {
-  return $c->render(stranici => $c->stranici->find($c->param('id')));
+
+  #TODO: implement language switching based on Ado::L18n
+  my $l = $c->param('language') || $c->config('default_language');
+  my $stranici = $c->stranici->find_for_edit($c->stash('id'), $l);
+  $c->debug($stranici);
+  return $c->render(stranici => $stranici);
 }
 
 # PUT /stranici/:id
@@ -51,12 +57,13 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'edit', stranici => {}) if $validation->has_error;
+  my $v = $c->_validation;
+  $c->debug('$v->output', $v->output, 'failed', $v->failed);
+  return $c->render(action => 'edit', stranici => {}) if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
-  $c->stranici->save($id, $validation->output);
+  $c->stranici->save($id, $v->output);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
@@ -137,8 +144,8 @@ sub _validation($c) {
 
   # Page attributes
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);
-  $v->optional('body', 'trim');
-
+  $v->optional('body',     'trim');
+  $v->optional('title_id', 'trim')->like(qr/^\d+$/);
   $v->required('language', 'trim')->size(5, 5);
   return $v;
 }

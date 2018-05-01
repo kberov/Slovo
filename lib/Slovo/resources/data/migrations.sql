@@ -95,7 +95,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 
 -- YYYYmmddHHMM
--- 201804153022 up
+-- 201804302200 up
 -- 'Sites managed by this system'
 CREATE TABLE domove (
 -- domove is the plural form of 'dom' in Bulgarian, meaning 'home'.
@@ -132,13 +132,13 @@ CREATE TABLE stranici (
   dom_id INTEGER DEFAULT 0,
   -- Alias for the page which may be used instead of the id.
   alias VARCHAR(32) NOT NULL,
-  -- 'regular','folder','root' etc.
+  -- 'обичайна','коренъ' etc.
   page_type VARCHAR(32) NOT NULL,
+  -- Page editing permissions. Prefixes: d - folder, l - link
+  permissions varchar(10) DEFAULT '-rwxr-xr-x',
   sorting INTEGER DEFAULT 1,
   -- MT code to display this page. Default template is used if not specified.
   template VARCHAR(255),
-  -- Page editing permissions.
-  permissions varchar(10) DEFAULT '-rwxr-xr-x',
   -- User for which the permissions apply (owner/creator).
   user_id INTEGER,
   -- Group for which the permissions apply (usually primary group of the owner).
@@ -182,62 +182,65 @@ VALUES (
  -- This table is a modified version of MYDLjE table "content".
  -- 'celina' is the original Bulgarian word for 'paragraph'.
  
-   -- Primary unique identifier
-   id INTEGER PRIMARY KEY,
-   -- Lowercased and trimmed of \W characters unique identifier for the row data_type
-   alias VARCHAR(255) DEFAULT 'seo-friendly-id',
-   -- Parent content: Question, Article, Note, Book ID etc.
-   pid INTEGER DEFAULT 0,
-   -- Id from which this content is copied (translated), if not original content.
-   from_id INTEGER DEFAULT 0,
-   -- page.id to which this content belongs. Default: 0 
-   page_id INTEGER DEFAULT 0,
-   -- User for which the permissions apply (owner).
-   user_id INTEGER NOT NULL,
-   -- Group for which the permissions apply.(primary group of the user by default)
-   group_id INTEGER NOT NULL,
-   -- For sorting chapters in a book, stranici in a menu etc.
-   sorting int(10) DEFAULT 0,
-   -- Semantic content types. 'въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ', 'целина'…
-   data_type VARCHAR(32) DEFAULT 'бележка',
-   -- text, html, markdown, asc…
-   data_format VARCHAR(32) DEFAULT 'text',
-   -- When this content was inserted
-   created_at INTEGER NOT NULL DEFAULT 0,
-   -- Last time the record was touched
-   tstamp INTEGER DEFAULT 0,
-   -- Used in title html tag for stranici or or as h1 for other data types.
-   title VARCHAR(255) DEFAULT '',
-   -- Used in description meta tag when appropriate.
-   description VARCHAR(255) DEFAULT '',
-   -- Used in keywords meta tag.
-   keywords VARCHAR(255) DEFAULT '',
-   -- Used in tag cloud boxes. merged with keywords and added to keywords meta tag.
-   tags VARCHAR(100) DEFAULT '',
-   -- Main celini when applicable.
-   body TEXT DEFAULT '',
-   -- celini box in which this element should be displayed (e.g. main, left, right, header, footer, foo, bar).
-   box VARCHAR(35) DEFAULT 'main',
-   -- Language of this content. All languages when empty string
-   language VARCHAR(5) DEFAULT '',
-   -- tuuugggooo - Experimental permissions for the content. Who can see/edit/delete it.
-   -- TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-   permissions char(10) DEFAULT '-rwxr-xr-x',
-   -- Show on top independently of other sorting.
-   featured int(1) DEFAULT 0,
-   -- Answer accepted?
-   accepted int(1) DEFAULT 0,
-   -- Reported as inapropriate offensive etc. higher values -very bad.
-   bad int(2) DEFAULT 0,
-   -- When set to 1 the record is not visible anywhere.
-   deleted int(1) DEFAULT 0,
-   -- Date/Time from which the record will be accessible in the site.
-   start INTEGER DEFAULT 0,
-   -- Date/Time till which the record will be accessible in the site.
-   stop INTEGER DEFAULT 0,
-   FOREIGN KEY (pid)       REFERENCES celini(id)  ON UPDATE CASCADE ON DELETE CASCADE,
-   FOREIGN KEY (user_id)   REFERENCES users(id)   ON UPDATE CASCADE,
-   FOREIGN KEY (group_id)  REFERENCES groups(id)  ON UPDATE CASCADE
+  -- Primary unique identifier
+  id INTEGER PRIMARY KEY,
+  -- Lowercased and trimmed of \W characters unique identifier for the row data_type
+  alias VARCHAR(255) DEFAULT 'seo-friendly-id',
+  -- Parent content: Question, Article, Note, Book ID etc.
+  pid INTEGER DEFAULT 0,
+  -- Id from which this content is copied (translated), if not original content.
+  from_id INTEGER DEFAULT 0,
+  -- page.id to which this content belongs. Default: 0 
+  page_id INTEGER DEFAULT 0,
+  -- User for which the permissions apply (owner).
+  user_id INTEGER NOT NULL,
+  -- Group for which the permissions apply.(primary group of the user by default)
+  group_id INTEGER NOT NULL,
+  -- For sorting chapters in a book, stranici in a menu etc.
+  sorting int(10) DEFAULT 0,
+  -- Semantic content types. 'въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ', 'целина'…
+  data_type VARCHAR(32) DEFAULT 'бележка',
+  -- text, html, markdown, asc…
+  data_format VARCHAR(32) DEFAULT 'text',
+  -- When this content was inserted
+  created_at INTEGER NOT NULL DEFAULT 0,
+  -- Last time the record was touched
+  tstamp INTEGER DEFAULT 0,
+  -- Used in title html tag for stranici or or as h1 for other data types.
+  title VARCHAR(255) DEFAULT '',
+  -- Used in description meta tag when appropriate.
+  description VARCHAR(255) DEFAULT '',
+  -- Used in keywords meta tag.
+  keywords VARCHAR(255) DEFAULT '',
+  -- Used in tag cloud boxes. merged with keywords and added to keywords meta tag.
+  tags VARCHAR(100) DEFAULT '',
+  -- Main celini when applicable.
+  body TEXT DEFAULT '',
+  -- celini box in which this element should be displayed (e.g. main, left, right, header, footer, foo, bar).
+  box VARCHAR(35) DEFAULT 'main',
+  -- Language of this content. All languages when empty string
+  language VARCHAR(5) DEFAULT '',
+  -- tuuugggooo - Experimental permissions for the content. Who can see/edit/delete it.
+  -- TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
+  permissions char(10) DEFAULT '-rwxr-xr-x',
+  -- Show on top independently of other sorting.
+  featured int(1) DEFAULT 0,
+  -- Answer accepted?
+  accepted int(1) DEFAULT 0,
+  -- Reported as inapropriate offensive etc. higher values -very bad.
+  bad int(2) DEFAULT 0,
+  -- When set to 1 the record is not visible anywhere.
+  deleted int(1) DEFAULT 0,
+  -- Date/Time from which the record will be accessible in the site.
+  start INTEGER DEFAULT 0,
+  -- Date/Time till which the record will be accessible in the site.
+  stop INTEGER DEFAULT 0,
+  -- Who modified this целина the last time?
+  changed_by INTEFER REFERENCES users(id),
+  FOREIGN KEY (pid)      REFERENCES celini(id)   ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (page_id)  REFERENCES stranici(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (user_id)  REFERENCES users(id)    ON UPDATE CASCADE,
+  FOREIGN KEY (group_id) REFERENCES groups(id)   ON UPDATE CASCADE
  );
  
  CREATE INDEX celini_pid ON celini (pid);
@@ -259,8 +262,34 @@ VALUES (
       'Slovo, Слово', 'bg', 0, 0, 'начало, home', 'Слово', 0);
  
 
--- 201804153022 down
+-- 201804302200 down
 DROP TABLE domove;
 DROP INDEX domove_published;
 DROP TABLE stranici;
+
+-- 201805012200 up
+UPDATE "stranici" SET "alias" = 'коренъ',"page_type" = 'коренъ',
+"permissions" = 'drwxr-xr-x' WHERE ( "id" = 0 );
+INSERT INTO "stranici" VALUES(1,0,0,'писания','обичайна','drwxr-xr-x',1,NULL,5,5,1525187608,1525187608,0,1,0,0,NULL);
+INSERT INTO "stranici" VALUES(2,1,0,'вести','обичайна','-rwxr-xr-x',1,NULL,5,5,1525191489,1525191489,0,1,0,0,NULL);
+INSERT INTO "stranici" VALUES(3,0,0,'ѿносно','обичайна','-rwxr-xr-x',1,NULL,5,5,1525193683,1525193683,0,1,0,0,NULL);
+
+UPDATE "celini" SET "body" = 'Добре дошли на страниците на слово.бг!',
+"language" = 'bg-bg', "title" = 'Слово' WHERE ( "id" = 0 );
+INSERT INTO "celini"
+VALUES(1,'писания',0,0,1,5,5,0,'заглавѥ','text',1525178911,0,'Писания',
+    '','','','Добре дошли на нашата страница за „Писания“! Опитайте и вие да
+    напишете нещо, може да ви се удаде. Ура, записва!','main','bg-bg',
+    '-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini"
+VALUES(3,'вести',0,0,2,5,5,0,'заглавѥ','text',1525191489,0,'Вести','',
+    '','','Новините са в този раздел.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini"
+VALUES(4,'ѿносно',0,0,3,5,5,0,'заглавѥ','text',1525193683,0,'Ѿносно',
+    '','','','Обяснения за сайта. Какъв е и за какво се говори в него. Каква е
+    неговата цел.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+
+-- 201805012200 down
+delete from stranici where id IN(1,2,3);
+
 

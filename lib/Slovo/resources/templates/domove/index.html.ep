@@ -1,4 +1,4 @@
-% layout 'blog', title => 'Blog/Domove';
+% layout 'upravlenie', title => 'Blog/Domove';
 % my @columns = qw(id domain site_name description owner_id group_id permissions published); #table columns
 %= link_to 'New record in table "domove"' => 'create_domove'
 <table>

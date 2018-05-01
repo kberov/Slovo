@@ -1,2 +1,9 @@
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
+table .hidden, table .deleted,
+fieldset.deleted, fieldset.hidden 
+{opacity: 0.33;}
+table .deleted {
+    text-decoration-line: line-through;
+}
+

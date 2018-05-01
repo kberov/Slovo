@@ -1,84 +1,56 @@
+%= link_to 'Up to list of stranici' => 'home_stranici'
+% my $s = $stranici;
+% my $class = join ' ', map( sub{$s->{$_}? $_:undef}, qw(hidden deleted)),'fields';
+
 %= form_for $target => begin
-%=t fieldset => (id=>'page_attributes') => begin
-%=t legend =>'Page Attributes'
-  %=hidden_field 'id' => $stranici->{id} if ($action ne 'create');
+%=t fieldset => (id=>'page_attributes', class=>$class) => begin
+  %=t legend =>'Page Attributes'
+  %= hidden_field 'id' => $s->{id} if ($action ne 'create');
   %= label_for pid => 'Pid'
-<br />
-  %= number_field pid => $stranici->{pid}, 
-<br />
-  %= label_for dom_id => 'Dom_id'
-<br />
-  %= number_field dom_id => $stranici->{dom_id}, 
-<br />
+  %= number_field pid => $s->{pid}, (readonly=>'readonly') 
+  %= label_for dom_id => 'Dom_id',
+  %= number_field dom_id => $s->{dom_id}, (readonly=>'readonly')
   %= label_for alias =>'Alias'
-<br />
-  %= text_field alias => $stranici->{alias}, required => 1, size => 32
-<br />
+  %= text_field alias => $s->{alias}, required => 1, size => 32
   %= label_for page_type =>'Page_type'
-<br />
-  %= select_field page_type => ['regular', 'folder', 'root'], required => 1
-<br />
-%= label_for sorting => 'Sorting'
-<br />
-  %= number_field sorting => $stranici->{sorting}, size => 3
-<br />
-  %= label_for template => 'Template'
-<br />
-%= text_field template => $stranici->{template},  size => 255, style =>'width:100%'
-<br />
-%= label_for permissions => 'Permissions'
-<br />
+  <%= select_field page_type => [
+      ['Regular' => 'обичайна'],
+      ['Root page' => 'коренъ', ($s->{page_type}//'') eq 'коренъ' ? (selected => 'selected') : ()]],
+    required => 1 %>
+  %= label_for permissions => 'Permissions'
   <%= select_field permissions => [
   # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-  '-rwxr-xr-x', 'drwxr-xr-x','-rwxr--r-x'], required => 1 
+  '-rwxr-xr-x', 'drwxr-xr-x','lrwxr-xr-x','-rwxr--r-x'], required => 1 
   %>
-<br />
-  %= label_for user_id => 'User_id'
-<br />
-  %= number_field user_id => $stranici->{user_id},  
-<br />
+  %= label_for sorting => 'Sorting'
+  %= number_field sorting => $s->{sorting}, size => 3
+  %= label_for template => 'Template'
+  %= text_field template => $s->{template},  size => 255, style =>'width:50%'
   %= label_for group_id => 'Group_id'
-<br />
-  %= number_field group_id => $stranici->{group_id},  
-<br />
-  %= label_for tstamp => 'Tstamp'
-<br />
-  %= number_field tstamp => $stranici->{tstamp}, 
-<br />
+  %= number_field group_id => $s->{group_id}//$c->user->{group_id},  
   %= label_for start => 'Start'
-<br />
-  %= number_field start => $stranici->{start}, 
-<br />
+  %= number_field start => $s->{start}, 
   %= label_for stop => 'Stop'
-<br />
-  %= number_field stop => $stranici->{stop}, 
-<br />
+  %= number_field stop => $s->{stop}, 
   %= label_for published => 'Published'
-<br />
-<%= select_field published => [
-['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]], size => 1 %>
-<br />
+  <%= select_field published => [
+  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]], size => 1 %>
   %= label_for hidden => 'Hidden'
-<br />
-  %= number_field hidden => $stranici->{hidden}, size => 1
-<br />
+  %= select_field hidden => [['no'=>0], ['Yes'=> 1, $s->{hidden}?(selected=>'selected'):()]]
   %= label_for deleted => 'Deleted'
-<br />
-  %= number_field deleted => $stranici->{deleted}, size => 1
-<br />
-  %= label_for changed_by => 'Changed_by'
-<br />
-  %= number_field changed_by => $stranici->{changed_by},  
+  %= select_field deleted => [['no'=>0], ['Yes'=> 1,$s->{deleted}?(selected=>'selected'):()]]
 % end
 %=t fieldset => (id=>'title') => begin
       %=t legend => 'Page Content'
+      %= hidden_field title_id => $s->{title_id} 
       %= label_for title => 'Title'
-      %= text_field title => required => 1 , placeholder =>'Title for the page'
+      %= text_field title => $s->{title} => required => 1 , placeholder =>'Title for the page'
       %= label_for language =>'Language'
-      %= text_field language => 'bg-bg', size => 5
+      %= select_field language => [[Български =>'bg-bg'],['English(US)' =>'en-us']]
       <br />
       %= label_for body =>'Body'
-      %= text_area body => 'Задайте основен текст за страницата.',(style=>'width:100%;height:5em')
+      %= text_area body  => ($s->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
       % end
   %= submit_button $caption
 % end
+

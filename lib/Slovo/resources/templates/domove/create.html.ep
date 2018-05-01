@@ -1,4 +1,4 @@
 % my $title = 'New record in table "domove"';
-% layout 'blog', title => $title;
+% layout 'upravlenie', title => $title;
 <h2><%= $title %></h2>
 %= include 'domove/_form', caption => 'Create', target => 'store_domove'

@@ -1,4 +1,4 @@
-% layout 'blog', title => 'Edit celini';
+% layout 'upravlenie', title => 'Edit celini';
 <h2>Edit celini</h2>
 %= include 'celini/_form', caption => 'Update', target => 'update_celini'
 %= button_to Remove => remove_celini => {id => $celini->{id}}

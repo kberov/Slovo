@@ -14,8 +14,11 @@ sub all ($self, $opts = {}) {
   $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
   $opts->{offset} //= 0;
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
+  $opts->{where} //= {};
+  $opts->{order_by} //= {-asc => ['sorting', 'id']};
   state $abstr = $self->dbx->abstract;
-  my ($sql, @bind) = $abstr->select('celini', '*', $opts->{where} // ());
+  my ($sql, @bind)
+    = $abstr->select('celini', '*', $opts->{where}, $opts->{order_by});
   $sql .= " LIMIT $opts->{limit}"
     . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
   return $self->dbx->db->query($sql, @bind)->hashes->to_array;

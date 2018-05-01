@@ -1,4 +1,4 @@
-% layout 'blog', title => 'Record from table celini with id ' . $celini->{id};
+% layout 'upravlenie', title => 'Record from table celini with id ' . $celini->{id};
 <h2><%= $celini->{id} %></h2>
 <p><%= $celini->{'id'} %></p>
 <p><%= $celini->{'alias'} %></p>

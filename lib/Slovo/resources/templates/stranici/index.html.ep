@@ -1,5 +1,5 @@
-% layout 'blog', title => 'Blog/Stranici';
-% my @columns = qw(id pid dom_id alias page_type sorting template permissions user_id group_id tstamp start stop published hidden deleted changed_by); #table columns
+% layout 'upravlenie', title => 'Blog/Stranici';
+% my @columns = qw(id pid dom_id alias page_type permissions user_id group_id  published hidden); #table columns
 %= link_to 'New record in table "stranici"' => 'create_stranici'
 <table>
     <thead>
@@ -10,13 +10,25 @@
         </tr>
     </thead>
     <tbody>
-% for my $item (@$stranici) {
-        <tr>
-            <td><%= link_to $item->{id} => show_stranici => {id => $item->{id}} %></td>
+% for my $s (@$stranici) {
+% my $class = join ' ', map {$s->{$_}? $_:undef} qw(hidden deleted);
+  %= t tr => (class=> $class) => begin 
+            <td><%= link_to $s->{id} => show_stranici => {id => $s->{id}} %></td>
     % for my $column (@columns[1 .. $#columns]) {
-            <td><%= $item->{$column} %></td>
+            <td><%= $s->{$column} %></td>
     % }
-        </tr>
+
+    <td>
+    %#TODO: Implement I18N
+    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id},sorting => 0,data_type => 'заглавѥ'})->hash->{language};
+    <%= link_to Edit => 
+    url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) %> 
+    <%= link_to 'Add here' => 
+    url_with('create_stranici')->query([pid => $s->{id}, dom_id => $s->{dom_id}]),
+    (title => 'Add page under '. $s->{alias})
+    %> 
+    </td>
+  % end
 % }
     </tbody>
 </table>
