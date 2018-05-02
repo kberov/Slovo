@@ -21,7 +21,6 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  $c->debug('failed:', $c->dumper($v->failed));
 
   #TODO: FIX: implement proper validation error handling
   return $c->render(action => 'create', users => {}) if $v->has_error;
@@ -54,7 +53,6 @@ sub update($c) {
 
   # Validate input
   my $v = $c->_validation;
-  $c->debug('failed:', $c->dumper($v->failed));
   return $c->render(action => 'edit', users => {}) if $v->has_error;
 
   # Update the record
@@ -99,8 +97,6 @@ sub index($c) {
   my $input = $c->validation->output;
   my $users = $c->users->all($input);
 
-  #$c->debug('$input:' . $c->dumper($input));
-  #$c->debug('$users:' . $c->dumper($users));
   return $c->render($stashkey => $users);
 }
 

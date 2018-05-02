@@ -5,7 +5,6 @@
 %= form_for $target => begin
 %=t fieldset => (id=>'page_attributes', class=>$class) => begin
   %=t legend =>'Page Attributes'
-  %= hidden_field 'id' => $s->{id} if ($action ne 'create');
   %= label_for pid => 'Pid'
   %= number_field pid => $s->{pid}, (readonly=>'readonly') 
   %= label_for dom_id => 'Dom_id',

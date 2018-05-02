@@ -1,12 +1,12 @@
 Revision history for Mojolicious application Slovo
 
-2018.05.02
+2018.05.03
     - Changes
         * Improved the page form.
-        * Removed custom config methid from Slovo::Controller.
+        * Removed custom config method from Slovo::Controller.
         * "page_type" can be (regular=>'обичайна',root=>'коренъ').
-        * From the next version upgrading from an older version (this) will be
-        * possible.
+        * From the next version upgrading from an older version (like this)
+        * will be possible.
     - Features
         * Pages with initial content can be edited
         * Pages can be "removed" (deleted=1).

@@ -14,7 +14,6 @@ sub add ($m, $row) {
     = (0, 'заглавѥ', @$row{qw(tstamp user_id group_id changed_by alias)});
   my $id;
   my $db = $m->dbx->db;
-  $m->c->debug('title', $title);
   eval {
     my $tx = $db->begin;
     $id = $db->insert($table, $row)->last_insert_id;
@@ -69,7 +68,6 @@ sub save ($m, $id, $row) {
                                  delete @$row{qw(title body language title_id)},
                                  @$row{qw(alias changed_by)}
   );
-  $m->c->debug($title);
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;

@@ -25,7 +25,6 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  $c->debug('failed:', $v->failed);
   return $c->render(action => 'create', stranici => {}) if $v->has_error;
 
   # 2. Insert it into the database
@@ -48,7 +47,6 @@ sub edit($c) {
   #TODO: implement language switching based on Ado::L18n
   my $l = $c->param('language') || $c->config('default_language');
   my $stranici = $c->stranici->find_for_edit($c->stash('id'), $l);
-  $c->debug($stranici);
   return $c->render(stranici => $stranici);
 }
 
@@ -58,7 +56,6 @@ sub update($c) {
 
   # Validate input
   my $v = $c->_validation;
-  $c->debug('$v->output', $v->output, 'failed', $v->failed);
   return $c->render(action => 'edit', stranici => {}) if $v->has_error;
 
   # Update the record
@@ -124,7 +121,6 @@ sub _validation($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->required('id') if $c->stash->{action} ne 'store';
   $v->optional('pid',    'trim')->like(qr/^\d+$/);
   $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
   $v->required('alias',     'trim')->size(0, 32);

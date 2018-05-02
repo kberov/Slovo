@@ -2,7 +2,6 @@ package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
 
 sub form($c) {
-  $c->debug('in form');
 
   #TODO: remember where the user is comming from to redirect him back
   #afterwards if the place he is comming from is in the siame domain. If not,
@@ -27,7 +26,6 @@ sub sign_in ($c) {
                 );
   }
   elsif ($v->has_error) {
-    $c->debug($c->dumper($v->{error}));
     return
       $c->render(
                  error_login => 'Could not login!...',
@@ -67,8 +65,6 @@ sub load_user ($c, $uid) {
 }
 
 sub validate_user ($c, $login_name, $clrf_pass, $data) {
-  $c->debug('$login_name,$clrf_pass, $data'
-            . $c->dumper($login_name, $clrf_pass, $data));
   return $c->users->find_by_login_name($login_name)->{id};
 }
 
