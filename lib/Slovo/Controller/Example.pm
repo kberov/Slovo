@@ -4,10 +4,10 @@ use Mojo::Base 'Slovo::Controller';
 # This action will render a template
 sub welcome {
   my $self = shift;
+  my $msg  = 'Добре дошли в приложението „Слово“!';
 
   # Render template "example/welcome.html.ep" with message
-  return $self->render(
-                  msg => 'Welcome to the Mojolicious real-time web framework!');
+  return $self->render(msg => $msg);
 }
 
 1;

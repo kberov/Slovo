@@ -24,24 +24,6 @@ sub add ($m, $row) {
   return $id;
 }
 
-sub all ($self, $opts = {}) {
-  $opts->{limit} //= 100;
-  $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
-  $opts->{offset} //= 0;
-  $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
-  $opts->{where} //= {};
-  $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
-  state $abstr = $self->dbx->abstract;
-  my ($sql, @bind)
-    = $abstr->select($table, '*', $opts->{where}, $opts->{order_by});
-  $sql .= " LIMIT $opts->{limit}"
-    . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
-  return $self->dbx->db->query($sql, @bind)->hashes->to_array;
-}
-
-sub find ($self, $id) {
-  return $self->dbx->db->select($table, undef, {id => $id})->hash;
-}
 
 sub find_for_edit ($self, $id, $language) {
   my $db = $self->dbx->db;

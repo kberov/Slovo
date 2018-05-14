@@ -1,29 +1,20 @@
-% layout 'upravlenie', title => 'Record from table celini with id ' . $celini->{id};
-<h2><%= $celini->{id} %></h2>
-<p><%= $celini->{'id'} %></p>
-<p><%= $celini->{'alias'} %></p>
-<p><%= $celini->{'pid'} %></p>
-<p><%= $celini->{'from_id'} %></p>
-<p><%= $celini->{'page_id'} %></p>
-<p><%= $celini->{'user_id'} %></p>
-<p><%= $celini->{'group_id'} %></p>
-<p><%= $celini->{'sorting'} %></p>
-<p><%= $celini->{'data_type'} %></p>
-<p><%= $celini->{'data_format'} %></p>
-<p><%= $celini->{'created_at'} %></p>
-<p><%= $celini->{'tstamp'} %></p>
-<p><%= $celini->{'title'} %></p>
-<p><%= $celini->{'description'} %></p>
-<p><%= $celini->{'keywords'} %></p>
-<p><%= $celini->{'tags'} %></p>
-<p><%= $celini->{'body'} %></p>
-<p><%= $celini->{'box'} %></p>
-<p><%= $celini->{'language'} %></p>
-<p><%= $celini->{'permissions'} %></p>
-<p><%= $celini->{'featured'} %></p>
-<p><%= $celini->{'accepted'} %></p>
-<p><%= $celini->{'bad'} %></p>
-<p><%= $celini->{'deleted'} %></p>
-<p><%= $celini->{'start'} %></p>
-<p><%= $celini->{'stop'} %></p>
-%= link_to 'Edit' => edit_celini => {id => $celini->{id}}
+% my $ce = $celini;
+% my $title = $ce->{title}||$ce->{alias}||$ce->{id};
+% layout 'upravlenie', title => 'Record from table celini: ' . $title;
+<h2><%= $title %></h2>
+%= link_to 'Up to list of celini' => 'home_celini'
+<%= link_to 'List of siblings' =>
+  url_with('home_celini')->query([page_id => $ce->{page_id}, ]),
+  (title => '.. inthe same page ')
+    %>
+<%= link_to 'Add content to the same page' =>
+  url_with('create_celini')->query([page_id => $ce->{'page_id'}, ]),
+  (title => 'Add content to page with id '. $ce->{page_id}) %>
+  <%= link_to 'Edit Page' => 'edit_stranici' => {id => $ce->{page_id}}%>
+<hr>
+% for my $k (keys %$ce) {
+<%== t span => (id =>$k, class => 'item-field')
+    => "$k: ".$ce->{$k} %>
+% }
+<hr>
+%= link_to 'Edit' => edit_celini => {id => $ce->{id}}

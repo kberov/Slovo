@@ -6,6 +6,7 @@ has filters => sub {
   +{
     %{$_[0]->SUPER::filters},
     xml_escape => sub { Mojo::Util::xml_escape($_[2]) },
+    slugify    => sub { Mojo::Util::slugify($_[2], 1) },
    };
 };
 

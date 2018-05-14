@@ -5,10 +5,6 @@ my $table = 'groups';
 
 sub table { return $table }
 
-sub add ($self, $row) {
-  return $self->dbx->db->insert($table, $row)->last_insert_id;
-}
-
 my $loadable = sub {
   return (disabled => 0, id => {'>' => 0});
 };

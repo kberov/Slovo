@@ -10,7 +10,7 @@
   %= label_for dom_id => 'Dom_id',
   %= number_field dom_id => $s->{dom_id}, (readonly=>'readonly')
   %= label_for alias =>'Alias'
-  %= text_field alias => $s->{alias}, required => 1, size => 32
+  %= text_field alias => $s->{alias}, size => 32
   %= label_for page_type =>'Page_type'
   <%= select_field page_type => [
       ['Regular' => 'обичайна'],
@@ -33,11 +33,11 @@
   %= number_field stop => $s->{stop}, 
   %= label_for published => 'Published'
   <%= select_field published => [
-  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]], size => 1 %>
+  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
   %= label_for hidden => 'Hidden'
-  %= select_field hidden => [['no'=>0], ['Yes'=> 1, $s->{hidden}?(selected=>'selected'):()]]
+  %= check_box hidden => $s->{hidden}?(checked => undef):()
   %= label_for deleted => 'Deleted'
-  %= select_field deleted => [['no'=>0], ['Yes'=> 1,$s->{deleted}?(selected=>'selected'):()]]
+  %= check_box deleted => $s->{deleted}?(checked => undef):()
 % end
 %=t fieldset => (id=>'title') => begin
       %=t legend => 'Page Content'

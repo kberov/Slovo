@@ -118,25 +118,26 @@ sub remove($c) {
 
 # Validation for actions that store or update
 sub _validation($c) {
+  $c->req->param(alias => $c->param('title')) unless $c->param('alias');
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
   $v->optional('pid',    'trim')->like(qr/^\d+$/);
   $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
-  $v->required('alias',     'trim')->size(0, 32);
+  $v->required('alias', 'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like(qr/^\d+$/);
   $v->optional('template',    'trim')->size(0, 255);
-  $v->optional('permissions', 'trim')->size(0, 10);
+  $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
   $v->optional('user_id',     'trim')->like(qr/^\d+$/);
   $v->optional('group_id',    'trim')->like(qr/^\d+$/);
   $v->optional('tstamp',      'trim')->like(qr/^\d+$/);
   $v->optional('start',       'trim')->like(qr/^\d+$/);
   $v->optional('stop',        'trim')->like(qr/^\d+$/);
-  $v->optional('published',   'trim')->like(qr/^\d+$/);
-  $v->optional('hidden',      'trim')->like(qr/^\d+$/);
-  $v->optional('deleted',     'trim')->like(qr/^\d+$/);
-  $v->optional('changed_by',  'trim')->like(qr/^\d+$/);
+  $v->optional('published',   'trim')->in(2, 1, 0);
+  $v->optional('hidden',  'trim')->in(1, 0);
+  $v->optional('deleted', 'trim')->in(1, 0);
+  $v->optional('changed_by', 'trim')->like(qr/^\d+$/);
 
   # Page attributes
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);

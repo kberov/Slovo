@@ -8,7 +8,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.05.03';
+our $VERSION   = '2018.05.19';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
@@ -230,6 +230,8 @@ The full text of the license can be found in the
 LICENSE file included with this module.
 
 =head1 TODO
+
+Implement the site part – the one visible by the visitors of the siste, made with „Слово”.
 
 Add simplemde-markdown-editor to the distro and use it to prepare markdown as
 html in the browser.

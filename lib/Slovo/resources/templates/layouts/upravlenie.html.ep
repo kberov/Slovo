@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 %= t html => begin
     %= t head => begin
-    %= t meta => (charset => 'utf-8')
+        %= t meta => (charset => 'utf-8')
         %= t 'title' => title
         %= stylesheet '/css/upravlenie.css'
     % end
-    %= t body => content 
+    %= t body => begin
+        %= link_to '/Ꙋправленѥ' => 'under_management'
+        <hr/>
+        %= content
+    % end
 % end

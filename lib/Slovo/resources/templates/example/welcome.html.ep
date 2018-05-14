@@ -2,6 +2,7 @@
 % title 'Welcome';
 <h2><%= $msg %></h2>
 <p>
+  It is based on the Mojolicious real-time web framework.
   This page was generated from the template "templates/example/welcome.html.ep"
   and the layout "templates/layouts/default.html.ep",
   <%= link_to 'click here' => url_for %> to reload the page or

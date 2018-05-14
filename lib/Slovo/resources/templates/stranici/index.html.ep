@@ -21,12 +21,20 @@
     <td>
     %#TODO: Implement I18N
     % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id},sorting => 0,data_type => 'заглавѥ'})->hash->{language};
-    <%= link_to Edit => 
-    url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) %> 
+    <%= link_to Edit =>
+        url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) %> 
     <%= link_to 'Add here' => 
-    url_with('create_stranici')->query([pid => $s->{id}, dom_id => $s->{dom_id}]),
-    (title => 'Add page under '. $s->{alias})
+        url_with('create_stranici')->query([pid => $s->{id}, dom_id => $s->{dom_id}]),
+        (title => 'Add page under '. $s->{alias})
     %> 
+    <%= link_to 'Add content' => 
+        url_with('create_celini')->query([page_id => $s->{id}, ]),
+        (title => 'Add content to page '. $s->{alias})
+    %> 
+    <%= link_to 'List content' =>
+        url_with('home_celini')->query([page_id => $s->{id}, ]),
+        (title => 'List content of page '. $s->{alias})
+    %>
     </td>
   % end
 % }

@@ -69,8 +69,4 @@ sub remove ($self, $id) {
   return $self->dbx->db->update($table, {disabled => 1}, {id => $id});
 }
 
-sub save ($self, $id, $row) {
-  return $self->dbx->db->update($table, $row, {id => $id});
-}
-
 1;

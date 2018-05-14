@@ -11,9 +11,14 @@ sub create($c) {
 # POST /celini
 # Add a new record to table celini.
 sub store($c) {
+  my $user = $c->user;
+  my $in   = {};
+  @$in{qw(user_id group_id changed_by created_at)}
+    = ($user->{id}, $user->{group_id}, $user->{id}, time - 1);
+
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
-    my $in = $c->validation->output;
+    $in = {%{$c->validation->output}, %$in};
     my $id = $c->celini->add($in);
     $c->res->headers->location(
                           $c->url_for("api.show_celini", id => $id)->to_string);
@@ -21,11 +26,12 @@ sub store($c) {
   }
 
   # 1. Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'create', celini => {}) if $validation->has_error;
+  my $v = $c->_validation;
+  return $c->render(action => 'create', celini => {}) if $v->has_error;
 
   # 2. Insert it into the database
-  my $id = $c->celini->add($validation->output);
+  $in = {%{$v->output}, %$in};
+  my $id = $c->celini->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
@@ -82,7 +88,17 @@ sub index($c) {
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
   }
-  return $c->render(celini => $c->celini->all);
+
+  my $v = $c->validation;
+  $v->optional('page_id', 'trim')->like(qr/^\d+$/);
+  my $o    = $v->output;
+  my $opts = {};
+
+  if (defined $o->{page_id}) {
+    $opts->{where}{page_id} = $o->{page_id};
+  }
+  $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
+  return $c->render(celini => $c->celini->all($opts));
 }
 
 # DELETE /celini/:id
@@ -106,36 +122,45 @@ sub remove($c) {
 
 # Validation for actions that store or update
 sub _validation($c) {
+  $c->req->param(alias => $c->param('title')) unless $c->param('alias');
+
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->required('id') if $c->stash->{action} ne 'store';
-  $v->required('alias', 'trim')->size(0, 255);
-  $v->optional('pid',     'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('from_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('page_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('user_id',  'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('group_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('sorting',     'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('data_type',   'trim')->size(0, 32);
+  $v->optional('data_type', 'trim')->size(0, 32)
+    ->in('въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ',
+         'целина');
+  my $alias   = 'optional';
+  my $title   = $alias;
+  my $page_id = $alias;
+  my $types = 'книга|въпрос|писанѥ|бележка';
+  if ($v->param('data_type') =~ /^($types)$/x) {
+    $page_id = $title = $alias = 'required';
+  }
+  $v->$alias('alias', 'slugify')->size(0, 255);
+  $v->$title('title', 'xml_escape', 'trim')->size(0, 255);
+  $v->optional('pid',     'trim')->like(qr/^\d+$/);
+  $v->optional('from_id', 'trim')->like(qr/^\d+$/);
+  $v->$page_id('page_id', 'trim')->like(qr/^\d+$/);
+  $v->optional('user_id',     'trim')->like(qr/^\d+$/);
+  $v->optional('group_id',    'trim')->like(qr/^\d+$/);
+  $v->optional('sorting',     'trim')->like(qr/^\d{1,3}$/);
   $v->optional('data_format', 'trim')->size(0, 32);
-  $v->required('created_at', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('tstamp', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('title', 'trim')->size(0, 255);
   $v->optional('description', 'trim')->size(0, 255);
   $v->optional('keywords',    'trim')->size(0, 255);
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
-  $v->optional('box',         'trim')->size(0, 35);
-  $v->optional('language',    'trim')->size(0, 5);
-  $v->optional('permissions', 'trim')->size(0, 10);
-  $v->optional('featured',    'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('accepted',    'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('bad',         'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('deleted',     'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('start',       'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('stop',        'trim')->like(qr/\d+(\.\d+)?/);
-
+  $v->optional('box', 'trim')->size(0, 35)
+    ->in('main', 'top', 'left', 'right', 'bottom');
+  $v->optional('language', 'trim')->size(0, 5);
+  $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
+  $v->optional('featured',    'trim')->in(1, 0);
+  $v->optional('accepted',    'trim')->in(1, 0);
+  $v->optional('bad',         'trim')->like(qr/^\d+$/);
+  $v->optional('deleted',     'trim')->in(1, 0);
+  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
+  $c->debug($v->failed);
   return $v;
 }
 

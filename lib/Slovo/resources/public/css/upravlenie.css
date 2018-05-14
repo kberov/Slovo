@@ -7,3 +7,8 @@ table .deleted {
     text-decoration-line: line-through;
 }
 
+.item-field {
+    border: 1px #ddd solid;
+    margin: 1ex 0 1ex 1ex;
+    text-wrap:none;
+}

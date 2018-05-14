@@ -1,6 +1,14 @@
 % layout 'upravlenie', title => 'Blog/Celini';
-% my @columns = qw(id alias pid from_id page_id user_id group_id sorting data_type data_format created_at tstamp title description keywords tags body box language permissions featured accepted bad deleted start stop); #table columns
+% my @columns = qw(page_id id title alias data_type data_format); #table columns to show
+
 %= link_to 'New record in table "celini"' => 'create_celini'
+% my $page_id = $c->param('page_id');
+% if (defined $page_id) {
+    %= link_to 'Up to list of celini' => 'home_celini'
+    <%= link_to 'Add content to this page' =>
+        url_with('create_celini')->query([page_id => $page_id, ]),
+        (title => 'Add content to page with id '. $page_id) %>
+% }
 <table>
     <thead>
         <tr>
@@ -16,6 +24,15 @@
     % for my $column (@columns[1 .. $#columns]) {
             <td><%= $item->{$column} %></td>
     % }
+    <td>
+        <%= link_to Edit => edit_celini => {id => $item->{id}} %>
+        % if(not defined $page_id) {
+        <%= link_to 'list siblings' => url_with('home_celini')->query([page_id => $item->{page_id}]) %>
+        % }
+    <%= link_to 'Add a sibling after this' =>
+    url_with('create_celini')->query([page_id => $item->{page_id}, sorting => ++$item->{sorting}]) %>
+
+    </td>
         </tr>
 % }
     </tbody>

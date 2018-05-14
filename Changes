@@ -1,5 +1,14 @@
 Revision history for Mojolicious application Slovo
 
+2018.05.19
+    - Changes
+        * Shared methods "all", "find", "save", "remove", "add" in Slovo::Model.
+        * Improved some templates and the index page.
+        * Improved pages(stranici) validation.
+    - Features
+        * New content (celini) can be added.
+        * Content (celini) can be edited and deleted.
+
 2018.05.03
     - Changes
         * Improved the page form.

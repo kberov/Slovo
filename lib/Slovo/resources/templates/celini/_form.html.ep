@@ -1,119 +1,105 @@
+%= link_to 'Up to list of celini' => 'home_celini'
+% my $ce = $celini;
+% my $page_id = $c->param('page_id')//$ce->{page_id};
+% if (defined $page_id) {
+<%= link_to '...in the same page' => url_with('home_celini')->query([page_id => $page_id]),
+    (title => 'Up to list of celini in the same page')
+%>
+% }
+<hr />
 %= form_for $target => begin
 
-%=hidden_field 'id' => $celini->{id} if ($action ne 'create');
+%= t fieldset => (id=>'main_properties') => begin
+  %= t legend => 'Main properties'
+  %= label_for title =>'Title'
+  %= text_field title => $ce->{title}, placeholder =>'Title for the content element', required => 1, size => 55
   %= label_for alias =>'Alias'
+  %= text_field alias => $ce->{alias}, size => 55
 <br />
-  %= text_field alias => $celini->{alias}, required => 1, size => 255
-<br />
-  %= label_for pid => 'Pid'
-<br />
-  %= number_field pid => $celini->{pid},  
-<br />
-  %= label_for from_id => 'From_id'
-<br />
-  %= number_field from_id => $celini->{from_id},  
-<br />
-  %= label_for page_id => 'Page_id'
-<br />
-  %= number_field page_id => $celini->{page_id},  
-<br />
-  %= label_for user_id => 'User_id'
-<br />
-  %= number_field user_id => $celini->{user_id}, required => 1, 
-<br />
-  %= label_for group_id => 'Group_id'
-<br />
-  %= number_field group_id => $celini->{group_id}, required => 1, 
-<br />
-  %= label_for sorting => 'Sorting'
-<br />
-  %= number_field sorting => $celini->{sorting},  size => 10
+  %= label_for 'body' => 'Body'
+  %= text_area 'body' => $ce->{body}, required => 1,(style=>'width:100%;height:25em') 
 <br />
   %= label_for data_type =>'Data_type'
-<br />
-<%= select_field data_type => [
+  <%= select_field data_type => [
     [заглавѥ => 'заглавѥ'],
     [целина => 'целина'],
-    [бележка=>'бележка']
+    [бележка=>'бележка'],
     [писанѥ => 'писанѥ'],
     [въпрос => 'въпрос'],
     [ѿговор=>'ѿговор'],
     [книга=>'книга'],
-] %>
-<br />
+  ] %>
+
   %= label_for data_format =>'Data_format'
-<br />
-<%= select_field data_format => [
+  <%= select_field data_format => [
     [текст => 'text'],
     [html =>'html'],
     [markdown => 'markdown'],
     [asc =>'asc']
-] %>
-<br />
-  %= label_for created_at => 'Created_at'
-<br />
-  %= number_field created_at => $celini->{created_at}, required => 1, 
-<br />
-  %= label_for tstamp => 'Tstamp'
-<br />
-  %= number_field tstamp => $celini->{tstamp},  
-<br />
-  %= label_for title =>'Title'
-<br />
-  %= text_field title => $celini->{title}, required => 1, size => 255
-<br />
-  %= label_for description =>'Description'
-<br />
-  %= text_field description => $celini->{description},  size => 255
-<br />
-  %= label_for keywords =>'Keywords'
-<br />
-  %= text_field keywords => $celini->{keywords},  size => 255
-<br />
-  %= label_for tags =>'Tags'
-<br />
-  %= text_field tags => $celini->{tags},  size => 100
-<br />
-  %= label_for 'body' => 'Body'
-<br />
-  %= text_area 'body' => $celini->{body}, required => 1, 
-<br />
-  %= label_for box =>'Box'
-<br />
-  %= text_field box => $celini->{box},  size => 35
-<br />
+  ] %>
+
   %= label_for language =>'Language'
-<br />
-  %= text_field language => $celini->{language},  size => 5
-<br />
+  %# TODO: make this a configuration
+  %= select_field language => [[Български =>'bg-bg'],['English(US)' =>'en-us']]
+
   %= label_for permissions =>'Permissions'
-<br />
-  %= text_field permissions => $celini->{permissions},  size => 10
-<br />
+  <%= select_field permissions => [
+  # TODO: document and design the behavior for celini which are "d" (directories) and "l" (links)
+  '-rwxr-xr-x', 'drwxr-xr-x','lrwxr-xr-x','-rwxr-xr-x'], required => 1 
+  %>
+
+% end ;# fieldset
+%= t fieldset => (id=>'additional_properties') => begin
+  %= t legend => 'Additional properties'
+
+  %= label_for pid => 'Pid'
+  %= number_field pid => $ce->{pid},  
+
+  %= label_for from_id => 'From_id'
+  %= number_field from_id => $ce->{from_id},  
+
+  %= label_for page_id => 'Page_id'
+  %= number_field page_id => $ce->{page_id}, readonly => 1  
+
+  %= label_for user_id => 'User_id'
+  %= number_field user_id => $ce->{user_id}//$c->user->{id},
+
+  %= label_for group_id => 'Group_id'
+  %= number_field group_id => $ce->{group_id}//$c->user->{group_id}, 
+
+  %= label_for sorting => 'Sorting'
+  %= number_field sorting => $ce->{sorting},  size => 3
+
+  %= label_for description =>'Description'
+  %= text_field description => $ce->{description},  size => 55
+
+  %= label_for keywords =>'Keywords'
+  %= text_field keywords => $ce->{keywords},  size => 55
+
+  %= label_for tags =>'Tags'
+  %= text_field tags => $ce->{tags},  size => 100
+
+  %= label_for box =>'Box'
+  %= select_field box => ['main', 'top', 'left', 'right', 'bottom',] 
+
   %= label_for featured => 'Featured'
-<br />
-  %= number_field featured => $celini->{featured},  size => 1
-<br />
+  %= check_box featured =>1, $ce->{featured} ? (checked => undef):()
+
   %= label_for accepted => 'Accepted'
-<br />
-  %= number_field accepted => $celini->{accepted},  size => 1
-<br />
+  %= check_box accepted =>1, $ce->{accepted} ? (checked => undef):(),(title =>'If this is a "въпрос" is it accepted?')
+
   %= label_for bad => 'Bad'
-<br />
-  %= number_field bad => $celini->{bad},  size => 2
-<br />
+  %= number_field bad => $ce->{bad},  size => 2
+
   %= label_for deleted => 'Deleted'
-<br />
-  %= number_field deleted => $celini->{deleted},  size => 1
-<br />
+  %= check_box deleted =>1, $ce->{deleted} ? (checked => undef):()
+
   %= label_for start => 'Start'
-<br />
-  %= number_field start => $celini->{start},  
-<br />
+  %= number_field start => $ce->{start},  
+
   %= label_for stop => 'Stop'
-<br />
-  %= number_field stop => $celini->{stop},  
-<br />
+  %= number_field stop => $ce->{stop},  
+% end ;# fieldset
 
   %= submit_button $caption
 % end
