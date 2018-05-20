@@ -112,11 +112,11 @@ my $cform = {
 
 subtest create_celini => sub {
   $t->post_ok($app->url_for('store_celini') => form => $cform)
-    ->header_is(Location => $app->url_for('show_celini', {id => 6}));
+    ->header_is(Location => $app->url_for('show_celini', {id => 8}));
 };
 
 # Update celini
-my $sh_up_url = $app->url_for('update_celini', {id => 6})->to_string;
+my $sh_up_url = $app->url_for('update_celini', {id => 8})->to_string;
 subtest update_celini => sub {
   $cform->{title} = 'Заглавие на целината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)

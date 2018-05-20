@@ -133,7 +133,7 @@ sub _validation($c) {
   my $alias   = 'optional';
   my $title   = $alias;
   my $page_id = $alias;
-  my $types = 'книга|въпрос|писанѥ|бележка';
+  my $types   = 'книга|въпрос|писанѥ|бележка';
   if ($v->param('data_type') =~ /^($types)$/x) {
     $page_id = $title = $alias = 'required';
   }
@@ -151,7 +151,7 @@ sub _validation($c) {
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
-    ->in('main', 'top', 'left', 'right', 'bottom');
+    ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
   $v->optional('language', 'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
   $v->optional('featured',    'trim')->in(1, 0);

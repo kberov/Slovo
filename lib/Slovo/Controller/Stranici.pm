@@ -1,6 +1,23 @@
 package Slovo::Controller::Stranici;
 use Mojo::Base 'Slovo::Controller', -signatures;
 
+# GET /<:страница>.стр><*пѫт>
+sub покажи($c) {    # display
+  $c->debug(stashvalues => $c->stash->{страница}, $c->stash->{пѫт});
+  my $alias = $c->stash->{страница};
+
+  #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
+  my $path   = $c->stash->{пѫт};
+  my $user   = $c->user;
+  my $page   = $c->stranici->find_for_display($alias, $user);
+  my $celini = $c->celini->all_for_display($page, $user, 'bg-bg');
+
+  $c->debug($page);
+$c->debug($celini);
+  return $c->render(template => $page->{template}||'stranici/stranica',page=>$page,celini=>$celini);
+}
+
+# Al the following routes are under /Ꙋправленѥ
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.
@@ -146,5 +163,6 @@ sub _validation($c) {
   $v->required('language', 'trim')->size(5, 5);
   return $v;
 }
+
 
 1;

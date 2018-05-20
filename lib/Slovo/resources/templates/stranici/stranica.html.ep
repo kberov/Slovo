@@ -1,0 +1,21 @@
+% my $first = shift @$celini;
+% my $main = $celini->grep(sub{$_->{box} =~/(main|главна)/});
+% my $left = $celini->grep(sub{$_->{box} =~/left|лѣво/});
+% my $дѣсна = $celini->grep(sub{$_->{box} =~/left|дѣсно/});
+% layout 'site', title => $first->{title}, left => $left, right => $дѣсна;
+<section id="first">
+<h1><%= $first->{title} %></h1>
+%= $first->{body}
+</section>
+
+<%== 
+$main->map(
+  sub {
+    t section => sub {
+      ($_->{title} ? t h2 => $_->{title} : '') . $/
+        . ($_->{body} ? $_->{body} : '');
+      }
+  }
+  )->join($/)
+%>
+

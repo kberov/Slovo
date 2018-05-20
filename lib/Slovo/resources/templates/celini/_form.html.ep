@@ -1,8 +1,11 @@
+% use Mojo::Collection;
 %= link_to 'Up to list of celini' => 'home_celini'
 % my $ce = $celini;
 % my $page_id = $c->param('page_id')//$ce->{page_id};
+% my $v = $c->validation;
+% my $in = $v->output;
 % if (defined $page_id) {
-<%= link_to '...in the same page' => url_with('home_celini')->query([page_id => $page_id]),
+<%= link_to '...in the same page' => url_for('home_celini')->query([page_id => $page_id]),
     (title => 'Up to list of celini in the same page')
 %>
 % }
@@ -20,23 +23,37 @@
   %= text_area 'body' => $ce->{body}, required => 1,(style=>'width:100%;height:25em') 
 <br />
   %= label_for data_type =>'Data_type'
-  <%= select_field data_type => [
-    [заглавѥ => 'заглавѥ'],
-    [целина => 'целина'],
-    [бележка=>'бележка'],
-    [писанѥ => 'писанѥ'],
-    [въпрос => 'въпрос'],
-    [ѿговор=>'ѿговор'],
-    [книга=>'книга'],
-  ] %>
+<%
+my $dtypes = c(
+               [заглавѥ => 'заглавѥ'],
+               [целина  => 'целина'],
+               [бележка => 'бележка'],
+               [писанѥ  => 'писанѥ'],
+               [въпрос  => 'въпрос'],
+               [ѿговор  => 'ѿговор'],
+               [книга   => 'книга'],
+  )->each(
+  sub {
+    push @$_, selected => undef
+      if $_->[1] eq ($in->{data_type} // $ce->{data_type});
+  }
+  );
+
+%>
+  <%= select_field data_type => $dtypes %>
 
   %= label_for data_format =>'Data_format'
-  <%= select_field data_format => [
-    [текст => 'text'],
-    [html =>'html'],
-    [markdown => 'markdown'],
-    [asc =>'asc']
-  ] %>
+  <%= 
+  select_field data_format => c([текст => 'text'],
+                                [html     => 'html'],
+                                [markdown => 'markdown'],
+                                [asc      => 'asc'])->each(
+    sub {
+      push @$_, selected => undef
+        if $_->[1] eq ($in->{data_format} // $ce->{data_format});
+    }
+                                )
+    %>
 
   %= label_for language =>'Language'
   %# TODO: make this a configuration
@@ -80,7 +97,17 @@
   %= text_field tags => $ce->{tags},  size => 100
 
   %= label_for box =>'Box'
-  %= select_field box => ['main', 'top', 'left', 'right', 'bottom',] 
+  <%= 
+  select_field box => c(
+                        ['main'   => 'главна'],
+                        ['top'    => 'горѣ'],
+                        ['left'   => 'лѣво'],
+                        ['right'  => 'дѣсно'],
+                        ['bottom' => 'долу']
+    )->each(sub {
+      push @$_, selected => undef if $_->[1] eq ($in->{box} // $ce->{box});
+    })
+  %>
 
   %= label_for featured => 'Featured'
   %= check_box featured =>1, $ce->{featured} ? (checked => undef):()

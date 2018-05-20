@@ -19,7 +19,9 @@
   %= label_for permissions => 'Permissions'
   <%= select_field permissions => [
   # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-  '-rwxr-xr-x', 'drwxr-xr-x','lrwxr-xr-x','-rwxr--r-x'], required => 1 
+  'drwxr-xr-x', 'drwxrwxr-x', 
+  '-rwxr-xr-x', '-rwxrwxr-x',
+  'lrwxr-xr-x','-rwxr--r-x'], required => 1 
   %>
   %= label_for sorting => 'Sorting'
   %= number_field sorting => $s->{sorting}, size => 3

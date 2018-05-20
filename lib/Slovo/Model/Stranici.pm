@@ -6,6 +6,46 @@ my $celini_table = Slovo::Model::Celini->table;
 
 sub table { return $table }
 
+sub find_for_display ($self, $alias, $user) {
+  my $db = $self->dbx->db;
+  my $now = time;
+
+  # Get the page
+  return $db->select(
+    $table, undef,
+    {
+     alias   => $alias,
+     deleted => 0,
+          start   => [{'=' => 0}, {'<' => $now}],
+     stop    => [{'=' => 0}, {'>' => $now}],
+
+     # TODO: implement multidomain support
+     # domain_id => $domain_id
+     # TODO: May be drop this column as 'hidden' can be
+     # implemented by putting '.' as first cahracter for the alias.
+     hidden => 0,
+     -or    => [
+       {published => 2, permissions => {-like => '%r_x'}},
+       {
+        published   => {'<'   => 2},
+        permissions => {-like => '_r_x%'},
+        user_id     => $user->{id}
+       },
+       {
+        published   => {'<'   => 2},
+        permissions => {-like => '____r_x%'},
+        group_id    => $user->{group_id}
+       },
+
+# TODO: Implement multiple groups for users and then:
+# group_id => {-in => \'SELECT group_id from user_group WHERE user_id='.$user->{id} }
+     ]
+    }
+  )->hash;
+
+}
+
+
 sub add ($m, $row) {
   $row->{start} //= $row->{tstamp} = time - 1;
   my $title = {};

@@ -1,5 +1,5 @@
 package Slovo;
-
+use 5.020;    # we want unicode semantics
 use Mojo::Base 'Mojolicious';
 use experimental 'signatures';
 use Mojo::Util 'class_to_path';
@@ -8,7 +8,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.05.19';
+our $VERSION   = '2018.05.24';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 

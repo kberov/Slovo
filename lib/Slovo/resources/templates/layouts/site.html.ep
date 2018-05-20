@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+%= t html => begin
+  %= t head => begin
+    %= t meta => (charset => 'utf-8')
+    %= t 'title' => title
+    %= stylesheet '/css/site.css'
+  % end
+  %= t body => begin
+    %= t main => begin
+      %= content
+    % end
+  % end
+% end

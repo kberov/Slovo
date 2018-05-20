@@ -124,7 +124,7 @@ INSERT INTO domove (id, domain, description, site_name, owner_id, permissions, p
     VALUES ( 0, 'localhost', 'default domain', 'Слово', 0, '-rwxr-xr-x', 2);
 
 CREATE TABLE stranici (
-  -- 'stranica' in Bulgarian means 'page'.
+  -- 'stranica(страница)' in Bulgarian means 'page'.
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   -- Parent page id
   pid INTEGER DEFAULT 0,
@@ -180,7 +180,7 @@ VALUES (
  -- content elements are one or more paragraphs, or whole article. Different
  -- data_types denote the semantic of a content element.
  -- This table is a modified version of MYDLjE table "content".
- -- 'celina' is the original Bulgarian word for 'paragraph'.
+ -- 'celina(целина)' is the original Bulgarian word for 'paragraph'.
  
   -- Primary unique identifier
   id INTEGER PRIMARY KEY,
@@ -216,7 +216,7 @@ VALUES (
   tags VARCHAR(100) DEFAULT '',
   -- Main celini when applicable.
   body TEXT DEFAULT '',
-  -- celini box in which this element should be displayed (e.g. main, left, right, header, footer, foo, bar).
+  -- celini box in which this element should be displayed (e.g. main|главна, left|лѣва, right|дѣсна, header|глава, footer|дъно, foo, bar).
   box VARCHAR(35) DEFAULT 'main',
   -- Language of this content. All languages when empty string
   language VARCHAR(5) DEFAULT '',
@@ -268,11 +268,11 @@ DROP INDEX domove_published;
 DROP TABLE stranici;
 
 -- 201805012200 up
-UPDATE "stranici" SET "alias" = 'коренъ',"page_type" = 'коренъ',
-"permissions" = 'drwxr-xr-x' WHERE ( "id" = 0 );
-INSERT INTO "stranici" VALUES(1,0,0,'писания','обичайна','drwxr-xr-x',1,NULL,5,5,1525187608,1525187608,0,1,0,0,NULL);
-INSERT INTO "stranici" VALUES(2,1,0,'вести','обичайна','-rwxr-xr-x',1,NULL,5,5,1525191489,1525191489,0,1,0,0,NULL);
-INSERT INTO "stranici" VALUES(3,0,0,'ѿносно','обичайна','-rwxr-xr-x',1,NULL,5,5,1525193683,1525193683,0,1,0,0,NULL);
+UPDATE stranici SET alias = 'коренъ',"page_type" = 'коренъ',
+permissions = 'drwxr-xr-x' WHERE ( id = 0 );
+INSERT INTO stranici VALUES(1,0,0,'писания','обичайна','drwxr-xr-x',1,NULL,5,5,1525187608,1525187608,0,1,0,0,NULL);
+INSERT INTO stranici VALUES(2,1,0,'вести','обичайна','-rwxr-xr-x',1,NULL,5,5,1525191489,1525191489,0,1,0,0,NULL);
+INSERT INTO stranici VALUES(3,0,0,'ѿносно','обичайна','-rwxr-xr-x',1,NULL,5,5,1525193683,1525193683,0,1,0,0,NULL);
 
 UPDATE "celini" SET "body" = 'Добре дошли на страниците на слово.бг!',
 "language" = 'bg-bg', "title" = 'Слово' WHERE ( "id" = 0 );
@@ -292,4 +292,14 @@ VALUES(4,'ѿносно',0,0,3,5,5,0,'заглавѥ','text',1525193683,0,'Ѿно
 -- 201805012200 down
 delete from stranici where id IN(1,2,3);
 
+
+-- 201805242200 up
+INSERT INTO "celini" VALUES(5,'втора-целина',0,0,0,5,5,1,'целина','html',1526844885,0,'Втора целина','','','','нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2,'целина','html',1526851706,0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки, за които твърди, че са отвлечени, предава AFP.</p>
+<p>Те са работели в държавен севернокорейски ресторант в Китай. Управителят на ресторанта казва, че ги излъгал и принудил да го  последват по нареждане на южнокорейските тайни служби.</p>
+<p>„Южнокорейските власти трябва незабавно да върнат нашите гражданки обратно при семействата им и това ще покаже воля за подобряване на двустранните отношения“, заявяват от Пхенян.</p>
+<p>Сеул настоява, че те са избягали в страната преди около две години и са останали в нея по собствено желание.</p>','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+
+-- 201805242200 down
+delete from celini where id in (5,6);
 
