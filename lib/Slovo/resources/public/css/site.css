@@ -1,3 +1,6 @@
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
 
+aside.left {float:left;clear:both;width:20%}
+aside.right{float:right;clear:left;width:20%}
+main {width:80%;}

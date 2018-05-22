@@ -1,5 +1,13 @@
 Revision history for Mojolicious application Slovo
 
+2018.05.24
+    - Changes
+        Честитъ праздникъ на бꙋквите – Ден на Българската Писменостъ.
+        Many changes in progress towards displaying pages in the site.
+    - Features
+        Implemented template and layout for rendering a regular page.
+        Using MUICSS for default styles.
+
 2018.05.19
     - Changes
         * Shared methods "all", "find", "save", "remove", "add" in Slovo::Model.

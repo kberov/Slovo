@@ -1,13 +1,49 @@
 <!DOCTYPE html>
 %= t html => begin
-  %= t head => begin
-    %= t meta => (charset => 'utf-8')
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     %= t 'title' => title
+    %= stylesheet '/css/slovo-min.css'
     %= stylesheet '/css/site.css'
-  % end
+    %= javascript '/js/mui-min.css'
+  </head>
   %= t body => begin
+    <header class="mui-appbar mui--z1">
+    Слово
+    </header>
+    %= t aside => (class=>"left") => begin
+        <%== 
+        $left->map(
+          sub {
+              ($_->{title} ? t h2 => $_->{title} : '') . $/
+                . ($_->{body} ? $_->{body} : '');
+          }
+          )->join($/)
+        %>
+    % end
+    %= t aside => (class=>"right") => begin
+        <%== 
+        $right->map(
+          sub {
+              ($_->{title} ? t h2 => $_->{title} : '') . $/
+                . ($_->{body} ? $_->{body} : '');
+          }
+          )->join($/)
+        %>
+    % end
     %= t main => begin
       %= content
     % end
+    <footer>
+      <div class="mui-container mui--text-center">
+          Направено съ ♥ и 
+          <a href="https://www.perl.org/">Perl<a>,
+          <a href="https://mojolicious.org/">Mojolicious<a>,
+          <a href="https://www.vim.org/">Vim<a>,
+          <a href="https://www.muicss.com">MUICSS</a>...
+      </div>
+    </footer>
   % end
 % end

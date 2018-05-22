@@ -6,8 +6,9 @@ my $celini_table = Slovo::Model::Celini->table;
 
 sub table { return $table }
 
+#Find a page by $alias which is allowed to be seen by the current user
 sub find_for_display ($self, $alias, $user) {
-  my $db = $self->dbx->db;
+  my $db  = $self->dbx->db;
   my $now = time;
 
   # Get the page
@@ -16,7 +17,7 @@ sub find_for_display ($self, $alias, $user) {
     {
      alias   => $alias,
      deleted => 0,
-          start   => [{'=' => 0}, {'<' => $now}],
+     start   => [{'=' => 0}, {'<' => $now}],
      stop    => [{'=' => 0}, {'>' => $now}],
 
      # TODO: implement multidomain support
@@ -25,20 +26,27 @@ sub find_for_display ($self, $alias, $user) {
      # implemented by putting '.' as first cahracter for the alias.
      hidden => 0,
      -or    => [
-       {published => 2, permissions => {-like => '%r_x'}},
-       {
-        published   => {'<'   => 2},
-        permissions => {-like => '_r_x%'},
-        user_id     => $user->{id}
-       },
-       {
-        published   => {'<'   => 2},
-        permissions => {-like => '____r_x%'},
-        group_id    => $user->{group_id}
-       },
 
-# TODO: Implement multiple groups for users and then:
-# group_id => {-in => \'SELECT group_id from user_group WHERE user_id='.$user->{id} }
+       # published and everybody can read and execute
+       # This page can be stored on disk and served as static page
+       # after displayed for the first time
+       {published => 2, permissions => {-like => '%r_x'}},
+       {    # preview of a page, owned by this user
+         user_id     => $user->{id},
+         permissions => {-like => '_r_x%'},
+       },
+       {    # preview of a page, which can be read and executed
+            # by one of the groups to which this user belongs
+         permissions => {-like => '____r_x%'},
+
+         # TODO: Implement multiple groups for users and then:
+         group_id => {
+              -in => [
+                 $user->{group_id},
+                 \"(SELECT group_id from user_group WHERE user_id=$user->{id})"
+              ]
+         }
+       },
      ]
     }
   )->hash;

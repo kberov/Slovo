@@ -112,11 +112,11 @@ my $cform = {
 
 subtest create_celini => sub {
   $t->post_ok($app->url_for('store_celini') => form => $cform)
-    ->header_is(Location => $app->url_for('show_celini', {id => 8}));
+    ->header_is(Location => $app->url_for('show_celini', {id => 10}));
 };
 
 # Update celini
-my $sh_up_url = $app->url_for('update_celini', {id => 8})->to_string;
+my $sh_up_url = $app->url_for('update_celini', {id => 10})->to_string;
 subtest update_celini => sub {
   $cform->{title} = 'Заглавие на целината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
@@ -131,7 +131,7 @@ subtest remove_celini => sub {
   my $celini_url = $app->url_for('home_celini')->to_string;
   $t->delete_ok($sh_up_url)->header_is(Location => $celini_url)->status_is(302);
   $t->get_ok($celini_url)->status_is(200)
-    ->element_exists_not('tr:nth-child(6)');
+    ->element_exists_not('tr:nth-child(10)');
 };
 
 done_testing;

@@ -141,10 +141,8 @@ html in the browser.
 Consider addding also ContentTools as the default WYSIWIG html editor
   (https://github.com/GetmeUK/ContentTools)
 
-Consider (preferred) using Mithril as frontend framework for building UI
-together with Pure CSS for styling.
+Consider (preferred) using Mithril as frontend framework for building UI.
   (https://github.com/MithrilJS/mithril.js)
-  (https://github.com/pure-css/pure)
 
 Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
 administrative panel.

@@ -3,7 +3,7 @@ use Mojo::Base 'Slovo::Controller', -signatures;
 
 # GET /<:страница>.стр><*пѫт>
 sub покажи($c) {    # display
-  $c->debug(stashvalues => $c->stash->{страница}, $c->stash->{пѫт});
+  $c->debug('stashvalues:' => $c->stash->{страница}.', '.$c->stash->{пѫт});
   my $alias = $c->stash->{страница};
 
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
@@ -12,8 +12,6 @@ sub покажи($c) {    # display
   my $page   = $c->stranici->find_for_display($alias, $user);
   my $celini = $c->celini->all_for_display($page, $user, 'bg-bg');
 
-  $c->debug($page);
-$c->debug($celini);
   return $c->render(template => $page->{template}||'stranici/stranica',page=>$page,celini=>$celini);
 }
 
