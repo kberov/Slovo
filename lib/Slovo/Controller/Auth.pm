@@ -61,7 +61,7 @@ sub check($c) {
 }
 
 sub load_user ($c, $uid) {
-  return $c->users->find($uid);
+  return $c->users->find($uid) // $c->users->find_by_login_name('guest');
 }
 
 sub validate_user ($c, $login_name, $clrf_pass, $data) {

@@ -9,6 +9,7 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 # '.', '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
+
 isa_ok($app, 'Slovo');
 $t->login_ok('краси', 'беров');
 
@@ -66,8 +67,8 @@ subtest remove_user => sub {
 };
 
 # Create stranici
-my $stranici_url  = $app->url_for('store_stranici')->to_string;
-my $stranici_url4 = "$stranici_url/4";
+my $stranici_url     = $app->url_for('store_stranici')->to_string;
+my $stranici_url_new = "$stranici_url/9";
 my $sform = {
              alias       => 'събития',
              page_type   => 'обичайна',
@@ -78,10 +79,11 @@ my $sform = {
              language    => 'bg-bg'
             };
 subtest create_stranici => sub {
-  $t->post_ok($stranici_url => form => $sform)->status_is(201)
-    ->header_is(Location => $stranici_url4, 'Location: /Ꙋправленѥ/stranici/4')
-    ->content_is('', 'empty content')->status_is(201);
-  $t->get_ok($stranici_url4)->status_is(200)->content_like(qr/събития/);
+  $t->post_ok($stranici_url => form => $sform)->status_is(201)->header_is(
+                                               Location => $stranici_url_new,
+                                               'Location: /Ꙋправленѥ/stranici/9'
+  )->content_is('', 'empty content')->status_is(201);
+  $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   is(@{$app->celini->all({where => {alias => 'събития'}})}, 1,
      'only one title');
 };
@@ -89,14 +91,15 @@ subtest create_stranici => sub {
 # Update stranici
 subtest update_stranica => sub {
   $sform->{alias} = 'събитияsss';
-  my $dom = $t->get_ok("$stranici_url4/edit?language=bg-bg")->tx->res->dom;
+  my $dom = $t->get_ok("$stranici_url_new/edit?language=bg-bg")->tx->res->dom;
   $sform->{title_id} = $dom->at('input[name="title_id"]')->{value};
   $sform->{title}    = $dom->at('input[name="title"]')->{value};
   $sform->{body}     = $dom->at('textarea[name="body"]')->text;
 
-  $t->put_ok($stranici_url4 => {Accept => '*/*'} => form => $sform)
+  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
-  $t->get_ok($stranici_url4)->text_is('#alias' => 'alias: ' . $sform->{alias});
+  $t->get_ok($stranici_url_new)
+    ->text_is('#alias' => 'alias: ' . $sform->{alias});
   is(@{$app->celini->all({where => {alias => 'събитияsss'}})},
      1, 'alias for title changed too');
 };
@@ -112,11 +115,11 @@ my $cform = {
 
 subtest create_celini => sub {
   $t->post_ok($app->url_for('store_celini') => form => $cform)
-    ->header_is(Location => $app->url_for('show_celini', {id => 10}));
+    ->header_is(Location => $app->url_for('show_celini', {id => 15}));
 };
 
 # Update celini
-my $sh_up_url = $app->url_for('update_celini', {id => 10})->to_string;
+my $sh_up_url = $app->url_for('update_celini', {id => 15})->to_string;
 subtest update_celini => sub {
   $cform->{title} = 'Заглавие на целината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
@@ -131,7 +134,7 @@ subtest remove_celini => sub {
   my $celini_url = $app->url_for('home_celini')->to_string;
   $t->delete_ok($sh_up_url)->header_is(Location => $celini_url)->status_is(302);
   $t->get_ok($celini_url)->status_is(200)
-    ->element_exists_not('tr:nth-child(10)');
+    ->element_exists_not('tr:nth-child(15)');
 };
 
 done_testing;

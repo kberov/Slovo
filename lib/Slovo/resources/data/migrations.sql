@@ -27,7 +27,7 @@ CREATE TABLE users (
   -- In Perl we use gmtime as object from Time::Piece'
   tstamp INTEGER DEFAULT 0,
   -- 'registration time',,
-  reg_time INTEGER DEFAULT 0, 
+  reg_time INTEGER DEFAULT 0,
   disabled INT(1) DEFAULT 1,
   start_date INTEGER DEFAULT 0,
   stop_date INTEGER DEFAULT 0
@@ -46,7 +46,7 @@ CREATE TABLE user_group (
 );
 
 INSERT INTO `groups`(id,name,description) VALUES(0,'null','null group');
-INSERT INTO `users` (id,login_name,login_password,first_name,last_name,email,description) 
+INSERT INTO `users` (id,login_name,login_password,first_name,last_name,email,description)
     VALUES(0,'null','9f1bd12057905cf4f61a14e3eeac06bf68a28e64',
     'Null','Null','null@localhost','Disabled system user. Do not use!');
 INSERT INTO `user_group` VALUES(0,0);
@@ -64,23 +64,23 @@ INSERT INTO groups VALUES(1,'admin','group for administrators',0,0,0);
 INSERT INTO users VALUES(1,'foo','9f1bd12057905cf4f61a14e3eeac06bf68a28e64','Foo','Bar','foo@localhost',
   'System user. Do not use!',1,1,0,0,0, 1,0,0);
  INSERT INTO `user_group` VALUES(1,1);
- 
+
 INSERT INTO groups VALUES(2,'guest','guest',0,1,1);
 INSERT INTO users
 VALUES(2,'guest','8097beb8d5950479e49d803e683932150f469827','гостенин','','guest@localhost',
   'Guest user. Anybody not authenticated is a guest user.',
   1,1,0,0,0, 2,1,1);
 INSERT INTO `user_group` VALUES(2,2);
- 
+
 INSERT INTO `groups` VALUES(3,'test1','test1',1,1,1);
 INSERT INTO `users` VALUES(3,'test1','b5e9c9ab4f777c191bc847e1aca222d6836714b7','Test','1','test1@localhost',
   'test1 user. Delete. used for tests only.',1,1,1,0,0, 3,1,1);
 INSERT INTO `user_group` VALUES(3,3);
- 
+
 INSERT INTO `groups` VALUES(4,'test2','test2',0,1,1);
 INSERT INTO `users` VALUES(4,'test2','272a11a0206b949355be4b0bda9a8918609f1ac6','Test','2','test2@localhost',
   'test2 user. Delete. Used for tests only.',
-  1,1,0,0,0, 4,1,1); 
+  1,1,0,0,0, 4,1,1);
 INSERT INTO `user_group` VALUES(4,4);
 
 INSERT INTO `groups` VALUES(5,'краси','краси',0,4,4);
@@ -103,7 +103,7 @@ CREATE TABLE domove (
 --  'Id referenced by stranici that belong to this domain.'
   id INTEGER PRIMARY KEY AUTOINCREMENT,
 --  'Domain name as in $ENV{HTTP_HOST}.'
-  domain VARCHAR(63) UNIQUE NOT NULL, 
+  domain VARCHAR(63) UNIQUE NOT NULL,
 --  'The name of this site.'
   site_name VARCHAR(63) NOT NULL,
 --  'Site description'
@@ -167,21 +167,21 @@ CREATE INDEX IF NOT EXISTS stranici_hidden ON stranici(hidden);
 INSERT INTO stranici (
     id, alias, changed_by, deleted, dom_id, group_id, hidden, page_type,
     permissions, pid, published, sorting, start, stop, tstamp, user_id)
-VALUES ( 
+VALUES (
     0, 'коренъ', 0, 0, 0, 0, 0, 'root',
     '-rwxr-xr-x', 0, 1, 0, 0, 0, 1523795424, 0);
 
 
  -- Initially created by SQL::Translator::Producer::SQLite
  -- Created on Sat Apr 14 13:32:46 2018
- -- 
- 
+ --
+
  CREATE TABLE celini (
  -- content elements are one or more paragraphs, or whole article. Different
  -- data_types denote the semantic of a content element.
  -- This table is a modified version of MYDLjE table "content".
  -- 'celina(целина)' is the original Bulgarian word for 'paragraph'.
- 
+
   -- Primary unique identifier
   id INTEGER PRIMARY KEY,
   -- Lowercased and trimmed of \W characters unique identifier for the row data_type
@@ -190,7 +190,7 @@ VALUES (
   pid INTEGER DEFAULT 0,
   -- Id from which this content is copied (translated), if not original content.
   from_id INTEGER DEFAULT 0,
-  -- page.id to which this content belongs. Default: 0 
+  -- page.id to which this content belongs. Default: 0
   page_id INTEGER DEFAULT 0,
   -- User for which the permissions apply (owner).
   user_id INTEGER NOT NULL,
@@ -242,7 +242,7 @@ VALUES (
   FOREIGN KEY (user_id)  REFERENCES users(id)    ON UPDATE CASCADE,
   FOREIGN KEY (group_id) REFERENCES groups(id)   ON UPDATE CASCADE
  );
- 
+
  CREATE INDEX celini_pid ON celini (pid);
  CREATE INDEX celini_tags ON celini (tags);
  CREATE INDEX celini_user_id_group_id ON celini (user_id, group_id);
@@ -251,21 +251,21 @@ VALUES (
  CREATE INDEX celini_page_id ON celini (page_id);
  CREATE INDEX celini_deleted ON celini (deleted);
  CREATE UNIQUE INDEX celini_alias_with_data_type_in_page_id ON celini (alias, data_type, page_id);
- 
+
  CREATE INDEX user_group_id ON users(group_id);
- 
+
   INSERT INTO celini (
-      id, alias, body, created_at, data_format, data_type, group_id, 
+      id, alias, body, created_at, data_format, data_type, group_id,
       keywords, language, page_id, pid, tags, title, user_id)
   VALUES (
       0, 'начало', '', 1523807733, 'text', 'заглавѥ', 0,
       'Slovo, Слово', 'bg', 0, 0, 'начало, home', 'Слово', 0);
- 
+
 
 -- 201804302200 down
-DROP TABLE domove;
-DROP INDEX domove_published;
-DROP TABLE stranici;
+DROP TABLE IF EXISTS domove;
+DROP TABLE IF EXISTS stranici;
+DROP TABLE IF EXISTS celini;
 
 -- 201805012200 up
 UPDATE stranici SET alias = 'коренъ',"page_type" = 'коренъ',
@@ -290,19 +290,21 @@ VALUES(4,'ѿносно',0,0,3,5,5,0,'заглавѥ','text',1525193683,0,'Ѿно
     неговата цел.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
 
 -- 201805012200 down
-delete from stranici where id IN(1,2,3);
+delete from stranici where id >0;
 
 
 -- 201805242200 up
 UPDATE stranici set group_id=5 where alias='коренъ';
-INSERT INTO "celini" VALUES(5,'втора-целина',0,0,0,5,5,1,'целина','html',1526844885,0,'Втора целина','','','','нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
-INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2,'целина','html',1526851706,0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки, за които твърди, че са отвлечени, предава AFP.</p>
+INSERT INTO "stranici" VALUES(4, 0, 0, 'не-е-намерена', 'обичайна', 'drwxr-xr-x', 1, NULL, 5, 5, 1527802409, 1527802409, 0, 1, 0, 0, NULL);
+
+INSERT INTO "celini" VALUES(5,'втора-целина',0,0,0,5,5,1,'целина', 'html', 1526844885, 0, 'Втора целина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'целина', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
+    за които твърди, че са отвлечени, предава AFP.</p>
 <p>Те са работели в държавен севернокорейски ресторант в Китай. Управителят на ресторанта казва, че ги излъгал и принудил да го  последват по нареждане на южнокорейските тайни служби.</p>
 <p>„Южнокорейските власти трябва незабавно да върнат нашите гражданки обратно при семействата им и това ще покаже воля за подобряване на двустранните отношения“, заявяват от Пхенян.</p>
 <p>Сеул настоява, че те са избягали в страната преди около две години и са останали в нея по собствено желание.</p>','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
 INSERT INTO "celini" VALUES(7,'меню-незадължително',0,0,0,5,5,0,'заглавѥ','text',1527027334,0,'меню незадължително','','','','<ul>
-<li>Първо</li>
-<li>Второ</li>
+<li>Първо</li><li>Второ</li>
 <li>Трето
   <ul>
     <li>Първо</li>
@@ -314,7 +316,64 @@ INSERT INTO "celini" VALUES(7,'меню-незадължително',0,0,0,5,5,
 
 INSERT INTO "celini" VALUES(8,'реклама',0,0,0,5,5,0,'заглавѥ','text',1527027663,0,'Реклама','','','','<div style="height:12em;background:red"> text here</div>
 <div style="height:12em;background:blue">image and text</div>','дѣсно','bg-bg','-rwxr-xr-x',0,0,0,0,3,1558563642,5);
+INSERT INTO "celini" VALUES(9,'страницата-не-е-намерена',0,0,4,5,5,0,'заглавѥ','text',1527802409,0,'Страницата не е намерена',
+    '','','','Страницата, която търсите не бе намерена.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,NULL);
+
+-- add user краси to group test1 for testing page displaying
+INSERT INTO user_group VALUES(5,3);
+UPDATE stranici set user_id=3, group_id=3 WHERE alias='вести';
 
 -- 201805242200 down
-delete from celini where id in (5,6,7,8);
+DELETE FROM celini WHERE id in (5,6,7,8,9);
+DELETE FROM user_group WHERE user_id=5 AND group_id=3;
+UPDATE stranici set user_id=5, group_id=3 WHERE alias='вести';
+
+-- 201806062200 up
+
+
+UPDATE stranici set published=2 WHERE alias IN('коренъ', 'не-е-намерена');
+
+INSERT INTO "stranici" VALUES(5, 0, 0, 'скрита', 'обичайна', 'drwxr-xr-x', 111,
+    NULL, 5, 5, 1527963618, 1527962484, 0, 2, 1, 0, NULL);
+
+INSERT INTO "stranici" VALUES(6, 0, 0, 'изтрита', 'обичайна', 'drwxr-xr-x', 1,
+    NULL, 5, 5, 1527964061, 1527964061, 0, 1, 0, 1, NULL);
+
+INSERT INTO "stranici" VALUES(7, 0, 0, 'изтекла', 'обичайна', 'drwxr-xr-x', 1,
+    NULL, 5, 5, 1527964237, 1527964237, 1527963618, 2, 0, 0, NULL);
+
+INSERT INTO "stranici" VALUES(8, 0, 0, 'предстояща', 'обичайна', 'drwxr-xr-x',
+    1, NULL, 5, 5, 1527965753, 5527963618, 0, 2, 0, 0, NULL);
+
+INSERT INTO "celini" VALUES(10, 'скрита', 0, 0, 5, 5, 5, 0, 'заглавѥ', 'text',
+    1527963618, 0, 'Скрита страница', '', '', '', 'Една скрита страница.',
+    'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
+
+INSERT INTO "celini" VALUES(11, 'изтрита', 0, 0, 6, 5, 5, 0, 'заглавѥ', 'text',
+    1527964061, 0, 'Изтрита страница', '', '', '', 'Една изтрита страница.',
+    'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
+
+INSERT INTO "celini" VALUES(12, 'изтекла', 0, 0, 7, 5, 5, 0, 'заглавѥ', 'text',
+    1527964237, 0, 'Изтекла страница', '', '', '', 'Една изтекла страница.',
+    'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
+
+INSERT INTO "celini" VALUES(13, 'предстояща', 0, 0, 8, 5, 5, 0, 'заглавѥ',
+    'text', 1527965753, 0, 'Предстояща', '', '', '', 'Страница, която ще
+    започне да се показва след определено време.', 'main', 'bg-bg',
+    '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
+
+ALTER TABLE celini ADD COLUMN published INT(1) DEFAULT 0;
+-- Synchronise 'published' status of content with their pages
+UPDATE celini SET published=(SELECT published FROM stranici WHERE id=celini.page_id);
+
+-- IPs from which this domain may be served, eg localhost can be on '127.0.0.1,127.0.1.1'
+ALTER TABLE domove ADD COLUMN ips VARCHAR DEFAULT '127.0.0.1,127.0.1.1';
+CREATE INDEX domove_ips ON domove(ips);
+
+-- 201806062200 down
+UPDATE stranici set published=1 WHERE alias='коренъ';
+DELETE FROM stranici WHERE id in (5,6,7,8);
+-- No need to delete from celini as they will cascade.
+-- NO "DROP COLUMN" in SQLite so we will not do the usual workaround with
+-- recreating the table.table
 

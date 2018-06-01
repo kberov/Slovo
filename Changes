@@ -1,12 +1,32 @@
 Revision history for Mojolicious application Slovo
 
+2018.06.09
+    - Changes
+        * On failed login the guest user is loaded to have always a user.
+        * We `use 5.020` in Slovo.pm to switch ON all Perl features available
+          up to this version.
+        * Loading of Model classes is postponed untill first use of the
+          corresponding helper.
+    -Features
+        * Added attribute `domain` to Slovo::Controller.
+        * Now UTF-8 characters are readable in dumped structures by $c->debug.
+        * Added multidomain support. Many domains can be served by one Slovo
+          applcation. Domains can be matched also by IPs from which they are
+          served. For example 'http://127.0.0.1/alias.стр.html' finds the page
+          'alias' in domain localhost.
+        * When a page cannot be found a "Not Found" page is displayed.
+        * When a page is displayed the `permissions` and `published` matter.
+          Secondary groups of a user are supported. In preview mode
+          (?прегледъ=1) published, hidden, deleted, start and stop are
+          disregarded.
+
 2018.05.24
     - Changes
-        Честитъ праздникъ на бꙋквите – Ден на Българската Писменостъ.
-        Many changes in progress towards displaying pages in the site.
+        * Честитъ праздникъ на бꙋквите – Ден на Българската Писменостъ.
+        * Many changes in progress towards displaying pages in the site.
     - Features
-        Implemented template and layout for rendering a regular page.
-        Using MUICSS for default styles.
+        * Implemented template and layout for rendering a regular page.
+        * Using MUICSS for default styles.
 
 2018.05.19
     - Changes

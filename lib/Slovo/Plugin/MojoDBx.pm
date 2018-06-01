@@ -53,11 +53,16 @@ sub register ($self, $app, $conf) {
 #   -T lib/Slovo/resources/templates --api_dir lib/Slovo/resources
 # helpers for most tables
   for my $t (@{$conf->{tables} // []}) {
-    my $T     = Mojo::Util::camelize($t);
-    my $class = "Slovo::Model::$T";
-    $log->debug("Loading model $class");
-    $app->load_class($class);
-    $app->helper($t => sub ($c) { $class->new(dbx => $c->dbx, c => $c) });
+    $app->helper(
+      $t => sub ($c) {
+        my $T     = Mojo::Util::camelize($t);
+        my $class = "Slovo::Model::$T";
+        $app->load_class($class);
+        my $self = $class->new(dbx => $c->dbx, c => $c);
+        Scalar::Util::weaken $self->{c};
+        return $self;
+      }
+    );
   }
   return $self;
 }

@@ -7,7 +7,7 @@
     %= t 'title' => title
     %= stylesheet '/css/slovo-min.css'
     %= stylesheet '/css/site.css'
-    %= javascript '/js/mui-min.css'
+    %= javascript '/js/mui.min.js'
   </head>
   %= t body => begin
     <header class="mui-appbar mui--z1">
