@@ -1,11 +1,9 @@
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
-table .hidden, table .deleted,
-fieldset.deleted, fieldset.hidden 
-{opacity: 0.33;}
-table .deleted {
-    text-decoration-line: line-through;
-}
+.hidden, .deleted, .expired, .upcoming {opacity: 0.50;}
+.deleted {text-decoration: line-through red;}
+.upcoming {text-decoration: green wavy overline;}
+.expired {text-decoration: green wavy underline;}
 
 .item-field {
     border: 1px #ddd solid;

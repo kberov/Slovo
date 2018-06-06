@@ -6,7 +6,7 @@
 %=t fieldset => (id=>'page_attributes', class=>$class) => begin
   %=t legend =>'Page Attributes'
   %= label_for pid => 'Pid'
-  %= number_field pid => $s->{pid}, (readonly=>'readonly') 
+  %= number_field pid => $s->{pid}, (readonly=>'readonly')
   %= label_for dom_id => 'Dom_id',
   %= number_field dom_id => $s->{dom_id}, (readonly=>'readonly')
   %= label_for alias =>'Alias'
@@ -19,31 +19,31 @@
   %= label_for permissions => 'Permissions'
   <%= select_field permissions => [
   # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-  'drwxr-xr-x', 'drwxrwxr-x', 
+  'drwxr-xr-x', 'drwxrwxr-x',
   '-rwxr-xr-x', '-rwxrwxr-x',
-  'lrwxr-xr-x','-rwxr--r-x'], required => 1 
+  'lrwxr-xr-x','-rwxr--r-x'], required => 1
   %>
   %= label_for sorting => 'Sorting'
   %= number_field sorting => $s->{sorting}, size => 3
   %= label_for template => 'Template'
   %= text_field template => $s->{template},  size => 255, style =>'width:50%'
   %= label_for group_id => 'Group_id'
-  %= number_field group_id => $s->{group_id}//$c->user->{group_id},  
+  %= number_field group_id => $s->{group_id}//$c->user->{group_id},
   %= label_for start => 'Start'
-  %= number_field start => $s->{start}, 
+  %= number_field start => $s->{start},
   %= label_for stop => 'Stop'
-  %= number_field stop => $s->{stop}, 
+  %= number_field stop => $s->{stop},
   %= label_for published => 'Published'
   <%= select_field published => [
   ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
   %= label_for hidden => 'Hidden'
-  %= check_box hidden => $s->{hidden}?(checked => undef):()
+  %= check_box hidden => $s->{hidden}?(checked => undef):(), value => 1
   %= label_for deleted => 'Deleted'
-  %= check_box deleted => $s->{deleted}?(checked => undef):()
+  %= check_box deleted => $s->{deleted}?(checked => undef):(), value => 1
 % end
 %=t fieldset => (id=>'title') => begin
       %=t legend => 'Page Content'
-      %= hidden_field title_id => $s->{title_id} 
+      %= hidden_field title_id => $s->{title_id}
       %= label_for title => 'Title'
       %= text_field title => $s->{title} => required => 1 , placeholder =>'Title for the page'
       %= label_for language =>'Language'

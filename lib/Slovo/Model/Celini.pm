@@ -5,32 +5,38 @@ my $table = 'celini';
 
 sub table { return $table }
 
-sub all_for_display ($self, $page, $user, $language) {
+sub all_for_display ($self, $page, $user, $language, $прегледъ) {
   my $now = time;
   return $self->all(
     {
      where => {
        page_id  => $page->{id},
        language => $language,
-       deleted  => 0,
-#     start   => [{'=' => 0}, {'<' => $now}],
-#     stop    => [{'=' => 0}, {'>' => $now}],
-#       -or      => [
-#         {published => 2, permissions => {-like => '%r_x'}},
-#         {
-#          published   => {'<'   => 2},
-#          permissions => {-like => '_r_x%'},
-#          user_id     => $user->{id}
-#         },
-#         {
-#          published   => {'<'   => 2},
-#          permissions => {-like => '____r_x%'},
-#          group_id    => $user->{group_id}
-#         },
+       $прегледъ ? () : (deleted => 0),
+       $прегледъ ? () : (start   => [{'=' => 0}, {'<' => $now}]),
+       $прегледъ ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
+       -or => [
 
-# TODO: Implement multiple groups for users and then:
-# group_id => {-in => \'SELECT group_id from user_group WHERE user_id='.$user->{id} }
-#       ]
+         # published and everybody can read and execute
+         {published => 2, permissions => {-like => '%r_x'}},
+
+         # preview of a page with elements, owned by this user
+         {user_id => $user->{id}, permissions => {-like => '_r_x%'}},
+
+         # preview of elements, which can be read and executed
+         # by one of the groups to which this user belongs.
+         {
+          permissions => {-like => '____r_x%'},
+          published => $прегледъ ? 1 : 2,
+
+          # TODO: Implement adding users to multiple groups:
+          group_id => \[
+                       "IN (SELECT group_id from user_group WHERE user_id=?)" =>
+                         $user->{id}
+                       ],
+         },
+
+       ]
      },
      order_by => [{-desc => 'featured'}, {-asc => [qw(id sorting)]},],
     }

@@ -29,6 +29,7 @@ sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
     if $to_tempdir eq $random_tempdir;
   path($from, 'lib')->list_tree({dir => 1})->each(
     sub ($f, $i) {
+      $f =~ /\.sqlite$/ && return;    #do not copy existing database
       my $new = $MOJO_HOME->child($f->to_rel);
       (-d $f) && $new->make_path({mode => 0700});
       (-f $f) && $f->copy_to($new);

@@ -1,18 +1,28 @@
 package Slovo::Controller::Stranici;
-use Mojo::Base 'Slovo::Controller', -signatures;
 
-# GET /<:страница>.стр><*пѫт>
-sub покажи($c) {    # display
-  $c->debug('stashvalues:' => $c->stash->{страница}.', '.$c->stash->{пѫт});
+use Mojo::Base 'Slovo::Controller', -signatures;
+use constant not_found_id   => 4;
+use constant not_found_code => 404;
+
+# GET /<:страница>.стр<*пѫт>
+sub execute($c) {    # display
   my $alias = $c->stash->{страница};
 
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
-  my $path   = $c->stash->{пѫт};
-  my $user   = $c->user;
-  my $page   = $c->stranici->find_for_display($alias, $user);
-  my $celini = $c->celini->all_for_display($page, $user, 'bg-bg');
-
-  return $c->render(template => $page->{template}||'stranici/stranica',page=>$page,celini=>$celini);
+  my $path    = $c->stash->{пѫт};
+  my $user    = $c->user // $c->users->find_by_login_name('guest');
+  my $preview = $user->{login_name} ne 'guest' && $c->param('прегледъ');
+  my $page
+    = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);
+  $page //= $c->stranici->find(not_found_id);
+  my $celini = $c->celini->all_for_display($page, $user, 'bg-bg', $preview);
+  return
+    $c->render(
+               template => $page->{template} || 'stranici/stranica',
+               page     => $page,
+               celini   => $celini,
+               $page->{id} == not_found_id ? (status => not_found_code) : ()
+              );
 }
 
 # Al the following routes are under /Ꙋправленѥ

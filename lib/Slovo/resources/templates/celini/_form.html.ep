@@ -65,6 +65,9 @@ my $dtypes = c(
   '-rwxr-xr-x', 'drwxr-xr-x','lrwxr-xr-x','-rwxr-xr-x'], required => 1 
   %>
 
+  %= label_for published => 'Published'
+  <%= select_field published => [
+  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
 % end ;# fieldset
 %= t fieldset => (id=>'additional_properties') => begin
   %= t legend => 'Additional properties'

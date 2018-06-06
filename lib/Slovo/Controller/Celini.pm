@@ -160,7 +160,7 @@ sub _validation($c) {
   $v->optional('deleted',     'trim')->in(1, 0);
   $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
   $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
-  $c->debug($v->failed);
+  $v->optional('published',   'trim')->in(2, 1, 0);
   return $v;
 }
 

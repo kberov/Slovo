@@ -12,11 +12,13 @@ sub all ($self, $opts = {}) {
   $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
   $opts->{offset} //= 0;
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
+
   state $abstr = $self->dbx->abstract;
-  my ($sql, @bind) = $abstr->select('domove', '*', $opts->{where} // ());
+  my ($sql, @bind)
+    = $abstr->select('domove', $opts->{columns}, $opts->{where} // ());
   $sql .= " LIMIT $opts->{limit}"
     . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
-  return $self->dbx->db->query($sql, @bind)->hashes->to_array;
+  return $self->dbx->db->query($sql, @bind)->hashes;
 }
 
 sub find ($self, $id) {
