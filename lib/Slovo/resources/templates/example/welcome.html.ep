@@ -13,11 +13,11 @@
   % }
 </p>
 <p>
-  % if($c->user){
+  % if($c->is_user_authenticated){
   As authenticated user, <b><%= $c->user->{login_name} %></b>,
   you can go and <%= link_to manage => url_for('under_management')%> some resources.
   % }
   % else {
-  You may want to <%=link_to 'sign in' => url_for('sign_in') %> to interact with this application.
+  You may want to <%=link_to 'sign in' => url_for('sign_in') %> to use all features of this application.
   % }
 </p>

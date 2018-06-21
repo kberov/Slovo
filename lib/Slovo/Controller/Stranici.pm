@@ -10,7 +10,7 @@ sub execute($c) {    # display
 
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
   my $path    = $c->stash->{пѫт};
-  my $user    = $c->user // $c->users->find_by_login_name('guest');
+  my $user    = $c->user;
   my $preview = $user->{login_name} ne 'guest' && $c->param('прегледъ');
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);

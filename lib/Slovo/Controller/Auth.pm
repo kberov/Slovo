@@ -1,11 +1,15 @@
 package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
+use Mojo::Util qw(sha1_sum);
+
+sub current_user_fn {return 'user'}
 
 sub form($c) {
 
   #TODO: remember where the user is comming from to redirect him back
-  #afterwards if the place he is comming from is in the siame domain. If not,
+  #afterwards if the place he is comming from in the siame domain. If not,
   #redirect him to the main page.
+  $c->is_user_authenticated && return $c->redirect_to('/');
   return $c->render;
 }
 
@@ -18,6 +22,7 @@ sub sign_in ($c) {
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
 
   if ($v->csrf_protect->has_error('csrf_token')) {
+
     return
       $c->render(
                  error_login => 'Bad CSRF token!',
@@ -35,14 +40,13 @@ sub sign_in ($c) {
   }
 
   my $o = $v->output;
-  return $c->render(
-                  text => ($c->authenticate($o->{login_name}, $o->{digest}, $o))
-                  ? 'ok'
-                  : 'failed');
 
-  # TODO: Redirect to the page where user wanted to go or where he was
-  # initially
-  # return $c->redirect_to('/') unless $v->has_data;
+  # TODO: Redirect to the page where user wanted to go or where he was before
+  # TODO: No need to redirect if login is unsuccessful. Just render auth/form
+  # and display an error message. "Forgotten password?"
+  return $c->authenticate($o->{login_name}, $o->{digest}, $o)
+    ? $c->redirect_to('/')
+    : $c->redirect_to('authform');
 }
 
 sub sign_out ($c) {
@@ -50,22 +54,25 @@ sub sign_out ($c) {
 }
 
 sub under_management($c) {
-  my $u = $c->user;
-  return 1 if ($u && $u->{login_name} ne 'guest');
-  return $c->redirect_to('authform');
-}
-
-sub check($c) {
-  $c->redirect_to('sign_in') and return 0 unless ($c->is_user_authenticated);
-  return 1;
+  return 1 if ($c->is_user_authenticated);
+  $c->redirect_to('authform');
+  return 0;
 }
 
 sub load_user ($c, $uid) {
-  return $c->users->find($uid) // $c->users->find_by_login_name('guest');
+  return $c->users->find($uid);
 }
 
-sub validate_user ($c, $login_name, $clrf_pass, $data) {
-  return $c->users->find_by_login_name($login_name)->{id};
+sub validate_user ($c, $login_name, $csrf_digest, $dat) {
+  my $u = $c->users->find_by_login_name($login_name);
+  if (!$u) { delete $c->session->{csrf_token} && return; }
+
+  my $checksum = sha1_sum($c->csrf_token . $u->{login_password});
+  return unless ($checksum eq $csrf_digest);
+  $c->app->log->info('$user ' . $u->{login_name} . ' logged in!');
+  delete $c->session->{csrf_token};
+
+  return $u->{id};
 }
 
 1;
@@ -99,8 +106,9 @@ compared on the server side. The digest is different in every POST request.
 
 =head2 under_management
 
-This is a call back when user tries to acces a page i<under> c</управление>. If
-user is authenticated returns true. If not, redirects to L</form>.
+This is a callback when user tries to acces a page I<under> C</управление>. If
+user is authenticated returns true. If not, returns false and redirects to
+L</form>.
 
 =head2 sign_in
 
@@ -115,18 +123,29 @@ the login page.
 L<Slovo::Controller::Auth> inherits all methods from L<Slovo::Controller> and
 implements the following new ones.
 
-=head2 check
-
-Checks if a user is authenticated. If yes, returns true. If not, redirects to
-C</входъ> and returns false.
-
 =head1 FUNCTIONS
 
-Slovo::Controller::Auth implements the following functions executed by L<Mojolicious::Plugin::Authentication>.
+Slovo::Controller::Auth implements the following functions executed or used by
+L<Mojolicious::Plugin::Authentication>.
+
+=head2 current_user_fn
+
+Returns the name of the helper used for getting the properties of the current
+user. The name is C<user>. It is passed in configuration to
+L<Mojolicious::Plugin::Authentication> to generate the helper with this name.
+This value must not be changed. Otherwise you will get runtime errors all over
+the place because C<$c-E<gt>user> is used a lot.
 
 =head2 load_user
 
+This function is passed to L<Mojolicious::Plugin::Authentication> as reference.
+See L<Mojolicious::Plugin::Authentication/USER-LOADING>.
+
+
 =head2 validate_user
+
+This function is passed to L<Mojolicious::Plugin::Authentication> as reference.
+See L<Mojolicious::Plugin::Authentication/USER-VALIDATION>.
 
 
 =head1 SEE ALSO

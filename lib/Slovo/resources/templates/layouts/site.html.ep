@@ -13,8 +13,9 @@
     <header class="mui-appbar mui--z1">
     Слово
     </header>
+    % if ( @$left ) {
     %= t aside => (class=>"left") => begin
-        <%== 
+        <%==
         $left->map(
           sub {
               ($_->{title} ? t h2 => $_->{title} : '') . $/
@@ -23,8 +24,10 @@
           )->join($/)
         %>
     % end
+    % }
+    % if ( @$right ) {
     %= t aside => (class=>"right") => begin
-        <%== 
+        <%==
         $right->map(
           sub {
               ($_->{title} ? t h2 => $_->{title} : '') . $/
@@ -33,12 +36,13 @@
           )->join($/)
         %>
     % end
+    % }
     %= t main => begin
       %= content
     % end
     <footer>
       <div class="mui-container mui--text-center">
-          Направено съ ♥ и 
+          Направено съ ♥ и
           <a href="https://www.perl.org/">Perl<a>,
           <a href="https://mojolicious.org/">Mojolicious<a>,
           <a href="https://www.vim.org/">Vim<a>,

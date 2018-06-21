@@ -5,6 +5,7 @@ package Slovo;
 # * unicode strings: see /perldoc/feature#The-unicode_strings-feature
 # * my/state/our sub foo syntax: see /perldoc/feature#The-lexical_subs-feature
 # * signatures /perldoc/feature#The-signatures-feature
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 use 5.020;    #unicode, lexical subs
 use Mojo::Base 'Mojolicious', -signatures;
@@ -15,7 +16,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.06.06';
+our $VERSION   = '2018.06.22';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
@@ -30,8 +31,30 @@ has validator => sub { Slovo::Validator->new };
 sub startup($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
   $app->controller_class('Slovo::Controller');
-  $app->_load_config()->_load_pugins()->_default_paths();
+  ## no critic qw(Subroutines::ProtectPrivateSubs)
+  $app->hook(before_dispatch => \&_before_dispatch);
+  $app->_load_config->_load_pugins->_default_paths();
+
+  # replace is_user_authenticated from M::P::Authentication
+  $app->helper(
+         is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
   return $app;
+}
+
+sub _before_dispatch($c) {
+  state $u           = $c->users->find_by_login_name('guest');
+  state $auth_config = List::Util::first {
+    (ref $_ eq 'HASH') ? (exists $_->{Authentication} ? 1 : 0) : 0
+  }
+  @{$c->config('plugins')};
+  state $session_key     = $auth_config->{Authentication}{session_key};
+  state $current_user_fn = $auth_config->{Authentication}{current_user_fn};
+  unless ($c->session->{$session_key}) {
+
+    #set the guest user as default to always have a user
+    $c->$current_user_fn($u);
+  }
+  return;
 }
 
 sub _load_config($app) {
@@ -90,8 +113,7 @@ sub _default_paths($app) {
   # Application/site specific templates
   # See /perldoc/Mojolicious/Renderer#paths
   my $templates = $app->resources->child('templates')->to_string;
-  push @{$app->renderer->paths}, $templates if -d $templates;
-
+  unshift @{$app->renderer->paths}, $templates if -d $templates;
   return $app;
 }
 
@@ -213,6 +235,42 @@ Loads a class and croaks if something is wrong. This could be a helper.
 
 Starts the application, sets defaults, reads configuration file(s) and returns
 the application instance.
+
+=head1 HOOKS
+
+Slovo adds custom code to the following hooks.
+
+=head2 before_dispatch
+
+On each request we check if we have logged in user and set the current user to
+C<guest> if we don't. This way every part of the application (including newly
+developped plugins) can count on having a current user. The user is available
+as C<$c-E<gt>user>.
+
+=head1 HELPERS
+
+Slovo implements the following helpers.
+
+=head2 is_user_authenticated
+
+We replaced the implementation of this helper, provided otherwise by
+L<Mojolicious::Plugin::Authentication/is_user_authenticated>. Now we check if
+the user is not C<guest> instead of checking if we have a loaded user all over
+the place. This was needed because we wanted to always have a default user. See
+L</before_dispatch>. Now we have default user properties even if there is not
+a logged in user. This will be the C<guest> user.
+
+Once again: Now this helper returns true if the current user is not Guest, false
+otherwise.
+
+    %# in a template
+    Hello <%= $c->user->{first_name} %>,
+    % if($c->is_user_authenticated) {
+    You can go and <%= link_to manage => url_for('under_management')%> some pages.
+    % else {
+    You may want to <%=link_to 'sign in' => url_for('sign_in') %>.
+    % }
+
 
 =head1 BUGS
 

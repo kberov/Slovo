@@ -107,6 +107,42 @@ Loads a class and croaks if something is wrong. This could be a helper.
 Starts the application, sets defaults, reads configuration file(s) and returns
 the application instance.
 
+=head1 HOOKS
+
+Slovo adds custom code to the following hooks.
+
+=head2 before_dispatch
+
+On each request we check if we have logged in user and set the current user to
+C<guest> if we don't. This way every part of the application (including newly
+developped plugins) can count on having a current user. The user is available
+as C<$c-E<gt>user>.
+
+=head1 HELPERS
+
+Slovo implements the following helpers.
+
+=head2 is_user_authenticated
+
+We replaced the implementation of this helper, provided otherwise by
+L<Mojolicious::Plugin::Authentication/is_user_authenticated>. Now we check if
+the user is not C<guest> instead of checking if we have a loaded user all over
+the place. This was needed because we wanted to always have a default user. See
+L</before_dispatch>. Now we have default user properties even if there is not
+a logged in user. This will be the C<guest> user.
+
+Once again: Now this helper returns true if the current user is not Guest, false
+otherwise.
+
+    %# in a template
+    Hello <%= $c->user->{first_name} %>,
+    % if($c->is_user_authenticated) {
+    You can go and <%= link_to manage => url_for('under_management')%> some pages.
+    % else {
+    You may want to <%=link_to 'sign in' => url_for('sign_in') %>.
+    % }
+
+
 =head1 BUGS
 
 Please open issues at L<https://github.com/kberov/Slovo/issues>.
@@ -124,7 +160,7 @@ Please open issues at L<https://github.com/kberov/Slovo/issues>.
 
 =head1 COPYRIGHT
 
-This program is free software licensed under the Artistic License 2.0.	
+This program is free software licensed under the Artistic License 2.0.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
