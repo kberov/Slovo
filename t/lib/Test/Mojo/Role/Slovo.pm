@@ -51,19 +51,17 @@ sub login_ok ($t, $login_name, $login_password) {
     my $csrf_token
       = $t->tx->res->dom->at('#sign_in [name="csrf_token"]')->{value};
     my $form = {
-       login_name     => 'краси',
-       login_password => '',
-       csrf_token     => $csrf_token,
-       digest         => sha1_sum(
-         encode(
-           'utf8',
-           $csrf_token . sha1_sum(encode('utf8', "$login_name,$login_password"))
-         )
-       ),
+          login_name     => 'краси',
+          login_password => '',
+          csrf_token     => $csrf_token,
+          digest         => sha1_sum(
+            $csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))
+          ),
     };
 
-    $t->post_ok('/входъ', {} => form => $form)->status_is(200)
-      ->content_is('ok');
+    $t->post_ok('/входъ', {} => form => $form)->status_is(302)
+      ->header_is(Location => '/', 'Location: /')
+      ->content_is('', 'empty content');
   };
   return $t;
 }

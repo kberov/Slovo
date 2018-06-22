@@ -1,6 +1,20 @@
 Revision history for Mojolicious application Slovo
 
-2018.06.09
+2018.06.22
+    - Changes
+        * User Guest is always loaded to have some default permissions for
+          every not logged in user.
+        * Replaced helper "is_user_authenticated" from
+          Mojolicious::Plugin::Authentication. Now it checks if the current
+          user is not Guest and returns true, false otherwise.
+        * Now the user is really authenticated.
+        * Removed unused methid "check" from Slovo::Controller::Auth.
+        * Improved documentation.
+    - Features
+        * Better and working "Sign in" without transmitting plain text password.
+
+
+2018.06.06
     - Changes
         * On failed login the guest user is loaded to have always a user.
         * We `use 5.020` in Slovo.pm to switch ON all Perl features available

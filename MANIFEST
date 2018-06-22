@@ -70,6 +70,7 @@ t/001_load.t
 t/002_basic.t
 t/003_sign_in.t
 t/004_crud.t
+t/005_site.t
 t/lib/Test/Mojo/Role/Slovo.pm
 t/manifest.t
 t/perl-critic.t

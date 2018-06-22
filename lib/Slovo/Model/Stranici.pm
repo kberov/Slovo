@@ -63,12 +63,16 @@ sub add ($m, $row) {
   @$title{qw(title language body)} = delete @$row{qw(title language body)};
   @$title{
     qw(sorting data_type created_at user_id
-    group_id changed_by alias permissions published)
-    } = (
-       0, 'заглавѥ',
-       @$row{qw(tstamp user_id 
-       group_id changed_by alias permissions published)}
-        );
+      group_id changed_by alias permissions published)
+    }
+    = (
+    0,
+    'заглавѥ',
+    @$row{
+      qw(tstamp user_id
+        group_id changed_by alias permissions published)
+    }
+    );
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;

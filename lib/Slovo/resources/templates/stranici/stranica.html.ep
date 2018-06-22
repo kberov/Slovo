@@ -8,7 +8,7 @@
 %= $first->{body}
 </section>
 
-<%== 
+<%==
 $main->map(
   sub {
     t section => sub {

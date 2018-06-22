@@ -7,6 +7,7 @@
     % end
     %= t body => begin
         %= link_to '/Ꙋправленѥ' => 'under_management'
+        %== ' | ' . link_to 'Изходъ' => 'sign_out' if $c->is_user_authenticated;
         <hr/>
         %= content
     % end
