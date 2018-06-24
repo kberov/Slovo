@@ -25,9 +25,15 @@ lib/Slovo/resources/etc/slovo.conf
 lib/Slovo/resources/public/css/site.css
 lib/Slovo/resources/public/css/slovo-min.css
 lib/Slovo/resources/public/css/upravlenie.css
+lib/Slovo/resources/public/img/favicon.ico
+lib/Slovo/resources/public/img/slovo-white.png
+lib/Slovo/resources/public/img/slovo-white.svg
+lib/Slovo/resources/public/img/slovo.png
+lib/Slovo/resources/public/img/slovo.svg
 lib/Slovo/resources/public/index.html
 lib/Slovo/resources/public/js/CryptoJS-v3.1.2/sha1.js
 lib/Slovo/resources/public/js/mui.min.js
+lib/Slovo/resources/public/js/sidedrawer.js
 lib/Slovo/resources/templates/auth/form.html.ep
 lib/Slovo/resources/templates/celini/_form.html.ep
 lib/Slovo/resources/templates/celini/create.html.ep
@@ -48,6 +54,11 @@ lib/Slovo/resources/templates/groups/show.html.ep
 lib/Slovo/resources/templates/layouts/default.html.ep
 lib/Slovo/resources/templates/layouts/site.html.ep
 lib/Slovo/resources/templates/layouts/upravlenie.html.ep
+lib/Slovo/resources/templates/partials/_footer.html.ep
+lib/Slovo/resources/templates/partials/_head.html.ep
+lib/Slovo/resources/templates/partials/_header.html.ep
+lib/Slovo/resources/templates/partials/_left.html.ep
+lib/Slovo/resources/templates/partials/_right.html.ep
 lib/Slovo/resources/templates/stranici/_form.html.ep
 lib/Slovo/resources/templates/stranici/create.html.ep
 lib/Slovo/resources/templates/stranici/edit.html.ep

@@ -1,0 +1,17 @@
+  % if ( @$left ) {
+  %= t aside => (class=>"left mui--no-user-select", id => "sidedrawer") => begin
+  <div id="sidedrawer-brand" class="mui--appbar-line-height">
+    <span class="mui--text-title"><%= $c->domain %></span>
+  </div>
+  <div class="mui-divider"></div>
+        <%==
+        $left->map(
+          sub {
+              ($_->{title} ? t h2 => $_->{title} : '') . $/
+                . ($_->{body} ? $_->{body} : '');
+          }
+          )->join($/)
+        %>
+    % end
+    % }
+

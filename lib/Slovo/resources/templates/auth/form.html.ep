@@ -16,7 +16,7 @@
 % if(stash->{error_login}) {
 <div id="error_login" class="error message"><%= stash->{error_login} %></div>
 % }
-%= form_for sign_in => (id => 'sign_in') => begin
+%= form_for sign_in => (id => 'sign_in', autocomplete =>'off') => begin
 %= label_for login_name => '"Име за входъ" е задължително поле (ѿ 1 до 100 знака).'
 <br>
 %= text_field 'login_name', placeholder => 'Име за входъ', title => 'Име за входъ'
@@ -45,5 +45,5 @@ login_form.onsubmit = function() {
     dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
     return true;
 };
-%= end
+% end
 

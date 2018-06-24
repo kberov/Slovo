@@ -1,5 +1,14 @@
 Revision history for Mojolicious application Slovo
 
+2018.06.25
+    - Features
+        * Implemented a site layout, based on a MUI CSS example. We are getting
+          closer to a MVP (Minimum Viable Product).
+    - Changes
+        * Avoided using varaiables and subroutine names written in azbouka due
+        * to a missing feature in PPI which causes Perl::Critic to falsely
+        * complain. See https://github.com/adamkennedy/PPI/issues/226
+
 2018.06.22
     - Changes
         * User Guest is always loaded to have some default permissions for

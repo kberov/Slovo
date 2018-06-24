@@ -7,7 +7,7 @@ my $celini_table = Slovo::Model::Celini->table;
 sub table { return $table }
 
 # Find a page by $alias which can be seen by the current user
-sub find_for_display ($m, $alias, $user, $дом, $прегледъ) {
+sub find_for_display ($m, $alias, $user, $domain, $preview) {
   my $now = time;
   state $domain_sql = <<"SQL";
 = (SELECT id FROM domove
@@ -18,16 +18,16 @@ SQL
     $table, undef,
     {
      alias => $alias,
-     $прегледъ ? () : (deleted => 0),
-     $прегледъ ? () : (start   => [{'=' => 0}, {'<' => $now}]),
-     $прегледъ ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
+     $preview ? () : (deleted => 0),
+     $preview ? () : (start   => [{'=' => 0}, {'<' => $now}]),
+     $preview ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
 
      # the page must belong to the current domain
-     dom_id => \[$domain_sql, => ($дом, "%$дом%", 2)],
+     dom_id => \[$domain_sql, => ($domain, "%$domain%", 2)],
 
      # TODO: May be drop this column as 'hidden' can be
      # implemented by putting '.' as first character for the alias.
-     $прегледъ ? () : (hidden => 0),
+     $preview ? () : (hidden => 0),
 
      -or => [
 
@@ -43,7 +43,7 @@ SQL
        # by one of the groups to which this user belongs.
        {
         permissions => {-like => '____r_x%'},
-        published => $прегледъ ? 1 : 2,
+        published => $preview ? 1 : 2,
 
         # TODO: Implement 'adding users to multiple groups':
         group_id => \[

@@ -1,15 +1,16 @@
 package Slovo::Controller::Stranici;
 
 use Mojo::Base 'Slovo::Controller', -signatures;
-use constant not_found_id   => 4;
-use constant not_found_code => 404;
+
+sub not_found_id   {4} ## no critic (Subroutines::RequireFinalReturn)
+sub not_found_code  {404} ## no critic (Subroutines::RequireFinalReturn)
 
 # GET /<:страница>.стр<*пѫт>
 sub execute($c) {    # display
-  my $alias = $c->stash->{страница};
+  my $alias = $c->stash->{'страница'};
 
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
-  my $path    = $c->stash->{пѫт};
+  my $path    = $c->stash->{'пѫт'};
   my $user    = $c->user;
   my $preview = $user->{login_name} ne 'guest' && $c->param('прегледъ');
   my $page

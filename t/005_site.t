@@ -24,6 +24,17 @@ subtest 'previewed pages' => sub {
   }
 };
 
+subtest 'site layout' => sub {
+  $t->get_ok($app->url_for('sign_out'))->status_is(302)
+    ->header_is('Location' => '/');
+  $t->get_ok("/коренъ.стр.html")->status_is(200)
+    ->element_exists('body header.mui-appbar')
+    ->element_exists('aside#sidedrawer')
+    ->element_exists('main#content-wrapper')
+    ->element_exists('footer.mui-appbar');
+  $t->get_ok('/ѿносно.стр.html')->status_is(200)
+    ->element_exists_not('aside#sidedrawer');
+};
 
 done_testing;
 exit;

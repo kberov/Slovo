@@ -5,16 +5,16 @@ my $table = 'celini';
 
 sub table { return $table }
 
-sub all_for_display ($self, $page, $user, $language, $прегледъ) {
+sub all_for_display ($self, $page, $user, $language, $preview) {
   my $now = time;
   return $self->all(
     {
      where => {
        page_id  => $page->{id},
        language => $language,
-       $прегледъ ? () : (deleted => 0),
-       $прегледъ ? () : (start   => [{'=' => 0}, {'<' => $now}]),
-       $прегледъ ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
+       $preview ? () : (deleted => 0),
+       $preview ? () : (start   => [{'=' => 0}, {'<' => $now}]),
+       $preview ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
        -or => [
 
          # published and everybody can read and execute
@@ -27,7 +27,7 @@ sub all_for_display ($self, $page, $user, $language, $прегледъ) {
          # by one of the groups to which this user belongs.
          {
           permissions => {-like => '____r_x%'},
-          published => $прегледъ ? 1 : 2,
+          published => $preview ? 1 : 2,
 
           # TODO: Implement adding users to multiple groups:
           group_id => \[

@@ -1,0 +1,8 @@
+
+    <footer class="mui-appbar mui--z1 mui--text-center">
+          Направено съ ♥ и
+          <a target="_blank" href="https://www.perl.org/">Perl</a>,
+          <a target="_blank" href="https://mojolicious.org/">Mojolicious</a>,
+          <a target="_blank" href="https://www.vim.org/">Vim</a>,
+          <a target="_blank" href="https://www.muicss.com">MUICSS</a>...
+    </footer>

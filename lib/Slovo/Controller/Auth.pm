@@ -14,7 +14,7 @@ sub form($c) {
 }
 
 # Sign in the user.
-sub sign_in ($c) {
+sub sign_in($c) {
 
   #1. do basic validation first
   my $v = $c->validation;
@@ -74,6 +74,7 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
 
   return $u->{id};
 }
+
 
 1;
 

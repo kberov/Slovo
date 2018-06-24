@@ -9,9 +9,9 @@ has keywords    => 'SSOT, CRM, ERP, CMS, Perl, Mojolicious, SQL';
 sub generator { return 'Slovo ' . $Slovo::VERSION . ' - ' . $Slovo::CODENAME }
 
 has domain => sub {
-  my $дом = $_[0]->req->headers->host;
-  $дом =~ s/(\:\d+)$//;    # remove port
-  return $дом;
+  my $domain = $_[0]->req->headers->host;
+  $domain =~ s/(\:\d+)$//;    # remove port
+  return $domain;
 };
 
 sub debug;

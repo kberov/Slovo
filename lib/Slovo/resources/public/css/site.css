@@ -1,6 +1,194 @@
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
 
-aside.left {float:left;clear:both;width:20%}
-aside.right{float:right;clear:left;width:20%}
-main {width:80%;}
+/**
+ * Body CSS
+ */
+html,
+body {
+  height: 100%;
+  background-color: #eee;
+  font-size:18px;
+  /* TODO: change body/html font-size dynamically using JavaScript to change the lenght values
+   * to everything set in "rem"s (root ems). Useful for screens with bigger
+   * resolution where the font is too small.
+   */
+}
+
+html,
+body,
+input,
+textarea,
+button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+}
+
+/**
+ * Header and footer CSS
+ */
+header, footer {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  transition: left 0.2s;
+}
+
+header {
+  top: 0;
+}
+footer {
+    bottom: 0;
+}
+
+header a, footer a {
+  color: white;
+}
+
+.mui--appbar-min-height, .mui-appbar, .mui--appbar-height {
+    min-height: 1rem;
+    max-height: 3rem;
+}
+.mui--appbar-line-height {
+    line-height:1.5rem;
+}
+
+header.mui-appbar table {
+    width:100%;
+    /* top | right | bottom | left */
+    padding: 0 1rem 0 1rem;
+}
+
+header.mui-appbar .mui--text-right a {
+    font-size: 0.8rem;
+}
+
+#logo {
+    display: inline;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+}
+
+#sidedrawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  left: -200px;
+  overflow: auto;
+  z-index: 2;
+  background-color: #fff;
+  transition: transform 0.2s;
+}
+
+.sidedrawer-toggle {
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  margin-right: 0.45rem;
+}
+
+.sidedrawer-toggle:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+
+
+/**
+ * Content CSS
+ */
+main#content-wrapper {
+  min-height: 100%;
+  overflow-x: hidden;
+  margin-left: 0px;
+  transition: margin-left 0.2s;
+
+  /* sticky bottom */
+  margin-bottom: -3rem;
+  padding: 1.5rem 1rem 0 1rem;
+}
+
+footer {
+  margin-left: 0px;
+  transition: margin-left 0.2s;
+}
+
+@media (min-width: 768px) {
+  header {
+    left: 200px;
+  }
+
+  #sidedrawer {
+    transform: translate(200px);
+  }
+
+  main#content-wrapper {
+    margin-left: 200px;
+  }
+
+  footer {
+    margin-left: 200px;
+  }
+
+  body.hide-sidedrawer header {
+    left: 0;
+  }
+
+  body.hide-sidedrawer #sidedrawer {
+    transform: translate(0px);
+  }
+
+  body.hide-sidedrawer main#content-wrapper {
+    margin-left: 0;
+  }
+
+  body.hide-sidedrawer footer {
+    margin-left: 0;
+  }
+}
+
+
+/**
+ * Toggle Side drawer
+ */
+#sidedrawer.active {
+  transform: translate(200px);
+}
+
+/**
+ * Side drawer CSS
+ */
+#sidedrawer-brand {
+  padding-left: 1.1rem;
+}
+
+#sidedrawer ul {
+  list-style: none;
+}
+
+#sidedrawer > ul {
+  padding-left: 0px;
+}
+
+#sidedrawer > ul > li:first-child {
+  padding-top: .8rem;
+}
+
+#sidedrawer strong {
+  display: block;
+  padding: .8rem 1.2rem;
+  cursor: pointer;
+}
+
+#sidedrawer strong:hover {
+  background-color: #E0E0E0;
+}
+
+#sidedrawer strong + ul > li {
+  padding: .33rem 0;
+}

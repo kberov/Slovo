@@ -1,0 +1,12 @@
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    %= t 'title' => title
+    %= stylesheet '/css/slovo-min.css'
+    %= stylesheet '/css/site.css'
+    %= javascript '/js/mui.min.js'
+    %= javascript '/mojo/jquery/jquery.js'
+    %= javascript 'js/sidedrawer.js'
+  </head>
