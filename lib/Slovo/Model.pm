@@ -14,7 +14,8 @@ sub all ($self, $opts = {}) {
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
   state $abstr = $self->dbx->abstract;
   my ($sql, @bind)
-    = $abstr->select($self->table, '*', $opts->{where}, $opts->{order_by});
+    = $abstr->select($opts->{table} // $self->table,
+                     $opts->{columns}, $opts->{where}, $opts->{order_by});
   $sql .= " LIMIT $opts->{limit}"
     . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
   return $self->dbx->db->query($sql, @bind)->hashes;

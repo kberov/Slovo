@@ -1,3 +1,5 @@
+@charset "utf-8";
+
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
 
@@ -39,8 +41,10 @@ header, footer {
 header {
   top: 0;
 }
+
 footer {
     bottom: 0;
+    padding: 0 1rem 0 1rem;
 }
 
 header a, footer a {
@@ -191,4 +195,9 @@ footer {
 
 #sidedrawer strong + ul > li {
   padding: .33rem 0;
+}
+
+#Ꙋправленѥ {
+    float: right;
+    font-size: x-small
 }

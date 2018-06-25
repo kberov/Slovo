@@ -1,10 +1,15 @@
+@charset "utf-8";
+
 label.field-with-error { color: #dd7e5e }
 input.field-with-error { background-color: #fd9e7e }
 .hidden, .deleted, .expired, .upcoming {opacity: 0.50;}
 .deleted {text-decoration: line-through red;}
 .upcoming {text-decoration: green wavy overline;}
 .expired {text-decoration: green wavy underline;}
-
+#logo {
+    height: 1rem;
+    vertical-align:middle;
+}
 .item-field {
     border: 1px #ddd solid;
     margin: 1ex 0 1ex 1ex;

@@ -1,0 +1,159 @@
+{
+   "basePath" : "/api",
+   "produces" : [
+      "application/json",
+      "text/plain",
+      "text/html"
+   ],
+   "schemes" : [
+      "http",
+      "https"
+   ],
+   "definitions" : {
+      "Errors" : {
+         "items" : {
+            "$ref" : "#/definitions/Error"
+         },
+         "type" : "array"
+      },
+      "ErrorResponse" : {
+         "properties" : {
+            "errors:" : {
+               "$ref" : "#/definitions/Errors"
+            },
+            "valid" : {
+               "type" : "boolean"
+            }
+         },
+         "type" : "object"
+      },
+      "Error" : {
+         "required" : [
+            "message"
+         ],
+         "properties" : {
+            "path" : {
+               "type" : "string"
+            },
+            "message" : {
+               "type" : "string"
+            }
+         }
+      },
+      "StraniciItem" : {
+         "properties" : {
+            "page_type" : {
+               "maxLength" : "32",
+               "type" : "string"
+            },
+            "pid" : {
+               "type" : "integer"
+            },
+            "alias" : {
+               "type" : "string",
+               "maxLength" : "32"
+            },
+            "sorting" : {
+               "type" : "integer"
+            },
+            "id" : {
+               "type" : "integer"
+            }
+         },
+         "required" : [
+            "id",
+            "alias",
+            "page_type"
+         ],
+         "description" : "An object, representing one item of Stranici."
+      },
+      "Stranici" : {
+         "items" : {
+            "$ref" : "#/definitions/StraniciItem"
+         },
+         "type" : "array"
+      }
+   },
+   "swagger" : "2.0",
+   "parameters" : {
+      "offset" : {
+         "minimum" : 0,
+         "name" : "offset",
+         "in" : "query",
+         "description" : "At what offset (min: 0)?",
+         "type" : "integer",
+         "default" : 0
+      },
+      "limit" : {
+         "description" : "How many, items to return at once (max: 100; min: 1)",
+         "type" : "integer",
+         "maximum" : 100,
+         "name" : "limit",
+         "in" : "query",
+         "default" : 100,
+         "minimum" : 1
+      }
+   },
+   "consumes" : [
+      "application/json",
+      "multipart/form-data",
+      "application/x-www-form-urlencoded"
+   ],
+   "paths" : {
+      "/страници" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "$ref" : "#/parameters/limit"
+               },
+               {
+                  "$ref" : "#/parameters/offset"
+               },
+               {
+                  "name": "pid",
+                  "type": "integer",
+                  "in": "query",
+                  "description": "Filter by this value of column 'pid'(parent id)"
+               },
+               {
+                  "name": "columns",
+                  "type":"array",
+                  "in":"query",
+                  "collectionFormat": "csv",
+                  "default": ["id", "pid", "alias", "page_type", "sorting"],
+                  "items": {"type":"string",
+                      "enum":["id", "pid", "alias", "page_type", "sorting"]},
+                  "description": "Which properties of the object to be returned only?"
+               }
+            ],
+            "x-mojo-to" : "stranici#list",
+            "operationId" : "api.list_stranici",
+            "summary" : "List all records of type Stranici.",
+            "description" : "List all records of type Stranici according to the client's priviledges.",
+            "responses" : {
+               "200" : {
+                  "schema" : {
+                     "$ref" : "#/definitions/Stranici"
+                  },
+                  "description" : "An array of Stranici."
+               },
+               "default" : {
+                  "$ref" : "#/definitions/ErrorResponse"
+               }
+            }
+         }
+      }
+   },
+   "info" : {
+      "title" : "Slovo OpenAPI",
+      "license" : {
+         "name" : "Artistic License 2.0"
+      },
+      "version" : "1.0",
+      "contact" : {
+         "name" : "Company name here",
+         "email" : "company_api@example.com"
+      },
+      "description" : "This is the OpenAPI specification for Slovo OpenAPI."
+   }
+}

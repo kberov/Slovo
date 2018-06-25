@@ -17,7 +17,7 @@ lib/Slovo/Model/Groups.pm
 lib/Slovo/Model/Stranici.pm
 lib/Slovo/Model/Users.pm
 lib/Slovo/Plugin/MojoDBx.pm
-lib/Slovo/resources/api.json
+lib/Slovo/resources/api-v1.0.json
 lib/Slovo/resources/data/migrations.sql
 lib/Slovo/resources/etc/README
 lib/Slovo/resources/etc/routes.conf
@@ -82,6 +82,7 @@ t/002_basic.t
 t/003_sign_in.t
 t/004_crud.t
 t/005_site.t
+t/006_api.t
 t/lib/Test/Mojo/Role/Slovo.pm
 t/manifest.t
 t/perl-critic.t

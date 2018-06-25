@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 %= t html => begin
-    %= t head => begin
-        %= t meta => (charset => 'utf-8')
-        %= t 'title' => title
-        %= stylesheet '/css/upravlenie.css'
-    % end
-    %= t body => begin
-        %= link_to '/Ꙋправленѥ' => 'under_management'
-        %== ' | ' . link_to 'Изходъ' => 'sign_out' if $c->is_user_authenticated;
-        <hr/>
-        %= content
-    % end
+  %= t head => begin
+    %= t meta => (charset => 'utf-8')
+    %= t 'title' => title
+    %= stylesheet '/css/upravlenie.css'
+  % end
+  %= t body => begin
+    %= link_to '/' => sub{ t img => id=> "logo", src=>"/img/slovo.png" }
+    |
+    %= link_to '/Ꙋправленѥ' => 'under_management'
+    %== ' | ' . link_to 'Изходъ' => 'sign_out' if $c->is_user_authenticated;
+    <hr/>
+    %= content
+  % end
 % end

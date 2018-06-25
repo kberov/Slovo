@@ -2,11 +2,9 @@ package Slovo::Controller::Stranici;
 
 use Mojo::Base 'Slovo::Controller', -signatures;
 
-sub not_found_id   {4} ## no critic (Subroutines::RequireFinalReturn)
-sub not_found_code  {404} ## no critic (Subroutines::RequireFinalReturn)
-
 # GET /<:страница>.стр<*пѫт>
-sub execute($c) {    # display
+# Display a page in the site
+sub execute($c) {
   my $alias = $c->stash->{'страница'};
 
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
@@ -15,15 +13,16 @@ sub execute($c) {    # display
   my $preview = $user->{login_name} ne 'guest' && $c->param('прегледъ');
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);
-  $page //= $c->stranici->find(not_found_id);
+  $page //= $c->stranici->find($c->not_found_id);
   my $celini = $c->celini->all_for_display($page, $user, 'bg-bg', $preview);
+
   return
     $c->render(
-               template => $page->{template} || 'stranici/stranica',
-               page     => $page,
-               celini   => $celini,
-               $page->{id} == not_found_id ? (status => not_found_code) : ()
-              );
+          template => $page->{template} || 'stranici/stranica',
+          page     => $page,
+          celini   => $celini,
+          $page->{id} == $c->not_found_id ? (status => $c->not_found_code) : (),
+    );
 }
 
 # Al the following routes are under /Ꙋправленѥ
@@ -118,6 +117,10 @@ sub index($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
+
+    # TODO: Modify $input: add where clause, get also title in the requested
+    # language from celini and merge it into the stranici object. Modify the
+    # Swagger description of respons object to conform to the output.
     return $c->render(openapi => $c->stranici->all($input));
   }
   return $c->render(stranici => $c->stranici->all);
@@ -173,5 +176,14 @@ sub _validation($c) {
   return $v;
 }
 
+# GET/api/страници
+# List of published pages under a given pid inthe current domain.
+# Used for sidedrawer or sitemap
+sub list($c) {
+
+  $c->openapi->valid_input or return;
+  my $in = $c->validation->output;
+  return $c->render(openapi => $c->stranici->all_for_list($in));
+}
 
 1;

@@ -1,13 +1,22 @@
 Revision history for Mojolicious application Slovo
 
+2018.07.10
+    - Features
+        * Link to /Ꙋправленѥ when user is signed in in the footer.
+        * (WIP) Using OpenAPI (fka Swagger) to retreive the sidebar page menu.
+    - Changes
+        * Updated Mojolicious::Plugin::OpenAPI to 1.30 and enabled it.
+        * removed api.json and added api-v1.0.json
+        * Fixed failing tests on Perl 5.20.
+
 2018.06.25
     - Features
         * Implemented a site layout, based on a MUI CSS example. We are getting
           closer to a MVP (Minimum Viable Product).
     - Changes
         * Avoided using varaiables and subroutine names written in azbouka due
-        * to a missing feature in PPI which causes Perl::Critic to falsely
-        * complain. See https://github.com/adamkennedy/PPI/issues/226
+          to a missing feature in PPI which causes Perl::Critic to falsely
+          complain. See https://github.com/adamkennedy/PPI/issues/226
 
 2018.06.22
     - Changes
