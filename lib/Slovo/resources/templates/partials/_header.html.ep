@@ -7,7 +7,7 @@
               <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
               <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer">☰</a>
               % }
-              %= link_to 'покажи_страница' => {страница => 'коренъ'} => begin
+              %= link_to '/' => begin
               <img id="logo" src="/img/slovo-white.png">
               %= $c->domain
               % end

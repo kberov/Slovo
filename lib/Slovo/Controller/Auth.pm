@@ -2,7 +2,7 @@ package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
 use Mojo::Util qw(sha1_sum);
 
-sub current_user_fn {return 'user'}
+has current_user_fn => 'user';
 
 sub form($c) {
 

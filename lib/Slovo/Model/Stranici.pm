@@ -6,6 +6,9 @@ my $celini_table = Slovo::Model::Celini->table;
 
 sub table { return $table }
 
+# TODO: returns a structure for a where clause to be shared among select methods
+# sub _where_for_display () { }
+
 # Find a page by $alias which can be seen by the current user
 sub find_for_display ($m, $alias, $user, $domain, $preview) {
   my $now = time;
@@ -126,6 +129,16 @@ sub save ($m, $id, $row) {
 
 sub remove ($self, $id) {
   return $self->dbx->db->update($table, {deleted => 1}, {id => $id});
+}
+
+sub all_for_list ($self, $opts = {}) {
+  $opts->{where} = {pid => delete $opts->{pid} // 0};
+
+  # TODO: Modify $input: add where clause, get also title in the requested
+  # language from celini and merge it into the stranici object. Modify the
+  # Swagger description of respons object to conform to the output.
+
+  return $self->all($opts);
 }
 
 1;

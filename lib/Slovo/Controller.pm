@@ -3,6 +3,9 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 our $DEV_MODE = ($ENV{MOJO_MODE} || '' =~ /dev/);
 
+has not_found_id   => 4;
+has not_found_code => 404;
+
 has description => 'Slovo is a simple extensible CMS.';
 has keywords    => 'SSOT, CRM, ERP, CMS, Perl, Mojolicious, SQL';
 

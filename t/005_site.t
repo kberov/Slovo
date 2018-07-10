@@ -37,4 +37,4 @@ subtest 'site layout' => sub {
 };
 
 done_testing;
-exit;
+
