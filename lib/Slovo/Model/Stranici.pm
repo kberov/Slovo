@@ -4,58 +4,77 @@ use Slovo::Model::Celini;
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 
-sub table { return $table }
+has not_found_id => 4;
+has table        => $table;
 
-# TODO: returns a structure for a where clause to be shared among select methods
-# sub _where_for_display () { }
+# Returns a structure for a 'where' clause to be shared among select methods
+# for pages to be displayed in the site.
+sub _where_with_permissions ($m, $user, $domain, $preview) {
 
-# Find a page by $alias which can be seen by the current user
-sub find_for_display ($m, $alias, $user, $domain, $preview) {
   my $now = time;
   state $domain_sql = <<"SQL";
 = (SELECT id FROM domove
     WHERE (? LIKE '%' || domain OR ips like ?) AND published = ? LIMIT 1)
 SQL
 
-  return $m->dbx->db->select(
-    $table, undef,
-    {
-     alias => $alias,
-     $preview ? () : (deleted => 0),
-     $preview ? () : (start   => [{'=' => 0}, {'<' => $now}]),
-     $preview ? () : (stop    => [{'=' => 0}, {'>' => $now}]),
+  return {
+    # must not be deleted
+    $preview ? () : ("$table.deleted" => 0),
 
-     # the page must belong to the current domain
-     dom_id => \[$domain_sql, => ($domain, "%$domain%", 2)],
+    # must be available within a given range of time values
+    $preview ? () : ("$table.start" => [{'=' => 0}, {'<' => $now}]),
+    $preview ? () : ("$table.stop"  => [{'=' => 0}, {'>' => $now}]),
 
-     # TODO: May be drop this column as 'hidden' can be
-     # implemented by putting '.' as first character for the alias.
-     $preview ? () : (hidden => 0),
+    # the page must belong to the current domain
+    "$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", 2)],
 
-     -or => [
+    # TODO: May be drop this column as 'hidden' can be
+    # implemented by putting '.' as first character for the alias.
+    $preview ? () : ("$table.hidden" => 0),
 
-       # published and everybody can read and execute
-       # This page can be stored on disk and served as static page
-       # after displayed for the first time
-       {published => 2, permissions => {-like => '%r_x'}},
+    -or => [
 
-       # preview of a page, owned by this user
-       {user_id => $user->{id}, permissions => {-like => '_r_x%'}},
+      # published and everybody can read and execute
+      # This page can be stored on disk and served as static page
+      # after displayed for the first time
+      {"$table.published" => 2, "$table.permissions" => {-like => '%r_x'}},
 
-       # preview of a page, which can be read and executed
-       # by one of the groups to which this user belongs.
-       {
-        permissions => {-like => '____r_x%'},
-        published => $preview ? 1 : 2,
+      # preview of a page, owned by this user
+      {
+       "$table.user_id"     => $user->{id},
+       "$table.permissions" => {-like => '_r_x%'}
+      },
 
-        # TODO: Implement 'adding users to multiple groups':
-        group_id => \[
+      # preview of a page, which can be read and executed
+      # by one of the groups to which this user belongs.
+      {
+       "$table.permissions" => {-like => '____r_x%'},
+       "$table.published"   => $preview ? 1 : 2,
+
+    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
+       "$table.group_id" => \[
            "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
-        ],
-       },
-     ]
-    }
-  )->hash;
+       ],
+      },
+    ]
+  };
+}
+
+# Find a page by $alias which can be seen by the current user
+sub find_for_display ($m, $alias, $user, $domain, $preview) {
+
+  return
+    $m->dbx->db->select(
+                        $table, undef,
+                        {
+                         alias => $alias,
+                         %{
+                           $m->_where_with_permissions(
+                                                       $user, $domain, $preview
+                                                      )
+                          }
+                        }
+                       )->hash;
 }
 
 
@@ -131,13 +150,41 @@ sub remove ($self, $id) {
   return $self->dbx->db->update($table, {deleted => 1}, {id => $id});
 }
 
-sub all_for_list ($self, $opts = {}) {
-  $opts->{where} = {pid => delete $opts->{pid} // 0};
+# Transforms a column accordingly as passed from $opts->{columns} and returns
+# the transfromed column.
+## no critic (Modules::RequireEndWithOne)
+my sub _transform_columns($col) {
+  if ($col eq 'title') {
+    return "$/$celini_table.title AS $col";
+  }
+  elsif ($col eq 'is_dir') {
+    return "$/EXISTS (SELECT 1 WHERE $table.permissions LIKE 'd%') AS is_dir";
+  }
+  return "$/$table.$col AS $col";
+}
 
-  # TODO: Modify $input: add where clause, get also title in the requested
-  # language from celini and merge it into the stranici object. Modify the
-  # Swagger description of respons object to conform to the output.
+# Returns all pages for listing in a sidebar or via Swagger API. Beware not to
+# mention one column twice as a key in the WHERE clause, because only the
+# second mention will remain for generating the SQL.
+sub all_for_list ($self, $user, $domain, $preview, $language, $opts = {}) {
+  $opts->{table} = [$table, $celini_table];
+  my @columns = map { _transform_columns($_) } @{$opts->{columns}};
+  $opts->{columns} = join ",", @columns;
+  my $pid = delete $opts->{pid} // 0;
+  $opts->{where} = {
+    "$table.pid" => $pid,
 
+    # avoid any potential recursion
+    # must not be the not_found_id
+    "$table.id" => {-not_in => [$self->not_found_id, {-ident => "$table.pid"}]},
+    "$celini_table.page_id"   => {-ident => "$table.id"},
+    "$celini_table.data_type" => 'заглавѥ',
+    "$celini_table.language"  => $language,
+    "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    %{$self->_where_with_permissions($user, $domain, $preview)},
+    %{$self->c->celini->where_with_permissions($user, $preview)},
+    %{$opts->{where} // {}}
+                   };
   return $self->all($opts);
 }
 

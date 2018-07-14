@@ -10,7 +10,7 @@ sub execute($c) {
   #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
   my $path    = $c->stash->{'пѫт'};
   my $user    = $c->user;
-  my $preview = $user->{login_name} ne 'guest' && $c->param('прегледъ');
+  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);
   $page //= $c->stranici->find($c->not_found_id);
@@ -177,13 +177,19 @@ sub _validation($c) {
 }
 
 # GET/api/страници
-# List of published pages under a given pid inthe current domain.
+# List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
 sub list($c) {
 
   $c->openapi->valid_input or return;
   my $in = $c->validation->output;
-  return $c->render(openapi => $c->stranici->all_for_list($in));
+
+  my $user = $c->user;
+  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
+  my $list
+    = $c->stranici->all_for_list($user, $c->domain, $preview, $c->language,
+                                 $in);
+  return $c->render(openapi => $list);
 }
 
 1;

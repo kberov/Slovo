@@ -58,6 +58,12 @@
             },
             "id" : {
                "type" : "integer"
+            },
+            "title" : {
+               "type" : "string"
+            },
+            "is_dir" : {
+               "type" : "boolean"
             }
          },
          "required" : [
@@ -120,9 +126,9 @@
                   "type":"array",
                   "in":"query",
                   "collectionFormat": "csv",
-                  "default": ["id", "pid", "alias", "page_type", "sorting"],
+                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir"],
                   "items": {"type":"string",
-                      "enum":["id", "pid", "alias", "page_type", "sorting"]},
+                      "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir"]},
                   "description": "Which properties of the object to be returned only?"
                }
             ],

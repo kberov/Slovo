@@ -2,7 +2,10 @@ package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
 use Mojo::Util qw(sha1_sum);
 
-has current_user_fn => 'user';
+# Returns the name of the getter for the current user.
+# Needed by Mojolicious::Plugin::Authentication.
+# See Slovo::_before_dispatch to understand how this function name is used.
+sub current_user_fn { return 'user' }
 
 sub form($c) {
 

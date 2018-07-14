@@ -16,7 +16,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.07.10';
+our $VERSION   = '2018.07.15';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
@@ -38,6 +38,9 @@ sub startup($app) {
   # replace is_user_authenticated from M::P::Authentication
   $app->helper(
          is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
+
+  # TODO: Implement Slovo::L10N which will provide this helper.
+  $app->helper(language => sub { $_[0]->config('default_language') });
   return $app;
 }
 

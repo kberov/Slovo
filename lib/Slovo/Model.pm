@@ -12,12 +12,16 @@ sub all ($self, $opts = {}) {
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
   $opts->{where} //= {};
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
+
+  # $self->c->debug('opts:', $opts);
   state $abstr = $self->dbx->abstract;
   my ($sql, @bind)
     = $abstr->select($opts->{table} // $self->table,
                      $opts->{columns}, $opts->{where}, $opts->{order_by});
   $sql .= " LIMIT $opts->{limit}"
     . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
+
+  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $self->dbx->db->query($sql, @bind)->hashes;
 }
 
