@@ -42,27 +42,42 @@ sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
 # use this method for the side effect of having a logged in user
 sub login_ok ($t, $login_name, $login_password) {
   subtest login_ok => sub {
-    $t->get_ok('/Ꙋправленѥ')->status_is(302)->header_is(
-                               Location => '/' . b('входъ')->encode->url_escape,
-                               'Location is /входъ');
+    my $login_url = $t->app->url_for('sign_in')->to_string;
+
+    $t->get_ok('/Ꙋправленѥ')->status_is(302)
+      ->header_is(Location => $login_url, 'Location is /входъ');
     $t->get_ok('/входъ')->status_is(200)->text_is('head title' => 'Входъ');
 
 #get the csrf field
     my $csrf_token
       = $t->tx->res->dom->at('#sign_in [name="csrf_token"]')->{value};
     my $form = {
-          login_name     => 'краси',
-          login_password => '',
-          csrf_token     => $csrf_token,
-          digest         => sha1_sum(
+          login_name => $login_name,
+          csrf_token => $csrf_token,
+          digest     => sha1_sum(
             $csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))
           ),
     };
 
-    $t->post_ok('/входъ', {} => form => $form)->status_is(302)
+    $t->post_ok($login_url, {} => form => $form)->status_is(302)
       ->header_is(Location => '/', 'Location: /')
       ->content_is('', 'empty content');
   };
   return $t;
+}
+
+sub login ($t, $login_name, $login_password) {
+  my $login_url = $t->app->url_for('sign_in')->to_string;
+  my $csrf_token
+    = $t->ua->get($login_url)->res->dom->at('#sign_in [name="csrf_token"]')
+    ->{value};
+  my $form = {
+          login_name => $login_name,
+          csrf_token => $csrf_token,
+          digest     => sha1_sum(
+            $csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))
+          ),
+  };
+  return $t->ua->post($login_url => {} => form => $form)->res->body eq '';
 }
 1;

@@ -1,5 +1,19 @@
 Revision history for Mojolicious application Slovo
 
+2018.07.15
+    - Features
+        * (WIP) Using OpenAPI (fka Swagger) to retreive the sidebar page menu.
+        * (WIP) added helper 'language' which will be later provided by
+          Slovo::Plugin::L10N.
+    - Changes
+        * Improved/finished 'all_for_list' in Slovo::Model::Stranici. Added
+          columns 'title' and 'is_dir' to the resultset.
+        * Unified WHERE clause for executing/listing pages on the site by
+          moving it to '_where_with_permissions' in Slovo::Model::Stranici.
+        * Unified WHERE clause for executing/listing content in a page by
+          moving it to where_with_permissions in Slovo::Model::Celini.
+        * Improved 'login_ok' and added 'login' in Test::Mojo::Role::Slovo.
+
 2018.07.10
     - Features
         * Link to /Ꙋправленѥ when user is signed in in the footer.
