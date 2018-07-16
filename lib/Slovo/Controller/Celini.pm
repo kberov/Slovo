@@ -8,7 +8,7 @@ no warnings "experimental::lexical_subs";
 # GET /celini/create
 # Display form for creating resource in table celini.
 sub create($c) {
-  return $c->render(celini => {});
+  return $c->render(in => {});
 }
 
 # POST /celini
@@ -44,7 +44,9 @@ sub store($c) {
 # GET /celini/:id/edit
 # Display form for edititing resource in table celini.
 sub edit($c) {
-  return $c->render(celini => $c->celini->find($c->param('id')));
+  my $row = $c->celini->find($c->param('id'));
+  $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
+  return $c->render(in => $row);
 }
 
 # PUT /celini/:id
@@ -53,10 +55,10 @@ sub update($c) {
 
   # Validate input
   my $validation = $c->_validation;
-  return $c->render(action => 'edit', celini => {}) if $validation->has_error;
+  return $c->render(action => 'edit', in => {}) if $validation->has_error;
 
   # Update the record
-  my $id = $c->param('id');
+  my $id = $c->stash('id');
   $c->celini->save($id, $validation->output);
 
   # Redirect to the updated record or just send "204 No Content"
@@ -126,17 +128,22 @@ sub remove($c) {
 # Validation for actions that store or update
 sub _validation($c) {
   $c->req->param(alias => $c->param('title')) unless $c->param('alias');
-
+  for (qw(featured accepted bad deleted)) {
+    $c->req->param($_ => 0) unless $c->param($_);
+  }
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->optional('data_type', 'trim')->size(0, 32)
-    ->in('въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ',
-         'целина');
+  $v->optional('data_type', 'trim')->size(0, 32)->in(
+                                                     'въпросъ', 'ѿговоръ',
+                                                     'писанѥ',  'белѣжка',
+                                                     'книга',   'заглавѥ',
+                                                     'цѣлина'
+                                                    );
   my $alias   = 'optional';
   my $title   = $alias;
   my $page_id = $alias;
-  my $types   = 'книга|въпрос|писанѥ|бележка';
+  my $types   = 'книга|въпросъ|писанѥ|белѣжка';
   if ($v->param('data_type') =~ /^($types)$/x) {
     $page_id = $title = $alias = 'required';
   }

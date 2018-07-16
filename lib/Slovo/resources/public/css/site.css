@@ -173,29 +173,39 @@ footer {
 
 #sidedrawer ul {
   list-style: none;
+  margin: 0;
 }
 
-#sidedrawer > ul {
-  padding-left: 0px;
+#sidedrawer ul {
+  padding-left: 0;
 }
 
 #sidedrawer > ul > li:first-child {
-  padding-top: .8rem;
+  padding-top: .1rem;
 }
 
-#sidedrawer strong {
+#sidedrawer ul li strong, #sidedrawer ul li div {
   display: block;
-  padding: .8rem 1.2rem;
+  padding: .2rem .6rem;
   cursor: pointer;
 }
+/* second level */
+#sidedrawer ul li > ul li strong,
+#sidedrawer ul li > ul li div {
+  padding-left: 1rem;
+}
+/* third level */
+#sidedrawer ul li > ul li > ul li strong,
+#sidedrawer ul li > ul li > ul li div {
+  padding-left: 1.8rem;
+}
 
-#sidedrawer strong:hover {
+
+#sidedrawer ul li strong:hover,
+#sidedrawer ul li div:hover {
   background-color: #E0E0E0;
 }
 
-#sidedrawer strong + ul > li {
-  padding: .33rem 0;
-}
 
 #Ꙋправленѥ {
     float: right;

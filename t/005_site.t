@@ -33,7 +33,11 @@ subtest 'site layout' => sub {
     ->element_exists('main#content-wrapper')
     ->element_exists('footer.mui-appbar');
   $t->get_ok('/ѿносно.стр.html')->status_is(200)
-    ->element_exists_not('aside#sidedrawer');
+
+    #   ->element_exists_not('aside#sidedrawer');
+    # menu item in sidedrawer
+    ->element_exists('#sidedrawer ul li div');
+
 };
 
 done_testing;

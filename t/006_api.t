@@ -11,7 +11,7 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 my $app = $t->app;
 
 subtest 'api/stranici' => sub {
-  $t->get_ok("/api/страници")->status_is(200)->json_is('/0/alias' => 'ѿносно');
+  $t->get_ok("/api/страници")->status_is(200)->json_is('/0/alias' => 'писания');
 
   #create several pages and then check the list again
   ok($t->login('краси', 'беров') => 'login ok');

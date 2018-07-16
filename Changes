@@ -1,5 +1,19 @@
 Revision history for Mojolicious application Slovo
 
+
+2018.07.20
+    - Features
+        * Sidebar shows a list of pages under the current page if the page is a
+          folder.
+        * Implemented 'select_box' in the new Slovo::Plugin::TagHelpers.
+        * Using OpenAPI (fka Swagger) to retreive items in directory
+          pages in the sidebar page menu.
+    - Changes
+        * Greatly improved code in _form.html.ep and other templates in the
+          administration interface for 'celini' and 'stranici'.
+        * Changed orthography for some celini semantic data_types:
+          'въпросъ', 'ѿговоръ', 'белѣжка'.
+
 2018.07.16
     - Changes
         * Fixed (also future potentially) failing tests caused by missing

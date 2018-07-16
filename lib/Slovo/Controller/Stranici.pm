@@ -4,26 +4,39 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
+# Will be passed to the stash and used in the template
+# Returns a list of page data for listing in menus
+my $breadcrumb = sub ($c, $start_pid, $language) {
+
+  # TODO!
+};
+
 # GET /<:страница>.стр<*пѫт>
 # Display a page in the site
 sub execute($c) {
   my $alias = $c->stash->{'страница'};
 
-  #TODO: handle different celini types like въпрос, писанѥ, бележка, книга
+  #TODO: handle different celini types like въпросъ, писанѥ, белѣжка, книга
   my $path    = $c->stash->{'пѫт'};
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);
   $page //= $c->stranici->find($c->not_found_id);
-  my $celini = $c->celini->all_for_display($page, $user, 'bg-bg', $preview);
-
+  my $celini
+    = $c->celini->all_for_display($page, $user, $c->language, $preview);
+  $page->{is_dir} = $page->{permissions} =~ /^d/;
+  state $list_columns
+    = $c->openapi->spec('/paths/~1страници/get/parameters/3/default');
   return
     $c->render(
-          template => $page->{template} || 'stranici/stranica',
-          page     => $page,
-          celini   => $celini,
           $page->{id} == $c->not_found_id ? (status => $c->not_found_code) : (),
+          $page->{template} ? (template => $page->{template}) : (),
+          celini       => $celini,
+          list_columns => $list_columns,
+          page         => $page,
+          preview      => $preview,
+          user         => $user,
     );
 }
 
@@ -32,7 +45,7 @@ sub execute($c) {
 # GET /stranici/create
 # Display form for creating resource in table stranici.
 sub create($c) {
-  return $c->render(stranici => {});
+  return $c->render(in => {});
 }
 
 # POST /stranici
@@ -52,7 +65,7 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'create', stranici => {}) if $v->has_error;
+  return $c->render(action => 'create', in => {}) if $v->has_error;
 
   # 2. Insert it into the database
   my $in = $v->output;
@@ -72,9 +85,9 @@ sub store($c) {
 sub edit($c) {
 
   #TODO: implement language switching based on Ado::L18n
-  my $l = $c->param('language') || $c->config('default_language');
-  my $stranici = $c->stranici->find_for_edit($c->stash('id'), $l);
-  return $c->render(stranici => $stranici);
+  my $row = $c->stranici->find_for_edit($c->stash('id'), $c->language);
+  $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
+  return $c->render(in => $row);
 }
 
 # PUT /stranici/:id
@@ -84,10 +97,11 @@ sub update($c) {
   # Validate input
   my $v = $c->_validation;
   return $c->render(action => 'edit', stranici => {}) if $v->has_error;
+  my $in = $v->output;
 
   # Update the record
   my $id = $c->param('id');
-  $c->stranici->save($id, $v->output);
+  $c->stranici->save($id, $in);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
@@ -150,6 +164,9 @@ sub remove($c) {
 # Validation for actions that store or update
 sub _validation($c) {
   $c->req->param(alias => $c->param('title')) unless $c->param('alias');
+  for (qw(hidden deleted)) {
+    $c->req->param($_ => 0) unless $c->param($_);
+  }
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
@@ -184,9 +201,8 @@ sub _validation($c) {
 sub list($c) {
 
   $c->openapi->valid_input or return;
-  my $in = $c->validation->output;
-
-  my $user = $c->user;
+  my $in      = $c->validation->output;
+  my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $list
     = $c->stranici->all_for_list($user, $c->domain, $preview, $c->language,

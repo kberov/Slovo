@@ -16,7 +16,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.07.16';
+our $VERSION   = '2018.07.20';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
@@ -83,17 +83,26 @@ sub _load_pugins($app) {
   # Namespaces to load plugins from
   # See /perldoc/Mojolicious#plugins
   # See /perldoc/Mojolicious/Plugins#PLUGINS
-  $app->plugins->namespaces(['Mojolicious::Plugin', 'Slovo::Plugin']);
+  $app->plugins->namespaces(['Slovo::Plugin', 'Mojolicious::Plugin']);
   foreach my $plugin (@{$app->config('plugins') // []}) {
-    $app->log->debug(
-              'Loading Plugin ' . (ref $plugin ? (keys %$plugin)[0] : $plugin));
+    my $name = (ref $plugin ? (keys %$plugin)[0] : $plugin);
+    $app->log->debug('Loading Plugin ' . $name);
+
+    # some plugins return $self and we are going to abuse this.
+    my $plug;
     if (ref $plugin eq 'HASH') {
-      $app->plugin(%$plugin);
+      $plug = $app->plugin(%$plugin);
     }
     elsif (!ref($plugin)) {
-      $app->plugin($plugin);
+      $plug = $app->plugin($plugin);
+    }
+
+    # Make OpenAPI instance allways available!
+    if ($name eq 'OpenAPI') {
+      $app->defaults->{'openapi.object'} = $plug;
     }
   }
+
   for my $setting (@{$app->config('sessions') // []}) {
     my ($a, $v) = (keys %$setting, values %$setting);
     $app->sessions->$a($v);

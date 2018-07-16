@@ -1,56 +1,53 @@
 %= link_to 'Up to list of stranici' => 'home_stranici'
-% my $s = $stranici;
-% my $class = join ' ', map( sub{$s->{$_}? $_:undef}, qw(hidden deleted)),'fields';
+% my @classes = map {  $in->{$_} ? $_: '' } (qw(hidden deleted));
+% my $class = join ' ', 'fields', @classes;
 
 %= form_for $target => begin
 %=t fieldset => (id=>'page_attributes', class=>$class) => begin
   %=t legend =>'Page Attributes'
   %= label_for pid => 'Pid'
-  %= number_field pid => $s->{pid}, (readonly=>'readonly')
+  %= number_field pid => (readonly=>'readonly')
   %= label_for dom_id => 'Dom_id',
-  %= number_field dom_id => $s->{dom_id}, (readonly=>'readonly')
+  %= number_field dom_id => (readonly=>'readonly')
   %= label_for alias =>'Alias'
-  %= text_field alias => $s->{alias}, size => 32
-  %= label_for page_type =>'Page_type'
-  <%= select_field page_type => [
-      ['Regular' => 'обичайна'],
-      ['Root page' => 'коренъ', ($s->{page_type}//'') eq 'коренъ' ? (selected => 'selected') : ()]],
-    required => 1 %>
-  %= label_for permissions => 'Permissions'
-  <%= select_field permissions => [
+  %= text_field alias => size => 32
+  <%=
+  select_box
+    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+    required => 1, label => 'Page type'
+  %>
+  <%= select_box permissions => [
   # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
   'drwxr-xr-x', 'drwxrwxr-x',
   '-rwxr-xr-x', '-rwxrwxr-x',
   'lrwxr-xr-x','-rwxr--r-x'], required => 1
   %>
   %= label_for sorting => 'Sorting'
-  %= number_field sorting => $s->{sorting}, size => 3
+  %= number_field sorting => (size => 3)
   %= label_for template => 'Template'
-  %= text_field template => $s->{template},  size => 255, style =>'width:50%'
+  %= text_field template => (size => 255, style => 'width:50%')
   %= label_for group_id => 'Group_id'
-  %= number_field group_id => $s->{group_id}//$c->user->{group_id},
+  %= number_field group_id => $in->{group_id}//$c->user->{group_id},
   %= label_for start => 'Start'
-  %= number_field start => $s->{start},
+  %= number_field 'start'
   %= label_for stop => 'Stop'
-  %= number_field stop => $s->{stop},
-  %= label_for published => 'Published'
-  <%= select_field published => [
+  %= number_field 'stop'
+  <%= select_box published => [
   ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
   %= label_for hidden => 'Hidden'
-  %= check_box hidden => $s->{hidden}?(checked => undef):(), value => 1
+  %= check_box hidden => 1
   %= label_for deleted => 'Deleted'
-  %= check_box deleted => $s->{deleted}?(checked => undef):(), value => 1
+  %= check_box deleted => 1
 % end
 %=t fieldset => (id=>'title') => begin
       %=t legend => 'Page Content'
-      %= hidden_field title_id => $s->{title_id}
+      %= input_tag  'title_id' => (type =>'hidden')
       %= label_for title => 'Title'
-      %= text_field title => $s->{title} => required => 1 , placeholder =>'Title for the page'
-      %= label_for language =>'Language'
-      %= select_field language => [[Български =>'bg-bg'],['English(US)' =>'en-us']]
+      %= text_field title => (required => 1 , placeholder =>'Title for the page')
+      %= select_box language => [[Български =>'bg-bg'],['English(US)' =>'en-us']]
       <br />
       %= label_for body =>'Body'
-      %= text_area body  => ($s->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
+      %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
       % end
   %= submit_button $caption
 % end

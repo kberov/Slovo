@@ -17,6 +17,7 @@ lib/Slovo/Model/Groups.pm
 lib/Slovo/Model/Stranici.pm
 lib/Slovo/Model/Users.pm
 lib/Slovo/Plugin/MojoDBx.pm
+lib/Slovo/Plugin/TagHelpers.pm
 lib/Slovo/resources/api-v1.0.json
 lib/Slovo/resources/data/migrations.sql
 lib/Slovo/resources/etc/README
@@ -58,13 +59,14 @@ lib/Slovo/resources/templates/partials/_footer.html.ep
 lib/Slovo/resources/templates/partials/_head.html.ep
 lib/Slovo/resources/templates/partials/_header.html.ep
 lib/Slovo/resources/templates/partials/_left.html.ep
+lib/Slovo/resources/templates/partials/_left_menu_stranici.html.ep
 lib/Slovo/resources/templates/partials/_right.html.ep
 lib/Slovo/resources/templates/stranici/_form.html.ep
 lib/Slovo/resources/templates/stranici/create.html.ep
 lib/Slovo/resources/templates/stranici/edit.html.ep
+lib/Slovo/resources/templates/stranici/execute.html.ep
 lib/Slovo/resources/templates/stranici/index.html.ep
 lib/Slovo/resources/templates/stranici/show.html.ep
-lib/Slovo/resources/templates/stranici/stranica.html.ep
 lib/Slovo/resources/templates/upravlenie/index.html.ep
 lib/Slovo/resources/templates/users/_form.html.ep
 lib/Slovo/resources/templates/users/create.html.ep

@@ -30,6 +30,8 @@ sub all ($self, $opts = {}) {
 }
 
 sub save ($self, $id, $row) {
+
+  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $self->dbx->db->update($self->table, $row, {id => $id});
 }
 

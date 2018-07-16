@@ -8,8 +8,9 @@ use Slovo::Model::Celini;
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 
-has not_found_id => 4;
-has table        => $table;
+has not_found_id    => 4;
+has table           => $table;
+has title_data_type => 'заглавѥ';
 
 # Returns a structure for a 'where' clause to be shared among select methods
 # for pages to be displayed in the site.
@@ -93,7 +94,7 @@ sub add ($m, $row) {
     }
     = (
     0,
-    'заглавѥ',
+    $m->title_data_type,
     @$row{
       qw(tstamp user_id
         group_id changed_by alias permissions published)
@@ -119,7 +120,7 @@ sub find_for_edit ($self, $id, $language) {
                           {
                            page_id   => $id,
                            language  => $language,
-                           data_type => 'заглавѥ',
+                           data_type => $self->title_data_type,
                            sorting   => 0,
                            box       => 'main'
                           },
@@ -140,6 +141,8 @@ sub save ($m, $id, $row) {
        @$row{qw(alias changed_by permissions published)}
       );
   my $db = $m->dbx->db;
+
+  # local $db->dbh->{TraceLevel} = "3|SQL";
   eval {
     my $tx = $db->begin;
     $db->update($table,        $row,   {id => $id});
@@ -180,9 +183,10 @@ sub all_for_list ($self, $user, $domain, $preview, $language, $opts = {}) {
 
     # avoid any potential recursion
     # must not be the not_found_id
-    "$table.id" => {-not_in => [$self->not_found_id, {-ident => "$table.pid"}]},
+    "$table.id" =>
+      {-not_in => [$self->not_found_id, $pid ? () : {-ident => "$table.pid"}]},
     "$celini_table.page_id"   => {-ident => "$table.id"},
-    "$celini_table.data_type" => 'заглавѥ',
+    "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $language,
     "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},

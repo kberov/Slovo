@@ -26,7 +26,7 @@ $t->get_ok("$users_url/0")->status_is(404);
 $t->get_ok("$groups_url/0")->status_is(404);
 
 # Create a user (creates a primary group for the user too)
-subtest create_user => sub {
+my $create_user = sub {
   my $user_form = {
       login_name     => 'шест',
       login_password => 'da',              #TODO: SHA1 login_name+login_password
@@ -51,14 +51,14 @@ subtest create_user => sub {
 };
 
 # Update a user
-subtest update_user => sub {
+my $update_user = sub {
   $t->put_ok($user6_url => form => {last_name => 'Седмак'})
     ->header_is(Location => $user6_url, 'Location: /Ꙋправленѥ/users/6')
     ->content_is('', 'empty content')->status_is(204);
 };
 
 # Remove a user
-subtest remove_user => sub {
+my $remove_user = sub {
   $t->delete_ok($user6_url)
     ->header_is(Location => $users_url, 'Location: /Ꙋправленѥ/users')
     ->status_is(302);
@@ -67,8 +67,10 @@ subtest remove_user => sub {
 };
 
 # Create stranici
-my $stranici_url     = $app->url_for('store_stranici')->to_string;
-my $stranici_url_new = "$stranici_url/9";
+my $stranici_url = $app->url_for('store_stranici')->to_string;
+my $new_page_id
+  = $app->dbx->db->select('stranici', 'max(id) + 1 as id')->hash->{id};
+my $stranici_url_new = "$stranici_url/$new_page_id";
 my $sform = {
              alias       => 'събития',
              page_type   => 'обичайна',
@@ -78,23 +80,30 @@ my $sform = {
              body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
              language    => 'bg-bg'
             };
-subtest create_stranici => sub {
+my $create_stranici = sub {
   $t->post_ok($stranici_url => form => $sform)->status_is(201)->header_is(
                                                Location => $stranici_url_new,
                                                'Location: /Ꙋправленѥ/stranici/9'
   )->content_is('', 'empty content')->status_is(201);
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
-  is(@{$app->celini->all({where => {alias => 'събития'}})}, 1,
-     'only one title');
+  my $title = $app->celini->all(
+                  {where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
+  is(@$title, 1, 'only one title');
+
+  # get some title properties to check in the next subtest
+  $sform->{title_id} = $title->[0]{id};
+  $sform->{title}    = $title->[0]{title};
 };
 
 # Update stranici
-subtest update_stranica => sub {
+my $update_stranica = sub {
   $sform->{alias} = 'събитияsss';
   my $dom = $t->get_ok("$stranici_url_new/edit?language=bg-bg")->tx->res->dom;
-  $sform->{title_id} = $dom->at('input[name="title_id"]')->{value};
-  $sform->{title}    = $dom->at('input[name="title"]')->{value};
-  $sform->{body}     = $dom->at('textarea[name="body"]')->text;
+  is($dom->at('input[name="title_id"]')->{value} => $sform->{title_id},
+     'proper hidden title_id');
+  is($dom->at('input[name="title"]')->{value} => $sform->{title},
+     'proper title');
+  $sform->{body} = $dom->at('textarea[name="body"]')->text;
 
   $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
@@ -107,20 +116,20 @@ subtest update_stranica => sub {
 # Create celini
 my $cform = {
              page_id   => 4,
-             title     => 'Целина',
-             body      => 'Некаква целина',
+             title     => 'Цѣлина',
+             body      => 'Нѣкаква цѣлина',
              language  => 'bg-bg',
-             data_type => 'целина'
+             data_type => 'цѣлина'
             };
 
-subtest create_celini => sub {
+my $create_celini = sub {
   $t->post_ok($app->url_for('store_celini') => form => $cform)
     ->header_is(Location => $app->url_for('show_celini', {id => 15}));
 };
 
 # Update celini
 my $sh_up_url = $app->url_for('update_celini', {id => 15})->to_string;
-subtest update_celini => sub {
+my $update_celini = sub {
   $cform->{title} = 'Заглавие на целината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
     ->header_is(Location => $sh_up_url);
@@ -130,13 +139,24 @@ subtest update_celini => sub {
 };
 
 # Remove Celini
-subtest remove_celini => sub {
+my $remove_celini = sub {
   my $celini_url = $app->url_for('home_celini')->to_string;
   $t->delete_ok($sh_up_url)->header_is(Location => $celini_url)->status_is(302);
+
   $t->get_ok($celini_url)->status_is(200)
-    ->element_exists_not('tr:nth-child(15)');
+    ->element_exists_not('table tbody tr:nth-child(15)');
+
 };
 
+subtest create_user     => $create_user;
+subtest update_user     => $update_user;
+subtest remove_user     => $remove_user;
+subtest create_stranici => $create_stranici;
+subtest update_stranica => $update_stranica;
+
+subtest create_celini => $create_celini;
+subtest update_celini => $update_celini;
+subtest remove_celini => $remove_celini;
 done_testing;
 exit;
 

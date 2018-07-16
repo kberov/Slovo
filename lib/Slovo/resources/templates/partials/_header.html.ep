@@ -3,7 +3,7 @@
       <table>
         <tbody><tr class="mui--appbar-height mui--align-middle">
           <td class="mui--text-title">
-              % if ( @$left ) {
+              % if ( $sidedrawer ) {
               <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
               <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer">☰</a>
               % }

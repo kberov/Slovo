@@ -1,5 +1,5 @@
 % layout 'upravlenie', title => 'Blog/Celini';
-% my @columns = qw(page_id id title alias data_type data_format); #table columns to show
+% my @columns = qw(page_id id title alias box); #table columns to show
 
 %= link_to 'New record in table "celini"' => 'create_celini'
 % my $page_id = $c->param('page_id');
@@ -10,15 +10,12 @@
         (title => 'Add content to page with id '. $page_id) %>
 % }
 <table>
-    <thead>
         <tr>
-            <th></th>
     % for my $column (@columns) {
             <th><%= uc($column) %></th>
     % }
+        <th></th>
         </tr>
-    </thead>
-    <tbody>
 % for my $item (@$celini) {
         <tr>
             <td><%= link_to $item->{id} => show_celini => {id => $item->{id}} %></td>
@@ -36,5 +33,4 @@
     </td>
         </tr>
 % }
-    </tbody>
 </table>

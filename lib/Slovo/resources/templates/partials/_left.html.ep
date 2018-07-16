@@ -1,8 +1,10 @@
-  % if ( @$left ) {
+<!-- _left -->
+% if ( $sidedrawer ) {
   %= t aside => (class=>"left mui--no-user-select", id => "sidedrawer") => begin
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
     <span class="mui--text-title"><%= $c->domain %></span>
   </div>
+  %= include 'partials/_left_menu_stranici'
   <div class="mui-divider"></div>
         <%==
         $left->map(
@@ -13,5 +15,5 @@
           )->join($/)
         %>
     % end
-    % }
-
+% }
+<!-- end _left -->

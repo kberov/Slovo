@@ -1,134 +1,130 @@
 % use Mojo::Collection;
 %= link_to 'Up to list of celini' => 'home_celini'
-% my $ce = $celini;
-% my $page_id = $c->param('page_id')//$ce->{page_id};
-% my $v = $c->validation;
-% my $in = $v->output;
-% if (defined $page_id) {
-<%= link_to '...in the same page' => url_for('home_celini')->query([page_id => $page_id]),
+<%= link_to '...in the same page' => url_for('home_celini')->query([page_id => $in->{page_id}]),
     (title => 'Up to list of celini in the same page')
 %>
-% }
 <hr />
 %= form_for $target => begin
 
 %= t fieldset => (id=>'main_properties') => begin
   %= t legend => 'Main properties'
   %= label_for title =>'Title'
-  %= text_field title => $ce->{title}, placeholder =>'Title for the content element', required => 1, size => 55
+  %= text_field title => (placeholder =>'Title for the content element', required => 1, size => 55)
   %= label_for alias =>'Alias'
-  %= text_field alias => $ce->{alias}, size => 55
+  %= text_field alias => (size => 55)
 <br />
   %= label_for 'body' => 'Body'
-  %= text_area 'body' => $ce->{body}, required => 1,(style=>'width:100%;height:25em') 
+  %= text_area 'body' => (required => 1, style=>'width:100%;height:25em')
 <br />
-  %= label_for data_type =>'Data_type'
-<%
-my $dtypes = c(
-               [заглавѥ => 'заглавѥ'],
-               [целина  => 'целина'],
-               [бележка => 'бележка'],
-               [писанѥ  => 'писанѥ'],
-               [въпрос  => 'въпрос'],
-               [ѿговор  => 'ѿговор'],
-               [книга   => 'книга'],
-  )->each(
-  sub {
-    push @$_, selected => undef
-      if $_->[1] eq ($in->{data_type} // $ce->{data_type});
-  }
-  );
+  <%=
+  select_box
+    data_type => [
+                  [заглавѥ => 'заглавѥ'],
+                  [цѣлина  => 'цѣлина'],
+                  [белѣжка => 'белѣжка'],
+                  [писанѥ  => 'писанѥ'],
+                  [въпросъ  => 'въпросъ'],
+                  [ѿговор  => 'ѿговор'],
+                  [книга   => 'книга']
+                 ],
+    label => 'Data type'
+ %>
 
-%>
-  <%= select_field data_type => $dtypes %>
-
-  %= label_for data_format =>'Data_format'
-  <%= 
-  select_field data_format => c([текст => 'text'],
-                                [html     => 'html'],
-                                [markdown => 'markdown'],
-                                [asc      => 'asc'])->each(
-    sub {
-      push @$_, selected => undef
-        if $_->[1] eq ($in->{data_format} // $ce->{data_format});
-    }
-                                )
+  <%=
+  select_box
+    data_format => [
+                    [текст    => 'text'],
+                    [html     => 'html'],
+                    [markdown => 'markdown'],
+                    [asc      => 'asc']
+                   ],
+    label => 'Data format'
     %>
 
-  %= label_for language =>'Language'
   %# TODO: make this a configuration
-  %= select_field language => [[Български =>'bg-bg'],['English(US)' =>'en-us']]
+  <%=
+  select_box
+    language => [[Български => 'bg-bg'], ['English(US)' => 'en-us']],
+    label => 'Language'
+  %>
+  <%=
 
-  %= label_for permissions =>'Permissions'
-  <%= select_field permissions => [
-  # TODO: document and design the behavior for celini which are "d" (directories) and "l" (links)
-  '-rwxr-xr-x', 'drwxr-xr-x','lrwxr-xr-x','-rwxr-xr-x'], required => 1 
+# TODO: document and design the behavior for celini which are "d" (directories) and "l" (links)
+  select_box
+    permissions => [
+                    '-rwxr-xr-x', '-rwxrwxr-x',
+                    '-rwxrwxrwx', 'drwxr-xr-x',
+                    'drwxrwxr-x', 'drwxrwxrwx',
+                    'lrwxr-xr-x'
+                   ],
+    required => 1,
+    label    => 'Permissions'
   %>
 
-  %= label_for published => 'Published'
-  <%= select_field published => [
-  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
+  <%=
+  select_box
+    published => [['for (p)review' => 1], ['no' => 0], ['Yes' => 2]],
+    label => 'Published'
+  %>
 % end ;# fieldset
 %= t fieldset => (id=>'additional_properties') => begin
   %= t legend => 'Additional properties'
 
   %= label_for pid => 'Pid'
-  %= number_field pid => $ce->{pid},  
+  %= number_field 'pid'
 
   %= label_for from_id => 'From_id'
-  %= number_field from_id => $ce->{from_id},  
+  %= number_field 'from_id'
 
   %= label_for page_id => 'Page_id'
-  %= number_field page_id => $ce->{page_id}, readonly => 1  
+  %= number_field page_id => readonly => 1
 
   %= label_for user_id => 'User_id'
-  %= number_field user_id => $ce->{user_id}//$c->user->{id},
+  %= number_field user_id => $in->{user_id} // $c->user->{id},
 
   %= label_for group_id => 'Group_id'
-  %= number_field group_id => $ce->{group_id}//$c->user->{group_id}, 
+  %= number_field group_id => $in->{group_id} // $c->user->{group_id},
 
   %= label_for sorting => 'Sorting'
-  %= number_field sorting => $ce->{sorting},  size => 3
+  %= number_field sorting =>  size => 3
 
   %= label_for description =>'Description'
-  %= text_field description => $ce->{description},  size => 55
+  %= text_field description =>  size => 55
 
   %= label_for keywords =>'Keywords'
-  %= text_field keywords => $ce->{keywords},  size => 55
+  %= text_field keywords => size => 55
 
   %= label_for tags =>'Tags'
-  %= text_field tags => $ce->{tags},  size => 100
+  %= text_field tags => size => 100
 
-  %= label_for box =>'Box'
-  <%= 
-  select_field box => c(
-                        ['main'   => 'главна'],
-                        ['top'    => 'горѣ'],
-                        ['left'   => 'лѣво'],
-                        ['right'  => 'дѣсно'],
-                        ['bottom' => 'долу']
-    )->each(sub {
-      push @$_, selected => undef if $_->[1] eq ($in->{box} // $ce->{box});
-    })
+  <%=
+  select_box
+    box => [
+            ['main'   => 'главна'],
+            ['top'    => 'горѣ'],
+            ['left'   => 'лѣво'],
+            ['right'  => 'дѣсно'],
+            ['bottom' => 'долу']
+           ],
+    label => 'Box'
   %>
-
   %= label_for featured => 'Featured'
-  %= check_box featured =>1, $ce->{featured} ? (checked => undef):()
+  %= check_box 'featured' => 1
 
   %= label_for accepted => 'Accepted'
-  %= check_box accepted =>1, $ce->{accepted} ? (checked => undef):(),(title =>'If this is a "въпрос" is it accepted?')
+  %= check_box accepted => 1, (title =>'If this is a "въпрос", is it accepted?')
 
   %= label_for bad => 'Bad'
-  %= number_field bad => $ce->{bad},  size => 2
+  %= number_field bad => size => 2
 
   %= label_for deleted => 'Deleted'
-  %= check_box deleted =>1, $ce->{deleted} ? (checked => undef):()
+  %= check_box deleted => 1
 
   %= label_for start => 'Start'
-  %= number_field start => $ce->{start},  
+  %= number_field 'start'
 
   %= label_for stop => 'Stop'
-  %= number_field stop => $ce->{stop},  
+  %= number_field 'stop'
 % end ;# fieldset
 
   %= submit_button $caption

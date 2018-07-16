@@ -180,7 +180,7 @@ VALUES (
  -- content elements are one or more paragraphs, or whole article. Different
  -- data_types denote the semantic of a content element.
  -- This table is a modified version of MYDLjE table "content".
- -- 'celina(целина)' is the original Bulgarian word for 'paragraph'.
+ -- 'celina(цѣлина)' is the original Bulgarian word for 'paragraph'.
 
   -- Primary unique identifier
   id INTEGER PRIMARY KEY,
@@ -198,8 +198,8 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types. 'въпрос', 'отговор', 'писанѥ', 'бележка', 'книга', 'заглавѥ', 'целина'…
-  data_type VARCHAR(32) DEFAULT 'бележка',
+  -- Semantic content types. 'въпросъ', 'ѿговоръ', 'писанѥ', 'белѣжка', 'книга', 'заглавѥ', 'цѣлина'…
+  data_type VARCHAR(32) DEFAULT 'белѣжка',
   -- text, html, markdown, asc…
   data_format VARCHAR(32) DEFAULT 'text',
   -- When this content was inserted
@@ -235,7 +235,7 @@ VALUES (
   start INTEGER DEFAULT 0,
   -- Date/Time till which the record will be accessible in the site.
   stop INTEGER DEFAULT 0,
-  -- Who modified this целина the last time?
+  -- Who modified this цѣлина the last time?
   changed_by INTEFER REFERENCES users(id),
   FOREIGN KEY (pid)      REFERENCES celini(id)   ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (page_id)  REFERENCES stranici(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -297,8 +297,8 @@ delete from stranici where id >0;
 UPDATE stranici set group_id=5 where alias='коренъ';
 INSERT INTO "stranici" VALUES(4, 0, 0, 'не-е-намерена', 'обичайна', 'drwxr-xr-x', 1, NULL, 5, 5, 1527802409, 1527802409, 0, 1, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(5,'втора-целина',0,0,0,5,5,1,'целина', 'html', 1526844885, 0, 'Втора целина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
-INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'целина', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
+INSERT INTO "celini" VALUES(5,'втора-цѣлина',0,0,0,5,5,1,'цѣлина', 'html', 1526844885, 0, 'Втора цѣлина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'цѣлина', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
     за които твърди, че са отвлечени, предава AFP.</p>
 <p>Те са работели в държавен севернокорейски ресторант в Китай. Управителят на ресторанта казва, че ги излъгал и принудил да го  последват по нареждане на южнокорейските тайни служби.</p>
 <p>„Южнокорейските власти трябва незабавно да върнат нашите гражданки обратно при семействата им и това ще покаже воля за подобряване на двустранните отношения“, заявяват от Пхенян.</p>
@@ -424,4 +424,17 @@ hspace="6" height="483" align="right">Да се познават случили�
 UPDATE stranici set published=1 WHERE alias='ѿносно';
 -- Synchronise 'published' status of content with their pages
 UPDATE celini SET published=1 where page_id=(SELECT id FROM stranici WHERE alias='ѿносно');
+
+-- 201807202200 up
+UPDATE "celini" SET
+    "alias" = "първа-лѣва-кутия", "data_type" = "цѣлина",
+    "body" = "Първа лѣва обнародвана кутийка с нѣкакъв текст в лѣвия панел.",
+    "published" = 2, "sorting" = 1, "title" = "Първа лѣва кутия "
+    WHERE ( "id" = 7 );
+
+UPDATE "stranici" SET
+    "permissions" = "drwxrwxr-x", "published" = 2
+    WHERE ( "id" IN (1,2) );
+UPDATE "celini" SET "published" = 2 WHERE (page_id IN (1,2) )
+-- 201807202200 down
 
