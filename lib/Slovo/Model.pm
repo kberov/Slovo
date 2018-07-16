@@ -1,5 +1,9 @@
 package Slovo::Model;
 use Mojo::Base -base, -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
+
 
 has 'dbx';
 has c => sub { Slovo::Controller->new() };
