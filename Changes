@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2018.07.16
+    - Changes
+        * Fixed (also future potentially) failing tests caused by missing
+          'use feature qw(lexical_subs unicode_strings);' on Perl 5.20-5.24.
+
 2018.07.15
     - Features
         * (WIP) Using OpenAPI (fka Swagger) to retreive the sidebar page menu.

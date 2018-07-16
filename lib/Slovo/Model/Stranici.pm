@@ -1,6 +1,10 @@
 package Slovo::Model::Stranici;
 use Mojo::Base 'Slovo::Model', -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 use Slovo::Model::Celini;
+
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 

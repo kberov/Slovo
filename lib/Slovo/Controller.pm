@@ -1,5 +1,8 @@
 package Slovo::Controller;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 
 our $DEV_MODE = ($ENV{MOJO_MODE} || '' =~ /dev/);
 

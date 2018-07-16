@@ -1,5 +1,8 @@
 package Slovo::Controller::Groups;
 use Mojo::Base 'Slovo::Controller', -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 
 
 # GET /groups/create

@@ -1,5 +1,8 @@
 package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 use Mojo::Util qw(sha1_sum);
 
 # Returns the name of the getter for the current user.

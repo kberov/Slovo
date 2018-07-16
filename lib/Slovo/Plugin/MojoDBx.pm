@@ -1,5 +1,8 @@
 package Slovo::Plugin::MojoDBx;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 
 sub register ($self, $app, $conf) {
   $conf->{adaptor}

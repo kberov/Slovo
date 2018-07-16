@@ -1,14 +1,14 @@
 package Slovo;
 
-# we want to use many recent native features in modern perl after 5.010. here
-# are some of them which we switch ON on the next few lines:
+# we want to use many recent native features in modern perl, available in
+# 5.012+. Here are some of them which we switch ON on the next few lines:
 # * unicode strings: see /perldoc/feature#The-unicode_strings-feature
 # * my/state/our sub foo syntax: see /perldoc/feature#The-lexical_subs-feature
 # * signatures /perldoc/feature#The-signatures-feature
+use Mojo::Base 'Mojolicious', -signatures;
+use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
-use 5.020;    #unicode, lexical subs
-use Mojo::Base 'Mojolicious', -signatures;
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
@@ -16,7 +16,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.07.15';
+our $VERSION   = '2018.07.16';
 our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
 my $CLASS = __PACKAGE__;
 
