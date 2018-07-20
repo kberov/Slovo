@@ -1,6 +1,6 @@
 % layout 'upravlenie', title => 'Record from table stranici with id ' . $stranici->{id};
 <h2><%= $stranici->{id} %></h2>
-%= link_to 'Up to list of stranici' => 'home_stranici'
+%= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
 <hr>
 % for my $s (keys %$stranici) {
 <%== t span => (id =>$s, class => 'item-field')

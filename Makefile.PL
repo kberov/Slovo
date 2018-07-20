@@ -17,8 +17,8 @@ WriteMakefile(
   LICENSE       => 'artistic_2',
   PREREQ_PM     => {
                 'Cpanel::JSON::XS'                    => '4.04',
-                'Mojo::SQLite'                        => '3.000',
-                'Mojolicious'                         => '7.87',
+                'Mojo::SQLite'                        => '3.001',
+                'Mojolicious'                         => '7.89',
                 'Mojolicious::Plugin::Authentication' => '1.32',
                 'Mojolicious::Plugin::OpenAPI'        => '1.30',
                 'Mojolicious::Plugin::RoutesConfig'   => '0.05',

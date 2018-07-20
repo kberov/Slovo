@@ -9,10 +9,17 @@
               % }
               %= link_to '/' => begin
               <img id="logo" src="/img/slovo-white.png">
-              %= $c->domain
               % end
-              /
-              %= title
+              <%=
+              $breadcrumb->map(
+                sub {
+                  link_to $_->{title} => покажи_страница =>
+                    {страница => $_->{alias}};
+                }
+                )->join(' ⸙ ')
+              %>
+              ⸙
+              %= t span => (class => 'title') => title
           </td>
           <td class="mui--text-right">
               %= link_to Ѿносно => 'покажи_страница' => {страница => 'ѿносно'}

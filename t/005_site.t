@@ -40,5 +40,11 @@ subtest 'site layout' => sub {
 
 };
 
+subtest breadcrumb => sub {
+  my $alias = b('писания.стр.html')->encode->url_escape;
+  $t->get_ok('/вести.стр.html')
+    ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|);    #Писания
+};
+
 done_testing;
 

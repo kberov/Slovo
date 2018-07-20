@@ -8,7 +8,7 @@ no warnings "experimental::lexical_subs";
 # GET /domove/create
 # Display form for creating resource in table domove.
 sub create($c) {
-  return $c->render(domove => {});
+  return $c->render(in => {});
 }
 
 # POST /domove
@@ -24,11 +24,11 @@ sub store($c) {
   }
 
   # 1. Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'create', domove => {}) if $validation->has_error;
+  my $v = $c->_validation;
+  return $c->render(action => 'create', in => {}) if $v->has_error;
 
   # 2. Insert it into the database
-  my $id = $c->domove->add($validation->output);
+  my $id = $c->domove->add($v->output);
 
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
@@ -38,7 +38,9 @@ sub store($c) {
 # GET /domove/:id/edit
 # Display form for edititing resource in table domove.
 sub edit($c) {
-  return $c->render(domove => $c->domove->find($c->param('id')));
+  my $row = $c->domove->find($c->param('id'));
+  $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
+  return $c->render(in => $row);
 }
 
 # PUT /domove/:id
@@ -46,12 +48,12 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'edit', domove => {}) if $validation->has_error;
+  my $v = $c->_validation;
+  return $c->render(action => 'edit') if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
-  $c->domove->save($id, $validation->output);
+  $c->domove->save($id, $v->output);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
@@ -61,7 +63,8 @@ sub update($c) {
 # GET /domove/:id
 # Display a record from table domove.
 sub show($c) {
-  my $row = $c->domove->find($c->param('id'));
+  my $id  = $c->param('id');
+  my $row = $c->domove->find($id);
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return
       $c->render(
@@ -70,10 +73,9 @@ sub show($c) {
       unless $row;
     return $c->render(openapi => $row);
   }
-  $row = $c->domove->find($c->param('id'));
   return $c->render(text => $c->res->default_message(404), status => 404)
     unless $row;
-  return $c->render(domove => $row);
+  return $c->render(dom => $row);
 }
 
 # GET /domove
@@ -112,14 +114,14 @@ sub _validation($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->required('id') if $c->stash->{action} ne 'store';
-  $v->required('domain',    'trim')->size(0, 63);
-  $v->required('site_name', 'trim')->size(0, 63);
-  $v->required('description', 'trim');
-  $v->optional('owner_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('group_id', 'trim')->like(qr/\d+(\.\d+)?/);
-  $v->required('permissions', 'trim')->size(0, 10);
-  $v->required('published', 'trim')->like(qr/\d+(\.\d+)?/);
+  $v->required('domain', 'trim')->size(0, 63);
+  $v->optional('aliases', 'trim')->like(qr/[\w\-\.\s\,]{1,2000}/);
+  $v->required('site_name',   'trim')->size(0, 63);
+  $v->required('description', 'trim')->size(0, 2000);
+  $v->optional('owner_id', 'trim')->like(qr/\d+/a);
+  $v->optional('group_id', 'trim')->like(qr/\d+/a);
+  $v->required('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
+  $v->required('published',   'trim')->like(qr/\d+(\.\d+)?/a);
 
   return $v;
 }

@@ -5,38 +5,59 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 
 # Will be passed to the stash and used in the template
-# Returns a list of page data for listing in menus
-my $breadcrumb = sub ($c, $start_pid, $language) {
 
-  # TODO!
+# Returns a list of page data for listing in menus.
+# No permission filters are applied because f the user gets to this page, he
+# should have passed throu all filters from the parrent page to this page.
+# This SQL statement is supported now even in MySQL 8.
+# https://stackoverflow.com/questions/324935/mysql-with-clause#325243
+# https://sqlite.org/lang_with.html
+my $breadcrumb = sub ($c, $pid, $language) {
+  my $db = $c->dbx->db;
+  my $rows = $db->query(<<"SQL", $pid, $language)->hashes;
+WITH RECURSIVE pids(p)
+  AS(VALUES(?) UNION SELECT pid FROM stranici s, pids WHERE s.id = p)
+  SELECT s.alias, c.title FROM stranici s, celini c
+  WHERE s.id IN pids
+    AND c.page_id = s.id
+    AND c.language = ?
+    AND c.data_type = 'заглавѥ'
+    AND s.page_type !='коренъ';
+SQL
+
+  return $rows;
 };
 
 # GET /<:страница>.стр<*пѫт>
 # Display a page in the site
 sub execute($c) {
-  my $alias = $c->stash->{'страница'};
 
   #TODO: handle different celini types like въпросъ, писанѥ, белѣжка, книга
+  my $alias   = $c->stash->{'страница'};
+  my $l       = $c->language;
   my $path    = $c->stash->{'пѫт'};
-  my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
+  my $user    = $c->user;
+  state $json_path    = '/paths/~1страници/get/parameters/3/default';
+  state $list_columns = $c->openapi->spec($json_path);
+  state $not_found_id = $c->not_found_id;
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);
-  $page //= $c->stranici->find($c->not_found_id);
-  my $celini
-    = $c->celini->all_for_display($page, $user, $c->language, $preview);
+  $page //= $c->stranici->find($not_found_id);
+  my $celini = $c->celini->all_for_display($page, $user, $l, $preview);
   $page->{is_dir} = $page->{permissions} =~ /^d/;
-  state $list_columns
-    = $c->openapi->spec('/paths/~1страници/get/parameters/3/default');
   return
     $c->render(
-          $page->{id} == $c->not_found_id ? (status => $c->not_found_code) : (),
-          $page->{template} ? (template => $page->{template}) : (),
-          celini       => $celini,
-          list_columns => $list_columns,
-          page         => $page,
-          preview      => $preview,
-          user         => $user,
+             breadcrumb => $page->{id} == $not_found_id
+             ? []
+             : $c->$breadcrumb($page->{pid}, $l),
+             $page->{id} == $not_found_id ? (status => $c->not_found_code) : (),
+             $page->{template} ? (template => $page->{template}) : (),
+             celini       => $celini,
+             list_columns => $list_columns,
+             page         => $page,
+             preview      => $preview,
+             user         => $user,
     );
 }
 
@@ -76,8 +97,7 @@ sub store($c) {
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
   # TODO: make it more user friendly.
-  $c->res->headers->location($c->url_for(show_stranici => {id => $id}));
-  return $c->render(text => '', status => 201);
+  return $c->redirect_to(edit_stranici => {id => $id});
 }
 
 # GET /stranici/:id/edit

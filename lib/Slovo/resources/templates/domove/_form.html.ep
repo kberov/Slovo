@@ -1,33 +1,29 @@
 %= form_for $target => begin
 
-%=hidden_field 'id' => $domove->{id} if ($action ne 'create');
   %= label_for domain =>'Domain'
+  %= text_field domain => (required => 1, size => 63)
 <br />
-  %= text_field domain => $domove->{domain}, required => 1, size => 63
+  %= label_for aliases =>'Aliases'
+  %= text_area aliases => (cols => 63, rows => 3)
 <br />
   %= label_for site_name =>'Site_name'
-<br />
-  %= text_field site_name => $domove->{site_name}, required => 1, size => 63
+  %= text_field site_name => (required => 1, size => 63)
 <br />
   %= label_for 'description' => 'Description'
 <br />
-  %= text_area 'description' => $domove->{description}, required => 1, size => 2000
+%= text_area 'description' => (required => 1, size => 2000 , colls => 40, rows => 5)
 <br />
   %= label_for owner_id => 'Owner_id'
-<br />
-  %= number_field owner_id => $domove->{owner_id},  
+  %= number_field 'owner_id'
 <br />
   %= label_for group_id => 'Group_id'
-<br />
-  %= number_field group_id => $domove->{group_id},  
+  %= number_field 'group_id'
 <br />
   %= label_for permissions =>'Permissions'
-<br />
-  %= text_field permissions => $domove->{permissions}, required => 1, size => 10
+  %= text_field permissions => (required => 1, size => 10)
 <br />
   %= label_for published => 'Published'
-<br />
-  %= number_field published => $domove->{published}, required => 1, size => 1
+  %= number_field published => (required => 1, size => 1)
 <br />
 
   %= submit_button $caption

@@ -1,4 +1,4 @@
 % layout 'upravlenie', title => 'Edit domove';
 <h2>Edit domove</h2>
 %= include 'domove/_form', caption => 'Update', target => 'update_domove'
-%= button_to Remove => remove_domove => {id => $domove->{id}}
+%= button_to Remove => remove_domove => {id => $id}

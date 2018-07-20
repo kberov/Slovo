@@ -81,10 +81,10 @@ my $sform = {
              language    => 'bg-bg'
             };
 my $create_stranici = sub {
-  $t->post_ok($stranici_url => form => $sform)->status_is(201)->header_is(
-                                               Location => $stranici_url_new,
-                                               'Location: /Ꙋправленѥ/stranici/9'
-  )->content_is('', 'empty content')->status_is(201);
+  $t->post_ok($stranici_url => form => $sform)->status_is(302)->header_is(
+                                          Location => "$stranici_url_new/edit",
+                                          'Location: /Ꙋправленѥ/stranici/9/edit'
+  )->content_is('', 'empty content');
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   my $title = $app->celini->all(
                   {where => {page_id => $new_page_id, data_type => 'заглавѥ'}});

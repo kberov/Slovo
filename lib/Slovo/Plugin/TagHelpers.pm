@@ -5,7 +5,7 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 use Scalar::Util 'blessed';
 
-my $_select_box = sub($c, $name, $options, %attrs) {
+my $_select_box = sub ($c, $name, $options, %attrs) {
   return $c->tag(
     span => class => 'field ' . $name => sub {
       my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);

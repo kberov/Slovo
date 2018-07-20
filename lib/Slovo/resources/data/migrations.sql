@@ -435,6 +435,12 @@ UPDATE "celini" SET
 UPDATE "stranici" SET
     "permissions" = "drwxrwxr-x", "published" = 2
     WHERE ( "id" IN (1,2) );
-UPDATE "celini" SET "published" = 2 WHERE (page_id IN (1,2) )
--- 201807202200 down
+UPDATE "celini" SET "published" = 2 WHERE (page_id IN (1,2) );
+-- 201807201100 down
+
+-- 201807281100 up
+ALTER TABLE domove ADD COLUMN aliases VARCHAR(2000);
+-- 201807282200 down
+-- no downgrade path for this version
+
 

@@ -1,4 +1,4 @@
-%= link_to 'Up to list of stranici' => 'home_stranici'
+%= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
 % my @classes = map {  $in->{$_} ? $_: '' } (qw(hidden deleted));
 % my $class = join ' ', 'fields', @classes;
 

@@ -1,5 +1,18 @@
 Revision history for Mojolicious application Slovo
 
+2018.07.28
+    -Features
+        * Breadcrumb navigation up to the root page in the appbar.
+        * Added new column 'aliases' to table 'domove'. It will be used to
+          match a request to a specific domain from $c->req->headers->host.
+    -Changes
+        * Creating a page now redirects to the form for editing the newly
+          created page.
+        * Used some well known unicode symbols as icons.
+        * Fixed bugs in side-drawer.
+        * Upgraded to Mojo::SQLite 3.001 and Mojolicious 7.89.
+        * Improved domove/_form.html.ep to use prefilled params.
+        * Added missing license meta to Makefile.PL. Thanks, Mohammad S Anwar.
 
 2018.07.20
     - Features
