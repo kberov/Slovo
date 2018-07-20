@@ -14,6 +14,7 @@ WriteMakefile(
   VERSION_FROM  => $module_file,                        # finds \$VERSION
   AUTHOR        => 'Красимир Беров (berov@cpan.org)',
   ABSTRACT_FROM => $module_file,
+  LICENSE       => 'artistic_2',
   PREREQ_PM     => {
                 'Cpanel::JSON::XS'                    => '4.04',
                 'Mojo::SQLite'                        => '3.000',
