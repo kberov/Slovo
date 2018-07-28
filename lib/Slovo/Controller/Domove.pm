@@ -115,13 +115,13 @@ sub _validation($c) {
 
   # Add validation rules for the record to be stored in the database
   $v->required('domain', 'trim')->size(0, 63);
-  $v->optional('aliases', 'trim')->like(qr/[\w\-\.\s\,]{1,2000}/);
+  $v->optional('aliases', 'trim')->like(qr/[a-z0-9\-\.\s]{1,2000}/);
   $v->required('site_name',   'trim')->size(0, 63);
   $v->required('description', 'trim')->size(0, 2000);
-  $v->optional('owner_id', 'trim')->like(qr/\d+/a);
-  $v->optional('group_id', 'trim')->like(qr/\d+/a);
-  $v->required('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
-  $v->required('published',   'trim')->like(qr/\d+(\.\d+)?/a);
+  $v->optional('owner_id',    'trim')->like(qr/^\d+$/a);
+  $v->optional('group_id',    'trim')->like(qr/^\d+$/a);
+  $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
+  $v->required('published', 'trim')->like(qr/^[0-2]$/);
 
   return $v;
 }

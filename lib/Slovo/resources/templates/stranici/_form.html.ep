@@ -8,7 +8,7 @@
   %= label_for pid => 'Pid'
   %= number_field pid => (readonly=>'readonly')
   %= label_for dom_id => 'Dom_id',
-  %= number_field dom_id => (readonly=>'readonly')
+  %= number_field 'dom_id'
   %= label_for alias =>'Alias'
   %= text_field alias => size => 32
   <%=

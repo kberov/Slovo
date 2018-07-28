@@ -17,7 +17,7 @@ sub generator { return 'Slovo ' . $Slovo::VERSION . ' - ' . $Slovo::CODENAME }
 has domain => sub {
   my $domain = $_[0]->req->headers->host;
   $domain =~ s/(\:\d+)$//;    # remove port
-  return $domain;
+  return lc $domain;
 };
 
 sub debug;

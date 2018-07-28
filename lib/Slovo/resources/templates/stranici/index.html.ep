@@ -11,7 +11,7 @@
     </thead>
     <tbody>
 % for my $s (@$stranici) {
-% my $class = join ' ', map {$s->{$_}? $_:undef} qw(hidden deleted);
+% my $class = join ' ', map {$s->{$_} ? $_ : ()} qw(hidden deleted);
 % $class .= $s->{stop} != 0 && $s->{stop} < time ? ' expired' : '';
 % $class .= $s->{start} != 0 && $s->{start} > time ? ' upcoming' : '';
   %= t tr => (class=> $class) => begin

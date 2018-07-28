@@ -17,9 +17,15 @@ has title_data_type => 'заглавѥ';
 sub _where_with_permissions ($m, $user, $domain, $preview) {
 
   my $now = time;
+
+  # Match by domain or one of the domain aliases or IPs - in that order. This
+  # is to give chance to all domains and their aliases to match in case the
+  # request URL does not start with an IP. In case the request URL starts with
+  # an IP (e.g. http://127.0.0.1/some/route) the first domain record with that
+  # IP will take the request.
   state $domain_sql = <<"SQL";
 = (SELECT id FROM domove
-    WHERE (? LIKE '%' || domain OR ips like ?) AND published = ? LIMIT 1)
+    WHERE (? LIKE '%' || domain OR aliases LIKE ? OR ips LIKE ?) AND published = ? LIMIT 1)
 SQL
 
   return {
@@ -31,7 +37,8 @@ SQL
     $preview ? () : ("$table.stop"  => [{'=' => 0}, {'>' => $now}]),
 
     # the page must belong to the current domain
-    "$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", 2)],
+    "$table.dom_id" =>
+      \[$domain_sql, => ($domain, "%$domain%", "%$domain%", 2)],
 
     # TODO: May be drop this column as 'hidden' can be
     # implemented by putting '.' as first character for the alias.
@@ -68,6 +75,7 @@ SQL
 # Find a page by $alias which can be seen by the current user
 sub find_for_display ($m, $alias, $user, $domain, $preview) {
 
+  #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return
     $m->dbx->db->select(
                         $table, undef,

@@ -16,8 +16,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.07.28';
-our $CODENAME  = 'U+2C0C GLAGOLITIC CAPITAL LETTER DJERVI (Ⰼ)';
+our $VERSION   = '2018.08.00';
+our $CODENAME  = 'U+2C0D GLAGOLITIC CAPITAL LETTER KAKO (Ⰽ)';
 my $CLASS = __PACKAGE__;
 
 
@@ -97,9 +97,13 @@ sub _load_pugins($app) {
       $plug = $app->plugin($plugin);
     }
 
-    # Make OpenAPI instance allways available!
+    # Make OpenAPI specification allways available!
     if ($name eq 'OpenAPI') {
-      $app->defaults->{'openapi.object'} = $plug;
+      $app->helper(
+        openapi_spec => sub ($c_or_app, $path = '/') {
+          $plug->validator->get($path);
+        }
+      );
     }
   }
 
@@ -283,6 +287,20 @@ otherwise.
     You may want to <%=link_to 'sign in' => url_for('sign_in') %>.
     % }
 
+=head2 openapi_spec
+
+We need to have our openapi API specification always at hand as a unified
+source of truth so here it is.
+
+    #anywhere via $app or $c, even not via a REST call
+    state $columns = $c->openapi_spec($json_path);
+    [
+      "id",
+      "pid",
+      "alias",
+      "title",
+      "is_dir"
+    ]
 
 =head1 BUGS
 
@@ -296,7 +314,7 @@ Please open issues at L<https://github.com/kberov/Slovo/issues>.
 
     Красимир Беров
     CPAN ID: BEROV
-    berov ат cpan точка org
+    berov на cpan точка org
     http://i-can.eu
 
 =head1 COPYRIGHT

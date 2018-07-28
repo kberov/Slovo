@@ -9,9 +9,8 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 # '.', '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
-
 isa_ok($app, 'Slovo');
-$t->login_ok('краси', 'беров');
+$t->login_ok();
 
 my $users_url  = $app->url_for('home_users')->to_string;
 my $groups_url = $app->url_for('home_groups')->to_string;
@@ -154,9 +153,20 @@ subtest remove_user     => $remove_user;
 subtest create_stranici => $create_stranici;
 subtest update_stranica => $update_stranica;
 
-subtest create_celini => $create_celini;
-subtest update_celini => $update_celini;
-subtest remove_celini => $remove_celini;
+subtest create_celini             => $create_celini;
+subtest update_celini             => $update_celini;
+subtest remove_celini             => $remove_celini;
+subtest create_edit_delete_domain => sub {
+  my $delete_url = $t->create_edit_domain_ok();
+  my $list_url
+    = $t->delete_ok($delete_url)->status_is(302)->tx->res->headers->location;
+
+  # no link for editing the deleted record
+  $t->get_ok($list_url)->status_is(200)
+    ->element_exists_not(qq|a [href="$delete_url"]|);
+
+};
+
 done_testing;
 exit;
 

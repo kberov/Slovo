@@ -31,11 +31,12 @@ sub add ($self, $row) {
 }
 
 my $loadable = sub {
+  my $time = time;
   return (
           disabled   => 0,
           group_id   => {'>' => 0},
-          start_date => {'<' => time},
-          stop_date  => [{'=' => 0}, {'>' => time}],
+          start_date => {'<' => $time},
+          stop_date  => [{'=' => 0}, {'>' => $time}],
          );
 };
 

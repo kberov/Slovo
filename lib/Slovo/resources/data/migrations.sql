@@ -444,3 +444,16 @@ ALTER TABLE domove ADD COLUMN aliases VARCHAR(2000);
 -- no downgrade path for this version
 
 
+-- 201808000000 up
+
+-- for these aliase to work you need to add them to your /etc/hosts lke this
+-- for example:
+-- 127.0.0.1 localhost bg.localhost en.localhost local.xn--b1arjbl.xn--90ae
+UPDATE domove SET
+aliases='bg.localhost en.localhost local.xn--b1arjbl.xn--90ae'
+WHERE id=0;
+
+-- 201808000000 down
+UPDATE domove SET aliases=''
+WHERE id=0;
+

@@ -1,5 +1,16 @@
 Revision history for Mojolicious application Slovo
 
+2018.08.00
+
+    -Features
+        * Domains can have several aliases and pages can be found under
+          different aliases - Multidomain support.
+        * Made OpenAPI API specification allways available via helper
+          'openapi_spec'.
+    -Changes
+        * Changed CODENAME to U+2C0D GLAGOLITIC CAPITAL LETTER KAKO (Ⰽ).
+        * This is a magor release. We have a Minimal Viable Product.
+
 2018.07.28
     -Features
         * Breadcrumb navigation up to the root page in the appbar.

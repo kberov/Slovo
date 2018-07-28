@@ -39,7 +39,7 @@ sub execute($c) {
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $user    = $c->user;
   state $json_path    = '/paths/~1страници/get/parameters/3/default';
-  state $list_columns = $c->openapi->spec($json_path);
+  state $list_columns = $c->openapi_spec($json_path);
   state $not_found_id = $c->not_found_id;
   my $page
     = $c->stranici->find_for_display($alias, $user, $c->domain, $preview);

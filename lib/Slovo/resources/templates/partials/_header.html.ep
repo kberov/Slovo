@@ -17,6 +17,7 @@
                     {страница => $_->{alias}};
                 }
                 )->join(' ⸙ ')
+                unless $page->{id} == $c->not_found_id
               %>
               ⸙
               %= t span => (class => 'title') => title
