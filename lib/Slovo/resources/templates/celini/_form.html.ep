@@ -1,7 +1,7 @@
 % use Mojo::Collection;
-%= link_to 'Up to list of celini' => 'home_celini'
-<%= link_to '...in the same page' => url_for('home_celini')->query([page_id => $in->{page_id}]),
-    (title => 'Up to list of celini in the same page')
+%= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
+<%= link_to '🖹⮉☰' => url_for('home_celini')->query([page_id => $in->{page_id}]) 
+    => (title => 'Up to list of celini in the same page')
 %>
 <hr />
 %= form_for $target => begin

@@ -8,5 +8,5 @@
     %= stylesheet '/css/site.css'
     %= javascript '/js/mui.min.js'
     %= javascript '/mojo/jquery/jquery.js'
-    %= javascript 'js/sidedrawer.js'
+    %= javascript '/js/sidedrawer.js'
   </head>

@@ -12,7 +12,7 @@ my $app = $t->app;
 
 subtest 'Not Found' => sub {
   for my $alias (qw(скрита изтрита предстояща изтекла несъществуваща)) {
-    $t->get_ok("/$alias.стр.html")->status_is(404);
+    $t->get_ok("/$alias.html")->status_is(404);
   }
 };
 
@@ -20,19 +20,19 @@ $t->login_ok('краси', 'беров');
 
 subtest 'previewed pages' => sub {
   for my $alias (qw(скрита изтрита предстояща изтекла)) {
-    $t->get_ok("/$alias.стр.html?прегледъ=1")->status_is(200);
+    $t->get_ok("/$alias.html?прегледъ=1")->status_is(200);
   }
 };
 
 subtest 'site layout' => sub {
   $t->get_ok($app->url_for('sign_out'))->status_is(302)
     ->header_is('Location' => '/');
-  $t->get_ok("/коренъ.стр.html")->status_is(200)
+  $t->get_ok("/коренъ.html")->status_is(200)
     ->element_exists('body header.mui-appbar')
     ->element_exists('aside#sidedrawer')
     ->element_exists('main#content-wrapper')
     ->element_exists('footer.mui-appbar');
-  $t->get_ok('/ѿносно.стр.html')->status_is(200)
+  $t->get_ok('/ѿносно.html')->status_is(200)
 
     #   ->element_exists_not('aside#sidedrawer');
     # menu item in sidedrawer
@@ -41,9 +41,21 @@ subtest 'site layout' => sub {
 };
 
 subtest breadcrumb => sub {
-  my $alias = b('писания.стр.html')->encode->url_escape;
-  $t->get_ok('/вести.стр.html')
-    ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|);    #Писания
+  $t->login_ok('краси', 'беров');
+  my $alias = b('писания.html')->encode->url_escape;
+  my $vest_alias
+    = '/'
+    . b('вести')->encode->url_escape . '/'
+    . b('първа-вест.html')->encode->url_escape;
+  $t->get_ok('/вести.html')
+    ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
+    ->element_exists(
+             'main section.заглавѥ section.писанѥ:nth-child(2) h2:nth-child(1)')
+    ->text_is('section.писанѥ:nth-child(3) > h2:nth-child(1)' => 'Вътора вест')
+    ->element_exists(qq|a[href="$vest_alias"]|);
+  $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
+  $t->get_ok('/вести/alabala.html')->status_is(404)
+    ->text_is('.заглавѥ > h1:nth-child(1)' => 'Страницата не е намерена');
 };
 
 done_testing;

@@ -16,7 +16,7 @@ my $_select_box = sub ($c, $name, $options, %attrs) {
 };
 
 sub register ($self, $app, $config) {
-  $self->SUPER::register($app);
+  $self->SUPER::register($app) unless exists $app->renderer->helpers->{t};
 
   # Override select_field. Allow a value to be passed.
   $app->helper(select_box => $_select_box);
@@ -33,16 +33,19 @@ Slovo::Plugin::TagHelpers - additional and advanced tag helpers
 
 =head1 SYNOPSIS
 
-  # slovo.conf
-  plugins => [
-    'TagHelpers',
-     ...
-  ]
+  <%=
+  select_box
+    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+    required => 1, label => 'Page type'
+  %>
+
 
 =head1 DESCRIPTION
 
 Slovo::Plugin::TagHelpers extends L<Mojolicious::Plugin::TagHelpers> and
-implements some additional helpers for form fields.
+implements some additional helpers for form fields. DefaultHelpers and
+TagHelpers are loaded unconditionally after all other mandatory for Slovo
+plugins.
 
 
 =head1 HELPERS
@@ -80,12 +83,12 @@ The usual method is implemented.
 
 =head2 register
 
-Calls the parent's register and registers additional helpers in Slovo application.
+Calls the parent's register if needed and registers additional helpers in Slovo application.
 
 
-head1 SEE ALSO
+=head1 SEE ALSO
 
-L<Mojolicious::Plugin::TagHelpers>
+L<Mojolicious::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>
 
 =cut
 

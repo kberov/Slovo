@@ -1,0 +1,5 @@
+<!-- _цѣлина -->
+<section class="цѣлина">
+    %= t 'h' . $level => $цѣлина->{title}
+%== $цѣлина->{body}
+</section>

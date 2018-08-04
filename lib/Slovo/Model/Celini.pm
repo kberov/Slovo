@@ -8,6 +8,31 @@ my $table = 'celini';
 
 sub table { return $table }
 
+sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
+  state $abstr       = $m->dbx->abstract;
+  state $s_table     = $m->c->stranici->table;
+  state $page_id_SQL = "= (SELECT id FROM $s_table WHERE alias=?)";
+  my (@SQL, @BINDS);
+  for my $cel (@$path) {
+    my ($u_SQL, @bind) = $abstr->select(
+      $table, undef,
+      {
+       "page_id"  => \[$page_id_SQL, $p_alias],
+       "alias"    => $cel,
+       "language" => $l,
+       %{$m->where_with_permissions($user, $preview)},
+
+      }
+    );
+    push @SQL,   $u_SQL;
+    push @BINDS, @bind;
+  }
+  my $sql = join("\nUNION\n", @SQL);
+  $m->c->debug('$sql:', $sql, '@BINDS', @BINDS);
+  return $m->dbx->db->query($sql, @BINDS)->hashes;
+
+}
+
 sub where_with_permissions ($self, $user, $preview) {
   my $now = time;
 
@@ -42,17 +67,32 @@ sub where_with_permissions ($self, $user, $preview) {
   };
 }
 
-sub all_for_display ($self, $page, $user, $language, $preview) {
-  return
-    $self->all(
-              {
-               where => {
-                         page_id  => $page->{id},
-                         language => $language,
-                         %{$self->where_with_permissions($user, $preview)},
-                        },
-               order_by => [{-desc => 'featured'}, {-asc => [qw(id sorting)]},],
-              }
-    );
+sub all_for_display_in_stranica ($self, $page, $user, $language, $preview,
+                                 $opts = {})
+{
+  return $self->all(
+    {
+     where => {
+       page_id      => $page->{id},
+       "$table.pid" => 0,             #only content belonging directly to a page
+       language     => $language,
+       %{$self->where_with_permissions($user, $preview)},
+       %{$opts->{where} // {}}
+              },
+     order_by => [{-desc => 'featured'}, {-asc => [qw(id sorting)]},],
+    }
+  );
+}
+
+sub find_for_display ($m, $alias, $user, $language, $preview, $where = {}) {
+
+  #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  my $_where = {
+                alias    => $alias,
+                language => $language,
+                box      => {-in => [qw(главна main)]},
+                %{$m->where_with_permissions($user, $preview)}, %$where
+               };
+  return $m->dbx->db->select($table, undef, $_where)->hash;
 }
 1;

@@ -54,6 +54,7 @@ header a, footer a {
 .mui--appbar-min-height, .mui-appbar, .mui--appbar-height {
     min-height: 1rem;
     max-height: 3rem;
+    cursor: default;
 }
 .mui--appbar-line-height {
     line-height:1.5rem;
@@ -77,6 +78,14 @@ span.title {
     width: 1rem;
     height: 1rem;
     vertical-align: middle;
+}
+header, footer, #sidedrawer {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #sidedrawer {
@@ -217,4 +226,8 @@ footer {
 #Ꙋправленѥ {
     float: right;
     font-size: x-small
+}
+
+main section {
+    padding: 1rem;
 }

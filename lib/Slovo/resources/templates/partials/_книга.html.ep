@@ -1,0 +1,5 @@
+<!-- _книга -->
+<section class="книга">
+     %= t 'h' . $level => $книга->{title}
+%== $книга->{body}
+</section>

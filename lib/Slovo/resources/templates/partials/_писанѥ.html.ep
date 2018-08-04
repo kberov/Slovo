@@ -1,0 +1,5 @@
+<!-- _писанѥ -->
+<section class="писанѥ">
+    %= t 'h' . $level => $писанѥ->{title}
+%== $писанѥ->{body}
+</section>

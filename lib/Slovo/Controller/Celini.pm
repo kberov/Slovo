@@ -4,6 +4,63 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
+# GET /<:страница>/<*цѣлина>.html
+# Display a content element in a page in the site.
+sub execute($c) {
+  my $p_alias = $c->stash->{'страница'};
+  my $l       = $c->language;
+  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
+  my $user    = $c->user;
+  state $json_path      = '/paths/~1страници/get/parameters/3/default';
+  state $list_columns   = $c->openapi_spec($json_path);
+  state $not_found_id   = $c->not_found_id;
+  state $not_found_code = $c->not_found_code;
+  my $str = $c->stranici;
+  my $page = $str->find_for_display($p_alias, $user, $c->domain, $preview);
+  $page->{is_dir} = $page->{permissions} =~ /^d/;
+  $page //= $str->find($not_found_id);
+  $c->stash($page->{template} ? (template => $page->{template}) : ());
+  my $celini
+    = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
+  $c->stash(
+            celini       => $celini,
+            list_columns => $list_columns,
+            page         => $page,
+            preview      => $preview,
+            user         => $user,
+           );
+
+  if ($page->{id} == $not_found_id) {
+    $c->stash(breadcrumb => []);
+    $c->stash(status     => $not_found_code);
+    return $c->render();
+  }
+
+  $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l));
+
+  # TODO celina breadcrumb
+  #my $path = [split m|/|, $c->stash->{'цѣлина'}];
+  #$c->debug('$path', $path);
+  #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
+  #$c->debug($path);
+  my $celina =
+    $c->celini->find_for_display(
+                                 $c->stash->{'цѣлина'},
+                                 $user, $l, $preview,
+                                 {
+                                  pid     => $celini->[0]->{id},
+                                  page_id => $page->{id}
+                                 }
+                                );
+
+  unless ($celina) {
+    $celina = $c->celini->find_where(
+            {page_id => $not_found_id, language => $l, data_type => 'заглавѥ'});
+    return $c->render(celina => $celina, status => $not_found_code);
+  }
+  return $c->render(celina => $celina);
+}
+
 
 # GET /celini/create
 # Display form for creating resource in table celini.
@@ -137,8 +194,8 @@ sub _validation($c) {
   $v->optional('data_type', 'trim')->size(0, 32)->in(
                                                      'въпросъ', 'ѿговоръ',
                                                      'писанѥ',  'белѣжка',
-                                                     'книга',   'заглавѥ',
-                                                     'цѣлина'
+                                                     'книга',   'глава',
+                                                     'заглавѥ', 'цѣлина'
                                                     );
   my $alias   = 'optional';
   my $title   = $alias;

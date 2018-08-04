@@ -9,14 +9,19 @@ my $list
 $list->map(
   sub {
     my $expander_link = '';
-    my $link = link_to $_->{title} => покажи_страница => {страница => $_->{alias}};
+    my $link
+      = link_to $_->{title} => покажи_страница => {страница => $_->{alias}};
     if ($_->{is_dir}) {
       $expander_link = link_to
         '☰'   => url_for('api.list_stranici')->query({pid => $_->{id}}),
         class => 'folder-expander mui--pull-right';
-        return t li => sub { t strong => sub{$link . ' '. $expander_link}};
+      return t li => sub {
+        t strong => sub { $link . ' ' . $expander_link }
+      };
     }
-    return t li => sub { t div => sub{$link . ' '. $expander_link}};
+    return t li => sub {
+      t div => sub { $link . ' ' . $expander_link }
+    };
   }
 )->join($/);
 %>

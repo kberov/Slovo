@@ -35,6 +35,15 @@ sub save ($self, $id, $row) {
   return $self->dbx->db->update($self->table, $row, {id => $id});
 }
 
+sub find_where ($m, $where = {1 => 1}) {
+
+  # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  state $abstr = $m->dbx->abstract;
+  my ($sql, @bind) = $abstr->where($where);
+  return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1", @bind)
+    ->hash;
+}
+
 sub find {
   return $_[0]->dbx->db->select($_[0]->table, undef, {id => $_[1]})->hash;
 }
@@ -44,6 +53,8 @@ sub remove {
 }
 
 sub add {
+
+  # local $_[0]->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $_[0]->dbx->db->insert($_[0]->table, $_[1])->last_insert_id;
 }
 

@@ -68,7 +68,7 @@ subtest visit_domains => sub {
         my $url = $t->ua->server->nb_url->host($alias);
         $t->get_ok($url)->status_is(200)
           ->text_is('head > title' => $page->{title})
-          ->text_like('body section#first' => qr/$page->{body}/);
+          ->text_like('body section.заглавѥ' => qr/$page->{body}/);
       }
     }
   );
