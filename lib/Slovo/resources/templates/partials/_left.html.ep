@@ -2,7 +2,7 @@
 % if ( $sidedrawer ) {
   %= t aside => (class=>"left mui--no-user-select", id => "sidedrawer") => begin
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
-    <span class="mui--text-title"><%= $c->domain %></span>
+      <span class="mui--text-title"><%= idomain %></span>
   </div>
   %= include 'partials/_left_menu_stranici'
   <div class="mui-divider"></div>

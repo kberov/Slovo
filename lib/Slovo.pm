@@ -16,7 +16,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.08.00';
+our $VERSION   = '2018.08.08';
 our $CODENAME  = 'U+2C0D GLAGOLITIC CAPITAL LETTER KAKO (Ⰽ)';
 my $CLASS = __PACKAGE__;
 
@@ -35,12 +35,6 @@ sub startup($app) {
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->_load_config->_load_pugins->_default_paths();
 
-  # replace is_user_authenticated from M::P::Authentication
-  $app->helper(
-         is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
-
-  # TODO: Implement Slovo::L10N which will provide this helper.
-  $app->helper(language => sub { $_[0]->config('default_language') });
   return $app;
 }
 
@@ -84,7 +78,9 @@ sub _load_pugins($app) {
   # See /perldoc/Mojolicious#plugins
   # See /perldoc/Mojolicious/Plugins#PLUGINS
   $app->plugins->namespaces(['Slovo::Plugin', 'Mojolicious::Plugin']);
-  foreach my $plugin (@{$app->config('plugins') // []}) {
+  my $plugins = $app->config('plugins') // [];
+  push @$plugins, qw(DefaultHelpers TagHelpers);
+  foreach my $plugin (@$plugins) {
     my $name = (ref $plugin ? (keys %$plugin)[0] : $plugin);
     $app->log->debug('Loading Plugin ' . $name);
 
@@ -155,7 +151,7 @@ Slovo - В началѣ бѣ Слово
 
 =head1 DESCRIPTION
 
-This is a very early pre-pre-release!
+This is a very early pre-release!
 L<Slovo> is a simple, installable and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>.
 
@@ -267,33 +263,14 @@ as C<$c-E<gt>user>.
 
 Slovo implements the following helpers.
 
-=head2 is_user_authenticated
-
-We replaced the implementation of this helper, provided otherwise by
-L<Mojolicious::Plugin::Authentication/is_user_authenticated>. Now we check if
-the user is not C<guest> instead of checking if we have a loaded user all over
-the place. This was needed because we wanted to always have a default user. See
-L</before_dispatch>. Now we have default user properties even if there is not
-a logged in user. This will be the C<guest> user.
-
-Once again: Now this helper returns true if the current user is not Guest, false
-otherwise.
-
-    %# in a template
-    Hello <%= $c->user->{first_name} %>,
-    % if($c->is_user_authenticated) {
-    You can go and <%= link_to manage => url_for('under_management')%> some pages.
-    % else {
-    You may want to <%=link_to 'sign in' => url_for('sign_in') %>.
-    % }
-
 =head2 openapi_spec
 
 We need to have our openapi API specification always at hand as a unified
 source of truth so here it is.
 
     #anywhere via $app or $c, even not via a REST call
-    state $columns = $c->openapi_spec($json_path);
+    state $columns =
+        $c->openapi_spec('/paths/~1страници/get/parameters/3/default');
     [
       "id",
       "pid",

@@ -3,6 +3,35 @@ use Mojo::Base 'Slovo::Controller', -signatures;
 use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
+use Role::Tiny::With;
+with 'Slovo::Controller::Role::Stranica';
+
+# GET /<:страница>/<*цѣлина>.html
+# Display a content element in a page in the site.
+sub execute ($c, $page, $user, $l, $preview) {
+
+  # TODO celina breadcrumb
+  #my $path = [split m|/|, $c->stash->{'цѣлина'}];
+  #$c->debug('$path', $path);
+  #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
+  #$c->debug($path);
+  my $celina =
+    $c->celini->find_for_display(
+                                 $c->stash->{'цѣлина'},
+                                 $user, $l, $preview,
+                                 {
+                                  pid     => $c->stash->{celini}[0]{id},
+                                  page_id => $page->{id}
+                                 }
+                                );
+
+  unless ($celina) {
+    $celina = $c->celini->find_where(
+         {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
+    return $c->render(celina => $celina, status => $c->not_found_code);
+  }
+  return $c->render(celina => $celina);
+}
 
 
 # GET /celini/create
@@ -137,8 +166,8 @@ sub _validation($c) {
   $v->optional('data_type', 'trim')->size(0, 32)->in(
                                                      'въпросъ', 'ѿговоръ',
                                                      'писанѥ',  'белѣжка',
-                                                     'книга',   'заглавѥ',
-                                                     'цѣлина'
+                                                     'книга',   'глава',
+                                                     'заглавѥ', 'цѣлина'
                                                     );
   my $alias   = 'optional';
   my $title   = $alias;

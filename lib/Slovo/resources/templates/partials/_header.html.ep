@@ -7,9 +7,8 @@
               <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
               <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer">☰</a>
               % }
-              %= link_to '/' => begin
-              <img id="logo" src="/img/slovo-white.png">
-              % end
+              %= link_to t(img => (id=> 'logo', src=> '/img/slovo-white.png')) => '/'
+              %= (@$breadcrumb ? '⸙':'')
               <%=
               $breadcrumb->map(
                 sub {
@@ -19,8 +18,6 @@
                 )->join(' ⸙ ')
                 unless $page->{id} == $c->not_found_id
               %>
-              ⸙
-              %= t span => (class => 'title') => title
           </td>
           <td class="mui--text-right">
               %= link_to Ѿносно => 'покажи_страница' => {страница => 'ѿносно'}

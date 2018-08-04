@@ -1,7 +1,29 @@
 Revision history for Mojolicious application Slovo
 
-2018.08.00
+2018.08.08
+    -Features
+        * Implemented /<:страница>/<*цѣлина>.html - /page/article.html. This
+          allows pages to act as category pages for collections of articles for
+          example.
+        * Added partial templates for all data types from table celini and a
+          generic one for custom data types.
+        * Slovo::Plugin::DefaultHelpers – additional default helpers for Slovo.
+        * Implemented Slovo::Controller::Role::Stranica with wrapper around
+          execute() to share some common stash settings, preparations and
+          checks before the page is rendered and leave room for executing code
+          after the page is rendered.
+    -Changes
+        * Now the IDN is always shown decoded in the sidedrawer.
+        * Moved helpers 'language' and 'is_user_authenticated' from Slovo to
+          Slovo::Plugin::DefaultHelpers.
+        * DefaultHelpers and TagHelpers are loaded unconditionally after all
+          other mandatory for Slovo plugins.
+        * Improved action execute and its template in
+          Slovo::Contoller::Stranici. Added partial templates for almost all
+          celini data_types. Moved my $breadcrumb fom controler to
+          Slovo::Model::Stranici where it belongs.
 
+2018.08.00
     -Features
         * Domains can have several aliases and pages can be found under
           different aliases - Multidomain support.

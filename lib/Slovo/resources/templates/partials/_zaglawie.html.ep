@@ -1,0 +1,56 @@
+<!-- _заглавѥ -->
+<%
+use Mojo::Util 'decode';
+state $partials = app->resources->child('templates/partials');
+
+%>
+<section class="заглавѥ">
+    %= t 'h' . $level => $заглавѥ->{title}
+<%
+# The content element can be displayed in two contexts.
+# 1. Страница a.k.a. List context:
+# This is when it is displayed as part (title) of the page.
+# This context is when the url to the page only is accessed
+# (e.g. http://local.слово.бг:3000/вести.html). In this context the
+# content element looks if it is a directory and lists its context, if yes.
+# 2. Цѣлина a.k.a Scalar context:
+# This is when it is displayed as the main content of the page. In this case it
+# simply shows it's body or does something intended fr this context.
+%>
+
+% if ($controller eq 'stranici' && $заглавѥ->{permissions} =~ /^d/) { #List
+ %== $заглавѥ->{body}
+ %# TODO: Add limit and pagination
+    <%
+    my $celini =
+      celini->all_for_display_in_stranica(
+                                   $page, $user, language, $preview,
+                                   {
+                                    where => {
+                                    'celini.pid' => $заглавѥ->{id},
+                                      'celini.box' => {-in => [qw(главна main)]}
+                                    }
+                                   }
+                                   );
+    %>
+    <%==
+    $celini->map(
+      sub {
+        my $row = shift;
+        $row->{body} = substr($row->{body},0,100)
+        . link_to t(big => '⋙') => 'покажи_цѣлина'
+            => {страница => $page->{alias}, цѣлина => $row->{alias}}
+            => (title => 'more...');
+        my $template = $partials->list->map(sub {
+            decode('utf8',$_->basename('.html.ep'));
+        })->first(sub{ $_ eq "_$row->{data_type}"});
+        $template
+            ? include "partials/$template", $row->{data_type} => $row, level => $level + 1
+            : include "partials/_data_type", row => $row, level => $level + 1
+      }
+    )->join("$/$/");
+    %>
+% } else {
+    %== $заглавѥ->{body}
+% }
+</section>

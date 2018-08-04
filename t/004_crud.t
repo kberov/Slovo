@@ -120,14 +120,17 @@ my $cform = {
              language  => 'bg-bg',
              data_type => 'цѣлина'
             };
+my $max_id
+  = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id}
+  + 2;    #??
 
 my $create_celini = sub {
   $t->post_ok($app->url_for('store_celini') => form => $cform)
-    ->header_is(Location => $app->url_for('show_celini', {id => 15}));
+    ->header_is(Location => $app->url_for('show_celini', {id => $max_id}));
 };
 
 # Update celini
-my $sh_up_url = $app->url_for('update_celini', {id => 15})->to_string;
+my $sh_up_url = $app->url_for('update_celini', {id => $max_id})->to_string;
 my $update_celini = sub {
   $cform->{title} = 'Заглавие на целината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
@@ -143,7 +146,7 @@ my $remove_celini = sub {
   $t->delete_ok($sh_up_url)->header_is(Location => $celini_url)->status_is(302);
 
   $t->get_ok($celini_url)->status_is(200)
-    ->element_exists_not('table tbody tr:nth-child(15)');
+    ->element_exists_not("table tbody tr:nth-child($max_id)");
 
 };
 

@@ -180,7 +180,7 @@ VALUES (
  -- content elements are one or more paragraphs, or whole article. Different
  -- data_types denote the semantic of a content element.
  -- This table is a modified version of MYDLjE table "content".
- -- 'celina(цѣлина)' is the original Bulgarian word for 'paragraph'.
+ -- 'celina(цѣлина)' is the original Bulgarian word for 'paragraph' – едно цѣло ѿ слова.
 
   -- Primary unique identifier
   id INTEGER PRIMARY KEY,
@@ -198,7 +198,8 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types. 'въпросъ', 'ѿговоръ', 'писанѥ', 'белѣжка', 'книга', 'заглавѥ', 'цѣлина'…
+  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'писанѥ', 'белѣжка',
+  -- 'книга', 'глава', 'заглавѥ', 'цѣлина'…
   data_type VARCHAR(32) DEFAULT 'белѣжка',
   -- text, html, markdown, asc…
   data_format VARCHAR(32) DEFAULT 'text',
@@ -456,4 +457,36 @@ WHERE id=0;
 -- 201808000000 down
 UPDATE domove SET aliases=''
 WHERE id=0;
+
+-- 2018080080000 up
+--Add some Вести
+UPDATE celini SET permissions ="drwxrwxr-x" WHERE id=3;
+INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
+    "data_type", "user_id", "group_id", "language", "page_id", "permissions",
+    "pid", "published", "sorting", "title")
+VALUES ( "първа-вест",
+    "Първа вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
+    писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
+    сега просто създаваме това, за да се уверимъ, че работи.
+
+Още една целина за разкошъ.", "главна",
+"1533474911", "text", "писанѥ",
+5, 5, "bg-bg", 2, "-rwxr-xr-x", 3, 1, 3, "Първа вест" );
+
+INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
+    "data_type", "user_id", "group_id", "language", "page_id", "permissions",
+    "pid", "published", "sorting", "title")
+VALUES ( "вътора-вест",
+    "Вътора вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
+    писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
+    сега просто създаваме това, за да се уверимъ, че работи.
+
+Още една целина за разкошъ. Вътората вест е нужна за проверка на показването на
+списъка с вести", "главна",
+"1533474911", "text", "писанѥ",
+5, 5, "bg-bg", 2, "-rwxr-xr-x", 3, 1, 4, "Вътора вест" );
+
+-- 201808080000 down
+UPDATE celini SET permissions ="-rwxrwxr-x" WHERE id=3;
+DELETE FROM celini WHERE alias IN ('вътора-вест', 'първа-вест');
 

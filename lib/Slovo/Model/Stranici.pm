@@ -12,6 +12,28 @@ has not_found_id    => 4;
 has table           => $table;
 has title_data_type => 'заглавѥ';
 
+
+# Returns a list of page alises and titles in the current languade for
+# displaying as breadcrumb. No permission filters are applied because if the
+# user gets to this page, he should have passed throu all filters from the
+# parrent page to this page. This SQL is supported now even in MySQL 8.
+# https://stackoverflow.com/questions/324935/mysql-with-clause#325243
+# https://sqlite.org/lang_with.html
+sub breadcrumb ($m, $pid, $language) {
+  my $rows = $m->dbx->db->query(<<"SQL", $pid, $language)->hashes;
+WITH RECURSIVE pids(p)
+  AS(VALUES(?) UNION SELECT pid FROM $table s, pids WHERE s.id = p)
+  SELECT s.alias, c.title FROM $table s, $celini_table c
+  WHERE s.id IN pids
+    AND c.page_id = s.id
+    AND c.language = ?
+    AND c.data_type = 'заглавѥ'
+    AND s.page_type !='коренъ';
+SQL
+
+  return $rows;
+}
+
 # Returns a structure for a 'where' clause to be shared among select methods
 # for pages to be displayed in the site.
 sub _where_with_permissions ($m, $user, $domain, $preview) {

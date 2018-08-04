@@ -7,6 +7,7 @@ lib/Slovo/Controller/Celini.pm
 lib/Slovo/Controller/Domove.pm
 lib/Slovo/Controller/Example.pm
 lib/Slovo/Controller/Groups.pm
+lib/Slovo/Controller/Role/Stranica.pm
 lib/Slovo/Controller/Stranici.pm
 lib/Slovo/Controller/Upravlenie.pm
 lib/Slovo/Controller/Users.pm
@@ -16,6 +17,7 @@ lib/Slovo/Model/Domove.pm
 lib/Slovo/Model/Groups.pm
 lib/Slovo/Model/Stranici.pm
 lib/Slovo/Model/Users.pm
+lib/Slovo/Plugin/DefaultHelpers.pm
 lib/Slovo/Plugin/MojoDBx.pm
 lib/Slovo/Plugin/TagHelpers.pm
 lib/Slovo/resources/api-v1.0.json
@@ -40,6 +42,7 @@ lib/Slovo/resources/templates/auth/form.html.ep
 lib/Slovo/resources/templates/celini/_form.html.ep
 lib/Slovo/resources/templates/celini/create.html.ep
 lib/Slovo/resources/templates/celini/edit.html.ep
+lib/Slovo/resources/templates/celini/execute.html.ep
 lib/Slovo/resources/templates/celini/index.html.ep
 lib/Slovo/resources/templates/celini/show.html.ep
 lib/Slovo/resources/templates/domove/_form.html.ep
@@ -56,12 +59,20 @@ lib/Slovo/resources/templates/groups/show.html.ep
 lib/Slovo/resources/templates/layouts/default.html.ep
 lib/Slovo/resources/templates/layouts/site.html.ep
 lib/Slovo/resources/templates/layouts/upravlenie.html.ep
+lib/Slovo/resources/templates/partials/_beleyazhka.html.ep
+lib/Slovo/resources/templates/partials/_ceyalina.html.ep
+lib/Slovo/resources/templates/partials/_data_type.html.ep
 lib/Slovo/resources/templates/partials/_footer.html.ep
 lib/Slovo/resources/templates/partials/_head.html.ep
 lib/Slovo/resources/templates/partials/_header.html.ep
+lib/Slovo/resources/templates/partials/_kniga.html.ep
 lib/Slovo/resources/templates/partials/_left.html.ep
 lib/Slovo/resources/templates/partials/_left_menu_stranici.html.ep
+lib/Slovo/resources/templates/partials/_otgowory.html.ep
+lib/Slovo/resources/templates/partials/_pisanie.html.ep
 lib/Slovo/resources/templates/partials/_right.html.ep
+lib/Slovo/resources/templates/partials/_wyprosy.html.ep
+lib/Slovo/resources/templates/partials/_zaglawie.html.ep
 lib/Slovo/resources/templates/stranici/_form.html.ep
 lib/Slovo/resources/templates/stranici/create.html.ep
 lib/Slovo/resources/templates/stranici/edit.html.ep

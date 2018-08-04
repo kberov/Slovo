@@ -1,31 +1,32 @@
 <%
-my $first      = shift @$celini;
-my $main       = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
-my $left       = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $дѣсна      = $celini->grep(sub { $_->{box} =~ /left|дѣсно/ });
+use Mojo::Util 'decode';
+state $partials = app->resources->child('templates/partials');
+my $заглавѥто = shift @$celini;
+my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
+my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
+my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
 # * 1:always.
-my $sidedrawer = 1;# @$left || $page->{is_dir};
+my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
-  title      => $first->{title},
+  title      => $заглавѥто->{title},
   left       => $left,
   right      => $дѣсна,
   sidedrawer => $sidedrawer;
 %>
-<%==
-t section => (id => 'first') =>
-  sub { t(h1 => $first->{title}) . $/ . $first->{body} }
-%>
-
+%= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
 <%==
 $main->map(
   sub {
-    t section => sub {
-      ($_->{title} ? t h2 => $_->{title} : '') . $/
-        . ($_->{body} ? $_->{body} : '');
-      }
+    my $row = shift;
+
+my $template = $partials->list->first(sub { $_ eq "_$c2a->{$row->{data_type}}" });
+    $template
+    ? include "partials/$template" => $row->{data_type} => $row, level => 1
+        : include "partials/_data_type" => row => $row , level => 1
   }
-  )->join($/);
+)->join($/);
 %>
 

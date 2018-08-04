@@ -23,7 +23,7 @@
     <td class="buttons">
 
     %#TODO: Implement I18N
-    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id},sorting => 0,data_type => 'заглавѥ'})->hash->{language};
+    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id}, sorting => 0,data_type => 'заглавѥ'})->hash->{language};
     <%= link_to '📝' =>
     url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) => (title => 'Edit') %>
 % if(!$s->{deleted} && !$s->{hidden}) {

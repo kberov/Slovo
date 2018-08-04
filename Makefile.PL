@@ -23,6 +23,7 @@ WriteMakefile(
                 'Mojolicious::Plugin::OpenAPI'        => '1.30',
                 'Mojolicious::Plugin::RoutesConfig'   => '0.05',
                 'Role::Tiny'                          => '2.000006',
+                'Class::Method::Modifiers'            => '2.12',
                },
   TEST_REQUIRES => {},
   test          => {TESTS => 't/*.t'},

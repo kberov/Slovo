@@ -1,35 +1,59 @@
 % layout 'upravlenie', title => 'Blog/Celini';
-% my @columns = qw(page_id id title alias box); #table columns to show
+% my @columns = qw(page_id id pid title alias box); #table columns to show
 
-%= link_to 'New record in table "celini"' => 'create_celini'
+%= link_to '☰✨' => 'create_celini' => (titile => 'New record in table "celini"')
 % my $page_id = $c->param('page_id');
 % if (defined $page_id) {
-    %= link_to 'Up to list of celini' => 'home_celini'
-    <%= link_to 'Add content to this page' =>
-        url_with('create_celini')->query([page_id => $page_id, ]),
-        (title => 'Add content to page with id '. $page_id) %>
+    %= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
+    <%=
+    link_to
+      '🖹🗌' => url_with('create_celini')->query([page_id => $page_id,]),
+      (title => 'Add content to page with id ' . $page_id)
+    %>
 % }
 <table>
         <tr>
+            <th></th>
     % for my $column (@columns) {
             <th><%= uc($column) %></th>
     % }
         <th></th>
         </tr>
-% for my $item (@$celini) {
+% for my $item (@$celini) { $item->{is_dir} = 1 if ($item->{permissions} =~ /^d/);
         <tr>
-            <td><%= link_to $item->{id} => show_celini => {id => $item->{id}} %></td>
-    % for my $column (@columns[1 .. $#columns]) {
-            <td><%= $item->{$column} %></td>
+            <th><%= $item->{is_dir} ? '🗀' : '☰' %></th>
+    % for my $column (@columns) {
+      % if ($column eq 'id') {
+          <td><%= link_to $item->{id} => show_celini => {id => $item->{id}} %></td>
+      % } else {
+          <td><%= $item->{$column} %></td>
+      % }
     % }
     <td>
-        <%= link_to Edit => edit_celini => {id => $item->{id}} %>
+        <%= link_to '📝' => edit_celini => {id => $item->{id}} %>
         % if(not defined $page_id) {
-        <%= link_to 'list siblings' => url_with('home_celini')->query([page_id => $item->{page_id}]) %>
+        <%=
+        link_to '☰' =>
+          url_with('home_celini')->query([page_id => $item->{page_id}]) =>
+          (title => 'list siblings')
+        %>
         % }
-    <%= link_to 'Add a sibling after this' =>
-    url_with('create_celini')->query([page_id => $item->{page_id}, sorting => ++$item->{sorting}]) %>
-
+    <%=
+    link_to '🖹🗌' => url_with('create_celini')
+      ->query([page_id => $item->{page_id}, sorting => ++$item->{sorting}]) =>
+      (title => 'Add a sibling after this')
+    %>
+    % if ($item->{permissions} =~/^d/) { # is a container/directory
+    <%=
+    link_to '☲🗌' => url_with('create_celini')->query(
+                                                 [
+                                                  page_id => $item->{page_id},
+                                                  sorting => ++$item->{sorting},
+                                                  pid     => $item->{id}
+                                                 ]
+      ) => (title => 'Add new child content to this')
+    %>
+    % }
     </td>
         </tr>
 % }
