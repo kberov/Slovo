@@ -1,6 +1,8 @@
-% use Mojo::Collection;
+<%
+  state $languages   = $c->openapi_spec('/parameters/language/enum');
+%>
 %= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
-<%= link_to '🖹⮉☰' => url_for('home_celini')->query([page_id => $in->{page_id}]) 
+<%= link_to '🖹⮉☰' => url_for('home_celini')->query([page_id => $in->{page_id}])
     => (title => 'Up to list of celini in the same page')
 %>
 <hr />
@@ -41,10 +43,9 @@
     label => 'Data format'
     %>
 
-  %# TODO: make this a configuration
   <%=
   select_box
-    language => [[Български => 'bg-bg'], ['English(US)' => 'en-us']],
+    language => [map {[$_=>$_]} @$languages],
     label => 'Language'
   %>
   <%=

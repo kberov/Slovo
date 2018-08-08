@@ -5,6 +5,10 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 use Mojo::Util qw(punycode_decode);
 
+our $DEV_MODE = ($ENV{MOJO_MODE} || '' =~ /dev/);
+
+sub _debug;
+
 
 sub register ($self, $app, $config) {
   $self->SUPER::register($app) unless exists $app->renderer->helpers->{c};
@@ -27,10 +31,32 @@ sub register ($self, $app, $config) {
   $app->helper(
          is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
 
-  # TODO: Implement Slovo::L10N which will provide this helper.
-  $app->helper(language => sub { $_[0]->config('default_language') });
-
+  $app->helper(language => sub { $_[0]->stash('ѩꙁыкъ') });
+  $app->helper(debug => \&_debug);
   return $self;
+}
+
+if ($DEV_MODE) {
+
+  sub _debug {
+    my ($c, @params) = @_;
+
+    # https://stackoverflow.com/questions/50489062
+    # Display readable UTF-8
+    # Redefine Data::Dumper::qquote() to do nothing
+    ##no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+    no warnings 'redefine';
+    local *Data::Dumper::qquote = sub {qq["${\(shift)}"]};
+    local $Data::Dumper::Useperl = 1;
+    my ($package, $filename, $line, $subroutine) = caller(0);
+    state $log = $c->app->log;
+    for my $pp (@params) {
+      $log->debug(ref $pp ? $c->dumper($pp) : $pp,
+                  ($pp eq $params[-1] ? "    at $filename:$line" : ''));
+    }
+    return;
+  }
+
 }
 
 

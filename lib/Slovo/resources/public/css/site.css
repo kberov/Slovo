@@ -11,7 +11,7 @@ body {
   height: 100%;
   background-color: #eee;
   font-size:18px;
-  /* TODO: change body/html font-size dynamically using JavaScript to change the lenght values
+  /* TODO: change body/html font-size dynamically to change the lenght values
    * to everything set in "rem"s (root ems). Useful for screens with bigger
    * resolution where the font is too small.
    */
@@ -34,7 +34,6 @@ header, footer {
   position: fixed;
   right: 0;
   left: 0;
-  z-index: 2;
   transition: left 0.2s;
 }
 
@@ -53,15 +52,16 @@ header a, footer a {
 
 .mui--appbar-min-height, .mui-appbar, .mui--appbar-height {
     min-height: 1rem;
-    max-height: 3rem;
+    max-height: 6rem;
     cursor: default;
 }
 .mui--appbar-line-height {
     line-height:1.5rem;
 }
-
+footer.mui-appbar table,
 header.mui-appbar table {
-    width:100%;
+    height: 100%;
+    width:  100%;
     /* top | right | bottom | left */
     padding: 0 1rem 0 1rem;
 }
@@ -79,6 +79,7 @@ span.title {
     height: 1rem;
     vertical-align: middle;
 }
+/* disable user selection */
 header, footer, #sidedrawer {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -224,10 +225,23 @@ footer {
 
 
 #Ꙋправленѥ {
-    float: right;
     font-size: x-small
 }
 
 main section {
     padding: 1rem;
+}
+
+/* Re-set some rules for this site. */
+header .mui-dropdown .mui-btn--small,
+header .mui-dropdown .mui-dropdown__menu > li > a {
+    height: 1rem;
+    line-height: 1rem;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    margin: 0.3rem 0.3rem 0.3rem 0.3rem !important;
+}
+
+.mui-dropdown__menu {
+    min-width: initial;
 }

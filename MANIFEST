@@ -66,6 +66,7 @@ lib/Slovo/resources/templates/partials/_footer.html.ep
 lib/Slovo/resources/templates/partials/_head.html.ep
 lib/Slovo/resources/templates/partials/_header.html.ep
 lib/Slovo/resources/templates/partials/_kniga.html.ep
+lib/Slovo/resources/templates/partials/_lang_menu.html.ep
 lib/Slovo/resources/templates/partials/_left.html.ep
 lib/Slovo/resources/templates/partials/_left_menu_stranici.html.ep
 lib/Slovo/resources/templates/partials/_otgowory.html.ep

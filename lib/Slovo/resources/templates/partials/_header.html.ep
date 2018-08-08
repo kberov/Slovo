@@ -1,7 +1,7 @@
 
     <header class="mui-appbar mui--z1">
       <table>
-        <tbody><tr class="mui--appbar-height mui--align-middle">
+        <tbody><tr class="mui--align-middle">
           <td class="mui--text-title">
               % if ( $sidedrawer ) {
               <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
@@ -12,15 +12,15 @@
               <%=
               $breadcrumb->map(
                 sub {
-                  link_to $_->{title} => покажи_страница =>
-                    {страница => $_->{alias}};
+                  link_to $_->{title} => страница_с_ѩꙁыкъ =>
+                  {страница => $_->{alias}, ѩꙁыкъ => $_->{language}};
                 }
                 )->join(' ⸙ ')
                 unless $page->{id} == $c->not_found_id
               %>
           </td>
           <td class="mui--text-right">
-              %= link_to Ѿносно => 'покажи_страница' => {страница => 'ѿносно'}
+              %= link_to Ѿносно => 'страница_с_ѩꙁыкъ' => {страница => 'ѿносно',ѩꙁыкъ =>$ѩꙁыкъ}
               % if ($c->is_user_authenticated) {
               %# TODO: make the name to be a link to user profile
               % my $name = $c->user->{first_name} . ' ' . $c->user->{last_name};
@@ -28,6 +28,7 @@
               % } else {
                   %= link_to 'Входъ' => 'sign_in'
               % }
+              %= include 'partials/_lang_menu'
           </td>
         </tr>
       </tbody></table>

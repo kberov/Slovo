@@ -1,4 +1,4 @@
-<!-- _<%= $row->{data_type} %> -->
+<!-- _data_type -->
 <section class="<%= $row->{data_type} %>">
     %= t 'h' . $level => $row->{title}
 %== $row->{body}

@@ -6,7 +6,8 @@ no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 
-# GET /<:страница>/<*цѣлина>.html
+# ANY /<страница:str>/<цѣлина:cel>.<ѩꙁыкъ:lng>.html
+# ANY /<:страница:str>/<цѣлина:cel>.html
 # Display a content element in a page in the site.
 sub execute ($c, $page, $user, $l, $preview) {
 

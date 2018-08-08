@@ -67,9 +67,6 @@ my $remove_user = sub {
 
 # Create stranici
 my $stranici_url = $app->url_for('store_stranici')->to_string;
-my $new_page_id
-  = $app->dbx->db->select('stranici', 'max(id) + 1 as id')->hash->{id};
-my $stranici_url_new = "$stranici_url/$new_page_id";
 my $sform = {
              alias       => 'събития',
              page_type   => 'обичайна',
@@ -79,11 +76,16 @@ my $sform = {
              body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
              language    => 'bg-bg'
             };
-my $create_stranici = sub {
-  $t->post_ok($stranici_url => form => $sform)->status_is(302)->header_is(
-                                          Location => "$stranici_url_new/edit",
-                                          'Location: /Ꙋправленѥ/stranici/9/edit'
-  )->content_is('', 'empty content');
+my $new_page_id      = 0;
+my $stranici_url_new = "$stranici_url/";
+my $create_stranici  = sub {
+  $t->post_ok($stranici_url => form => $sform)->status_is(302);
+  $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
+  $stranici_url_new .= $new_page_id;
+  $t->header_is(
+                Location => "$stranici_url_new/edit",
+                "Location: /Ꙋправленѥ/stranici/$new_page_id/edit"
+               )->content_is('', 'empty content');
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   my $title = $app->celini->all(
                   {where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
@@ -100,6 +102,7 @@ my $update_stranica = sub {
   my $dom = $t->get_ok("$stranici_url_new/edit?language=bg-bg")->tx->res->dom;
   is($dom->at('input[name="title_id"]')->{value} => $sform->{title_id},
      'proper hidden title_id');
+
   is($dom->at('input[name="title"]')->{value} => $sform->{title},
      'proper title');
   $sform->{body} = $dom->at('textarea[name="body"]')->text;

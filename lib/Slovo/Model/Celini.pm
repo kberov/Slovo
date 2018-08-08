@@ -6,6 +6,12 @@ no warnings "experimental::lexical_subs";
 
 my $table = 'celini';
 
+# Structure for matching a language parameter.
+sub language_like ($m, $l) {
+  my ($l1, $l2) = $l =~ /^([A-z]{2})\-?([A-z]{2})?/;
+  $l2 ||= $l1;
+  return [{'=' => $l}, {-like => "$l1%"}, {-like => "%$l2"}];
+}
 sub table { return $table }
 
 sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
@@ -19,7 +25,7 @@ sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
       {
        "page_id"  => \[$page_id_SQL, $p_alias],
        "alias"    => $cel,
-       "language" => $l,
+       "language" => $m->celini->language_like($l),
        %{$m->where_with_permissions($user, $preview)},
 
       }
@@ -28,7 +34,6 @@ sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
     push @BINDS, @bind;
   }
   my $sql = join("\nUNION\n", @SQL);
-  $m->c->debug('$sql:', $sql, '@BINDS', @BINDS);
   return $m->dbx->db->query($sql, @BINDS)->hashes;
 
 }
@@ -62,20 +67,18 @@ sub where_with_permissions ($self, $user, $preview) {
            "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
        ],
       },
-
     ]
   };
 }
 
-sub all_for_display_in_stranica ($self, $page, $user, $language, $preview,
-                                 $opts = {})
+sub all_for_display_in_stranica ($self, $page, $user, $l, $preview, $opts = {})
 {
   return $self->all(
     {
      where => {
        page_id      => $page->{id},
        "$table.pid" => 0,             #only content belonging directly to a page
-       language     => $language,
+       language => $self->language_like($l),
        %{$self->where_with_permissions($user, $preview)},
        %{$opts->{where} // {}}
               },
@@ -84,12 +87,12 @@ sub all_for_display_in_stranica ($self, $page, $user, $language, $preview,
   );
 }
 
-sub find_for_display ($m, $alias, $user, $language, $preview, $where = {}) {
+sub find_for_display ($m, $alias, $user, $l, $preview, $where = {}) {
 
   #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   my $_where = {
                 alias    => $alias,
-                language => $language,
+                language => $m->language_like($l),
                 box      => {-in => [qw(главна main)]},
                 %{$m->where_with_permissions($user, $preview)}, %$where
                };
