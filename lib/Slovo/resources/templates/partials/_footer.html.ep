@@ -1,10 +1,23 @@
 
-    <footer class="mui-appbar mui--z1 mui--text-center">
+<footer class="mui-appbar mui--z1">
+    <table class="mui--align-middle">
+        <tr>
+            <th class="mui--text-left mui--text-dark-secondary">
+<%= link_to 'Ꙋправленѥ' => 'under_management' => (id=>'Ꙋправленѥ')
+    if $c->is_user_authenticated
+%>
+            </th>
+            <td class="mui--text-center">
           Направено съ ♥ и
           <a target="_blank" href="https://github.com/kberov/Slovo">Слово</a>,
           <a target="_blank" href="https://www.perl.org/">Perl</a>,
           <a target="_blank" href="https://mojolicious.org/">Mojolicious</a>,
           <a target="_blank" href="https://www.vim.org/">Vim</a>,
           <a target="_blank" href="https://www.muicss.com">MUICSS</a>...
-          %= link_to 'Ꙋправленѥ' => 'under_management' => (id=>'Ꙋправленѥ') if $c->is_user_authenticated
-    </footer>
+            </td>
+            <th class="mui--text-right">
+            </th>
+        </tr>
+    </table>
+</footer>
+

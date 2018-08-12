@@ -16,8 +16,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.08.08';
-our $CODENAME  = 'U+2C0D GLAGOLITIC CAPITAL LETTER KAKO (Ⰽ)';
+our $VERSION   = '2018.08.12';
+our $CODENAME  = 'U+2C0E GLAGOLITIC CAPITAL LETTER LJUDIJE (Ⰾ)';
 my $CLASS = __PACKAGE__;
 
 
@@ -33,8 +33,15 @@ sub startup($app) {
   $app->controller_class('Slovo::Controller');
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
-  $app->_load_config->_load_pugins->_default_paths();
+  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths();
+  $app->hook(
+    before_render => sub {
+      my ($c, $args) = @_;
 
+      #change renderer path according to the current domain
+      #$c->debug('$args to render: ', $args);
+    }
+  );
   return $app;
 }
 
@@ -129,6 +136,17 @@ sub _default_paths($app) {
   return $app;
 }
 
+
+#Set Mojolicious::Routes object attributes and types
+sub _set_routes_attrs ($app) {
+  my $r = $app->routes;
+  push @{$r->base_classes}, $app->controller_class;
+  $r->namespaces($r->base_classes);
+  my $w = qr/[\w\-]+/;
+  @{$r->types}{qw(lng str cel)} = (qr/[A-z]{2}(?:\-[A-z]{2})?/a, $w, $w);
+  return $app;
+}
+
 sub load_class ($app, $class) {
   state $log = $app->log;
   $log->debug("Loading $class");
@@ -151,9 +169,22 @@ Slovo - В началѣ бѣ Слово
 
 =head1 DESCRIPTION
 
-This is a very early pre-release!
+This is a very early release!
 L<Slovo> is a simple, installable and extensible L<Mojolicious>
-L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>.
+L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
+with nice features like:
+
+    * multi-language pages;
+    * multi-domain support;
+    * multi-user;
+    * multiple groups per user;
+    * fine-grained permissions per page and it's content;
+    * OpenAPI 2.0 (Swagger) REST API (still partial);
+    * and more.
+
+By default Слово comes with SQLite database, but it can be replaced easily with
+PostgreSQL or MySQL without touching the source code and eventually with only
+one change in the configuration file.
 
 =head1 INSTALL
 
@@ -303,7 +334,10 @@ LICENSE file included with this module.
 
 =head1 TODO
 
-Implement the site part – the one visible by the visitors of the siste, made with „Слово”.
+Implement separate template root and public folder per domain.
+
+Considerably improve the Adminiastration UI - now it is quite simplistic and
+lacks essential features.
 
 Add simplemde-markdown-editor to the distro and use it to prepare markdown as
 html in the browser.

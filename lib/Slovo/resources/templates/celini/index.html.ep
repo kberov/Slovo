@@ -1,5 +1,5 @@
 % layout 'upravlenie', title => 'Blog/Celini';
-% my @columns = qw(page_id id pid title alias box); #table columns to show
+% my @columns = qw(page_id id pid title language alias box); #table columns to show
 
 %= link_to '☰✨' => 'create_celini' => (titile => 'New record in table "celini"')
 % my $page_id = $c->param('page_id');

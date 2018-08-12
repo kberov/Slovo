@@ -11,7 +11,7 @@ my $celini_table = Slovo::Model::Celini->table;
 has not_found_id    => 4;
 has table           => $table;
 has title_data_type => 'заглавѥ';
-
+has celini          => sub { $_[0]->c->celini };
 
 # Returns a list of page alises and titles in the current languade for
 # displaying as breadcrumb. No permission filters are applied because if the
@@ -19,17 +19,22 @@ has title_data_type => 'заглавѥ';
 # parrent page to this page. This SQL is supported now even in MySQL 8.
 # https://stackoverflow.com/questions/324935/mysql-with-clause#325243
 # https://sqlite.org/lang_with.html
-sub breadcrumb ($m, $pid, $language) {
-  my $rows = $m->dbx->db->query(<<"SQL", $pid, $language)->hashes;
+sub breadcrumb ($m, $pid, $l) {
+  state $sqla = $m->dbx->abstract;
+  my $lang_like = {'c.language' => $m->celini->language_like($l)};
+  state $LSQL = ($sqla->where($lang_like) =~ s/WHERE//r);
+  my @lang_like = map { $_->{'-like'} } $sqla->values($lang_like);
+  state $SQL = <<"SQL";
 WITH RECURSIVE pids(p)
   AS(VALUES(?) UNION SELECT pid FROM $table s, pids WHERE s.id = p)
-  SELECT s.alias, c.title FROM $table s, $celini_table c
+  SELECT s.alias, c.title, c.language FROM $table s, $celini_table c
   WHERE s.id IN pids
     AND c.page_id = s.id
-    AND c.language = ?
+    AND $LSQL
     AND c.data_type = 'заглавѥ'
     AND s.page_type !='коренъ';
 SQL
+  my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
 
   return $rows;
 }
@@ -141,16 +146,16 @@ sub add ($m, $row) {
 }
 
 
-sub find_for_edit ($self, $id, $language) {
-  my $db = $self->dbx->db;
+sub find_for_edit ($m, $id, $l) {
+  my $db = $m->dbx->db;
   my $p = $db->select($table, undef, {id => $id})->hash;
   my $title = $db->select(
                           $celini_table,
                           'title,body,language,id as title_id',
                           {
                            page_id   => $id,
-                           language  => $language,
-                           data_type => $self->title_data_type,
+                           language  => $m->celini->language_like($l),
+                           data_type => $m->title_data_type,
                            sorting   => 0,
                            box       => 'main'
                           },
@@ -172,7 +177,6 @@ sub save ($m, $id, $row) {
       );
   my $db = $m->dbx->db;
 
-  # local $db->dbh->{TraceLevel} = "3|SQL";
   eval {
     my $tx = $db->begin;
     $db->update($table,        $row,   {id => $id});
@@ -191,19 +195,21 @@ sub remove ($self, $id) {
 # the transfromed column.
 ## no critic (Modules::RequireEndWithOne)
 my sub _transform_columns($col) {
-  if ($col eq 'title') {
-    return "$/$celini_table.title AS $col";
+  if ($col eq 'title' or $col eq 'language') {
+    return "$/$celini_table.$col AS $col";
   }
   elsif ($col eq 'is_dir') {
     return "$/EXISTS (SELECT 1 WHERE $table.permissions LIKE 'd%') AS is_dir";
   }
+
+  # local $db->dbh->{TraceLevel} = "3|SQL";
   return "$/$table.$col AS $col";
 }
 
 # Returns all pages for listing in a sidebar or via Swagger API. Beware not to
 # mention one column twice as a key in the WHERE clause, because only the
 # second mention will remain for generating the SQL.
-sub all_for_list ($self, $user, $domain, $preview, $language, $opts = {}) {
+sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
   $opts->{table} = [$table, $celini_table];
   my @columns = map { _transform_columns($_) } @{$opts->{columns}};
   $opts->{columns} = join ",", @columns;
@@ -217,13 +223,39 @@ sub all_for_list ($self, $user, $domain, $preview, $language, $opts = {}) {
       {-not_in => [$self->not_found_id, $pid ? () : {-ident => "$table.pid"}]},
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
-    "$celini_table.language"  => $language,
+    "$celini_table.language"  => $self->celini->language_like($l),
     "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
     %{$self->c->celini->where_with_permissions($user, $preview)},
     %{$opts->{where} // {}}
                    };
+
+  # local $db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
 }
+
+# Returns list of languages for this page in which we have readable by the
+# current user content.
+# Arguments: Current page alias, user, preview mode or not.
+sub languages ($m, $alias, $u, $prv) {
+  my $db = $m->dbx->db;
+
+  my $where = {
+    page_id   => \["=(SELECT id FROM $table WHERE alias=?)", $alias],
+    data_type => 'заглавѥ',
+    box       => ['main', 'главна'],
+
+    # and those titles are readable by the current user
+    %{$m->celini->where_with_permissions($u, $prv)},
+              };
+
+  #local $db->dbh->{TraceLevel} = "3|SQL";
+  return
+    $db->select(
+                $celini_table, 'DISTINCT title,language',
+                $where, {-asc => [qw(sorting id)]}
+               )->hashes;
+}
+
 
 1;

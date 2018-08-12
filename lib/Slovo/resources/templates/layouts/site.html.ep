@@ -7,7 +7,6 @@
     %#TODO:= include 'partials/_right'
 
     %= t main => (id => 'content-wrapper', class => 'mui-container-fluid') => begin
-      <div class="mui--appbar-height"></div>
       %= content
     % end
 

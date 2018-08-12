@@ -3,10 +3,12 @@ use Mojo::Base 'Slovo::Controller', -signatures;
 use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
+
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 
-# GET /<:страница>.html
+# ANY /<страница:str>.<ѩꙁыкъ:lng>.html
+# ANY /<страница:str>.html
 # Display a page in the site
 sub execute ($c, $page, $user, $l, $preview) {
 
@@ -108,7 +110,7 @@ sub index($c) {
 
     # TODO: Modify $input: add where clause, get also title in the requested
     # language from celini and merge it into the stranici object. Modify the
-    # Swagger description of respons object to conform to the output.
+    # Swagger description of response object to conform to the output.
     return $c->render(openapi => $c->stranici->all($input));
   }
   return $c->render(stranici => $c->stranici->all);

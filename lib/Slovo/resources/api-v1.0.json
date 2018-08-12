@@ -98,6 +98,26 @@
          "in" : "query",
          "default" : 100,
          "minimum" : 1
+      },
+      "lang": {
+        "name": "ѩꙁыкъ",
+        "description": "In what language the title will be shown or content will be?",
+        "type": "string",
+        "in": "query",
+        "default": "bg-bg",
+        "pattern": "^[A-z]{2}(?:-[A-z]{2})?$"
+      },
+      "language": {
+        "name": "language",
+        "description": "Range of possible values for celini and page forms?",
+        "type": "string",
+        "in": "formData",
+        "required": true,
+        "default": "bg-bg",
+        "enum":[
+            "bg", "bg-bg", "bg-mk", "en", "en-us",
+            "cu-ru", "cu-bg", "cz", "sk", "ru", "pl",
+            "sr", "sr-Cyrl","sr-Latn","fr", "de"]
       }
    },
    "consumes" : [
@@ -116,6 +136,9 @@
                   "$ref" : "#/parameters/offset"
                },
                {
+                  "$ref" : "#/parameters/lang"
+               },
+               {
                   "name": "pid",
                   "type": "integer",
                   "in": "query",
@@ -126,9 +149,9 @@
                   "type":"array",
                   "in":"query",
                   "collectionFormat": "csv",
-                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir"],
+                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language"],
                   "items": {"type":"string",
-                      "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir"]},
+                      "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language"]},
                   "description": "Which properties of the object to be returned only?"
                }
             ],

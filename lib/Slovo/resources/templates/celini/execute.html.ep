@@ -1,6 +1,4 @@
 <%
-use Mojo::Util 'decode';
-state $partials = app->resources->child('templates/partials');
 my $заглавѥто = shift @$celini;
 my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
 my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
@@ -14,12 +12,11 @@ layout 'site',
   left       => $left,
   right      => $дѣсна,
   sidedrawer => $sidedrawer;
-
-my $template = $partials->list->first(sub { $_ eq "_$c2a->{$celina->{data_type}}" });
 %>
 <%=
-$template
-    ? include "partials/$template" => $celina->{data_type} => $celina, level => 1
-    : include "partials/_data_type" => row => $celina, level => 1
+    include(
+      "partials/$d2t->{$celina->{data_type}}", $celina->{data_type} => $celina,
+      level => 1)
+      || include("partials/_data_type" => row => $celina, level => 1)
 %>
 

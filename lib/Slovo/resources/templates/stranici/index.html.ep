@@ -22,7 +22,6 @@
 
     <td class="buttons">
 
-    %#TODO: Implement I18N
     % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id}, sorting => 0,data_type => 'заглавѥ'})->hash->{language};
     <%= link_to '📝' =>
     url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) => (title => 'Edit') %>
@@ -39,9 +38,12 @@
         url_with('home_celini')->query([page_id => $s->{id}, ]),
         (title => 'List content of page '. $s->{alias})
     %>
-    <%= link_to '🖺' =>
-        url_with('покажи_страница' =>{ страница => $s->{alias} })->query([прегледъ => 1]),
-        (title => 'Preview', target => 'new')
+    <%=
+    link_to
+      '🖺' => url_with(
+       'страница_с_ѩꙁыкъ' => {страница => $s->{alias}, ѩꙁыкъ => $s->{language}})
+      ->query([прегледъ => 1]),
+      (title => 'Preview', target => 'new')
     %>
 % }
     </td>

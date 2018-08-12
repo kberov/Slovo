@@ -1,5 +1,22 @@
 Revision history for Mojolicious application Slovo
 
+2018.08.12
+    -Features
+        * Added nice multi-language routes (/<страница:str>.<ѩꙁыкъ:lng>.html,
+          /<страница:str>/<цѣлина:cel>.<ѩꙁыкъ:lng>.html).
+        * Added more restrictive route-placeholders types (cel,str,lng).
+        * Added a set of languages to the forms for celini and stranici.
+        * Added a new language switching menu. The language is switched by the
+          page title - заглавѥ.
+    -Changes
+        * The $c->debug method is now a helper and can be used in templates
+         without $c.
+        * Fixed and optimised mapping of data_type to template name for
+          displaying a record from celini.
+        * Changed CODENAME to U+2C0E GLAGOLITIC CAPITAL LETTER LJUDIJE (Ⰾ).
+          This is a major release. We have multilanguage pages.
+
+
 2018.08.08
     -Features
         * Implemented /<:страница>/<*цѣлина>.html - /page/article.html. This

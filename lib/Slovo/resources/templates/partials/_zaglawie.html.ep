@@ -1,9 +1,4 @@
 <!-- _заглавѥ -->
-<%
-use Mojo::Util 'decode';
-state $partials = app->resources->child('templates/partials');
-
-%>
 <section class="заглавѥ">
     %= t 'h' . $level => $заглавѥ->{title}
 <%
@@ -24,7 +19,7 @@ state $partials = app->resources->child('templates/partials');
     <%
     my $celini =
       celini->all_for_display_in_stranica(
-                                   $page, $user, language, $preview,
+                                   $page, $user, $ѩꙁыкъ, $preview,
                                    {
                                     where => {
                                     'celini.pid' => $заглавѥ->{id},
@@ -37,16 +32,19 @@ state $partials = app->resources->child('templates/partials');
     $celini->map(
       sub {
         my $row = shift;
-        $row->{body} = substr($row->{body},0,100)
-        . link_to t(big => '⋙') => 'покажи_цѣлина'
-            => {страница => $page->{alias}, цѣлина => $row->{alias}}
-            => (title => 'more...');
-        my $template = $partials->list->map(sub {
-            decode('utf8',$_->basename('.html.ep'));
-        })->first(sub{ $_ eq "_$row->{data_type}"});
-        $template
-            ? include "partials/$template", $row->{data_type} => $row, level => $level + 1
-            : include "partials/_data_type", row => $row, level => $level + 1
+        $row->{body} = substr($row->{body}, 0, 100)
+          . link_to t(big => '⋙') => 'цѣлина_с_ѩꙁыкъ' => {
+                                                     страница => $page->{alias},
+                                                     цѣлина   => $row->{alias},
+                                                     ѩꙁыкъ => $row->{language}
+          },
+          (title => 'more...');
+
+        return
+          include(
+          "partials/$d2t->{$row->{data_type}}", $row->{data_type} => $row,
+          level => $level + 1)
+          || include("partials/_data_type", row => $row, level => $level + 1);
       }
     )->join("$/$/");
     %>

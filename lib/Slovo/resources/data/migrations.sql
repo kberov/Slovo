@@ -219,7 +219,7 @@ VALUES (
   body TEXT DEFAULT '',
   -- celini box in which this element should be displayed (e.g. main|главна, left|лѣва, right|дѣсна, header|глава, footer|дъно, foo, bar).
   box VARCHAR(35) DEFAULT 'main',
-  -- Language of this content. All languages when empty string
+  -- Language of this content. Means any language, when empty string
   language VARCHAR(5) DEFAULT '',
   -- tuuugggooo - Experimental permissions for the content. Who can see/edit/delete it.
   -- TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
@@ -490,3 +490,21 @@ VALUES ( "вътора-вест",
 UPDATE celini SET permissions ="-rwxrwxr-x" WHERE id=3;
 DELETE FROM celini WHERE alias IN ('вътора-вест', 'първа-вест');
 
+
+-- 201808122000 up
+INSERT INTO "celini"
+VALUES((SELECT max(id)+1 from celini),'word',0,0,0,5,5,1,'заглавѥ','text',
+    1534081667,0,'Word','','','','Welcome
+    to the pages of слово.бг!','главна','en','-rwxr-xr-x',0,0,0,0,0,0,5,2);
+INSERT INTO "celini"
+VALUES((SELECT max(id)+1 from celini),'слово',0,0,0,5,5,3,'заглавѥ','text',
+    1534081960,0,'Слово','','','','Добро пожаловать на страницах
+    слово.бг!','главна','ru','-rwxr-xr-x',0,0,0,0,0,0,5,2);
+INSERT INTO "celini"
+VALUES((SELECT max(id)+1 from celini),'slovo',0,0,0,5,5,4,'заглавѥ','text',
+    1534082153,0,'Slovo','','','','Vítejte
+    na stránkách слово.бг!','главна','cz','-rwxr-xr-x',0,0,0,0,0,0,5,2);
+UPDATE celini SET language='bg' WHERE alias='начало' and page_id=0;
+
+-- 201808122000 down
+DELETE FROM celini WHERE page_id=0 AND Language NOT LIKE'bg%'
