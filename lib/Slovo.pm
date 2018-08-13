@@ -12,19 +12,18 @@ no warnings "experimental::lexical_subs";
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
+use Mojo::Collection 'c';
 use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.08.12';
-our $CODENAME  = 'U+2C0E GLAGOLITIC CAPITAL LETTER LJUDIJE (Ⰾ)';
+our $VERSION   = '2018.08.19';
+our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
 my $CLASS = __PACKAGE__;
-
 
 has resources => sub {
   path($INC{class_to_path $CLASS})->sibling("$CLASS/resources")->realpath;
 };
-
 has validator => sub { Slovo::Validator->new };
 
 # This method will run once at server start
@@ -33,24 +32,18 @@ sub startup($app) {
   $app->controller_class('Slovo::Controller');
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
+  $app->hook(around_dispatch => \&_around_dispatch);
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths();
-  $app->hook(
-    before_render => sub {
-      my ($c, $args) = @_;
-
-      #change renderer path according to the current domain
-      #$c->debug('$args to render: ', $args);
-    }
-  );
   return $app;
 }
 
 sub _before_dispatch($c) {
-  state $u           = $c->users->find_by_login_name('guest');
-  state $auth_config = List::Util::first {
-    (ref $_ eq 'HASH') ? (exists $_->{Authentication} ? 1 : 0) : 0
-  }
-  @{$c->config('plugins')};
+  state $u = $c->users->find_by_login_name('guest');
+  state $auth_config = c(@{$c->config('plugins')})->first(
+    sub {
+      ref $_ eq 'HASH' and exists $_->{Authentication};
+    }
+  );
   state $session_key     = $auth_config->{Authentication}{session_key};
   state $current_user_fn = $auth_config->{Authentication}{current_user_fn};
   unless ($c->session->{$session_key}) {
@@ -58,6 +51,23 @@ sub _before_dispatch($c) {
     #set the guest user as default to always have a user
     $c->$current_user_fn($u);
   }
+  return;
+}
+
+
+# Try to save as much as possible subroutine calls.
+sub _around_dispatch ($next, $c) {
+  state $app   = $c->app;
+  state $droot = $app->config('domove_root');
+
+  my $s_paths = $app->static->paths;
+  my $r_paths = $app->renderer->paths;
+  my $domain  = $c->domove->find_by_host($c->host_only)->{domain};
+  unshift @{$s_paths}, "$droot/$domain/public";
+  unshift @{$r_paths}, "$droot/$domain/templates";
+  $next->();
+  shift @{$s_paths};
+  shift @{$r_paths};
   return;
 }
 
@@ -165,26 +175,65 @@ Slovo - В началѣ бѣ Слово
 
 =head1 SYNOPSIS
 
-    Mojolicious::Commands->start_app('Slovo');
+Install Slovo locally with all dependencies in less than two minutes
+
+    date
+    curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -q -n -l \
+    ~/opt/slovo Slovo
+    date
+
+Run slovo for the first time in debug mode
+
+    ~/opt/slovo/bin/slovo daemon
+
+Visit L<http://127.0.0.1:3000>
+For help visit L<http://127.0.0.1:3000/perldoc>
 
 =head1 DESCRIPTION
 
-This is a very early release!
+This is an early release!
+
 L<Slovo> is a simple, installable and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
 with nice features like:
 
-    * multi-language pages;
-    * multi-domain support;
-    * multi-user;
-    * multiple groups per user;
-    * fine-grained permissions per page and it's content;
-    * OpenAPI 2.0 (Swagger) REST API (still partial);
-    * and more.
+=over
 
-By default Слово comes with SQLite database, but it can be replaced easily with
+=item * Multi-language pages - DONE;
+
+=item * Cached published pages and content - DONE;
+
+=item * Multi-domain support - DONE;
+
+=item * Multi-user support - DONE;
+
+=item * User registration - NOT DONE;
+
+=item * User sign in - DONE;
+
+=item * Managing pages, content, domains, users - DONE (very basic UI, no fine-grained access permissions);
+
+=item * Managing groups - NOT DONE;
+
+=item * Multiple groups per user - PARTIALLY DONE;
+
+=item * Fine-grained access permissions per page and it's content - DONE (for the site only);
+
+=item * OpenAPI 2.0 (Swagger) REST API - SUPPORTED, implemented one route as example only, see  http://127.0.0.1:3000/api;
+
+=item * and more.
+
+=back
+
+By default Slovo comes with SQLite database, but it can be replaced easily with
 PostgreSQL or MySQL without touching the source code and eventually with only
 one change in the configuration file.
+
+The word slovo (слово) has one meaning in all slavic languages. It is actually
+one language that started splitting apart one thousand years ago. The meaning
+is "word" - the God's word. Hence the self-naming of this group of people
+C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who possess the word, who can speak.
+...others are mute...
 
 =head1 INSTALL
 
@@ -207,7 +256,7 @@ Or even if you don't have C<cpanm>.
 =head1 USAGE
 
     cd /path/to/installed/slovo
-    # see various options
+    # ...and see various options
     ./bin/slovo
 
 =head1 CONFIGURATION, PATHS and UPGRADING
@@ -219,13 +268,21 @@ C<$ENV{MOJO_CONFIG}>. New routes can be described in C<routes.conf>. See
 L<Mojolicious::Plugin::RoutesConfig> for details and examples.
 
 C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and
-used. All paths, used in the application, then are expected to be its children.
-You can add your own templates in C<$ENV{MOJO_HOME}/templates> and they will be
+used. All paths, used in the application, are expected to be its children.  You
+can add your own templates in C<$ENV{MOJO_HOME}/templates> and they will be
 loaded and used with priority. You can theme your own instance of Slovo by just
 copying C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
 C<$ENV{MOJO_HOME}/templates> and modify them. You can add your own static files
-to C<$ENV{MOJO_HOME}/public>. Last but not least, you can add your own classes
-into C<$ENV{MOJO_HOME}/site/lib> and (why not) replace classes form Slovo.
+to C<$ENV{MOJO_HOME}/public>.
+
+You can have separate static files and templates per domain under
+C<$ENV{MOJO_HOME}/domove/your.domain/public>,
+C<$ENV{MOJO_HOME}/domove/your.other.domain/templates>, etc. See
+C<$ENV{MOJO_HOME}/domove/localhost> for example.
+
+Last but not least, you can add your own classes into
+C<$ENV{MOJO_HOME}/site/lib> and (why not) replace entirely some Slovo classes
+or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will automatically load them.
 
 With all the above, you can upgrade L<Slovo> by just installing new versions
 over it and your files will not be touched. And of course, we know that you are
@@ -276,19 +333,26 @@ Loads a class and croaks if something is wrong. This could be a helper.
 
     my $app = Slovo->new->startup;
 
-Starts the application, sets defaults, reads configuration file(s) and returns
-the application instance.
+Starts the application. Adds hooks, prepares C<$app-E<gt>routes> for use, loads
+configuration files and applies settings from them, loads plugins, sets default
+paths, and returns the application instance.
 
 =head1 HOOKS
 
 Slovo adds custom code to the following hooks.
 
+=head2 around_dispatch
+
+On each request we determine the current host and modify the static and
+renderer paths accordingly. This is how the multi-domain support works.
+
 =head2 before_dispatch
 
 On each request we check if we have logged in user and set the current user to
 C<guest> if we don't. This way every part of the application (including newly
-developped plugins) can count on having a current user. The user is available
-as C<$c-E<gt>user>.
+developed plugins) can count on having a current user. It is used for
+determining the permissions for any resource in the application. The user is
+available as C<$c-E<gt>user>.
 
 =head1 HELPERS
 
@@ -310,13 +374,11 @@ source of truth so here it is.
       "is_dir"
     ]
 
-=head1 BUGS
+=head1 BUGS, SUPPORT, COMMIT, DISCUSS
 
-Please open issues at L<https://github.com/kberov/Slovo/issues>.
+Please use issues at L<GitHub|https://github.com/kberov/Slovo/issues>, fork the
+project and make pull requests.
 
-=head1 SUPPORT
-
-Please open issues at L<https://github.com/kberov/Slovo/issues>.
 
 =head1 AUTHOR
 
@@ -334,7 +396,8 @@ LICENSE file included with this module.
 
 =head1 TODO
 
-Implement separate template root and public folder per domain.
+Add fine-grained permissions for accessing and modifying resources in the
+administration area - L<http://localhost:3000/Ꙋправленѥ>.
 
 Considerably improve the Adminiastration UI - now it is quite simplistic and
 lacks essential features.
@@ -347,8 +410,9 @@ html in the browser.
 Consider addding also ContentTools as the default WYSIWIG html editor
   (https://github.com/GetmeUK/ContentTools)
 
-Consider (preferred) using Mithril as frontend framework for building UI.
-  (https://github.com/MithrilJS/mithril.js)
+Consider using Mithril or Dojo or something light as frontend framework for
+building UI. We already use jQuery from Mojolicious.
+  (https://github.com/MithrilJS/mithril.js), (https://dojo.io/)
 
 Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
 administrative panel.

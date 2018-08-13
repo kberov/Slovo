@@ -458,7 +458,7 @@ WHERE id=0;
 UPDATE domove SET aliases=''
 WHERE id=0;
 
--- 2018080080000 up
+-- 201808080000 up
 --Add some Вести
 UPDATE celini SET permissions ="drwxrwxr-x" WHERE id=3;
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
@@ -507,4 +507,13 @@ VALUES((SELECT max(id)+1 from celini),'slovo',0,0,0,5,5,4,'заглавѥ','text
 UPDATE celini SET language='bg' WHERE alias='начало' and page_id=0;
 
 -- 201808122000 down
-DELETE FROM celini WHERE page_id=0 AND Language NOT LIKE'bg%'
+DELETE FROM celini WHERE page_id=0 AND Language NOT LIKE'bg%';
+
+-- 201808192000 up
+-- "вътора-вест"
+UPDATE celini SET published=2 WHERE alias='вътора-вест';
+
+-- 201808192000 down
+UPDATE celini SET published=1 WHERE alias='вътора-вест';
+
+

@@ -16,6 +16,7 @@
           <a target="_blank" href="https://www.muicss.com">MUICSS</a>...
             </td>
             <th class="mui--text-right">
+                %= include "partials/_footer_right"
             </th>
         </tr>
     </table>

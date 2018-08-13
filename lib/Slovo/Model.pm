@@ -37,7 +37,7 @@ sub save ($self, $id, $row) {
 
 sub find_where ($m, $where = {1 => 1}) {
 
-  # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   state $abstr = $m->dbx->abstract;
   my ($sql, @bind) = $abstr->where($where);
   return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1", @bind)

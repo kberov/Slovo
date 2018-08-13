@@ -1,5 +1,8 @@
 .perltidyrc
 Changes
+domove/localhost/public/img/slovo.svg
+domove/localhost/templates/partials/_footer_right.html.ep
+domove/README
 lib/Slovo.pm
 lib/Slovo/Controller.pm
 lib/Slovo/Controller/Auth.pm
@@ -33,7 +36,6 @@ lib/Slovo/resources/public/img/favicon.ico
 lib/Slovo/resources/public/img/slovo-white.png
 lib/Slovo/resources/public/img/slovo-white.svg
 lib/Slovo/resources/public/img/slovo.png
-lib/Slovo/resources/public/img/slovo.svg
 lib/Slovo/resources/public/index.html
 lib/Slovo/resources/public/js/CryptoJS-v3.1.2/sha1.js
 lib/Slovo/resources/public/js/mui.min.js

@@ -153,16 +153,7 @@ my $remove_celini = sub {
 
 };
 
-subtest create_user     => $create_user;
-subtest update_user     => $update_user;
-subtest remove_user     => $remove_user;
-subtest create_stranici => $create_stranici;
-subtest update_stranica => $update_stranica;
-
-subtest create_celini             => $create_celini;
-subtest update_celini             => $update_celini;
-subtest remove_celini             => $remove_celini;
-subtest create_edit_delete_domain => sub {
+my $create_edit_delete_domain = sub {
   my $delete_url = $t->create_edit_domain_ok();
   my $list_url
     = $t->delete_ok($delete_url)->status_is(302)->tx->res->headers->location;
@@ -172,6 +163,17 @@ subtest create_edit_delete_domain => sub {
     ->element_exists_not(qq|a [href="$delete_url"]|);
 
 };
+
+subtest create_user     => $create_user;
+subtest update_user     => $update_user;
+subtest remove_user     => $remove_user;
+subtest create_stranici => $create_stranici;
+subtest update_stranica => $update_stranica;
+
+subtest create_celini             => $create_celini;
+subtest update_celini             => $update_celini;
+subtest remove_celini             => $remove_celini;
+subtest create_edit_delete_domain => $create_edit_delete_domain;
 
 done_testing;
 exit;
