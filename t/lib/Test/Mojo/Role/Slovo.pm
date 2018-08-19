@@ -29,24 +29,29 @@ sub domain_aliases {'some.domain alias.domain alias2.domain'}
 # if $to_tempdir equals $random_tempdir.
 # You can pass '/tmp/slovo' after $from. The tmp/slovo will not be
 # automatically deleted and you can debug the installed application.
+my $MOJO_HOME;
+
 sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
-  my $MOJO_HOME = path($to_tempdir);
+  $MOJO_HOME = path($to_tempdir);
 
   # idempotent
   $MOJO_HOME->remove_tree->make_path({mode => 0700});
   ok(-d $MOJO_HOME, "created $MOJO_HOME");
   $MOJO_HOME->child('log')->make_path({mode => 0700})
     if $to_tempdir eq $random_tempdir;
-  path($from, 'lib')->list_tree({dir => 1})->each(
-    sub ($f, $i) {
-      $f =~ /\.sqlite$/ && return;    #do not copy existing database
-      my $new = $MOJO_HOME->child($f->to_rel);
-      (-d $f) && $new->make_path({mode => 0700});
-      (-f $f) && $f->copy_to($new);
-    }
-  );
+  path($from, 'lib')->list_tree({dir => 1})->each(\&_copy_to);
+  $MOJO_HOME->child('domove')->make_path({mode => 0700});
+  path($from, 'domove')->list_tree({dir => 1})->each(\&_copy_to);
   unshift @INC, path($to_tempdir, 'lib')->to_string;
   return $class;
+}
+
+sub _copy_to ($f, $i) {
+  $f =~ /\.sqlite$/ && return;    # do not copy existing database
+  $f =~ /cached/    && return;    # do not copy cached files
+  my $new = $MOJO_HOME->child($f->to_rel);
+  (-d $f) && $new->make_path({mode => 0700});
+  (-f $f) && $f->copy_to($new);
 }
 
 # use this method for the side effect of having a logged in user

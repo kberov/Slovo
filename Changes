@@ -1,5 +1,25 @@
 Revision history for Mojolicious application Slovo
 
+2018.08.19
+    -Features
+        * Implemented page caching on disk. Page is cached if published and
+          readable by 'others', and visited by a guest user. On the next visit
+          a guest user sees the cached page. Page load is 15 times faster.
+        * Full multi-domain support. Domains can have their own public and
+          template folders and be served from one running Slovo instance.
+
+    -Changes
+        * Startup script 'slovo' was improved. Slovo can be installed and ran
+          with all dependencies in it's on local folder. Previously it did not
+          detect properly it's own $Config{archname}.
+        * Added 'log' and 'domove/*/public/cached' to .gitignore
+        * Improved documentation. Mention all current features.
+        * Numerous small code optimisations in classes.
+        * Upgraded to Mojolicious 7.93, Cpanel::JSON::XS 4.05
+        * Changed CODENAME to U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ).
+          This is a major release. We have full multi-domain support and
+          cacheable pages.
+
 2018.08.12
     -Features
         * Added nice multi-language routes (/<страница:str>.<ѩꙁыкъ:lng>.html,

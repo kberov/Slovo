@@ -15,15 +15,15 @@ sub register ($self, $app, $config) {
 
   # Add our helpers eventually overriding some of the existing ones
   $app->helper(
-    domain => sub {
+    host_only => sub {
       lc $_[0]->req->headers->host =~ s/(\:\d+)$//r;
     }
   );
 
   $app->helper(
-    idomain => sub {
+    ihost_only => sub {
       join '.', map { /^xn--(.+)$/ ? punycode_decode $1 : $_ } split /\./,
-        $_[0]->domain;
+        $_[0]->host_only;
     }
   );
 
@@ -74,17 +74,17 @@ Slovo::Plugin::DefaultHelpers – additional default helpers for Slovo
     # from http://local.слово.бг:3000
     # or http://local.xn--b1arjbl.xn--90ae:3000
     # in a template:
-    <%= domain %>
+    <%= host_only %>
     #in a controller
-    $c->domain
+    $c->host_only
 
     # local.слово.бг
     # from http://local.слово.бг:3000
     # or http://local.xn--b1arjbl.xn--90ae:3000
     # in a template:
-    <%= idomain %>
+    <%= ihost_only %>
     #in a controller
-    $c->idomain
+    $c->ihost_only
 
     <%= language%>
 
@@ -100,27 +100,27 @@ plugins.
 
 The following additional helpers are provided.
 
-=head2 domain
+=head2 host_only
 
-Returns the domain name from C<$c-E<gt>req-E<gt>headers-E<gt>host>.
+Returns the host_only from C<$c-E<gt>req-E<gt>headers-E<gt>host>.
 
     # local.xn--b1arjbl.xn--90ae
     # from http://local.слово.бг:3000 or http://local.xn--b1arjbl.xn--90ae:3000
     # in a template:
-    <%= domain %>
+    <%= host_only %>
     #in a controller
-    $c->domain
+    $c->host_only
 
-=head2 idomain
+=head2 ihost_only
 
 Returns the IDN (Internationalized Domain Name) from the current request.
 
     # local.слово.бг
     # from http://local.слово.бг:3000 or http://local.xn--b1arjbl.xn--90ae:3000
     # in a template:
-    <%= idomain %>
+    <%= ihost_only %>
     #in a controller
-    $c->idomain
+    $c->ihost_only
 
 =head2 is_user_authenticated
 

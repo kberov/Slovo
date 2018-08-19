@@ -38,4 +38,9 @@ _Deparsed_XSubs.pm
 
 *.sublime-project
 *.sublime-workspace
+
+# Other project specific files
 Slovo-*
+log
+domove/*/public/cached
+

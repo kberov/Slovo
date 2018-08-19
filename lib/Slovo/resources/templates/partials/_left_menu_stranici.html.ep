@@ -2,7 +2,7 @@
 <%
 my $opts = {pid => $page->{pid}, columns => $list_columns};
 my $list
-  = $c->stranici->all_for_list($user, $c->domain, $preview, $ѩꙁыкъ, $opts);
+  = $c->stranici->all_for_list($user, $c->host_only, $preview, $ѩꙁыкъ, $opts);
 %>
   <ul>
 <%==

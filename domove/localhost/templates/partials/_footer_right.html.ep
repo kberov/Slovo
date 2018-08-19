@@ -1,0 +1,5 @@
+<%
+# This template is here just to be found when the "localhost" domain is served
+%>
+<img src="/img/slovo.svg" style="height:24px;" />
+

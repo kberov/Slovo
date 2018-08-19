@@ -13,8 +13,9 @@
   <%= link_to 'Edit Page' => 'edit_stranici' => {id => $ce->{page_id}}%>
 <hr>
 % for my $k (keys %$ce) {
-<%== t span => (id =>$k, class => 'item-field')
-    => "$k: ".$ce->{$k} %>
+<%==
+t span => (id => $k, class => 'item-field') => "$k: " . ($ce->{$k} // '')
+%>
 % }
 <hr>
 %= link_to 'Edit' => edit_celini => {id => $ce->{id}}

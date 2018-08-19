@@ -179,7 +179,7 @@ sub list($c) {
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $list
-    = $c->stranici->all_for_list($user, $c->domain, $preview, $c->language,
+    = $c->stranici->all_for_list($user, $c->host_only, $preview, $c->language,
                                  $in);
   return $c->render(openapi => $list);
 }

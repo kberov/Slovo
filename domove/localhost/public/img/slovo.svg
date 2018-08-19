@@ -5,42 +5,42 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   version="1.1"
-   id="svg2"
+   width="48"
    height="48"
-   width="48">
+   id="svg2"
+   version="1.1">
   <defs
      id="defs4">
     <filter
-       style="color-interpolation-filters:sRGB;"
-       id="filter2989">
+       id="filter2989"
+       style="color-interpolation-filters:sRGB;">
       <feFlood
-         result="flood"
-         flood-color="rgb(0,0,0)"
+         id="feFlood2991"
          flood-opacity="1"
-         id="feFlood2991" />
+         flood-color="rgb(0,0,0)"
+         result="flood" />
       <feComposite
-         result="composite1"
-         operator="in"
-         in="flood"
+         id="feComposite2993"
          in2="SourceGraphic"
-         id="feComposite2993" />
+         in="flood"
+         operator="in"
+         result="composite1" />
       <feGaussianBlur
-         result="blur"
-         stdDeviation="1"
+         id="feGaussianBlur2995"
          in="composite"
-         id="feGaussianBlur2995" />
+         stdDeviation="1"
+         result="blur" />
       <feOffset
-         result="offset"
-         dy="1"
+         id="feOffset2997"
          dx="1"
-         id="feOffset2997" />
+         dy="1"
+         result="offset" />
       <feComposite
-         result="composite2"
-         operator="over"
-         in="SourceGraphic"
+         id="feComposite2999"
          in2="offset"
-         id="feComposite2999" />
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
     </filter>
   </defs>
   <metadata
@@ -56,17 +56,17 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(0,-1004.3622)"
-     id="layer1">
+     id="layer1"
+     transform="translate(0,-1004.3622)">
     <text
-       transform="matrix(0.90155734,0,0,0.92276959,1.5730563,82.614718)"
-       id="text2985"
-       y="1044.9998"
-       x="2.3184695"
+       xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:61.46406555px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter2989)"
-       xml:space="preserve"><tspan
-         y="1044.9998"
+       x="2.3184695"
+       y="1044.9998"
+       id="text2985"
+       transform="matrix(0.90155734,0,0,0.92276959,1.5730563,82.614718)"><tspan
+         id="tspan2987"
          x="2.3184695"
-         id="tspan2987">Ⱄ</tspan></text>
+         y="1044.9998">Ⱄ</tspan></text>
   </g>
 </svg>

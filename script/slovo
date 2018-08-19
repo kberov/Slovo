@@ -1,17 +1,27 @@
 #!/usr/bin/env perl
+use strict;
+use warnings;
+use Config;
+use File::Basename();
 
+BEGIN {
+  my @libs = (
+        File::Basename::dirname(__FILE__) . '/../lib/perl5',
+        File::Basename::dirname(__FILE__) . '/../lib/perl5/' . $Config{archname}
+  );
+  for (@libs) { unshift(@INC, $_) if (-d $_) }
+}
 use Mojo::Base -strict;
 use Mojo::File 'path';
 
 BEGIN {
   $ENV{MOJO_HOME} ||= path(__FILE__)->sibling('../')->realpath;
   my @libs = (
-              path($ENV{MOJO_HOME}, 'lib',  'perl5')->to_string,
               path($ENV{MOJO_HOME}, 'site', 'lib')->to_string,
               path($ENV{MOJO_HOME}, 'lib')->to_string
              );
   for my $d (@libs) {
-    unshift @INC, $d if -d $d;
+    unshift @INC, $d if -d $d && !grep { $d eq $_ } @INC;
   }
 }
 use Mojolicious::Commands;
