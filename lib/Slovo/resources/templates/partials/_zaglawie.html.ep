@@ -23,6 +23,8 @@
                                    {
                                     where => {
                                     'celini.pid' => $заглавѥ->{id},
+                                    # avoid recursion
+                                    'celini.pid' =>{'!=' =>{-ident=>'celini.id'}},
                                       'celini.box' => {-in => [qw(главна main)]}
                                     }
                                    }

@@ -165,7 +165,13 @@ sub _validation($c) {
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);
   $v->optional('body',     'trim');
   $v->optional('title_id', 'trim')->like(qr/^\d+$/);
-  $v->required('language', 'trim')->size(5, 5);
+
+  state $formats   = $c->openapi_spec('/parameters/data_format/enum');
+  state $languages = $c->openapi_spec('/parameters/language/enum');
+  $v->required('language',    'trim')->in(@$languages);
+  $v->required('data_format', 'trim')->in(@$formats);
+  $c->b64_images_to_files('body');
+
   return $v;
 }
 

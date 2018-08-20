@@ -1,14 +1,15 @@
 <%
-my @classes = map {  $in->{$_} ? $_: '' } (qw(hidden deleted));
+my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class = join ' ', 'fields', @classes;
-state $languages   = $c->openapi_spec('/parameters/language/enum');
+state $formats   = $c->openapi_spec('/parameters/data_format/enum');
+state $languages = $c->openapi_spec('/parameters/language/enum');
 %>
 %= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
 %= form_for $target => begin
 %=t fieldset => (id=>'page_attributes', class=>$class) => begin
   %=t legend =>'Page Attributes'
   %= label_for pid => 'Pid'
-  %= number_field pid => (readonly=>'readonly')
+  %= number_field pid => (readonly=>undef)
   %= label_for dom_id => 'Dom_id',
   %= number_field 'dom_id'
   %= label_for alias =>'Alias'
@@ -47,10 +48,19 @@ state $languages   = $c->openapi_spec('/parameters/language/enum');
       %= label_for title => 'Title'
       %= text_field title => (required => 1 , placeholder =>'Title for the page')
       %= select_box language => [map {[$_=>$_]} @$languages]
+      <%=
+      select_box
+        data_format => [map {[$_=>$_]} @$formats],
+        label => 'Data format'
+      %>
       <br />
       %= label_for body =>'Body'
+      <div id="_body">
       %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
       % end
+      </div>
+  %=javascript '/js/editor.js'
+
   %= submit_button $caption
 % end
 

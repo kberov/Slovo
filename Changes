@@ -1,5 +1,28 @@
 Revision history for Mojolicious application Slovo
 
+2018.08.26
+    -Features:
+        * Added  and setup HTML wysiwyg editor Trumbowyg to the distribution.
+          It was chosen because of it small size and easiness to use and
+          extend.
+        * Added extension 'base64' for embedding images into the page as base64
+          data in the src attribute of the img tag.
+        * Added post-processing of the 'body' property of a stranica and celina
+          just before save in case the data_format is 'html'. The base64 data
+          in the images is saved as files in the public/img folder of the
+          respective domain.  This allows images to be shared among pages and
+          decreases the size of 'body'.
+        * Added switching of editors on change of the 'data_format' field.
+          Simple textarea for 'text' and Trumbowyg for 'html'. In the future
+          other editors will/may be added for 'pod', 'markdown' and asciitext.
+
+    -Changes
+        * Added documentation to Slovo::Controller::Role::Stranica.
+        * 'data_type' and 'data_format' possible values are now added to the
+          'parameters' object of api-v1.0.json. Freom ther these enum
+          properties are used for bot gilling in the select_box(es) and for
+          'in' checks during validation.
+
 2018.08.19
     -Features
         * Implemented page caching on disk. Page is cached if published and

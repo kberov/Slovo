@@ -4,6 +4,11 @@
     %= t meta => (charset => 'utf-8')
     %= t 'title' => title
     %= stylesheet '/css/upravlenie.css'
+    %= javascript '/mojo/jquery/jquery.js'
+    %= javascript '/js/trumbowyg-2.10/trumbowyg.min.js'
+    %= javascript '/js/trumbowyg-2.10/plugins/base64/trumbowyg.base64.min.js'
+    %= javascript '/js/trumbowyg-2.10/langs/bg.min.js'
+    %= stylesheet '/js/trumbowyg-2.10/ui/trumbowyg.min.css'
   % end
   %= t body => begin
     %= link_to '/' => sub{ t img => id=> "logo", src=>"/img/slovo.png" }

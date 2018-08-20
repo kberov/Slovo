@@ -126,12 +126,12 @@ my $cached_pages = sub {
   ok(!-e $cache_dir,                 '$cache_dir IS NOT anymore on disk');
 };
 
-subtest 'Not Found' => $not_found;
-subtest 'previewed pages' => $previewed_pages;
-subtest 'site layout' => $site_layout;
-subtest breadcrumb => $breadcrumb;
+subtest 'Not Found'          => $not_found;
+subtest 'previewed pages'    => $previewed_pages;
+subtest 'site layout'        => $site_layout;
+subtest breadcrumb           => $breadcrumb;
 subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages => $cached_pages;
+subtest cached_pages         => $cached_pages;
 
 done_testing;
 

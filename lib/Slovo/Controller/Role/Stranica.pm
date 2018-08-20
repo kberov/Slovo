@@ -91,7 +91,6 @@ my $clear_cache = sub ($action, $c) {
   my $cll       = $c->stash('controller');
   my $domain    = '';
   my $cache_dir = '';
-  $c->debug("id:$id");
 
   #it is a page
   if ($cll =~ /stranici/i) {
@@ -118,6 +117,100 @@ my $clear_cache = sub ($action, $c) {
 
 around update => $clear_cache;
 around remove => $clear_cache;
+
+sub b64_images_to_files ($c, $name) {
+  my $v = $c->validation->output;
+  return
+    if ($v->{data_format} ne 'html')
+    || !($v->{$name} =~ m|<img.+?src=['"]data\:image/[\w\-]+;base64|ms);
+  my $dom    = Mojo::DOM->new($v->{$name});
+  my $images = $dom->find('img[src^="data:image/"]');
+  state $paths = $c->app->static->paths;
+  $images->each(
+    sub ($img, $i) {
+      my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+      my ($ext) = $type =~ m|/(.+)$|;
+      my $stream = b($b64)->b64_decode;
+      my $ipad = $i < 10 ? "0$i" : $i;
+      my $src
+        = path($paths->[0], 'img', $v->{alias} . "-$ipad.$ext")->spurt($stream);
+      ($img->{src}) = $src =~ m|public(/.+)$|;
+
+      # TODO: resize the image on disc according to 'with' and 'height'
+      # attributes if available and keep resolution 96dpi. Save original image
+      # as well as resized image. Use resized image in src attribute.
+    }
+  );
+  $v->{$name} = $dom->to_string;
+  return;
+}
+
+
+=head1 NAME
+
+Slovo::Controller::Role::Stranica - common methods for Stranici and Celini
+
+
+=head2 METHODS
+
+In this role are implemented the following shared methods.
+
+=head2 around execute
+
+Wrapper around methods L<Slovo::Controller::Stranici/execute> and
+L<Slovo::Controller::Celini/execute>. Most of the work for constructing the
+page is done here so for L<Slovo::Controller::Stranici> is left only to render
+everything put by this wrapper into stash. L<Slovo::Controller::Celini> in
+addition has to find the specific celina to render.
+
+To the wrapped methods are passed the parameters C<$page, $user, $language,
+$preview>.  C<$page> is the current page with the заглавѥ celina in the current
+$ѩꙁыкъ.  C<$user> is the current user. C<$language> is the current C<$ѩꙁыкъ>.
+C<$preview>  is a boolean value - true if the current request is just a preview.
+In preview mode C<permissions> and c<published> columns of the records in the
+database are not respected.
+
+Beside constructing the page, if there is a cached page or celina with the
+requested url path, it is simply slurped and rendered for non autheticated
+users.
+
+After the rendering is done by the consuming classes, the constructed response
+body is cached and saved on disk. On the next request by a guest user it is
+simply rendered, as mentioned above.
+
+Returns the result of C<$c-E<gt>render()>.
+
+
+=head2 around remove
+
+=head2 around update
+
+In case a celina or a stranica is updated or removed, all cached pages on disk
+are deleted. This may fell like small slowdown if you have thousands of cached
+pages.
+
+
+=head2 b64_images_to_files
+
+  $c->b64_images_to_files('foo');
+
+Cleans up a parameter from base64 images and updates it with path to extracted
+images.
+
+Expects that the value of the parameter with name 'foo' is a HTML string. Scans
+it for C<img> tags wich contain base64 encoded image in their C<src> attribute.
+Decodes the encoded values and saves them in files in the specific domain
+public directory. The files are named after the alias of the record + count.
+Example (Second image in the body of a celina record with alias 'hello'):
+C<hello1.png>. Puts the URL path to the newly created file into the src
+attribute (e.g. C</img/hello01.png>). The <src> attributes of the images are
+replaced with the paths to the newly created files.
+
+=head2 SEE ALSO
+
+L<Slovo::Controller::Celini>, L<Slovo::Controller::Stranici>
+
+=cut
 
 1;
 

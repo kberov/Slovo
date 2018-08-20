@@ -1,4 +1,4 @@
 % layout 'upravlenie', title => 'Edit stranici';
 <h2>Edit stranici with id <%= $in->{id} %></h2>
 %= include 'stranici/_form', caption => 'Update', target => 'update_stranici'
-%= button_to Remove => remove_stranici => {id => $in->{id}}
+%= button_to Remove => remove_stranici => {id => $in->{id}}, (style =>'float:right')

@@ -169,10 +169,12 @@ sub save ($m, $id, $row) {
 
   # Get the values for celini
   @$title{
-    qw(page_id title body language id alias changed_by permissions published)}
+    qw(page_id title body language id data_format
+      alias changed_by permissions published)
+    }
     = (
        $id,
-       delete @$row{qw(title body language title_id)},
+       delete @$row{qw(title body language title_id data_format)},
        @$row{qw(alias changed_by permissions published)}
       );
   my $db = $m->dbx->db;

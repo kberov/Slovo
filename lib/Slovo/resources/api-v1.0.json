@@ -118,6 +118,24 @@
             "bg", "bg-bg", "bg-mk", "en", "en-us",
             "cu-ru", "cu-bg", "cz", "sk", "ru", "pl",
             "sr", "sr-Cyrl","sr-Latn","fr", "de"]
+      },
+      "data_format": {
+        "name": "data_format",
+        "description": "Range of possible values for celini data formats?",
+        "type": "string",
+        "in": "formData",
+        "required": false,
+        "default": "html",
+        "enum":["html", "text", "markdown", "asc"]
+      },
+      "data_type": {
+        "name": "data_type",
+        "description": "Range of possible values for celini data types?",
+        "type": "string",
+        "in": "formData",
+        "required": false,
+        "default": "html",
+        "enum":["заглавѥ", "белѣжка", "писанѥ", "книга", "въпросъ", "ѿговоръ", "целина"]
       }
    },
    "consumes" : [
