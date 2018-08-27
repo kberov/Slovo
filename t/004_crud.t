@@ -4,6 +4,7 @@ use lib "$FindBin::Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
+use Mojo::File qw(path);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # '.', '/tmp/slovo'
@@ -74,7 +75,8 @@ my $sform = {
              published   => 1,
              title       => 'Събития',
              body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
-             language    => 'bg-bg'
+             language    => 'bg-bg',
+             data_format => 'text'
             };
 my $new_page_id      = 0;
 my $stranici_url_new = "$stranici_url/";
@@ -117,19 +119,46 @@ my $update_stranica = sub {
 
 # Create celini
 my $cform = {
-             page_id   => 4,
-             title     => 'Цѣлина',
-             body      => 'Нѣкаква цѣлина',
-             language  => 'bg-bg',
-             data_type => 'цѣлина'
+             page_id     => 4,
+             title       => 'Цѣлина',
+             body        => 'Нѣкаква цѣлина',
+             language    => 'bg-bg',
+             data_type   => 'цѣлина',
+             data_format => 'html'
             };
 my $max_id
-  = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id}
-  + 2;    #??
+  = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id} + 2;
 
 my $create_celini = sub {
+
+  # add a new image as base64 data.
+  my $images = path('t/data/images')->list_tree()->map(
+    sub {
+      my $img = shift;
+      my ($ext) = $img =~ /\.(\w+)$/;
+      return
+          '<img src="data:image/'
+        . $ext
+        . ';base64,'
+        . b($img->slurp)->b64_encode('') . '" />';
+    }
+  );
+  $cform->{body} .= $images->join($/);
   $t->post_ok($app->url_for('store_celini') => form => $cform)
     ->header_is(Location => $app->url_for('show_celini', {id => $max_id}));
+  $cform = $app->celini->find($max_id);
+  unlike($cform->{body} => qr/<img.+?src=['"]data\:.+?base64/mso,
+         'No base64 src in body.');
+  for ('01.png', '02.gif', '03.jpeg') {
+    my $img = $app->home->child('domove/localhost/public/img', 'цѣлина-' . $_);
+    ok(-s $img, "Image *-$_ is created on disk.");
+    my ($img_path) = $img =~ m|public(/.+)$|;
+    like($cform->{body} => qr/src="$img_path"/,
+         'Base64 src is replaced with path to image.');
+  }
+
+ # In the next subtest we change the title ad the alias will be created from it.
+  delete $cform->{alias};
 };
 
 # Update celini
@@ -151,6 +180,8 @@ my $remove_celini = sub {
   $t->get_ok($celini_url)->status_is(200)
     ->element_exists_not("table tbody tr:nth-child($max_id)");
 
+  # TODO: In the far future think about creating cleanup job using Minion
+  # that scans celini for unused images and deletes those images.
 };
 
 my $create_edit_delete_domain = sub {
@@ -170,8 +201,9 @@ subtest remove_user     => $remove_user;
 subtest create_stranici => $create_stranici;
 subtest update_stranica => $update_stranica;
 
-subtest create_celini             => $create_celini;
-subtest update_celini             => $update_celini;
+subtest create_celini => $create_celini;
+subtest update_celini => $update_celini;
+
 subtest remove_celini             => $remove_celini;
 subtest create_edit_delete_domain => $create_edit_delete_domain;
 

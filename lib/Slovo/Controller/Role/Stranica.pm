@@ -87,7 +87,8 @@ my $clear_cache = sub ($action, $c) {
 
   state $app   = $c->app;
   state $droot = $app->config('domove_root');
-  my $id        = $c->param('id');
+  my $id = $c->param('id');
+  return $action->($c) unless $id;    # something is wrong
   my $cll       = $c->stash('controller');
   my $domain    = '';
   my $cache_dir = '';
@@ -120,15 +121,15 @@ around remove => $clear_cache;
 
 sub b64_images_to_files ($c, $name) {
   my $v = $c->validation->output;
-  return
-    if ($v->{data_format} ne 'html')
-    || !($v->{$name} =~ m|<img.+?src=['"]data\:image/[\w\-]+;base64|ms);
+  return if (($v->{data_format} // '') ne 'html');
+  return unless ($v->{$name} =~ m|<img.+?src=['"]data\:.+?base64|mso);
   my $dom    = Mojo::DOM->new($v->{$name});
   my $images = $dom->find('img[src^="data:image/"]');
   state $paths = $c->app->static->paths;
   $images->each(
     sub ($img, $i) {
       my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+      return unless $b64;
       my ($ext) = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
       my $ipad = $i < 10 ? "0$i" : $i;
@@ -145,6 +146,7 @@ sub b64_images_to_files ($c, $name) {
   return;
 }
 
+=encoding utf8
 
 =head1 NAME
 

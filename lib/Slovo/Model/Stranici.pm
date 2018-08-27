@@ -122,7 +122,8 @@ sub add ($m, $row) {
   $row->{tstamp} = time - 1;
   $row->{start} //= $row->{tstamp};
   my $title = {};
-  @$title{qw(title language body)} = delete @$row{qw(title language body)};
+  @$title{qw(title language body data_format)}
+    = delete @$row{qw(title language body data_format)};
   @$title{
     qw(sorting data_type created_at user_id
       group_id changed_by alias permissions published)

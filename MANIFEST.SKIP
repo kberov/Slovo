@@ -44,6 +44,8 @@
 \.tmp$
 \.#
 \.rej$
+domove\/.*?\/public/img/.*?\.(gif|jpe?g|png)
+domove\/.*?\/public/cached/.*
 
 # Avoid OS-specific files/dirs
 # Mac OSX metadata

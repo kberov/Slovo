@@ -21,7 +21,8 @@ subtest 'api/stranici' => sub {
                published   => 2,
                title       => 'Събития',
                body     => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
-               language => 'bg-bg'
+               language => 'bg-bg',
+               data_format=>'text'
               };
   my $stranici_url     = $app->url_for('store_stranici')->to_string;
   my $pid              = 9;

@@ -60,7 +60,9 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'create', celini => {}) if $v->has_error;
+  return $c->render(action => 'create', celini => {},
+                    in => {%{$v->output}, %$in})
+    if $v->has_error;
 
   # 2. Insert it into the database
   $in = {%{$v->output}, %$in};
@@ -165,19 +167,20 @@ sub _validation($c) {
   my $v = $c->validation;
 
   state $types = $c->openapi_spec('/parameters/data_type/enum');
-  $v->optional('data_type', 'trim')->size(0, 32)->in(@$types);
+  $v->required('data_type', 'trim')->in(@$types);
   my $alias = 'optional';
   my $title = $alias;
   my $pid   = $alias;
 
   # For all but the last two types the following properties are required
   my $types_rx = join '|', @$types[0 .. @$types - 2];
-  if ($v->param('data_type') =~ /^($types_rx)$/x) {
+  my $dt = $v->param('data_type') // '';
+  if ($dt =~ /^($types_rx)$/x) {
     $title = $alias = 'required';
   }
 
   # for ѿговоръ pid is required
-  elsif ($v->param('data_type') =~ /^($types->[-2])$/x) {
+  elsif ($dt =~ /^($types->[-2])$/x) {
     $pid = 'required';
   }
   $v->$alias('alias', 'slugify')->size(0, 255);
@@ -185,10 +188,12 @@ sub _validation($c) {
   $v->$pid('pid', 'trim')->like(qr/^\d+$/);
   $v->optional('from_id', 'trim')->like(qr/^\d+$/);
   $v->required('page_id', 'trim')->like(qr/^\d+$/);
-  $v->optional('user_id',     'trim')->like(qr/^\d+$/);
-  $v->optional('group_id',    'trim')->like(qr/^\d+$/);
-  $v->optional('sorting',     'trim')->like(qr/^\d{1,3}$/);
-  $v->optional('data_format', 'trim')->size(0, 32);
+  $v->optional('user_id',  'trim')->like(qr/^\d+$/);
+  $v->optional('group_id', 'trim')->like(qr/^\d+$/);
+  $v->optional('sorting',  'trim')->like(qr/^\d{1,3}$/);
+
+  state $formats = $c->openapi_spec('/parameters/data_format/enum');
+  $v->required('data_format', 'trim')->in(@$formats);
   $v->optional('description', 'trim')->size(0, 255);
   $v->optional('keywords',    'trim')->size(0, 255);
   $v->optional('tags',        'trim')->size(0, 100);
