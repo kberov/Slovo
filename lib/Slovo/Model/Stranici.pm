@@ -179,7 +179,6 @@ sub save ($m, $id, $row) {
        @$row{qw(alias changed_by permissions published)}
       );
   my $db = $m->dbx->db;
-
   eval {
     my $tx = $db->begin;
     $db->update($table,        $row,   {id => $id});

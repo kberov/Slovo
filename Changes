@@ -1,5 +1,18 @@
 Revision history for Mojolicious application Slovo
 
+2018.09.09
+    -Features:
+        * Initial handling of permissions for stranici and celini in
+          administration area.
+        * Added new check 'is' and alias for it 'can' to Slovo::Validator.
+    -Changes:
+        * when anew user is inserted a record for primary group in user_group
+          is inserted too.
+        * 'permissions' possible values are now added to the
+          'parameters' object of api-v1.0.json. From there the enum is used in
+          templates.
+
+
 2018.08.28
     -Features:
         * Added and setup HTML wysiwyg editor Trumbowyg to the distribution.
@@ -20,7 +33,7 @@ Revision history for Mojolicious application Slovo
         * Added documentation to Slovo::Controller::Role::Stranica.
         * 'data_type' and 'data_format' possible values are now added to the
           'parameters' object of api-v1.0.json. From there these enum
-          properties are used for bot gilling in the select_box(es) and for
+          properties are used for bot filling in the select_box(es) and for
           'in' checks during validation.
 
 2018.08.19

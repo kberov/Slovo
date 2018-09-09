@@ -146,6 +146,103 @@ sub b64_images_to_files ($c, $name) {
   return;
 }
 
+sub writable ($v, $name, $value, $c) {
+  my $id = $c->param('id');
+
+  # creating new record? ok
+  return 1 if (!$id);
+  my ($record_type) = ref($c) =~ m|(\w+)$|;
+  $record_type = lc($record_type);
+  my $m    = $c->$record_type;
+  my $user = $c->user;           # current user
+  my $old = $m->find_where({'id' => $id, %{$m->writable_by($user)}});
+  state $log = $c->app->log;
+
+  # not changing permissions? ok
+  return 1 if ($old && ($old->{permissions} eq $value));
+
+  if ($old) {
+    if ($old->{user_id} != $user->{id}) {
+      $v->error(
+                writable => [
+                             'not_owner',
+                             "user_id: $old->{user_id} != $user->{id}",
+                             "permissions: $old->{permissions} != $value"
+                            ]
+               );
+      $log->error(  "failed to change mode of $record_type:"
+                  . $c->dumper($v->error('writable'))
+                  . __FILE__ . ':'
+                  . __LINE__);
+      return 0;
+    }
+  }
+
+  #not writable $old
+  $old = $m->find_where({'id' => $id, %{$m->readable_by($user)}});
+  if ($old->{user_id} != $user->{id}) {
+    $v->error(
+              writable => [
+                           'not_owner',
+                           "user_id: $old->{user_id} != $user->{id}",
+                           "permissions: $old->{permissions} != $value"
+                          ]
+             );
+    $log->error(  "failed to change mode of $record_type:"
+                . $c->dumper($v->error('writable'))
+                . __FILE__ . ':'
+                . __LINE__);
+    return 0;
+  }
+
+  #new permissions
+  state $rwx = qr/[r\-][w\-][x\-]/x;
+  state $rx  = qr/^[ld\-]($rwx)($rwx)($rwx)$/x;
+  my @writable = $value =~ $rx;
+
+  #invalid permissions notation!
+  if (!@writable) {
+    $v->error(writable => ['invalid_notation', "permissions: '$value'"]);
+    $log->error(  "invalid_notation '$value' for $record_type:"
+                . __FILE__ . ':'
+                . __LINE__);
+    return 0;
+  }
+
+  # owner can change permissions in place
+  if (   $writable[0] =~ /^$rwx$/
+      || $writable[1] =~ /^$rwx$/
+      || $writable[2] =~ /^$rwx$/)
+  {
+    $log->warn(  "Making the $record_type with id $old->{id}"
+               . " not listable for group_id $old->{group_id}: $writable[1]")
+      if $writable[1] eq '---';
+    $log->warn(  "Making the $record_type with id $old->{id}"
+               . " not listable for others: $writable[2]")
+      if $writable[2] eq '---';
+    return 1;
+  }
+  my %error = (
+               writable => [
+                            'unknown_not_writable',
+                            {
+                             from         => $old->{permissions},
+                             to           => $value,
+                             owner_id     => $old->{user_id},
+                             current_user => $user->{id}
+                            }
+                           ]
+              );
+
+  #unknown error /untested conditions
+  $v->error(%error);
+  $log->error(  "unknown_not_writable $record_type:"
+              . $c->dumper($v->error('writable'))
+              . __FILE__ . ':'
+              . __LINE__);
+  return 0;
+}
+
 =encoding utf8
 
 =head1 NAME

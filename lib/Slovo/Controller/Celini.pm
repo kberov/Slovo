@@ -13,9 +13,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 
   # TODO celina breadcrumb
   #my $path = [split m|/|, $c->stash->{'цѣлина'}];
-  #$c->debug('$path', $path);
   #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
-  #$c->debug($path);
   my $celina =
     $c->celini->find_for_display(
                                  $c->stash->{'цѣлина'},
@@ -128,14 +126,15 @@ sub index($c) {
 
   my $v = $c->validation;
   $v->optional('page_id', 'trim')->like(qr/^\d+$/);
-  my $o    = $v->output;
-  my $opts = {};
+  my $o      = $v->output;
+  my $celini = $c->celini;
+  my $opts   = {where => {%{$celini->readable_by($c->user)}}};
 
   if (defined $o->{page_id}) {
     $opts->{where}{page_id} = $o->{page_id};
   }
   $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
-  return $c->render(celini => $c->celini->all($opts));
+  return $c->render(celini => $celini->all($opts));
 }
 
 # DELETE /celini/:id
@@ -152,7 +151,19 @@ sub remove($c) {
     $c->celini->remove($input->{id});
     return $c->render(openapi => '', status => 204);
   }
-  $c->celini->remove($c->param('id'));
+  my $id = $c->param('id');
+  my $v = $c->validation->input({id => $id});
+  $v->required('id');
+  $v->error('id' => ['not_writable'])
+    unless $c->celini->find_where(
+                           {'id' => $id, %{$c->celini->writable_by($c->user)}});
+  my $in = $v->output;
+  if ($in->{id}) {
+    $c->celini->remove($in->{id});
+  }
+  else {
+    return !$c->redirect_to(edit_celini => {id => $c->param('id')});
+  }
   return $c->redirect_to('home_celini');
 }
 
@@ -201,14 +212,14 @@ sub _validation($c) {
   $v->optional('box', 'trim')->size(0, 35)
     ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
   $v->optional('language', 'trim')->size(0, 5);
-  $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
-  $v->optional('featured',    'trim')->in(1, 0);
-  $v->optional('accepted',    'trim')->in(1, 0);
-  $v->optional('bad',         'trim')->like(qr/^\d+$/);
-  $v->optional('deleted',     'trim')->in(1, 0);
-  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('published',   'trim')->in(2, 1, 0);
+  $v->optional('permissions', 'trim')->is(\&writable, $c);
+  $v->optional('featured', 'trim')->in(1, 0);
+  $v->optional('accepted', 'trim')->in(1, 0);
+  $v->optional('bad',      'trim')->like(qr/^\d+$/);
+  $v->optional('deleted',  'trim')->in(1, 0);
+  $v->optional('start',    'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('stop',     'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('published', 'trim')->in(2, 1, 0);
   $c->b64_images_to_files('body');
   return $v;
 }

@@ -124,7 +124,7 @@
         "description": "Range of possible values for celini data formats?",
         "type": "string",
         "in": "formData",
-        "required": false,
+        "required": true,
         "default": "html",
         "enum":["html", "text", "markdown", "asc"]
       },
@@ -136,6 +136,16 @@
         "required": false,
         "default": "html",
         "enum":["заглавѥ", "белѣжка", "писанѥ", "книга", "въпросъ", "ѿговоръ", "цѣлина"]
+      },
+      "permissions":{
+        "name":"permissions",
+        "description": "Range of possible values for celini data formats?",
+        "type": "string",
+        "in": "formData",
+        "required": false,
+        "default": "-rwxr-xr-x",
+        "enum":["drwxr-xr-x", "drwxrwxr-x", "-rwxr-xr-x", "-rwxrwxr-x",
+                "lrwxr-xr-x", "-rwxr--r-x", "-rwx------", "drwx------","-r-x------", "dr-x------"]
       }
    },
    "consumes" : [

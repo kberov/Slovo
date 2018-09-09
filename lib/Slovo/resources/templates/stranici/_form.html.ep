@@ -3,9 +3,13 @@ my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class = join ' ', 'fields', @classes;
 state $formats   = $c->openapi_spec('/parameters/data_format/enum');
 state $languages = $c->openapi_spec('/parameters/language/enum');
+state $permissions = $c->openapi_spec('/parameters/permissions/enum');
+$in->{user_id} //= $c->user->{id};
+$in->{group_id} //= $c->user->{group_id};
 %>
 %= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
 %= form_for $target => begin
+
 %=t fieldset => (id=>'page_attributes', class=>$class) => begin
   %=t legend =>'Page Attributes'
   %= label_for pid => 'Pid'
@@ -19,18 +23,18 @@ state $languages = $c->openapi_spec('/parameters/language/enum');
     page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
     required => 1, label => 'Page type'
   %>
-  <%= select_box permissions => [
+  <%=
   # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-  'drwxr-xr-x', 'drwxrwxr-x',
-  '-rwxr-xr-x', '-rwxrwxr-x',
-  'lrwxr-xr-x','-rwxr--r-x'], required => 1
+  select_box
+    permissions => [map { [$_ => $_] } @$permissions],
+    required    => 1, $in->{user_id} != $c->user->{id} ? (readonly => undef) :()
   %>
+  
   %= label_for sorting => 'Sorting'
   %= number_field sorting => (size => 3)
   %= label_for template => 'Template'
   %= text_field template => (size => 255, style => 'width:50%')
   %= label_for group_id => 'Group_id'
-  %= number_field group_id => $in->{group_id}//$c->user->{group_id},
   %= label_for start => 'Start'
   %= number_field 'start'
   %= label_for stop => 'Stop'
@@ -50,8 +54,8 @@ state $languages = $c->openapi_spec('/parameters/language/enum');
       %= select_box language => [map {[$_=>$_]} @$languages]
       <%=
       select_box
-        data_format => [map {[$_=>$_]} @$formats],
-        label => 'Data format'
+        data_format => [map { [$_ => $_] } @$formats],
+        label       => 'Data format'
       %>
       <br />
       %= label_for body =>'Body'

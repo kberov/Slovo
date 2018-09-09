@@ -50,16 +50,16 @@ if ($DEV_MODE) {
     local $Data::Dumper::Useperl = 1;
     my ($package, $filename, $line) = caller(1);
     state $log = $c->app->log;
-    for my $pp (@params) {
-      $log->debug(
-                  ref $pp ? Mojo::Util::dumper($pp) : $pp,
-                  (
-                   $pp eq $params[-1]
-                   ? " at $filename:$line in " . (caller(2))[3]
-                   : ''
-                  )
-                 );
+    my $msg = '';
+    for my $p (@params) {
+
+      if (ref $p) {
+        $msg .= Mojo::Util::dumper($p);
+        chomp $msg if $p eq $params[-1];
+      }
+      else { $msg .= $p; }
     }
+    $log->debug($msg . "\n at $filename:$line\n in " . (caller(2))[3]);
     return;
   }
 

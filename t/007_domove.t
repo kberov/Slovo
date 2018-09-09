@@ -35,6 +35,7 @@ subtest create_domain_and_page => sub {
               published   => 2,
               permissions => '-rwxr-xr-x',
               dom_id      => $dom_id,
+              data_format => 'text',
              };
 
   # TODO: add negative test. Implement validation check against adding

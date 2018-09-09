@@ -69,9 +69,10 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $v = $c->_validation;
-  return $c->render(action => 'edit', stranici => {}) if $v->has_error;
+  my $v  = $c->_validation;
   my $in = $v->output;
+  return $c->render(action => 'edit', in => $in, status => '400')
+    if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
@@ -113,7 +114,10 @@ sub index($c) {
     # Swagger description of response object to conform to the output.
     return $c->render(openapi => $c->stranici->all($input));
   }
-  return $c->render(stranici => $c->stranici->all);
+  my $str = $c->stranici;
+  my $opts = {where => $str->readable_by($c->user)};
+
+  return $c->render(stranici => $str->all($opts));
 }
 
 # DELETE /stranici/:id
@@ -130,10 +134,21 @@ sub remove($c) {
     $c->stranici->remove($input->{id});
     return $c->render(openapi => '', status => 204);
   }
-  $c->stranici->remove($c->param('id'));
+  my $id = $c->param('id');
+  my $v = $c->validation->input({id => $id});
+  $v->required('id');
+  $v->error('id' => ['not_writable'])
+    unless $c->stranici->find_where(
+                         {'id' => $id, %{$c->stranici->writable_by($c->user)}});
+  my $in = $v->output;
+  if ($in->{id}) {
+    $c->stranici->remove($in->{id});
+  }
+  else {
+    return !$c->redirect_to(edit_stranici => {id => $c->param('id')});
+  }
   return $c->redirect_to('home_stranici');
 }
-
 
 # Validation for actions that store or update
 sub _validation($c) {
@@ -144,15 +159,17 @@ sub _validation($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
+  # If we edit an existing page, check if the page is writable by the
+  # current user.
   $v->optional('pid',    'trim')->like(qr/^\d+$/);
   $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
   $v->required('alias', 'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like(qr/^\d+$/);
   $v->optional('template',    'trim')->size(0, 255);
-  $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
   $v->optional('user_id',     'trim')->like(qr/^\d+$/);
   $v->optional('group_id',    'trim')->like(qr/^\d+$/);
+  $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('tstamp',      'trim')->like(qr/^\d+$/);
   $v->optional('start',       'trim')->like(qr/^\d+$/);
   $v->optional('stop',        'trim')->like(qr/^\d+$/);
@@ -171,7 +188,6 @@ sub _validation($c) {
   $v->required('language',    'trim')->in(@$languages);
   $v->required('data_format', 'trim')->in(@$formats);
   $c->b64_images_to_files('body');
-
   return $v;
 }
 

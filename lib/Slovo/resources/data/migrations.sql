@@ -16,7 +16,7 @@ CREATE TABLE groups (
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   login_name varchar(100) UNIQUE,
-  -- sha1_sum($login_name.$login_password)
+  -- sha1_sum(encode('UTF-8',$login_name.$login_password))
   login_password varchar(40) NOT NULL,
   first_name varchar(100) NOT NULL DEFAULT '',
   last_name varchar(100) NOT NULL DEFAULT '',
@@ -78,6 +78,7 @@ INSERT INTO `users` VALUES(3,'test1','b5e9c9ab4f777c191bc847e1aca222d6836714b7',
 INSERT INTO `user_group` VALUES(3,3);
 
 INSERT INTO `groups` VALUES(4,'test2','test2',0,1,1);
+-- pasword for user test2: sha1_sum(encode("UTF-8","test2test2"))
 INSERT INTO `users` VALUES(4,'test2','272a11a0206b949355be4b0bda9a8918609f1ac6','Test','2','test2@localhost',
   'test2 user. Delete. Used for tests only.',
   1,1,0,0,0, 4,1,1);

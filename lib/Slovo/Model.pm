@@ -29,6 +29,7 @@ sub all ($self, $opts = {}) {
   return $self->dbx->db->query($sql, @bind)->hashes;
 }
 
+#update a record
 sub save ($self, $id, $row) {
 
   # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
@@ -37,7 +38,7 @@ sub save ($self, $id, $row) {
 
 sub find_where ($m, $where = {1 => 1}) {
 
-  #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   state $abstr = $m->dbx->abstract;
   my ($sql, @bind) = $abstr->where($where);
   return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1", @bind)
@@ -58,4 +59,65 @@ sub add {
   return $_[0]->dbx->db->insert($_[0]->table, $_[1])->last_insert_id;
 }
 
+# Returns hashref for where clause where permissions allow the user to read
+#records.
+sub readable_by ($self, $user) {
+  my $t = $self->table;
+  return {
+    -or => [
+
+      # everybody can read
+      {"$t.permissions" => {-like => '%r__'}},
+
+      # user is owner
+      {
+       "$t.user_id" => $user->{id},
+
+       # "$table.permissions" => {-like => '_r__%'}
+      },
+
+      # a page, which can be read
+      # by one of the groups to which this user belongs.
+      {
+       "$t.permissions" => {-like => '____r__%'},
+
+    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
+       "$t.group_id" => \[
+           "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
+       ],
+      },
+    ],
+  };
+}
+
+# Returns hashref for where clause where permissions allow the user to write
+# records.
+sub writable_by ($self, $user) {
+  my $t = $self->table;
+  return {
+    -or => [
+
+      # everybody can write
+      {"$t.permissions" => {-like => '%_w_'}},
+
+      # user is owner
+      {"$t.user_id" => $user->{id}, "$t.permissions" => {-like => '__w_%'}},
+
+      # a page, which can be written
+      # by one of the groups to which this user belongs.
+      {
+       "$t.permissions" => {-like => '_____w_%'},
+
+    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
+       "$t.group_id" => \[
+           "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
+       ],
+      },
+    ],
+  };
+}
+
+
 1;
+
+

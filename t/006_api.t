@@ -22,7 +22,7 @@ subtest 'api/stranici' => sub {
                title       => 'Събития',
                body     => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
                language => 'bg-bg',
-               data_format=>'text'
+               data_format => 'text'
               };
   my $stranici_url     = $app->url_for('store_stranici')->to_string;
   my $pid              = 9;

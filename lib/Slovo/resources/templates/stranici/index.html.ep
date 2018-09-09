@@ -21,10 +21,10 @@
     % }
 
     <td class="buttons">
-
-    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id}, sorting => 0,data_type => 'заглавѥ'})->hash->{language};
+    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id}, sorting => 0,data_type => 'заглавѥ'})->hash;
+    % $l = $l ? $l->{language} : $ѩꙁыкъ;
     <%= link_to '📝' =>
-    url_with('edit_stranici',{id => $s->{id}})->query([language=>$l]) => (title => 'Edit') %>
+    url_with(edit_stranici => {id => $s->{id}})->query([language=>$l]) => (title => 'Edit') %>
 % if(!$s->{deleted} && !$s->{hidden}) {
     <%= link_to '✨' =>
         url_with('create_stranici')->query([pid => $s->{id}, dom_id => $s->{dom_id}]),

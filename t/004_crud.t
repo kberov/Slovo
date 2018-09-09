@@ -164,7 +164,7 @@ my $create_celini = sub {
 # Update celini
 my $sh_up_url = $app->url_for('update_celini', {id => $max_id})->to_string;
 my $update_celini = sub {
-  $cform->{title} = 'Заглавие на целината';
+  $cform->{title} = 'Заглавие на цѣлината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
     ->header_is(Location => $sh_up_url);
 
@@ -194,7 +194,90 @@ my $create_edit_delete_domain = sub {
     ->element_exists_not(qq|a [href="$delete_url"]|);
 
 };
+my $user_permissions = sub {
+  $t->get_ok($app->url_for('sign_out'))->status_is(302);
 
+  # Use another user
+  $t->login('test2', 'test2');
+
+  # user is not able to change a page with r-x for others
+  # permissions: drwxr-xr-x
+  my $sform = {%$sform};    #copy
+  $sform->{alias} = $sform->{title} = 'blabla1';
+  my $id = 6;
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(400);
+
+  # make the page writable to others
+  my $permissions = 'drwxr-xrwx';
+  $app->dbx->db->update('stranici', {permissions => $permissions}, {id => $id});
+
+  # Now user is able to udate the page
+  $sform->{permissions} = $permissions;
+
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+
+  $t->get_ok('/Ꙋправленѥ/stranici/' . $id)->text_like(
+                                '#permissions' => qr/\s$permissions$/,
+                                "writable permissions for others:'$permissions'"
+  );
+  $t->get_ok('/Ꙋправленѥ/celini/19')->text_like(
+                                            '#title' => qr/\s$sform->{title}$/,
+                                            "title changed to '$sform->{title}'"
+  );
+
+  #user is not able to change another's user permissions
+  $sform->{permissions} = 'drwxrwxrwx';
+  $t->put_ok('/Ꙋправленѥ/stranici/6' => {Accept => '*/*'} => form => $sform)
+    ->status_is(400);
+
+  #change page ownership and change permissions
+  $permissions = 'dr-xr-xr-x';
+  $app->dbx->db->update(
+                        'stranici',
+                        {
+                         user_id     => 4,
+                         group_id    => 4,
+                         permissions => $permissions
+                        },
+                        {id => $id}
+                       );
+
+  #invalid permissions notation!
+  $sform->{permissions} = 'drwxrRxrwx';
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(400);
+
+  $sform->{permissions} = 'drwxr-xr-x';
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+  $sform->{permissions} = 'dr-xrwxr-x';
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+  $sform->{permissions} = 'dr-xr-xrwx';
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+  $sform->{permissions} = 'd---------';
+  $t->put_ok(
+            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+
+  #now page should not be listed in /Ꙋправленѥ/stranici for other users
+  $t->get_ok($app->url_for('sign_out'))->status_is(302);
+
+  # Use another user
+  $t->login('краси', 'беров');
+  $t->get_ok('/Ꙋправленѥ/stranici')->status_is(200)
+    ->element_exists_not('html body table tbody tr.deleted',
+                         "page $id not listed");
+};
 subtest create_user     => $create_user;
 subtest update_user     => $update_user;
 subtest remove_user     => $remove_user;
@@ -206,6 +289,7 @@ subtest update_celini => $update_celini;
 
 subtest remove_celini             => $remove_celini;
 subtest create_edit_delete_domain => $create_edit_delete_domain;
+subtest user_permissions          => $user_permissions;
 
 done_testing;
 exit;

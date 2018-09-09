@@ -9,6 +9,7 @@ my $table = 'users';
 sub table { return $table }
 
 # Create a primary group for the user and the user it self.
+# Add the primary group to user_group.
 sub add ($self, $row) {
   my $db = $self->dbx->db;
   my $id;
@@ -25,6 +26,7 @@ sub add ($self, $row) {
       = $db->insert(Slovo::Model::Groups->table, $group_row)->last_insert_id;
     $row->{group_id} = $gid;
     $id = $db->insert($table, $row)->last_insert_id;
+    $db->insert(user_group => {user_id => $id, group_id => $gid});
     $tx->commit;
   } || Carp::croak("Error creating user: $@");
   return $id;

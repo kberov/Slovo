@@ -2,6 +2,7 @@
 state $types     = $c->openapi_spec('/parameters/data_type/enum');
 state $formats   = $c->openapi_spec('/parameters/data_format/enum');
 state $languages = $c->openapi_spec('/parameters/language/enum');
+state $permissions = $c->openapi_spec('/parameters/permissions/enum');
 %>
 %= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
 <%= link_to '🖹⮉☰' => url_for('home_celini')->query([page_id => $in->{page_id}])
@@ -42,14 +43,8 @@ state $languages = $c->openapi_spec('/parameters/language/enum');
 
 # TODO: document and design the behavior for celini which are "d" (directories) and "l" (links)
   select_box
-    permissions => [
-                    '-rwxr-xr-x', '-rwxrwxr-x',
-                    '-rwxrwxrwx', 'drwxr-xr-x',
-                    'drwxrwxr-x', 'drwxrwxrwx',
-                    'lrwxr-xr-x'
-                   ],
-    required => 1,
-    label    => 'Permissions'
+    permissions => [map { [$_ => $_] } @$permissions],
+    required    => 1, $in->{user_id} != $c->user->{id} ? (readonly => undef) :()
   %>
 
   <%=
@@ -69,12 +64,6 @@ state $languages = $c->openapi_spec('/parameters/language/enum');
 
   %= label_for page_id => 'Page_id'
   %= number_field page_id => readonly => 1
-
-  %= label_for user_id => 'User_id'
-  %= number_field user_id => $in->{user_id} // $c->user->{id},
-
-  %= label_for group_id => 'Group_id'
-  %= number_field group_id => $in->{group_id} // $c->user->{group_id},
 
   %= label_for sorting => 'Sorting'
   %= number_field sorting =>  size => 3

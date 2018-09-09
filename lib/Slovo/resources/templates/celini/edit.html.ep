@@ -1,4 +1,10 @@
 % layout 'upravlenie', title => 'Edit celini';
-<h2>Edit celini</h2>
+<h2>
+    % if (${id}) {
+    Промяна на цѣлина <%= ${id} %>
+    % } else {
+    Нова цѣлина
+    % }
+</h2>
 %= include 'celini/_form', caption => 'Update', target => 'update_celini'
 %= button_to Remove => remove_celini => {id => $in->{id}}, (style =>'float:right')
