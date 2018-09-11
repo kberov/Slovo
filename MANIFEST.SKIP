@@ -44,9 +44,10 @@
 \.tmp$
 \.#
 \.rej$
-domove\/.*?\/public/img/.*?\.(gif|jpe?g|png)
-domove\/.*?\/public/cached/.*
-
+domove\/.*?\/public\/img/.*?\.(gif|jpe?g|png|ico)
+domove\/.*?\/public\/cached/.*
+domove\/.*?\/public\/(js|css)
+domove\/log
 # Avoid OS-specific files/dirs
 # Mac OSX metadata
 \B\.DS_Store

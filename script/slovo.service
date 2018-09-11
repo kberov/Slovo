@@ -1,0 +1,29 @@
+# This file assumes that you installed Slovo in /home/$USER/opt/slovo
+# like this:
+# cpanm -L ~/opt/slovo Slovo
+# Modify this file by replacing $USER with your username and copy it to
+# /lib/systemd/system/slovo.service
+# For details see https://askubuntu.com/questions/676007
+# and then fro more https://wiki.ubuntu.com/SystemdForUpstartUsers
+
+[Unit]
+Description=Slovo - В началѣ бѣ Слово
+Requires=network.target
+After=network.target
+# put here other service requirements
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+WorkingDirectory=/home/$USER/opt/slovo/bin
+User=$USER
+Group=$USER
+Type=forking
+Restart=always
+SyslogIdentifier=slovo
+PIDFile=/home/$USER/opt/slovo/bin/slovo.pid
+ExecStart=/home/$USER/opt/slovo/bin/hypnotoad slovo
+ExecStop=/home/$USER/opt/slovo/bin/hypnotoad -s slovo
+ExecReload=/home/$USER/opt/slovo/bin/hypnotoad slovo
+

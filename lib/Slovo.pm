@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.09.09';
+our $VERSION   = '2018.09.15';
 our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
 my $CLASS = __PACKAGE__;
 
@@ -33,6 +33,12 @@ sub startup($app) {
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
+  $app->hook(
+    after_static => sub {
+      my $c = shift;
+      $c->debug("Serving static file:" . $c->req->url->to_abs->to_string);
+    }
+  );
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths();
   return $app;
 }
@@ -211,13 +217,13 @@ with nice features like:
 
 =item * User sign in - DONE;
 
-=item * Managing pages, content, domains, users - DONE (very basic UI, no fine-grained access permissions);
+=item * Managing pages, content, domains, users - DONE (very basic UI);
 
 =item * Managing groups - NOT DONE;
 
 =item * Multiple groups per user - PARTIALLY DONE;
 
-=item * Fine-grained access permissions per page and it's content - DONE (for the site only);
+=item * Fine-grained access permissions per page and it's content - DONE;
 
 =item * OpenAPI 2.0 (Swagger) REST API - SUPPORTED, implemented one route as example only, see  http://127.0.0.1:3000/api;
 

@@ -1,4 +1,9 @@
 Revision history for Mojolicious application Slovo
+2018.09.15
+    -Features
+        Added example configuration file for Apache mod_proxy.
+        Added example configuration file for systemd.
+        Added configuration section for hypnotoad to slovo.conf.
 
 2018.09.09
     -Features:

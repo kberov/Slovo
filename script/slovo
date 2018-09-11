@@ -11,7 +11,6 @@ BEGIN {
   );
   for (@libs) { unshift(@INC, $_) if (-d $_) }
 }
-use Mojo::Base -strict;
 use Mojo::File 'path';
 
 BEGIN {

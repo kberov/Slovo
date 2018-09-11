@@ -1,5 +1,7 @@
 .perltidyrc
 Changes
+domove/localhost/apache2.4-vhost.conf
+domove/localhost/public/img/slovo-white.svg
 domove/localhost/public/img/slovo.svg
 domove/localhost/templates/partials/_footer_right.html.ep
 domove/README
@@ -104,6 +106,7 @@ LICENSE
 Makefile.PL
 MANIFEST
 script/slovo
+script/slovo.service
 t/.perlcriticrc
 t/001_load.t
 t/002_basic.t
