@@ -38,7 +38,6 @@ lib/Slovo/resources/public/img/favicon.ico
 lib/Slovo/resources/public/img/slovo-white.png
 lib/Slovo/resources/public/img/slovo-white.svg
 lib/Slovo/resources/public/img/slovo.png
-lib/Slovo/resources/public/index.html
 lib/Slovo/resources/public/js/CryptoJS-v3.1.2/sha1.js
 lib/Slovo/resources/public/js/editor.js
 lib/Slovo/resources/public/js/mui.min.js
