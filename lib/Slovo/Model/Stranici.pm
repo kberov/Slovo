@@ -228,12 +228,49 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.language"  => $self->celini->language_like($l),
     "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
-    %{$self->c->celini->where_with_permissions($user, $preview)},
+    %{$self->celini->where_with_permissions($user, $preview)},
     %{$opts->{where} // {}}
                    };
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
+}
+
+
+# Get all pages under current (home) page which have заглавѥ which is directory
+# (i.e.  contains articles) and get 6 articles for each. $opts contains only
+# two keys (stranici_opts, and celini_opts). They will be passed respectively to
+# all_for_list() and all_for_display_in_stranica().
+sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
+  state $ct = $celini_table;
+  state $t  = $table;
+  my $stranici_opts = {
+
+    #columns => $list_columns,
+    #pid     => $page->{pid},
+    where => {"$ct.permissions" => {-like => 'd%'}},
+    %{delete $opts->{stranici_opts}}
+  };
+  my $celini_opts = {
+          columns => 'title, id, alias, substr(body,1,255) as teaser, language',
+          limit   => 6,
+          where   => {"$ct.data_type" => {'!=' => 'заглавѥ'}},
+          %{delete $opts->{celini_opts}}
+  };
+
+  return $m->all_for_list($user, $domain, $preview, $l, $stranici_opts)->each(
+    sub ($p, $i) {
+      state $SQL = <<"SQL";
+=(SELECT id FROM $ct
+  WHERE pid=? AND page_id=? AND data_type=? limit 1)
+SQL
+      my $opts = {%$celini_opts};    #copy
+      $opts->{where}{"$ct.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
+      $p->{articles}
+        = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview,
+                                                  $opts);
+    }
+  );
 }
 
 # Returns list of languages for this page in which we have readable by the

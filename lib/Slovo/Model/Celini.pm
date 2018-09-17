@@ -80,9 +80,10 @@ sub all_for_display_in_stranica ($self, $page, $user, $l, $preview, $opts = {})
        "$table.pid" => 0,             #only content belonging directly to a page
        language => $self->language_like($l),
        %{$self->where_with_permissions($user, $preview)},
-       %{$opts->{where} // {}}
+       %{delete $opts->{where} // {}}
               },
      order_by => [{-desc => 'featured'}, {-asc => [qw(id sorting)]},],
+     %$opts,
     }
   );
 }

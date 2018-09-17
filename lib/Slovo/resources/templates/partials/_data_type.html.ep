@@ -3,3 +3,5 @@
     %= t 'h' . $level => $row->{title}
 %== $row->{body}
 </section>
+<!-- end _data_type -->
+

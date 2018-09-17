@@ -1,7 +1,8 @@
+<!-- celini/execute -->
 <%
 my $заглавѥто = shift @$celini;
-my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ }) // '';
+my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
@@ -19,4 +20,5 @@ layout 'site',
       level => 1)
       || include("partials/_data_type" => row => $celina, level => 1)
 %>
+<!-- end celini/execute -->
 

@@ -9,7 +9,8 @@ no warnings "experimental::lexical_subs";
 around execute => sub ($execute, $c) {
   state $cache_pages = $c->config('cache_pages');
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
-  return 1 if $cache_pages && !$preview && $c->_render_cached_page();
+  return 1
+    if $cache_pages && !$c->is_user_authenticated && $c->_render_cached_page();
 
   my $alias = $c->stash->{'страница'};
   my $l     = $c->language;
@@ -19,8 +20,9 @@ around execute => sub ($execute, $c) {
   state $not_found_code = $c->not_found_code;
   my $user = $c->user;
 
-  my $str = $c->stranici;
-  my $page = $str->find_for_display($alias, $user, $c->host_only, $preview);
+  my $str    = $c->stranici;
+  my $domain = $c->host_only;
+  my $page   = $str->find_for_display($alias, $user, $domain, $preview);
   $page //= $str->find($not_found_id);
   $page->{is_dir} = $page->{permissions} =~ /^d/;
   $c->stash($page->{template} ? (template => $page->{template}) : ());
@@ -30,6 +32,7 @@ around execute => sub ($execute, $c) {
   #These are always used so we add them to the stash earlier.
   $c->stash(
     celini       => $celini,
+    domain       => $domain,
     list_columns => $list_columns,
     page         => $page,
     preview      => $preview,

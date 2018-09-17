@@ -1,4 +1,19 @@
 Revision history for Mojolicious application Slovo
+
+2018.09.22
+    -Features
+        * New home page template showing the last several articles in each
+        * category page -- the direct children of the home page.
+    -Changes
+        * Added mui-colors.min.css to slovo.min.css.
+        * Added all_for_home() in Slovo::Model::Stranici. It is used in
+        * stranici/templates/dom.html.
+        * Added meta name="generator" in _head.html.ep.
+        * Now both '/' and /index.html reslove to the default page and language.
+        * Fixed bug - Cached pages were shown to logged in users too.
+        * Fixed bug - Заглавѥ was not showing only its children, but the other
+          page's celini.
+
 2018.09.15
     -Features
         Added example configuration file for Apache mod_proxy.
@@ -16,7 +31,6 @@ Revision history for Mojolicious application Slovo
         * 'permissions' possible values are now added to the
           'parameters' object of api-v1.0.json. From there the enum is used in
           templates.
-
 
 2018.08.28
     -Features:

@@ -245,3 +245,46 @@ header .mui-dropdown .mui-dropdown__menu > li > a {
 .mui-dropdown__menu {
     min-width: initial;
 }
+
+/* home page */
+section.множество {
+
+}
+
+section.множество article.писанѥ h2 {
+    height: 2rem;
+    overflow: hidden;
+    /* top | right | bottom | left */
+    margin: 0 0      .5rem   .5rem;
+    padding: 0 1.5rem 0 0      0;
+    border-top: 0.5rem solid #607d8b;
+    border-right: 0.5rem solid #607d8b;
+}
+
+section.множество article.писанѥ a.писанѥ {
+    /* top | right | bottom | left */
+    padding: 0 .5rem     0    0;
+    border-right: 0.5rem solid #607d8b;
+    border-bottom: 0.5rem solid #607d8b;
+    position: absolute;
+    top: 1.5rem;
+    right: 0;
+}
+
+section.множество article.писанѥ {
+    display: inline-block;
+    max-width: 30rem;
+    min-width: 15rem;
+    width: 25rem;
+    margin: 0.5rem;
+    position: relative;
+    background: white;
+}
+
+section.множество article.писанѥ div.ѿкѫс {
+    overflow: hidden;
+    height: 8rem;
+    padding: 1rem;
+}
+
+

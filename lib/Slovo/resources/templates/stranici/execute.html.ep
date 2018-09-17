@@ -1,3 +1,4 @@
+<!-- stranici/execute -->
 <%
 my $заглавѥто = shift @$celini;
 my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
@@ -27,4 +28,5 @@ $main->map(
   }
 )->join($/);
 %>
+<!-- end stranici/execute -->
 

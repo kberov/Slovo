@@ -1,4 +1,5 @@
     % if ( @$right ) {
+    <!-- right -->
     %= t aside => (class=>"right") => begin
         <%==
         $right->map(
@@ -10,4 +11,5 @@
         %>
     % end
     % }
+    <!-- end right -->
 

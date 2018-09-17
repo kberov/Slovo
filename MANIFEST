@@ -94,6 +94,8 @@ lib/Slovo/resources/templates/stranici/edit.html.ep
 lib/Slovo/resources/templates/stranici/execute.html.ep
 lib/Slovo/resources/templates/stranici/index.html.ep
 lib/Slovo/resources/templates/stranici/show.html.ep
+lib/Slovo/resources/templates/stranici/templates/dom.html.ep
+lib/Slovo/resources/templates/stranici/templates/README
 lib/Slovo/resources/templates/upravlenie/index.html.ep
 lib/Slovo/resources/templates/users/_form.html.ep
 lib/Slovo/resources/templates/users/create.html.ep

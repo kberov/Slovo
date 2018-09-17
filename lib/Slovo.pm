@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.09.15';
+our $VERSION   = '2018.09.22';
 our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
 my $CLASS = __PACKAGE__;
 
@@ -33,12 +33,6 @@ sub startup($app) {
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
-  $app->hook(
-    after_static => sub {
-      my $c = shift;
-      $c->debug("Serving static file:" . $c->req->url->to_abs->to_string);
-    }
-  );
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths();
   return $app;
 }
@@ -177,7 +171,7 @@ sub load_class ($app, $class) {
 
 =head1 NAME
 
-Slovo - В началѣ бѣ Слово
+Slovo - Искони бѣ Слово
 
 =head1 SYNOPSIS
 
@@ -217,7 +211,7 @@ with nice features like:
 
 =item * User sign in - DONE;
 
-=item * Managing pages, content, domains, users - DONE (very basic UI);
+=item * Managing pages, content, domains, users - PARTIALLY DONE (very basic UI);
 
 =item * Managing groups - NOT DONE;
 
@@ -225,7 +219,8 @@ with nice features like:
 
 =item * Fine-grained access permissions per page and it's content - DONE;
 
-=item * OpenAPI 2.0 (Swagger) REST API - SUPPORTED, implemented one route as example only, see  http://127.0.0.1:3000/api;
+=item * OpenAPI 2.0 (Swagger) REST API - SUPPORTED, implemented one route as
+        example only, see  L<http://127.0.0.1:3000/api>;
 
 =item * and more.
 
@@ -393,6 +388,16 @@ project and make pull requests.
     berov на cpan точка org
     http://i-can.eu
 
+=head1 CONTRIBUTORS
+
+Ordered by time of first commit.
+
+=over
+
+=item * MANWAR (Mohammad S Anwar)
+
+=back
+
 =head1 COPYRIGHT
 
 This program is free software licensed under the Artistic License 2.0.
@@ -412,9 +417,6 @@ Add simplemde-markdown-editor to the distro and use it to prepare markdown as
 html in the browser.
   (https://github.com/sparksuite/simplemde-markdown-editor)
   (https://github.com/Inscryb/inscryb-markdown-editor)
-
-Consider addding also ContentTools as the default WYSIWIG html editor
-  (https://github.com/GetmeUK/ContentTools)
 
 Consider using Mithril or Dojo or something light as frontend framework for
 building UI. We already use jQuery from Mojolicious.

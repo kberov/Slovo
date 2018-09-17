@@ -4,6 +4,9 @@ use lib "$FindBin::Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
+use Mojo::Util qw(slugify encode);
+use Mojo::Loader qw(data_section);
+use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # '.', '/tmp/slovo'
@@ -126,12 +129,180 @@ my $cached_pages = sub {
   ok(!-e $cache_dir,                 '$cache_dir IS NOT anymore on disk');
 };
 
+# Generate and test a fullblown home page with several sections consisting of
+# content in category pages.
+my $home_page = sub {
+
+  #create category pages
+  my @cats  = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
+  my $pages = {};
+  for my $p (@cats) {
+    _category_page($p, $pages);
+  }
+  ok(1 => 'generated data');
+
+  # use the new template
+  $app->stranici->save(0 => {template => 'stranici/templates/dom'});
+  $t->get_ok('/')->status_is(200);
+
+  for my $p (@cats) {
+    my $id = 'section#страница-' . $pages->{$p}{id};
+    $t->element_exists($id)->element_count_is($id . ' article.писанѥ', 6);
+    $t->element_exists(
+              $id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
+      for @{$pages->{$p}{articles}}[0 .. 5];
+  }
+};
+
+sub _category_page {
+  my ($p, $pages) = @_;
+  my $body
+    = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
+    ->shuffle->slice(0 .. 50)->join(' ');
+  $pages->{$p}{id} = $app->stranici->add(
+                                         {
+                                          title       => ucfirst($p),
+                                          language    => 'bg',
+                                          body        => "<p>$body</p>",
+                                          data_format => 'html',
+                                          tstamp      => time,
+                                          user_id     => 5,
+                                          group_id    => 5,
+                                          changed_by  => 5,
+                                          alias       => slugify($p, 1),
+                                          permissions => 'drwxr-xr-x',
+                                          published   => 2,
+                                          page_type   => 'обичайна',
+                                          dom_id      => 0,
+                                         }
+                                        );
+  _pisania($p, $pages);
+  _sub_pages($p, $pages);
+  ok(1 => 'generated full set of data for category ' . encode('utf8', $p));
+}
+
+sub _sub_pages {
+  my ($p, $pages) = @_;
+  my $sub_pages = {};
+  for my $sp (qw(днесъ вчера оня-ден)) {
+    $sub_pages->{$sp} =
+      $app->stranici->add(
+                          {
+                           title       => ucfirst($sp),
+                           language    => 'bg',
+                           body        => "",
+                           data_format => 'html',
+                           tstamp      => time,
+                           user_id     => 5,
+                           group_id    => 5,
+                           changed_by  => 5,
+                           alias       => slugify("$p-$sp", 1),
+                           permissions => 'rwxr-xr-x',
+                           published   => 2,
+                           page_type   => 'обичайна',
+                           dom_id      => 0,
+                           pid         => $pages->{$p}{id}
+                          }
+                         );
+  }
+}
+
+sub _pisania {
+  my ($p, $pages) = @_;
+
+  my $in = {};
+  @$in{qw(user_id group_id changed_by created_at)} = (5, 5, 5, time - 1);
+  my $pid = $app->celini->find_where(
+                   {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
+  my $cels = int(rand(50));
+  $pages->{$p}{articles} = [];
+  for my $cel (0 .. ($cels < 10 ? 10 : $cels)) {
+    my $body
+      = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
+      ->shuffle->join(' ');
+    my $tlength = int rand(100);
+    $tlength < 20 && ($tlength = 20);
+
+    $body = $body x (int rand(5) < 2 || 2);
+    my ($title) = $body =~ /^(.{0,$tlength})/;
+
+    my $cid = $app->celini->add(
+                                {
+                                 %$in,
+                                 language    => 'bg',
+                                 page_id     => $pages->{$p}{id},
+                                 pid         => $pid,
+                                 data_format => 'html',
+                                 data_type   => 'писанѥ',
+                                 title       => ucfirst $title,
+                                 alias       => slugify("$title $cel $p", 1),
+                                 body        => $body,
+                                 permissions => 'rwxr-xr-x',
+                                 published   => 2,
+                                }
+                               );
+    push @{$pages->{$p}{articles}},
+      {
+       alias => slugify("$title $cel $p", 1),
+       title => ucfirst($title),
+       id    => $cid
+      };
+  }
+}
+
 subtest 'Not Found'          => $not_found;
 subtest 'previewed pages'    => $previewed_pages;
 subtest 'site layout'        => $site_layout;
 subtest breadcrumb           => $breadcrumb;
 subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages         => $cached_pages;
-
+subtest home_page            => $home_page;
 done_testing;
 
+package Slovo::Test::Text;
+
+__DATA__
+@@ text.txt
+Да се познават случилите се по-рано в тоя
+свят неща и делата на ония, които са живеели на земята, е не само полезно, но и
+твърде потребно, любомъдри читателю. Ако навикнеш да прочиташ често тия неща,
+ще се обогатиш с разум, не ще бъдеш много неизкусен и ще отговаряш на малките
+деца и простите хора, когато при случай те запитат за станалите по-рано в света
+деяния от черковната и гражданска история. И не по-малко ще се срамуваш, когато
+не можеш да отговориш за тях.
+Отгде ще можеш да добиеш тия знания, ако не от ония, които писаха историята
+на този свят и които при все че не са живели дълго време, защото никому не се
+дарява дълъг живот, за дълго време оставиха писания за тия неща. Сами от себе
+си да се научим не можем, защото кратки са дните на нашия живот на земята.
+Затова с четене на старите летописи и с чуждото умение трябва да попълним
+недостатъчността на нашите години за обогатяване на разума.
+
+Отгде ще можеш да добиеш тия знания, ако не от ония, които писаха историята
+на този свят и които при все че не са живели дълго време, защото никому не се
+дарява дълъг живот, за дълго време оставиха писания за тия неща. Сами от себе
+си да се научим не можем, защото кратки са дните на нашия живот на земята.
+Затова с четене на старите летописи и с чуждото умение трябва да попълним
+недостатъчността на нашите години за обогатяване на разума.
+
+Искаш ли да седиш у дома си и да узнаеш без много трудно и опасно пътуване
+миналото на всички царства на тоя свят и ставащите сега събития в тях и да
+употребиш тия знания за умна наслада и полза за себе си и за другите, чети
+историята! Искаш ли да видиш като на театър играта на тоя свят, промяната и
+гибелта на големи царства и царе и непостоянството на тяхното благополучие, как
+господстващите и гордеещите се между народите племена, силни и непобедими в
+битките, славни и почитани от всички, внезапно отслабваха, смиряваха се,
+упадаха, загиваха, изчезваха - чети историята и като познаеш от нея суетата на
+този свят, научи се да го презираш. Историята дава разум не само на всеки
+човек, за да управлява себе си или своя дом, но и на големите владетели за
+добро властвуване: как могат да държат дадените им от бога поданици в страх
+божи, в послушание, тишина, правда и благочестие, как да укротяват и
+изкореняват бунтовниците, как да се опълчват против външните врагове във
+войните, как да ги победят и сключат мир. Виж колко голяма е ползата от
+историята. Накратко това е заявил Василий, источният кесар, на своя син Лъв
+Премъдри. Съветайки го, каза: „Не преставай - рече - да четеш историята на
+древните. Защото там без труд ще намериш онова, за което други много са се
+трудили. От тях ще узнаеш добродетелите на добрите и законопрестъпленията на
+злите, ще познаеш превратностите на човешкия живот и обратите на благополучието
+в него, и непостоянството в този свят, и как и велики държави клонят към
+падение. Ще размислииш и ще видиш наказанието на злите и наградата на добрите.
+От тях се пази!”

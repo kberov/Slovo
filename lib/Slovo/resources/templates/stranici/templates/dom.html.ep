@@ -1,0 +1,66 @@
+<!-- stranici/templates/dom -->
+<%
+# Template for the home page of a domain
+my $заглавѥто = shift @$celini;
+my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
+my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
+my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+
+# Left pane may be shown:
+# * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
+# * 1:always.
+my $sidedrawer = 1;    # @$left || $page->{is_dir};
+layout 'site',
+  title      => $заглавѥто->{title},
+  left       => $left,
+  right      => $дѣсна,
+  sidedrawer => $sidedrawer;
+%>
+%= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
+<%
+# Get all pages under current (home) page which have заглавѥ which is directory (i.e.
+# contains articles) and get 6 articles for each
+my $pages = stranici->all_for_home(
+  $user, $domain, $preview, $ѩꙁыкъ,
+  {
+   stranici_opts => {
+     columns => $list_columns,
+     pid     => $page->{pid},
+                    },
+   celini_opts => {limit => 6}
+  }
+);
+%>
+<% for my $p (@$pages) { %>
+<section class="множество" id="страница-<%= $p->{id} %>">
+    <h1 class="mui--text-dark">
+%= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ѩꙁыкъ => $ѩꙁыкъ}
+    </h1>
+    % for my $a (@{$p->{articles}}) {
+    <article class="mui--z1 mui--bg-color-white писанѥ">
+        <h2>
+<%=
+    link_to $a->{title} => 'цѣлина_с_ѩꙁыкъ' =>
+      {страница => $p->{alias}, цѣлина => $a->{alias},
+       ѩꙁыкъ => $a->{language}} =>
+      (title => $a->{title})
+%>
+        </h2>
+<%=
+    link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
+      {страница => $p->{alias}, цѣлина => $a->{alias},
+       ѩꙁыкъ => $a->{language}} =>
+      (class => 'mui--pull-right писанѥ', title => $a->{title})
+%>
+        <div class="ѿкѫс">
+        %= $a->{teaser}
+        </div>
+    </article>
+    % }
+</section>
+% if($p->{id} != $pages->[-1]->{id}) {
+<div class="mui-divider"></div>
+% }
+<% } %>
+<!-- end stranici/templates/dom -->
+
