@@ -18,7 +18,7 @@ WriteMakefile(
   PREREQ_PM     => {
                 'Cpanel::JSON::XS'                    => '4.05',
                 'Mojo::SQLite'                        => '3.001',
-                'Mojolicious'                         => '7.93',
+                'Mojolicious'                         => '8.01',
                 'Mojolicious::Plugin::Authentication' => '1.32',
                 'Mojolicious::Plugin::OpenAPI'        => '1.30',
                 'Mojolicious::Plugin::RoutesConfig'   => '0.05',

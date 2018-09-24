@@ -1,13 +1,21 @@
 Revision history for Mojolicious application Slovo
 
+2018.09.28
+    -Changes
+        * Upgraded Mojolicious to version 8.01.
+        * Slight performance improvement in 'before_dispatch' hook.
+        * Better positioning of the main content on large screens.
+        * Fix: Now in stranici/templates/dom.html we remove HTML before showing
+          articles on home-page.
+
 2018.09.22
     -Features
         * New home page template showing the last several articles in each
-        * category page -- the direct children of the home page.
+          category page -- the direct children of the home page.
     -Changes
         * Added mui-colors.min.css to slovo.min.css.
         * Added all_for_home() in Slovo::Model::Stranici. It is used in
-        * stranici/templates/dom.html.
+          stranici/templates/dom.html.
         * Added meta name="generator" in _head.html.ep.
         * Now both '/' and /index.html reslove to the default page and language.
         * Fixed bug - Cached pages were shown to logged in users too.

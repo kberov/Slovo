@@ -39,21 +39,23 @@ my $pages = stranici->all_for_home(
     % for my $a (@{$p->{articles}}) {
     <article class="mui--z1 mui--bg-color-white писанѥ">
         <h2>
+% # greedily remove potential html
+% my $a_title = $a->{title} =~ s/<[^>]+>?//gr;
 <%=
-    link_to $a->{title} => 'цѣлина_с_ѩꙁыкъ' =>
+link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
       {страница => $p->{alias}, цѣлина => $a->{alias},
        ѩꙁыкъ => $a->{language}} =>
-      (title => $a->{title})
+      (title => $a_title)
 %>
         </h2>
 <%=
     link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
       {страница => $p->{alias}, цѣлина => $a->{alias},
        ѩꙁыкъ => $a->{language}} =>
-      (class => 'mui--pull-right писанѥ', title => $a->{title})
+      (class => 'писанѥ', title => $a_title)
 %>
         <div class="ѿкѫс">
-        %= $a->{teaser}
+        %= $a->{teaser} =~ s/<[^>]+>?//gr;
         </div>
     </article>
     % }

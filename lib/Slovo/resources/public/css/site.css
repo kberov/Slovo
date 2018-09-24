@@ -130,6 +130,13 @@ main#content-wrapper {
   padding: 1.5rem 1rem 0 1rem;
 }
 
+@media (min-width: 70rem) {
+  section {
+      margin:auto;
+      max-width:60rem;
+  }
+}
+
 footer {
   margin-left: 0px;
   transition: margin-left 0.2s;

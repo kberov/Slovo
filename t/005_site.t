@@ -216,13 +216,17 @@ sub _pisania {
                    {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];
+  my $data = lc data_section('Slovo::Test::Text', 'text.txt');
   for my $cel (0 .. ($cels < 10 ? 10 : $cels)) {
-    my $body
-      = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
-      ->shuffle->join(' ');
+
+    #create dummy body
+    my $body = c(split /[,.\n]?\s+/, $data)->shuffle->join(' ');
     my $tlength = int rand(100);
     $tlength < 20 && ($tlength = 20);
 
+    # Add some dummy markup for tests
+    $body = "<p>$body</p>";
+    $body =~ s/^(<p>\w+\s+)(\w+)/$1<b>$2<img src="a.jpg"><\/b>/;
     $body = $body x (int rand(5) < 2 || 2);
     my ($title) = $body =~ /^(.{0,$tlength})/;
 
@@ -244,7 +248,7 @@ sub _pisania {
     push @{$pages->{$p}{articles}},
       {
        alias => slugify("$title $cel $p", 1),
-       title => ucfirst($title),
+       title => ucfirst($title) =~ s/<[^>]+>?//gr,
        id    => $cid
       };
   }

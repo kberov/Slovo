@@ -86,6 +86,9 @@ sub _cache_page($c) {
 }
 
 # Delete cached pages
+# TODO: Execute this in a subprocess as $cache_dir->remove_tree may be slow on
+# large directories.
+# See http://localhost:3000/perldoc/Mojolicious/Guides/Cookbook#Subprocesses
 my $clear_cache = sub ($action, $c) {
 
   state $app   = $c->app;

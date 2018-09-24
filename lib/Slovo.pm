@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.09.22';
+our $VERSION   = '2018.09.28';
 our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
 my $CLASS = __PACKAGE__;
 
@@ -54,15 +54,17 @@ sub _before_dispatch($c) {
   return;
 }
 
-
-# Try to save as much as possible subroutine calls.
+# This code is executed on every request, so we try to save as much as possible
+# method calls.
 sub _around_dispatch ($next, $c) {
   state $app   = $c->app;
   state $droot = $app->config('domove_root');
 
-  my $s_paths = $app->static->paths;
-  my $r_paths = $app->renderer->paths;
-  my $domain  = $c->domove->find_by_host($c->host_only)->{domain};
+  state $s_paths = $app->static->paths;
+  state $r_paths = $app->renderer->paths;
+  my $domain = $c->domove->find_by_host($c->host_only)->{domain};
+
+  # Use domain specific public and templates paths with priority.
   unshift @{$s_paths}, "$droot/$domain/public";
   unshift @{$r_paths}, "$droot/$domain/templates";
   $next->();
@@ -135,11 +137,11 @@ sub _load_pugins($app) {
 
 sub _default_paths($app) {
 
-  # Application/site specific "public" directory
+  # Fallback "public" directory
   my $public = $app->resources->child('public')->to_string;
   unshift @{$app->static->paths}, $public if -d $public;
 
-  # Application/site specific templates
+  # Fallback templates directory
   # See /perldoc/Mojolicious/Renderer#paths
   my $templates = $app->resources->child('templates')->to_string;
   unshift @{$app->renderer->paths}, $templates if -d $templates;
