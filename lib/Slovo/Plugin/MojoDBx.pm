@@ -125,7 +125,7 @@ L<Mojo::Loader/load_class>.
 
 =head2 adaptor_attributes
 
-Array reference of hash referenses. See L<Mojo::Pg/ATTRIBUTES>. Keys will be
+Array reference of hash references. See L<Mojo::Pg/ATTRIBUTES>. Keys will be
 called as setters and the values will be passed as arguments.
 =head2 dsn
 

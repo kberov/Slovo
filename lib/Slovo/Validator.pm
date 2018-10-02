@@ -42,7 +42,7 @@ the following new ones.
 
 =head2 is
 
-A custom check -- some code reference which returns true on succes, false
+A custom check -- some code reference which returns true on success, false
 otherwise.
 
   # in the action

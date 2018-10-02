@@ -8,7 +8,7 @@ my $table = 'users';
 
 sub table { return $table }
 
-# Create a primary group for the user and the user it self.
+# Create a primary group for the user and the user itself.
 # Add the primary group to user_group.
 sub add ($self, $row) {
   my $db = $self->dbx->db;
