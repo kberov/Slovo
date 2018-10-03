@@ -80,7 +80,7 @@ sub _cache_page($c) {
   my $file = path($c->app->static->paths->[0], $cached, $url_path);
   $file->dirname->make_path({mode => oct(700)});
 
-  # This file will be deleteted automatically when the page or its заглавѥ is
+  # This file will be deleted automatically when the page or its заглавѥ is
   # changed.
   return $file->spurt($c->res->body =~ s/<html>/<html><!-- $cached -->/r);
 }

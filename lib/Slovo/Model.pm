@@ -60,7 +60,7 @@ sub add {
 }
 
 # Returns hashref for where clause where permissions allow the user to read
-#records.
+# records.
 sub readable_by ($self, $user) {
   my $t = $self->table;
   return {

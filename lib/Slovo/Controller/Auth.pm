@@ -113,7 +113,7 @@ compared on the server side. The digest is different in every POST request.
 
 =head2 under_management
 
-This is a callback when user tries to acces a page I<under> C</управление>. If
+This is a callback when user tries to access a page I<under> C</управление>. If
 user is authenticated returns true. If not, returns false and redirects to
 L</form>.
 

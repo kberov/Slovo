@@ -13,10 +13,10 @@ has table           => $table;
 has title_data_type => 'заглавѥ';
 has celini          => sub { $_[0]->c->celini };
 
-# Returns a list of page alises and titles in the current languade for
+# Returns a list of page aliases and titles in the current language for
 # displaying as breadcrumb. No permission filters are applied because if the
-# user gets to this page, he should have passed throu all filters from the
-# parrent page to this page. This SQL is supported now even in MySQL 8.
+# user gets to this page, he should have passed through all filters from the
+# parent page to this page. This SQL is supported now even in MySQL 8.
 # https://stackoverflow.com/questions/324935/mysql-with-clause#325243
 # https://sqlite.org/lang_with.html
 sub breadcrumb ($m, $pid, $l) {
@@ -194,7 +194,7 @@ sub remove ($self, $id) {
 }
 
 # Transforms a column accordingly as passed from $opts->{columns} and returns
-# the transfromed column.
+# the transformed column.
 ## no critic (Modules::RequireEndWithOne)
 my sub _transform_columns($col) {
   if ($col eq 'title' or $col eq 'language') {
@@ -238,7 +238,7 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
 
 
 # Get all pages under current (home) page which have заглавѥ which is directory
-# (i.e.  contains articles) and get 6 articles for each. $opts contains only
+# (i.e. contains articles) and get 6 articles for each. $opts contains only
 # two keys (stranici_opts, and celini_opts). They will be passed respectively to
 # all_for_list() and all_for_display_in_stranica().
 sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
