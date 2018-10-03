@@ -1,5 +1,5 @@
 <!-- _въпросъ -->
 <section class="въпросъ">
-    %= t 'h' . $level => $въпросъ->{title}
+    %= t 'h' . $level => $въпросъ->{title} =~ s/<[^>]+>?//gr;
 %== $въпросъ->{body}
 </section>

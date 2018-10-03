@@ -283,7 +283,7 @@ section.множество article.писанѥ {
     max-width: 30rem;
     min-width: 15rem;
     width: 25rem;
-    margin: auto;
+    margin: 0.5rem;
     position: relative;
     background: white;
 }

@@ -1,5 +1,5 @@
 <!-- _ѿговоръ -->
 <section class="ѿговоръ">
-    %= t 'h' . $level => $ѿговоръ->{title}
+    %= t 'h' . $level => $ѿговоръ->{title} =~ s/<[^>]+>?//gr;
 %== $ѿговоръ->{body}
 </section>

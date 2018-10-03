@@ -1,0 +1,30 @@
+This folder contains some free fonts and subsets of free fonts.
+Fonts are:
+
+FreeFont: https://www.gnu.org/software/freefont/
+A subset from it only is used for the purpose of the demo site. The subset was
+generated using https://www.fontsquirrel.com/tools/webfont-generator . See
+generator_config.txt for the specific subset.
+
+Menaion Unicode 2.0, a font for Ustav-era Church Slavonic typography.
+The Menaion font was originally designed by Victor A. Baranov at http://www.manuscripts.ru/
+Reencoded for Unicode by Aleksandr Andreev for the Ponomar Project (http://www.ponomar.net/).
+Used with permission of the original author.
+Menaion Unicode is Copyright (C) 2013-2016 Aleksandr Andreev.
+Portions Copyright (C) 2010 Victor A. Baranov.
+Menaion Unicode is licensed EITHER:
+	* under the SIL Open Font License version 1.1, a copy of which is reproduced in OFL.txt
+	* or, as part of the Ponomar software, under the GNU General Public License, v. 3
+            (or any later version) with the font exception (see LICENSE for details)
+AT YOUR CHOOSING.
+
+Font Veleka | Шрифт Велека
+Copyright (c) by Stefan Peev, Context Ltd, 2016 (context.bg[at]gmail.com,
+http://www.contextbg.net), under SIL license with Reserved Font Name "Veleka".
+Veleka is complete modification of Charis SIL, copyrighted (c) by SIL
+International, 1997-2014 under SIL license (the SIL license is attached with
+the Veleka font, and is also available with a FAQ at:
+http://scripts.sil.org/OFL). Although Charis SIL is intended to be a
+multilingual font it has some limitations, which were the reason to create the
+Veleka font.
+

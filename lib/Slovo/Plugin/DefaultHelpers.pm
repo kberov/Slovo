@@ -62,9 +62,7 @@ if ($DEV_MODE) {
     $log->debug($msg . "\n at $filename:$line\n in " . (caller(2))[3]);
     return;
   }
-
 }
-
 
 1;
 

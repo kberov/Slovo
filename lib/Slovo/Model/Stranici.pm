@@ -238,9 +238,10 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
 
 
 # Get all pages under current (home) page which have заглавѥ which is directory
-# (i.e. contains articles) and get 6 articles for each. $opts contains only
-# two keys (stranici_opts, and celini_opts). They will be passed respectively to
-# all_for_list() and all_for_display_in_stranica().
+# (i.e. contains articles) and get $opts->{celini_opts}{limit} articles for
+# each. $opts contains only two keys (stranici_opts, and celini_opts). They
+# will be passed respectively to all_for_list() and
+# all_for_display_in_stranica().
 sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   state $ct = $celini_table;
   state $t  = $table;
@@ -252,7 +253,7 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
     %{delete $opts->{stranici_opts}}
   };
   my $celini_opts = {
-          columns => 'title, id, alias, substr(body,1,255) as teaser, language',
+          columns => 'title, id, alias, substr(body,1,555) as teaser, language',
           limit   => 6,
           where   => {"$ct.data_type" => {'!=' => 'заглавѥ'}},
           %{delete $opts->{celini_opts}}

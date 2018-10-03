@@ -82,7 +82,7 @@ sub _cache_page($c) {
 
   # This file will be deleted automatically when the page or its заглавѥ is
   # changed.
-  return $file->spurt($c->res->body =~ s/<html>/<html><!-- $cached -->/r);
+  return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
 }
 
 # Delete cached pages

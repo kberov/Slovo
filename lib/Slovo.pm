@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.09.28';
+our $VERSION   = '2018.10.08';
 our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
 my $CLASS = __PACKAGE__;
 
@@ -398,6 +398,8 @@ Ordered by time of first commit.
 
 =item * MANWAR (Mohammad S Anwar)
 
+=item * KABANOID (Mikhail Katasonov)
+
 =back
 
 =head1 COPYRIGHT
@@ -429,7 +431,8 @@ administrative panel.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>
+L<Slovo::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>,
+L<Slovo::Validator>, L<Mojolicious>, L<Mojolicious::Guides>
 
 =cut
 

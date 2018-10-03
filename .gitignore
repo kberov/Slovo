@@ -42,5 +42,8 @@ _Deparsed_XSubs.pm
 # Other project specific files
 Slovo-*
 log
-domove/*/public/
+domove/*/public/img
+domove/*/public/js
+domove/*/public/cached
+
 
