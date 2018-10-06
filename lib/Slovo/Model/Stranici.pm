@@ -102,12 +102,29 @@ SQL
 # Find a page by $alias which can be seen by the current user
 sub find_for_display ($m, $alias, $user, $domain, $preview) {
 
+  # 0. WHERE alias = $alias failed to match
+  # 1. Suppose the user stumbled on a link with the old most recent alias.
+  # 2. Look for the most recent id which had such $alias in the given table.
+  state $old_alias_SQL = <<"SQL";
+ = (SELECT new_alias FROM aliases
+    WHERE alias_table='$table'
+    AND (old_alias=?)
+    ORDER BY ID DESC LIMIT 1)
+ OR $table.id=(SELECT alias_id FROM aliases
+    WHERE alias_table='$table'
+    AND (old_alias=? OR new_alias=?)
+    ORDER BY ID DESC LIMIT 1)
+SQL
+
   #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return
     $m->dbx->db->select(
                         $table, undef,
                         {
-                         alias => $alias,
+                         alias => [
+                                   $alias,
+                                   \[$old_alias_SQL => $alias, $alias, $alias]
+                                  ],
                          %{
                            $m->_where_with_permissions(
                                                        $user, $domain, $preview
@@ -181,16 +198,23 @@ sub save ($m, $id, $row) {
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
+    $m->upsert_aliases($db, $id, $row->{alias});
     $db->update($table,        $row,   {id => $id});
     $db->update($celini_table, $title, {id => $title->{id}});
     $tx->commit;
-  } || Carp::croak("Error updating stranici record: $@");
+  } || Carp::croak("Error updating $table: $@");
 
   return $id;
 }
 
-sub remove ($self, $id) {
-  return $self->dbx->db->update($table, {deleted => 1}, {id => $id});
+sub remove ($m, $id) {
+  my $db = $m->dbx->db;
+  return eval {
+    my $tx = $db->begin;
+    $m->remove_aliases($db, $id, $table);
+    $db->update($table, {deleted => 1}, {id => $id});
+    $tx->commit;
+  } || Carp::croak("Error updating $table: $@");
 }
 
 # Transforms a column accordingly as passed from $opts->{columns} and returns

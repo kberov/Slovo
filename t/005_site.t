@@ -9,7 +9,7 @@ use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  # '.', '/tmp/slovo'
+  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -132,15 +132,15 @@ my $cached_pages = sub {
 
 # Generate and test a fullblown home page with several sections consisting of
 # content in category pages.
+my @cats      = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
 my $home_page = sub {
 
   #create category pages
-  my @cats  = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
   my $pages = {};
   for my $p (@cats) {
     _category_page($p, $pages);
   }
-  ok(1 => 'generated data');
+  ok(keys %$pages => 'generated data');
 
   # use the new template
   $app->stranici->save(0 => {template => 'stranici/templates/dom'});
@@ -255,13 +255,43 @@ sub _pisania {
   }
 }
 
-subtest 'Not Found'          => $not_found;
-subtest 'previewed pages'    => $previewed_pages;
-subtest 'site layout'        => $site_layout;
-subtest breadcrumb           => $breadcrumb;
-subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages         => $cached_pages;
-subtest home_page            => $home_page;
+my $aliases = sub {
+
+  # Get a newly created page and change the alias several times, then make
+  # requests to see if the same page is displayed.
+  my $page = $app->stranici->find_where(
+                {published => 2, deleted => 0, hidden => 0, id => {'>' => 16}});
+  my $new_alias;
+  for my $a ('A' .. 'F') {
+    $new_alias = $page->{alias} . $a;
+    $app->stranici->save($page->{id}, {%$page, alias => $new_alias});
+  }
+
+  my $new_url = b("$new_alias.bg-bg.html")->encode->url_escape;
+  for my $a ('', 'A' .. 'E') {
+    my $alias = b("$page->{alias}$a.bg-bg.html")->encode->url_escape;
+    $t->get_ok("/$alias")->status_is(301)
+      ->header_like(Location => qr/$new_url/);
+  }
+
+  my $dom = $t->get_ok("/$new_url")->status_is(200)->tx->res->dom;
+  like $dom->at('head>link[rel="canonical"]')->attr->{href}, qr/$new_url/,
+    '[rel="canonical"] ok';
+  is $dom->at('head>link[rel="shortcut icon"]')->attr->{href},
+    '/img/favicon.ico', '[rel="shortcut icon"] ok';
+};
+
+
+subtest 'Not Found'       => $not_found;
+subtest 'previewed pages' => $previewed_pages;
+subtest 'site layout'     => $site_layout;
+subtest breadcrumb        => $breadcrumb;
+
+# Disabled untill proper test cases are prepared
+# subtest multi_language_pages => $multi_language_pages;
+subtest cached_pages => $cached_pages;
+subtest home_page    => $home_page;
+subtest aliases      => $aliases;
 done_testing;
 
 package Slovo::Test::Text;

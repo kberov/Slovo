@@ -1,12 +1,19 @@
 Revision history for Mojolicious application Slovo
 2018.10.08
     - Features
+        * Implemented automatic redirect from old to new URLs for pages and
+          celini.
         * Implemented new helper 'html_substr' in Slovo::Plugin::TagHelpers.
-        * Added a subset of GNU FreeFont (Sans and Mono) and whole Menaion
-          Unicode 2.0, and Veleka to ensure proper display of Cyrillic and
-          Glagolitic characters. See lib/Slovo/resources/public/fonts/README
+        * Added a subset of GNU FreeFont (Sans and Mono), whole 'Menaion
+          Unicode 2.0' and Veleka to ensure proper display of old Bulgarian
+          texts (Azbuka and Glagolitza) characters. See
+          lib/Slovo/resources/public/fonts/README.
+        * Added 'favicon' – The "Slovo" letter from the Glagolitic alphabet.
+        * Added cannonical url for the current page in the <head>.
 
     - Changes
+        * Showing langauge dropdown only if the page or article are translated
+          into other languages.
         * Unified layout of teasers for articles in home page and categories'
           pages. We strip any html from celini titles before rendering in
           templates.

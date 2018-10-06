@@ -12,6 +12,7 @@ sub language_like ($m, $l) {
   $l2 ||= $l1;
   return [{'=' => $l}, {-like => "$l1%"}, {-like => "%$l2"}];
 }
+
 sub table { return $table }
 
 sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
@@ -90,13 +91,42 @@ sub all_for_display_in_stranica ($self, $page, $user, $l, $preview, $opts = {})
 
 sub find_for_display ($m, $alias, $user, $l, $preview, $where = {}) {
 
+  # 0. WHERE alias = $alias failed to match
+  # 1. Suppose the user stumbled on a link with the old most recent alias.
+  # 2. Look for the most recent id which had such $alias in the given table.
+  state $old_alias_SQL = <<"SQL";
+ = (SELECT new_alias FROM aliases
+    WHERE alias_table='$table'
+    AND (old_alias=?)
+    ORDER BY ID DESC LIMIT 1)
+ OR $table.id=(SELECT alias_id FROM aliases
+    WHERE alias_table='$table'
+    AND (old_alias=? OR new_alias=?)
+    ORDER BY ID DESC LIMIT 1)
+SQL
+
+
   #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   my $_where = {
-                alias    => $alias,
+                alias => [$alias, \[$old_alias_SQL => $alias, $alias, $alias]],
                 language => $m->language_like($l),
                 box      => {-in => [qw(главна main)]},
                 %{$m->where_with_permissions($user, $preview)}, %$where
                };
   return $m->dbx->db->select($table, undef, $_where)->hash;
 }
+
+sub save ($m, $id, $row) {
+
+  # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  my $db = $m->dbx->db;
+  eval {
+    my $tx = $db->begin;
+    $m->upsert_aliases($db, $id, $row->{alias});
+    $db->update($table, $row, {id => $id});
+    $tx->commit;
+  } || Carp::croak("Error updating $table: $@");
+  return $id;
+}
+
 1;

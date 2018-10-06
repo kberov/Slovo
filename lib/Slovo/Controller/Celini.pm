@@ -14,24 +14,42 @@ sub execute ($c, $page, $user, $l, $preview) {
   # TODO celina breadcrumb
   #my $path = [split m|/|, $c->stash->{'цѣлина'}];
   #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
+  my $alias = $c->stash->{'цѣлина'};
   my $celina =
     $c->celini->find_for_display(
-                                 $c->stash->{'цѣлина'},
-                                 $user, $l, $preview,
+                                 $alias, $user, $l, $preview,
                                  {
                                   pid     => $c->stash->{celini}[0]{id},
                                   page_id => $page->{id}
                                  }
                                 );
 
+  # Celina was found, but with a new alias.
+  return $c->_go_to_new_celina_url($page, $celina, $l)
+    if $celina && $celina->{alias} ne $alias;
+
   unless ($celina) {
     $celina = $c->celini->find_where(
          {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
-  return $c->render(celina => $celina);
+  return $c->render(celina => $celina, 'цѣлина' => $celina->{alias});
 }
 
+sub _go_to_new_celina_url ($c, $page, $celina, $l) {
+
+  # https://tools.ietf.org/html/rfc7538#section-3
+  my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
+  $c->res->code($status);
+  return
+    $c->redirect_to(
+                    'цѣлина_с_ѩꙁыкъ' => {
+                                         'цѣлина'   => $celina->{alias},
+                                         'страница' => $page->{alias},
+                                         'ѩꙁыкъ'    => $l
+                                        }
+                   );
+}
 
 # GET /celini/create
 # Display form for creating resource in table celini.

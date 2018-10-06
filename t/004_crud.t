@@ -7,7 +7,7 @@ use Mojo::ByteStream 'b';
 use Mojo::File qw(path);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-# '.', '/tmp/slovo'
+#  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 isa_ok($app, 'Slovo');
@@ -111,6 +111,19 @@ my $update_stranica = sub {
 
   $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
+  my $aliases
+    = $app->dbx->db->select('aliases', '*', {new_alias => $sform->{alias}})
+    ->hash;
+  is_deeply(
+            $aliases => {
+                         id          => 1,
+                         new_alias   => $sform->{alias},
+                         old_alias   => 'събития',
+                         alias_table => 'stranici',
+                         alias_id    => $new_page_id
+                        },
+            'created proper new/old alias relation for stranici'
+           );
   $t->get_ok($stranici_url_new)
     ->text_is('#alias' => 'alias: ' . $sform->{alias});
   is(@{$app->celini->all({where => {alias => 'събитияsss'}})},
@@ -157,19 +170,31 @@ my $create_celini = sub {
          'Base64 src is replaced with path to image.');
   }
 
- # In the next subtest we change the title ad the alias will be created from it.
+# In the next subtest we change the title and the alias will be created from it.
   delete $cform->{alias};
 };
 
 # Update celini
 my $sh_up_url = $app->url_for('update_celini', {id => $max_id})->to_string;
 my $update_celini = sub {
+  my $old_title = $cform->{title};
   $cform->{title} = 'Заглавие на цѣлината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
     ->header_is(Location => $sh_up_url);
-
-  $t->get_ok($sh_up_url)
-    ->text_is('#alias' => 'alias: ' . Mojo::Util::slugify($cform->{title}, 1));
+  my $new_alias = Mojo::Util::slugify($cform->{title}, 1);
+  $t->get_ok($sh_up_url)->text_is('#alias' => 'alias: ' . $new_alias);
+  my $aliases
+    = $app->dbx->db->select('aliases', '*', {new_alias => $new_alias})->hash;
+  is_deeply(
+            $aliases => {
+                         id          => 2,
+                         new_alias   => $new_alias,
+                         old_alias   => Mojo::Util::slugify($old_title, 1),
+                         alias_table => 'celini',
+                         alias_id    => $max_id
+                        },
+            'created proper new/old alias relation for celini'
+           );
 };
 
 # Remove Celini
@@ -184,7 +209,7 @@ my $remove_celini = sub {
   # that scans celini for unused images and deletes those images.
 };
 
-my $create_edit_delete_domain = sub {
+my $crud_domain = sub {
   my $delete_url = $t->create_edit_domain_ok();
   my $list_url
     = $t->delete_ok($delete_url)->status_is(302)->tx->res->headers->location;
@@ -278,18 +303,20 @@ my $user_permissions = sub {
     ->element_exists_not('html body table tbody tr.deleted',
                          "page $id not listed");
 };
-subtest create_user     => $create_user;
-subtest update_user     => $update_user;
-subtest remove_user     => $remove_user;
+
+subtest create_user => $create_user;
+subtest update_user => $update_user;
+subtest remove_user => $remove_user;
+
 subtest create_stranici => $create_stranici;
 subtest update_stranica => $update_stranica;
 
 subtest create_celini => $create_celini;
 subtest update_celini => $update_celini;
+subtest remove_celini => $remove_celini;
 
-subtest remove_celini             => $remove_celini;
-subtest create_edit_delete_domain => $create_edit_delete_domain;
-subtest user_permissions          => $user_permissions;
+subtest crud_domain      => $crud_domain;
+subtest user_permissions => $user_permissions;
 
 done_testing;
 exit;

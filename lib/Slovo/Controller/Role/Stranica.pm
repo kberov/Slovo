@@ -8,21 +8,26 @@ no warnings "experimental::lexical_subs";
 
 around execute => sub ($execute, $c) {
   state $cache_pages = $c->config('cache_pages');
-  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
-  return 1
-    if $cache_pages && !$c->is_user_authenticated && $c->_render_cached_page();
-
-  my $alias = $c->stash->{'страница'};
-  my $l     = $c->language;
-  state $json_path      = '/paths/~1страници/get/parameters/4/default';
-  state $list_columns   = $c->openapi_spec($json_path);
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
-  my $user = $c->user;
+  return 1
+    if $cache_pages && !$c->is_user_authenticated && $c->_render_cached_page();
+  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
+  my $alias   = $c->stash->{'страница'};
+  my $l       = $c->language;
+  my $user    = $c->user;
 
   my $str    = $c->stranici;
   my $domain = $c->host_only;
   my $page   = $str->find_for_display($alias, $user, $domain, $preview);
+
+  # Page was found, but with a new alias.
+  return $c->_go_to_new_page_url($page, $l)
+    if $page && $page->{alias} ne $alias && !$c->stash->{'цѣлина'};
+
+  # Give up - page was not found.
   $page //= $str->find($not_found_id);
   $page->{is_dir} = $page->{permissions} =~ /^d/;
   $c->stash($page->{template} ? (template => $page->{template}) : ());
@@ -31,6 +36,7 @@ around execute => sub ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
+    'страница'   => $page->{alias},
     celini       => $celini,
     domain       => $domain,
     list_columns => $list_columns,
@@ -59,9 +65,19 @@ around execute => sub ($execute, $c) {
   my $ok = $execute->($c, $page, $user, $l, $preview);
 
   # Cache this page on disk if user is not authenticated.
-  $c->_cache_page() if $cache_pages && !$c->is_user_authenticated;
+  $c->_cache_page()
+    if $cache_pages && $c->res->is_success && !$c->is_user_authenticated;
   return $ok;
 };
+
+sub _go_to_new_page_url ($c, $page, $l) {
+
+  # https://tools.ietf.org/html/rfc7538#section-3
+  my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
+  $c->res->code($status);
+  return $c->redirect_to(
+           'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+}
 
 my $cached    = 'cached';
 my $cacheable = qr/\.html$/;
@@ -100,13 +116,13 @@ my $clear_cache = sub ($action, $c) {
   my $cache_dir = '';
 
   #it is a page
-  if ($cll =~ /stranici/i) {
+  if ($cll =~ /stranici$/i) {
     my $dom_id = $c->stranici->find($id)->{dom_id};
     $domain = $c->domove->find($dom_id)->{domain};
   }
 
   # it is a celina
-  elsif ($cll =~ /celini/i) {
+  elsif ($cll =~ /celini$/i) {
     my $page_id = $c->celini->find($id)->{page_id};
     my $dom_id  = $c->stranici->find($page_id)->{dom_id};
     $domain = $c->domove->find($dom_id)->{domain};

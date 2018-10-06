@@ -17,7 +17,6 @@ sub all ($self, $opts = {}) {
   $opts->{where} //= {};
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
 
-  # $self->c->debug('opts:', $opts);
   state $abstr = $self->dbx->abstract;
   my ($sql, @bind)
     = $abstr->select($opts->{table} // $self->table,
@@ -49,8 +48,15 @@ sub find {
   return $_[0]->dbx->db->select($_[0]->table, undef, {id => $_[1]})->hash;
 }
 
-sub remove {
-  return $_[0]->dbx->db->delete($_[0]->table, {id => $_[1]});
+sub remove ($m, $id) {
+  my $db    = $m->dbx->db;
+  my $table = $m->table;
+  return eval {
+    my $tx = $db->begin;
+    $m->remove_aliases($db, $id, $table);
+    $db->delete($table, {id => $id});
+    $tx->commit;
+  } || Carp::croak("Error deleting record from $table: $@");
 }
 
 sub add {
@@ -117,6 +123,26 @@ sub writable_by ($self, $user) {
   };
 }
 
+# Inserts relations for redirects from old to new aliase. Must be
+# called only from save() and before $db->update($table,..)
+sub upsert_aliases ($m, $db, $alias_id, $new_alias) {
+  my $alias_table = $m->table;
+  my $SQL         = <<"SQL";
+    INSERT OR IGNORE INTO aliases
+    (old_alias,new_alias,alias_id,alias_table)
+    VALUES (
+      (SELECT alias FROM $alias_table WHERE id=? AND alias != ?),
+      ?,?,?)
+SQL
+  return $db->query($SQL, $alias_id, $new_alias, $new_alias, $alias_id,
+                    $alias_table);
+}
+
+# Remove aliases history for a record from a given table.
+sub remove_aliases ($m, $db, $id, $table) {
+  $m->c->debug('removing alias history for id ' . $id . 'from table ' . $table);
+  return $db->delete('aliases', {alias_table => $table, alias_id => $id});
+}
 
 1;
 

@@ -517,4 +517,24 @@ UPDATE celini SET published=2 WHERE alias='вътора-вест';
 -- 201808192000 down
 UPDATE celini SET published=1 WHERE alias='вътора-вест';
 
+-- 201810082000 up
+-- list of matches old to new aliases, used for redirect of old urls to new
+-- ones.
+CREATE TABLE aliases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  -- previous alias
+  old_alias VARCHAR(32) NOT NULL,
+  -- current alias if this is the last row with the same alias_id
+  new_alias VARCHAR(32) NOT NULL,
+  -- the ID of the row which has the given alias in the given table
+  alias_id id INTEGER NOT NULL,
+  -- table in which this record can be found. alias_id and alias_table are the
+  -- same in a set of old_alias => new_alias relation.
+  alias_table VARCHAR(32) NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS aliases_id ON aliases(old_alias, new_alias, alias_id, alias_table);
+
+-- 201810082000 down
+DROP TABLE aliases
+DROP INDEX IF EXISTS aliases_id;
 
