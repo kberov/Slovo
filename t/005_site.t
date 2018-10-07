@@ -9,7 +9,7 @@ use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-# '.', '/tmp/slovo'
+  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -18,8 +18,7 @@ my $not_found = sub {
     $t->get_ok("/$alias.html")->status_is(404);
   }
 };
-
-$t->login_ok('краси', 'беров');
+$t->login('краси', 'беров');
 my $previewed_pages = sub {
   for my $alias (qw(скрита изтрита предстояща изтекла)) {
     $t->get_ok("/$alias.html?прегледъ=1")->status_is(200);
@@ -43,7 +42,7 @@ my $site_layout = sub {
 };
 
 my $breadcrumb = sub {
-  $t->login_ok('краси', 'беров');
+  $t->login('краси', 'беров');
   my $alias = b('писания.bg-bg.html')->encode->url_escape;
   my $vest_alias
     = '/'
@@ -52,10 +51,12 @@ my $breadcrumb = sub {
   $t->get_ok('/вести.html')
     ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
     ->element_exists(
-             'main section.заглавѥ section.писанѥ:nth-child(2) h2:nth-child(1)')
-    ->text_is('section.писанѥ:nth-child(3) > h2:nth-child(1)' => 'Вътора вест')
+             'main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)')
+    ->text_is(  'section.заглавѥ.множество article.писанѥ:nth-child(3)'
+              . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
+
   $t->get_ok('/вести/alabala.html')->status_is(404)
     ->text_is('.заглавѥ > h1:nth-child(1)' => 'Страницата не е намерена')
     ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
@@ -87,35 +88,35 @@ my $cached_pages = sub {
   # Root page with path / is not cached
   $t->get_ok("/")->status_is(200);
   my $body = $t->get_ok("/")->status_is(200)->tx->res->body;
-  unlike($body => qr/<html><!-- $cached -->/ =>
+  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'Root page with path / is not cached');
 
   # Page with alias as name is cached
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
-  unlike($body => qr/<html><!-- $cached -->/ =>
+  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'On first load page with path /foo.html IS NOT cached');
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html><!-- $cached -->/ =>
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
        'On second load page with path /foo.html IS cached');
   ok(-s $cache_dir->child('коренъ.html'), 'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'),
      ' /foo.bg.html IS NOT YET cached');
   $t->get_ok("/коренъ.bg.html");    #
   $body = $t->get_ok("/коренъ.bg.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html><!-- $cached -->/ =>
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
        'Page with alias and language is cached');
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
      ' /foo/bar.bg.html IS NOT YET on disk');
   $body
     = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
-  unlike($body => qr/<html><!-- $cached -->/ =>
+  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'On first celina with path /foo/bar.bg.html was just cached');
 
   $body
     = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html><!-- $cached -->/ => 'celina is cached');
+  like($body => qr/<html[^>]+><!-- $cached -->/ => 'celina is cached');
 
-  $t->login_ok('краси', 'беров');
+  $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or писанѥ
   my $id
@@ -131,15 +132,15 @@ my $cached_pages = sub {
 
 # Generate and test a fullblown home page with several sections consisting of
 # content in category pages.
+my @cats      = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
 my $home_page = sub {
 
   #create category pages
-  my @cats  = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
   my $pages = {};
   for my $p (@cats) {
     _category_page($p, $pages);
   }
-  ok(1 => 'generated data');
+  ok(keys %$pages => 'generated data');
 
   # use the new template
   $app->stranici->save(0 => {template => 'stranici/templates/dom'});
@@ -254,13 +255,43 @@ sub _pisania {
   }
 }
 
-subtest 'Not Found'          => $not_found;
-subtest 'previewed pages'    => $previewed_pages;
-subtest 'site layout'        => $site_layout;
-subtest breadcrumb           => $breadcrumb;
-subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages         => $cached_pages;
-subtest home_page            => $home_page;
+my $aliases = sub {
+
+  # Get a newly created page and change the alias several times, then make
+  # requests to see if the same page is displayed.
+  my $page = $app->stranici->find_where(
+                {published => 2, deleted => 0, hidden => 0, id => {'>' => 16}});
+  my $new_alias;
+  for my $a ('A' .. 'F') {
+    $new_alias = $page->{alias} . $a;
+    $app->stranici->save($page->{id}, {%$page, alias => $new_alias});
+  }
+
+  my $new_url = b("$new_alias.bg-bg.html")->encode->url_escape;
+  for my $a ('', 'A' .. 'E') {
+    my $alias = b("$page->{alias}$a.bg-bg.html")->encode->url_escape;
+    $t->get_ok("/$alias")->status_is(301)
+      ->header_like(Location => qr/$new_url/);
+  }
+
+  my $dom = $t->get_ok("/$new_url")->status_is(200)->tx->res->dom;
+  like $dom->at('head>link[rel="canonical"]')->attr->{href}, qr/$new_url/,
+    '[rel="canonical"] ok';
+  is $dom->at('head>link[rel="shortcut icon"]')->attr->{href},
+    '/img/favicon.ico', '[rel="shortcut icon"] ok';
+};
+
+
+subtest 'Not Found'       => $not_found;
+subtest 'previewed pages' => $previewed_pages;
+subtest 'site layout'     => $site_layout;
+subtest breadcrumb        => $breadcrumb;
+
+# Disabled untill proper test cases are prepared
+# subtest multi_language_pages => $multi_language_pages;
+subtest cached_pages => $cached_pages;
+subtest home_page    => $home_page;
+subtest aliases      => $aliases;
 done_testing;
 
 package Slovo::Test::Text;
@@ -274,12 +305,6 @@ __DATA__
 деца и простите хора, когато при случай те запитат за станалите по-рано в света
 деяния от черковната и гражданска история. И не по-малко ще се срамуваш, когато
 не можеш да отговориш за тях.
-Отгде ще можеш да добиеш тия знания, ако не от ония, които писаха историята
-на този свят и които при все че не са живели дълго време, защото никому не се
-дарява дълъг живот, за дълго време оставиха писания за тия неща. Сами от себе
-си да се научим не можем, защото кратки са дните на нашия живот на земята.
-Затова с четене на старите летописи и с чуждото умение трябва да попълним
-недостатъчността на нашите години за обогатяване на разума.
 
 Отгде ще можеш да добиеш тия знания, ако не от ония, които писаха историята
 на този свят и които при все че не са живели дълго време, защото никому не се

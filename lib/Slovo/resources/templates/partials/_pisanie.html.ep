@@ -1,6 +1,6 @@
 <!-- _писанѥ -->
 <section class="писанѥ">
-    %= t 'h' . $level => $писанѥ->{title}
+    %= t 'h' . $level => $писанѥ->{title} =~ s/<[^>]+>?//gr;
 %== $писанѥ->{body}
 </section>
 <!-- end _писанѥ -->

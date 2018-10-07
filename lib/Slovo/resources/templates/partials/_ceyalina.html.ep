@@ -1,5 +1,5 @@
 <!-- _цѣлина -->
 <section class="цѣлина">
-    %= t 'h' . $level => $цѣлина->{title}
+    %= t 'h' . $level => $цѣлина->{title} =~ s/<[^>]+>?//gr;
 %== $цѣлина->{body}
 </section>

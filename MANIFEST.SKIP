@@ -62,8 +62,8 @@ domove\/log
 # Avoid configuration metadata file
 ^MYMETA\.
 
-# Avoid archives of this distribution
-\bSlovo-\d{4}\.\d{2}\.\d{2}\.tar\.gz
+# Avoid archives and build directories of this distribution
+\bSlovo-\d{4}\.\d{2}\.\d{2}
 
 # Avoid some SQLite files
 \b.+\.db

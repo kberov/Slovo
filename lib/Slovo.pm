@@ -17,8 +17,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.09.28';
-our $CODENAME  = 'U+2C0F GLAGOLITIC CAPITAL LETTER MYSLITE (Ⰿ)';
+our $VERSION   = '2018.10.08';
+our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
@@ -193,11 +193,11 @@ For help visit L<http://127.0.0.1:3000/perldoc>
 
 =head1 DESCRIPTION
 
-This is an early release!
+This is a useable release!
 
-L<Slovo> is a simple, installable and extensible L<Mojolicious>
+L<Slovo> is a simple and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
-with nice features like:
+with nice core features like:
 
 =over
 
@@ -207,36 +207,51 @@ with nice features like:
 
 =item * Multi-domain support - DONE;
 
-=item * Multi-user support - DONE;
+=item * Multi-user support - BASIC;
 
-=item * User registration - NOT DONE;
+=item * User registration - TODO;
 
 =item * User sign in - DONE;
 
-=item * Managing pages, content, domains, users - PARTIALLY DONE (very basic UI);
+=item * Managing pages, content, domains, users - BASIC;
 
-=item * Managing groups - NOT DONE;
+=item * Managing groups - TODO;
 
-=item * Multiple groups per user - PARTIALLY DONE;
+=item * Multiple groups per user - BASIC;
 
-=item * Fine-grained access permissions per page and it's content - DONE;
+=item * Fine-grained access permissions per page and it's content in the site - DONE;
 
-=item * OpenAPI 2.0 (Swagger) REST API - SUPPORTED, implemented one route as
-        example only, see  L<http://127.0.0.1:3000/api>;
+=item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
+and content - DONE;
 
-=item * and more.
+=item * Embedded fonts for displaying all
+L<Azbuka|https://en.wikipedia.org/wiki/Cyrillic_script> and
+L<Glagolitsa|https://en.wikipedia.org/wiki/Glagolitic_script> characters -
+DONE;
+
+=item * OpenAPI 2.0 (Swagger) REST API - BASIC;
+
+=item * Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>.
+
+=item * Example startup script for
+L<systemd|https://freedesktop.org/wiki/Software/systemd/> and L<Apache
+2.4|https://httpd.apache.org/docs/2.4/> vhost configuration file.
+
+=item * and more to come…
 
 =back
 
-By default Slovo comes with SQLite database, but it can be replaced easily with
-PostgreSQL or MySQL without touching the source code and eventually with only
-one change in the configuration file.
+By default Slovo comes with SQLite database, but support for PostgreSQL or
+MySQL is about to be added when needed. It is just a question of making
+compatible and/or translating some limited number of SQL queries to the
+corresponding SQL dialects. Contributors are wellcome.
 
-The word slovo (слово) has one meaning in all slavic languages. It is actually
-one language that started splitting apart one thousand years ago. The meaning
-is "word" - the God's word. Hence the self-naming of this group of people
-C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who possess the word, who can speak.
-...others are mute...
+The word "slovo" (слово) has one unchanged during the senturies meaning in all
+slavic languages. It is actually one language that started splitting apart less
+than one thousand years ago. The meaning is "word" - the God's word. Hence the
+self-naming of this group of people C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who
+have been given the God's word or people who can speak. All others were "mute",
+hense the naming (немци)...
 
 =head1 INSTALL
 
@@ -398,6 +413,8 @@ Ordered by time of first commit.
 
 =item * MANWAR (Mohammad S Anwar)
 
+=item * KABANOID (Mikhail Katasonov)
+
 =back
 
 =head1 COPYRIGHT
@@ -429,7 +446,8 @@ administrative panel.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>
+L<Slovo::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>,
+L<Slovo::Validator>, L<Mojolicious>, L<Mojolicious::Guides>
 
 =cut
 

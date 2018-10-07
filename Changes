@@ -1,7 +1,40 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.08
+    - Features
+        * Implemented automatic redirect from old to new URLs for pages and
+          celini.
+        * Implemented new helper 'html_substr' in Slovo::Plugin::TagHelpers.
+        * Added a subset of GNU FreeFont (Sans and Mono), whole 'Menaion
+          Unicode 2.0' and Veleka to ensure proper display of old Bulgarian
+          texts (Azbuka and Glagolitza) characters. See
+          lib/Slovo/resources/public/fonts/README.
+        * Added 'favicon' – The "Slovo" letter from the Glagolitic alphabet.
+        * Added cannonical url for the current page in the <head>.
+
+    - Changes
+        * Changed CODENAME to U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)
+          This is a major release. We can upload pictures, We have a WYSIWIG
+          and simple text editor, fine-grained permissions for pages and
+          content, example systemd script and apache 2.4 config, new home page
+          template, automatic redirects to changed URLs (No "Page Not found"
+          due to this), embedded fonts for Азбука and Глаголица…
+        * Upgrades: Cpanel::JSON::XS 4.06, Mojolicious 8.02,
+          Mojolicious::Plugin::OpenAPI 2.0.
+        * Showing langauge dropdown only if the page or article are translated
+          into other languages.
+        * Unified layout of teasers for articles in home page and categories'
+          pages. We strip any html from celini titles before rendering in
+          templates.
+        * Reduced unneeded login tests.
+        * Updated systemctl service description.
+        * Fix: Use page id to denote parent page for children celini.
+        * Selectively ignore some resources in domove/
+        * Now the <html> tag has a `lang` attribute - the current $ѩꙁыкъ.
+        * KABANOID fixed some typos in documentation. Thanks!
+
 2018.09.28
-    -Changes
+    - Changes
         * Upgraded Mojolicious to version 8.01.
         * Slight performance improvement in 'before_dispatch' hook.
         * Better positioning of the main content on large screens.
@@ -9,10 +42,10 @@ Revision history for Mojolicious application Slovo
           articles on home-page.
 
 2018.09.22
-    -Features
+    - Features
         * New home page template showing the last several articles in each
           category page -- the direct children of the home page.
-    -Changes
+    - Changes
         * Added mui-colors.min.css to slovo.min.css.
         * Added all_for_home() in Slovo::Model::Stranici. It is used in
           stranici/templates/dom.html.
@@ -23,17 +56,17 @@ Revision history for Mojolicious application Slovo
           page's celini.
 
 2018.09.15
-    -Features
+    - Features
         Added example configuration file for Apache mod_proxy.
         Added example configuration file for systemd.
         Added configuration section for hypnotoad to slovo.conf.
 
 2018.09.09
-    -Features:
+    - Features:
         * Initial handling of permissions for stranici and celini in
           administration area.
         * Added new check 'is' and alias for it 'can' to Slovo::Validator.
-    -Changes:
+    - Changes:
         * when anew user is inserted a record for primary group in user_group
           is inserted too.
         * 'permissions' possible values are now added to the
@@ -41,7 +74,7 @@ Revision history for Mojolicious application Slovo
           templates.
 
 2018.08.28
-    -Features:
+    - Features:
         * Added and setup HTML wysiwyg editor Trumbowyg to the distribution.
           It was chosen because of its small size and easiness to use and
           extend.
@@ -56,7 +89,7 @@ Revision history for Mojolicious application Slovo
           Simple textarea for 'text' and Trumbowyg for 'html'. In the future
           other editors will/may be added for 'pod', 'markdown' and asciitext.
 
-    -Changes
+    - Changes
         * Added documentation to Slovo::Controller::Role::Stranica.
         * 'data_type' and 'data_format' possible values are now added to the
           'parameters' object of api-v1.0.json. From there these enum
@@ -64,14 +97,14 @@ Revision history for Mojolicious application Slovo
           'in' checks during validation.
 
 2018.08.19
-    -Features
+    - Features
         * Implemented page caching on disk. Page is cached if published and
           readable by 'others', and visited by a guest user. On the next visit
           a guest user sees the cached page. Page load is 15 times faster.
         * Full multi-domain support. Domains can have their own public and
           template folders and be served from one running Slovo instance.
 
-    -Changes
+    - Changes
         * Startup script 'slovo' was improved. Slovo can be installed and ran
           with all dependencies in it's on local folder. Previously it did not
           detect properly it's own $Config{archname}.
@@ -84,14 +117,14 @@ Revision history for Mojolicious application Slovo
           cacheable pages.
 
 2018.08.12
-    -Features
+    - Features
         * Added nice multi-language routes (/<страница:str>.<ѩꙁыкъ:lng>.html,
           /<страница:str>/<цѣлина:cel>.<ѩꙁыкъ:lng>.html).
         * Added more restrictive route-placeholders types (cel,str,lng).
         * Added a set of languages to the forms for celini and stranici.
         * Added a new language switching menu. The language is switched by the
           page title - заглавѥ.
-    -Changes
+    - Changes
         * The $c->debug method is now a helper and can be used in templates
          without $c.
         * Fixed and optimised mapping of data_type to template name for
@@ -101,7 +134,7 @@ Revision history for Mojolicious application Slovo
 
 
 2018.08.08
-    -Features
+    - Features
         * Implemented /<:страница>/<*цѣлина>.html - /page/article.html. This
           allows pages to act as category pages for collections of articles for
           example.
@@ -112,7 +145,7 @@ Revision history for Mojolicious application Slovo
           execute() to share some common stash settings, preparations and
           checks before the page is rendered and leave room for executing code
           after the page is rendered.
-    -Changes
+    - Changes
         * Now the IDN is always shown decoded in the sidedrawer.
         * Moved helpers 'language' and 'is_user_authenticated' from Slovo to
           Slovo::Plugin::DefaultHelpers.
@@ -124,21 +157,21 @@ Revision history for Mojolicious application Slovo
           Slovo::Model::Stranici where it belongs.
 
 2018.08.00
-    -Features
+    - Features
         * Domains can have several aliases and pages can be found under
           different aliases - Multidomain support.
         * Made OpenAPI API specification allways available via helper
           'openapi_spec'.
-    -Changes
+    - Changes
         * Changed CODENAME to U+2C0D GLAGOLITIC CAPITAL LETTER KAKO (Ⰽ).
         * This is a magor release. We have a Minimal Viable Product.
 
 2018.07.28
-    -Features
+    - Features
         * Breadcrumb navigation up to the root page in the appbar.
         * Added new column 'aliases' to table 'domove'. It will be used to
           match a request to a specific domain from $c->req->headers->host.
-    -Changes
+    - Changes
         * Creating a page now redirects to the form for editing the newly
           created page.
         * Used some well known unicode symbols as icons.
@@ -218,7 +251,7 @@ Revision history for Mojolicious application Slovo
           up to this version.
         * Loading of Model classes is postponed untill first use of the
           corresponding helper.
-    -Features
+    - Features
         * Added attribute `domain` to Slovo::Controller.
         * Now UTF-8 characters are readable in dumped structures by $c->debug.
         * Added multidomain support. Many domains can be served by one Slovo

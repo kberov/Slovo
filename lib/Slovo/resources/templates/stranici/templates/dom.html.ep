@@ -25,7 +25,7 @@ my $pages = stranici->all_for_home(
   {
    stranici_opts => {
      columns => $list_columns,
-     pid     => $page->{pid},
+     pid     => $page->{id},
                     },
    celini_opts => {limit => 6}
   }
@@ -36,28 +36,8 @@ my $pages = stranici->all_for_home(
     <h1 class="mui--text-dark">
 %= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ѩꙁыкъ => $ѩꙁыкъ}
     </h1>
-    % for my $a (@{$p->{articles}}) {
-    <article class="mui--z1 mui--bg-color-white писанѥ">
-        <h2>
-% # greedily remove potential html
-% my $a_title = $a->{title} =~ s/<[^>]+>?//gr;
-<%=
-link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
-      {страница => $p->{alias}, цѣлина => $a->{alias},
-       ѩꙁыкъ => $a->{language}} =>
-      (title => $a_title)
-%>
-        </h2>
-<%=
-    link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
-      {страница => $p->{alias}, цѣлина => $a->{alias},
-       ѩꙁыкъ => $a->{language}} =>
-      (class => 'писанѥ', title => $a_title)
-%>
-        <div class="ѿкѫс">
-        %= $a->{teaser} =~ s/<[^>]+>?//gr;
-        </div>
-    </article>
+    % for my $писанѥ (@{$p->{articles}}) {
+    %= include 'partials/_pisanie_otkysy' => (p=>$p,писанѥ => $писанѥ);
     % }
 </section>
 % if($p->{id} != $pages->[-1]->{id}) {

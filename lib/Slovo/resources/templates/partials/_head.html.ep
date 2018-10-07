@@ -2,10 +2,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    %= t 'link' => (rel=> 'canonical', href=> url_for->to_abs->to_string);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Slovo <%= $Slovo::VERSION .'/'. $Slovo::CODENAME %>">
     %= t 'title' => title
     %= stylesheet '/css/slovo-min.css'
+    %= stylesheet '/css/fonts.css'
     %= stylesheet '/css/site.css'
     %= javascript '/js/mui.min.js'
     %= javascript '/mojo/jquery/jquery.js'
