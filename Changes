@@ -1,4 +1,5 @@
 Revision history for Mojolicious application Slovo
+
 2018.10.08
     - Features
         * Implemented automatic redirect from old to new URLs for pages and
@@ -12,6 +13,14 @@ Revision history for Mojolicious application Slovo
         * Added cannonical url for the current page in the <head>.
 
     - Changes
+        * Changed CODENAME to U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)
+          This is a major release. We can upload pictures, We have a WYSIWIG
+          and simple text editor, fine-grained permissions for pages and
+          content, example systemd script and apache 2.4 config, new home page
+          template, automatic redirects to changed URLs (No "Page Not found"
+          due to this), embedded fonts for Азбука and Глаголица…
+        * Upgrades: Cpanel::JSON::XS 4.06, Mojolicious 8.02,
+          Mojolicious::Plugin::OpenAPI 2.0.
         * Showing langauge dropdown only if the page or article are translated
           into other languages.
         * Unified layout of teasers for articles in home page and categories'
