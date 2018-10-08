@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.10.08';
+our $VERSION   = '2018.10.10';
 our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
 my $CLASS = __PACKAGE__;
 
@@ -62,9 +62,14 @@ sub _around_dispatch ($next, $c) {
 
   state $s_paths = $app->static->paths;
   state $r_paths = $app->renderer->paths;
-  my $domain = $c->domove->find_by_host($c->host_only)->{domain};
+  my $domain;
+  eval { $domain = $c->domove->find_by_host($c->host_only)->{domain} }
+    || die 'No such Host ('
+    . $c->host_only
+    . ')! Looks like a Proxy Server misconfiguration'
+    . " or a missing domain alias in table domove.\n";
 
-  # Use domain specific public and templates paths with priority.
+  # Use domain specific public and templates' paths with priority.
   unshift @{$s_paths}, "$droot/$domain/public";
   unshift @{$r_paths}, "$droot/$domain/templates";
   $next->();

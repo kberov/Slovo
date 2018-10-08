@@ -9,10 +9,10 @@ use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  '.' => '/tmp/slovo'
+#'.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
-
+$app->config->{cache_pages} = 1;
 my $not_found = sub {
   for my $alias (qw(скрита изтрита предстояща изтекла несъществуваща)) {
     $t->get_ok("/$alias.html")->status_is(404);
@@ -78,7 +78,7 @@ my $multi_language_pages = sub {
 my $cached_pages = sub {
   Mojo::File->import('path');
 
-  #clear any cache
+  # Clear any cache
   my $cached = 'cached';
   my $cache_dir
     = path($app->config('domove_root'), 'localhost', 'public', $cached);
@@ -95,18 +95,23 @@ my $cached_pages = sub {
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'On first load page with path /foo.html IS NOT cached');
+
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
        'On second load page with path /foo.html IS cached');
+
   ok(-s $cache_dir->child('коренъ.html'), 'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'),
      ' /foo.bg.html IS NOT YET cached');
-  $t->get_ok("/коренъ.bg.html");    #
+
+  $t->get_ok("/коренъ.bg.html");
   $body = $t->get_ok("/коренъ.bg.html")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
        'Page with alias and language is cached');
+
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
      ' /foo/bar.bg.html IS NOT YET on disk');
+
   $body
     = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
@@ -275,7 +280,7 @@ my $aliases = sub {
   }
 
   my $dom = $t->get_ok("/$new_url")->status_is(200)->tx->res->dom;
-  like $dom->at('head>link[rel="canonical"]')->attr->{href}, qr/$new_url/,
+  like $dom->at('head>link[rel="canonical"]')->attr->{href}, qr/$new_alias/,
     '[rel="canonical"] ok';
   is $dom->at('head>link[rel="shortcut icon"]')->attr->{href},
     '/img/favicon.ico', '[rel="shortcut icon"] ok';

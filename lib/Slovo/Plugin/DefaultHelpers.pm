@@ -70,7 +70,7 @@ if ($DEV_MODE) {
 
 =head1 NAME
 
-Slovo::Plugin::DefaultHelpers – additional default helpers for Slovo
+Slovo::Plugin::DefaultHelpers - additional default helpers for Slovo
 
 =head1 SYNOPSIS
 
@@ -148,11 +148,10 @@ otherwise.
 
 =head2 language
 
-Returns the current language from the request. For now we only return
-C<$c-E<gt>config('default_language')> - 'bg-bg'. The extraction f the language
-from the current request is to be implemented
+Wrapper for C<$c-E<gt>stash('ѩꙁыкъ')>, which is set in C<$app-E<gt>defaults>
+in C<slovo.conf>.
 
-    <%= language %>
+    <%= language eq $ѩꙁыкъ %> <!-- renders 1 -->
     $c->language
 
 =head1 METHODS

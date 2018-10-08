@@ -1,7 +1,8 @@
 <!-- stranici/execute -->
 <%
+state $main_box = join '|', @{stranici->main_boxes};
 my $заглавѥто = shift @$celini;
-my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
+my $main  = $celini->grep(sub { $_->{box} =~ /$main_box/ });
 my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
 my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 

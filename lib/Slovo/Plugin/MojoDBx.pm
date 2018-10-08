@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
+use Mojo::Util 'deprecated';
 
 sub register ($self, $app, $conf) {
   $conf->{adaptor}
@@ -12,8 +13,10 @@ sub register ($self, $app, $conf) {
   my $log           = $app->log;
   $log->debug("Loading $adaptor_class");
   $app->load_class("Mojo::$conf->{adaptor}");    # or Mojo::Pg, or Mojo::Mysql
+      # This should not be an option. Must be always 'dbx'.
   my $helper = $conf->{helper} // 'dbx';
-
+  deprecated('"helper" config option is DEPRECATED! We always use "dbx".')
+    if $conf->{helper};
   $app->helper(
     $helper => sub {
       my $dbx = $adaptor_class->new($conf->{new});
@@ -50,7 +53,6 @@ sub register ($self, $app, $conf) {
     }
   );
 
-
 # Generated resources
 # ./script/slovo generate resources -D dbx -t "groups,users,domove,stranici,celini" \
 #   -T lib/Slovo/resources/templates --api_dir lib/Slovo/resources
@@ -60,10 +62,10 @@ sub register ($self, $app, $conf) {
     my $class = "Slovo::Model::$T";
     $app->load_class($class);
     $app->helper(
-      $t => sub ($c) {
-        my $self = $class->new(dbx => $c->dbx, c => $c);
-        Scalar::Util::weaken $self->{c};
-        return $self;
+      $t => sub($c) {
+        my $m = $class->new(dbx => $c->dbx, c => $c);
+        Scalar::Util::weaken $m->{c};
+        return $m;
       }
     );
   }
@@ -81,10 +83,9 @@ Slovo::Plugin::MojoDBx - switch between Mojo::Pg/mysql/SQLite
 =head1 SYNOPSIS
 
   $app->plugin(
-    MojoDBI => {
+    MojoDBx => {
       adaptor   => 'SQLite',    # Load Mojo::SQLite or 'mysql', or 'Pg'
-      new => $app->resources->child("data/$moniker.$mode.sqlite"), 
-      helper => 'dbx',       # instead of 'pg', 'mysql' or 'sqlite'
+      new => $app->resources->child("data/$moniker.$mode.sqlite"),
       on_connection => [
                         'PRAGMA synchronous = OFF',
                         'PRAGMA journal_mode=WAL',
@@ -95,16 +96,17 @@ Slovo::Plugin::MojoDBx - switch between Mojo::Pg/mysql/SQLite
                        ],
       sql_debug       => 4,  # how many callframes to skip..(0 means 'no debug')
       max_connections => 3,
-      migration_files =>
-        [$app->home->child('sql/one.sql'), $app->home->child('sql/two.sql')]
-        tables => [qw(users groups pages content)]
-      ,                      # Tables to load models and generate helpers for
-               }
+      auto_migrate    => 1,
+      migration_file  => $rsc->child("data/migrations.sql")->to_string,
+
+      # Which helpers for Models to load:
+      # Slovo::Model::Users,Slovo::Model::Groups... etc.
+      tables => ['users', 'groups', 'domove', 'stranici', 'celini'],
               );
 
 =head1 DESCRIPTION
 
-Slovo::Plugin::MojoDBI allows you to switch from using one Mojo database
+Slovo::Plugin::MojoDBx allows you to switch from using one Mojo database
 adaptor to another without having to change your database helper name or just
 about any code in your application as long as L<Mojo::Pg>,
 L<Mojo::mysql>, L<Mojo::SQLite> or Mojo::WhateverDB have compatible APIs.
@@ -127,16 +129,6 @@ L<Mojo::Loader/load_class>.
 
 Array reference of hash references. See L<Mojo::Pg/ATTRIBUTES>. Keys will be
 called as setters and the values will be passed as arguments.
-=head2 dsn
-
-Another way to specify database connection. See the corresponding documentation.
-
-=head2 helper
-
-The helper name which you will use everywhere in your controllers to invoke
-database functionality. Common names are C<sqlite>, C<pg>, C<mysql>. Having a
-common name will allow you to easily switch from SQLite to mysql for example as
-your user-base grows. Defaults to C<dbx>.
 
 =head2 migration_files
 
@@ -148,8 +140,9 @@ Mandatory. Anything that the constructor would accept.
 
 =head2 on_connection
 
-Array of SQL statements or code referneces. Some Perl or SQL code which you want to execute every time the application
-conects to the database. See L</SYNOPSIS>.
+Array of SQL statements or code referneces. Some Perl or SQL code which you
+want to execute every time the application conects to the database. See
+L</SYNOPSIS>.
 
 
 =head2 sql_debug
@@ -163,9 +156,8 @@ reporting the calling subroutine.
 
 =head2 tables
 
-Tables for which to be generated helpers. Each table name is camelized and
-this is the name of the new helper for that table (e.g. C<users> becomes
-C<Users>).
+Tables for which to be generated helpers. Each table name  becomes a helper. (e.g. C<users> becomes
+C<$c-E<gt>users> ot C<$app-E<gt>users>).
 
 =head1 AUTHOR
 
@@ -176,7 +168,7 @@ C<Users>).
 
 =head1 COPYRIGHT
 
-This program is free software licensed under the Artistic License 2.0.	
+This program is free software licensed under the Artistic License 2.0.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
