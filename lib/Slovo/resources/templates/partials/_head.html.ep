@@ -1,9 +1,17 @@
-
+<%
+Mojo::Util->import(qw(decode url_unescape));
+my $url = url_for;
+my $cn_href
+  = ($url->scheme // '') . '//'
+  . ihost_only
+  . ($url->port ? ':' . $url->port : '')
+  . decode('utf-8', url_unescape($url->path));
+%>
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
-    %= t 'link' => (rel=> 'canonical', href=> url_for->to_abs->to_string);
+    <link rel="canonical" href="<%=$cn_href%>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Slovo <%= $Slovo::VERSION .'/'. $Slovo::CODENAME %>">
     %= t 'title' => title

@@ -450,10 +450,8 @@ ALTER TABLE domove ADD COLUMN aliases VARCHAR(2000);
 
 -- for these aliase to work you need to add them to your /etc/hosts lke this
 -- for example:
--- 127.0.0.1 localhost bg.localhost en.localhost local.xn--b1arjbl.xn--90ae
-UPDATE domove SET
-aliases='bg.localhost en.localhost local.xn--b1arjbl.xn--90ae'
-WHERE id=0;
+-- 127.0.0.1 localhost bg.localhost en.localhost
+UPDATE domove SET aliases='bg.localhost en.localhost' WHERE id=0;
 
 -- 201808000000 down
 UPDATE domove SET aliases=''

@@ -11,6 +11,7 @@ my $celini_table = Slovo::Model::Celini->table;
 has not_found_id    => 4;
 has table           => $table;
 has title_data_type => 'заглавѥ';
+has main_boxes      => sub { ['main', 'главна'] };
 has celini          => sub { $_[0]->c->celini };
 
 # Returns a list of page aliases and titles in the current language for
@@ -175,7 +176,7 @@ sub find_for_edit ($m, $id, $l) {
                            language  => $m->celini->language_like($l),
                            data_type => $m->title_data_type,
                            sorting   => 0,
-                           box       => 'main'
+                           box       => $m->main_boxes,
                           },
                           {-asc => ['sorting', 'id']}
                          )->hash // {};

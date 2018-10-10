@@ -1,5 +1,17 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.10
+    - Changes
+        * Fix: Handle unlikely error - responding to request to a host which is
+          not found in the database.
+        * Fix: Page was not loading proper заглавѥ for edit.
+        * Fixed documentation for Slovo::Plugin::MojoDBx. Deprecated config
+          option 'helper'.
+        * Loading PODRenderer and not caching pages in development mode only
+          now by default.
+        * Cannonical link in <head> now is not url_escape-d, nor domain name is
+          punycode_encode-d - Experimental.
+
 2018.10.08
     - Features
         * Implemented automatic redirect from old to new URLs for pages and
