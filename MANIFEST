@@ -35,10 +35,10 @@ lib/Slovo/resources/public/css/fonts.css
 lib/Slovo/resources/public/css/site.css
 lib/Slovo/resources/public/css/slovo-min.css
 lib/Slovo/resources/public/css/upravlenie.css
+lib/Slovo/resources/public/fonts/bukyvede-regular-webfont.woff2
 lib/Slovo/resources/public/fonts/freemono-webfont.woff2
 lib/Slovo/resources/public/fonts/freesans-webfont.woff2
-lib/Slovo/resources/public/fonts/generator_config.txt
-lib/Slovo/resources/public/fonts/menaionunicode-webfont.woff2
+lib/Slovo/resources/public/fonts/freeserif-webfont.woff2
 lib/Slovo/resources/public/fonts/README
 lib/Slovo/resources/public/fonts/veleka-regular-webfont.woff2
 lib/Slovo/resources/public/img/favicon.ico

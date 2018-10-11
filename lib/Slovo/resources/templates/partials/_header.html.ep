@@ -24,9 +24,9 @@
               % if ($c->is_user_authenticated) {
               %# TODO: make the name to be a link to user profile
               % my $name = $c->user->{first_name} . ' ' . $c->user->{last_name};
-                  %= link_to 'Изходъ '.$name => 'sign_out'
+                  %= link_to '| Изходъ '.$name => 'sign_out'
               % } else {
-                  %= link_to 'Входъ' => 'sign_in'
+                  %= link_to '| Входъ' => 'sign_in'
               % }
               %= include 'partials/_lang_menu'
           </td>

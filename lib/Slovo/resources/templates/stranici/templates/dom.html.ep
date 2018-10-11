@@ -18,16 +18,14 @@ layout 'site',
 %>
 %= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
 <%
-# Get all pages under current (home) page which have заглавѥ which is directory (i.e.
-# contains articles) and get 6 articles for each
+# Get all pages under current (home) page which are directories and have
+# заглавѥ which is directory (i.e. contains articles) and get 6 articles for
+# each
 my $pages = stranici->all_for_home(
   $user, $domain, $preview, $ѩꙁыкъ,
   {
-   stranici_opts => {
-     columns => $list_columns,
-     pid     => $page->{id},
-                    },
-   celini_opts => {limit => 6}
+   stranici_opts => {columns => $list_columns, pid => $page->{id},},
+   celini_opts   => {limit   => 6}
   }
 );
 %>

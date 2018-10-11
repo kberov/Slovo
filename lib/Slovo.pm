@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.10.10';
+our $VERSION   = '2018.10.11';
 our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
 my $CLASS = __PACKAGE__;
 
@@ -428,6 +428,9 @@ This program is free software licensed under the Artistic License 2.0.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
+
+This distribution contains other free software which belongs to their
+respective authors.
 
 =head1 TODO
 

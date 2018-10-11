@@ -1,5 +1,14 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.11
+    - Changes
+        Replaced 'Menaion Unicode TT' with 'Bukyvede' as the latter has the
+        full set of old Bulgarian glyphs.
+        Added FreeSerif as fallback for Veleka as it has the full set of old
+        Bulgarian glyphs.
+        Added pipe as separator between items in _header.html.ep.
+        Fixed cached_pages value in slovo.conf
+
 2018.10.10
     - Changes
         * Fix: Handle unlikely error - responding to request to a host which is

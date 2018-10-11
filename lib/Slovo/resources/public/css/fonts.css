@@ -8,6 +8,13 @@
 	font-style: normal;
 }
 
+@font-face {
+    font-family: 'FreeSerif';
+    src: url('/fonts/freeserif-webfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* Sans */
 @font-face {
 	font-family: 'FreeSans';
@@ -24,23 +31,28 @@
 	font-style: normal;
 }
 
-/* Menaion Unicode 2.0 */
 @font-face {
-	font-family: 'Menaion';
-	src: url('/fonts/menaionunicode-webfont.woff2') format('woff2');
-	font-weight: normal;
-	font-style: normal;
+    font-family: 'BukyvedeRegular';
+    src: url('/fonts/bukyvede-regular-webfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
 }
 
 /* Generic font styles */
 body {
-    font-family: FreeSans, sans-serif;
+    font-family: BukyvedeRegular, FreeSans, sans-serif;
+}
+
+header.mui-appbar .mui--text-title, footer.mui-appbar, #sidedrawer {
+    font-family: BukyvedeRegular;
+    font-weight: bolder;
 }
 
 main, main section, article {
-    font-family: Veleka, serif;
+    font-family: Veleka, FreeSerif serif;
 }
 
 .блъгарьскъ {
-    font-family: 'Menaion';
+    font-family: BukyvedeRegular;
+    font-weight: bold;
 }

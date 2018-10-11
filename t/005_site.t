@@ -12,6 +12,7 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 #'.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
+# like in production
 $app->config->{cache_pages} = 1;
 my $not_found = sub {
   for my $alias (qw(скрита изтрита предстояща изтекла несъществуваща)) {
