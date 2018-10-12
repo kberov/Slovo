@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.12
+    - Features
+        (Hopefully temporarily) added new media types for woff and woff2 font
+        file formats.
+
 2018.10.11
     - Changes
         Replaced 'Menaion Unicode TT' with 'Bukyvede' as the latter has the
