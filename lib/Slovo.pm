@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.10.11';
+our $VERSION   = '2018.10.12';
 our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
 my $CLASS = __PACKAGE__;
 
@@ -33,7 +33,8 @@ sub startup($app) {
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
-  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths();
+  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths
+    ->_add_media_types();
   return $app;
 }
 
@@ -161,6 +162,13 @@ sub _set_routes_attrs ($app) {
   $r->namespaces($r->base_classes);
   my $w = qr/[\w\-]+/;
   @{$r->types}{qw(lng str cel)} = (qr/[A-z]{2}(?:\-[A-z]{2})?/a, $w, $w);
+  return $app;
+}
+
+# Add more media types
+sub _add_media_types($app) {
+  $app->types->type(woff  => ['application/font-woff',  'font/woff']);
+  $app->types->type(woff2 => ['application/font-woff2', 'font/woff2']);
   return $app;
 }
 
