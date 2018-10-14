@@ -1,18 +1,30 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.16
+    - Features
+        * Implemented browser caching for both signed and not signed in
+          visitors to reduce the bandwith for content and pages.
+        * Added new configuration keys 'cache_pages'=1/0 to enable and disable
+          caching of content on disk and 'cache_control' to allow setting the
+         'Cache-Control' header for fine grained browser cache management.
+    - Changes
+        * Fix: 'tstamp' value was not set during 'stranici' and 'celini' update.
+        * Fix: Now only canonical urls are cached to disk. Avoided duplication
+          of cached content on disk.
+
 2018.10.12
     - Features
-        (Hopefully temporarily) added new media types for woff and woff2 font
-        file formats.
+        * (Hopefully temporarily) added new media types for woff and woff2 font
+          file formats.
 
 2018.10.11
     - Changes
-        Replaced 'Menaion Unicode TT' with 'Bukyvede' as the latter has the
-        full set of old Bulgarian glyphs.
-        Added FreeSerif as fallback for Veleka as it has the full set of old
-        Bulgarian glyphs.
-        Added pipe as separator between items in _header.html.ep.
-        Fixed cached_pages value in slovo.conf
+        * Replaced 'Menaion Unicode TT' with 'Bukyvede' as the latter has the
+          full set of old Bulgarian glyphs.
+        * Added FreeSerif as fallback for Veleka as it has the full set of old
+          Bulgarian glyphs.
+        * Added pipe as separator between items in _header.html.ep.
+        * Fixed cached_pages value in slovo.conf
 
 2018.10.10
     - Changes

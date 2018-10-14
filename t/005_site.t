@@ -9,7 +9,7 @@ use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-#'.' => '/tmp/slovo'
+#  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -119,10 +119,16 @@ my $cached_pages = sub {
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'On first celina with path /foo/bar.bg.html was just cached');
 
+  $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")->status_is(200)
+    ->tx->res->body;
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
+       'celina with canonical name is cached');
+  ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
+     '/foo/bar.bg.html IS NOT ever cached');
   $body
     = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ => 'celina is cached');
-
+  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
+         ' /foo/bar.bg.html is not canonical and thus not cached');
   $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or писанѥ
@@ -131,11 +137,59 @@ my $cached_pages = sub {
     ->hash->{id};
 
   $t->delete_ok('/Ꙋправленѥ/celini/' . $id)->status_is(302);
-  ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
+  ok(!-f $cache_dir->child('вести/вътора-вест.bg-bg.html'),
      '/foo/bar.bg.html IS NOT anymore on disk');
   ok(!-d $cache_dir->child('вести'), '/foo IS NOT anymore on disk');
   ok(!-e $cache_dir,                 '$cache_dir IS NOT anymore on disk');
 };
+
+my $browser_cache = sub {
+  $t->get_ok($app->url_for('sign_out'));
+
+  # file cached on disk and served by $c->reply->file
+  my $headers
+    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+
+  # this is not cannonical url, we serve it dynamically and provide only
+  # Last-Modified header
+  $t->get_ok(
+             "/вести.bg.html" => {
+                                 'If-Modified-Since' => $headers->last_modified,
+                                 'If-None-Match'     => $headers->etag
+             }
+            )->status_is(304);
+  $t->get_ok("/вести.bg.html" => {'If-None-Match' => $headers->etag})
+    ->status_is(200);
+  $t->get_ok(
+           "/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
+    ->status_is(304);
+  $t->header_is('Cache-Control' => $app->config('cache_control'));
+
+  # this is cannonical
+  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $headers->etag})
+    ->status_is(304);
+
+  # Browser cache for signed in users
+  $t->login('краси', 'беров');
+  my $tstamp = $app->dbx->db->select('stranici', 'tstamp', {alias => 'вести'})
+    ->hash->{tstamp};
+
+  my $date = Mojo::Date->new($tstamp);
+  my $etag = Mojo::Util::md5_sum($date->epoch);
+
+  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+
+  $t->header_is(
+        'Cache-Control' => $app->config('cache_control') =~ s/public/private/r);
+  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $etag})->status_is(200);
+
+  $t->get_ok("/вести.bg-bg.html" => {'If-Modified-Since' => "$date"})
+    ->status_is(304);
+  $t->get_ok("/вести.bg-bg.html" => {'If-Modified-Since' => "$date"})
+    ->status_is(304);
+};
+
 
 # Generate and test a fullblown home page with several sections consisting of
 # content in category pages.
@@ -296,9 +350,11 @@ subtest breadcrumb        => $breadcrumb;
 
 # Disabled untill proper test cases are prepared
 # subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages => $cached_pages;
-subtest home_page    => $home_page;
-subtest aliases      => $aliases;
+subtest cached_pages    => $cached_pages;
+subtest 'Browser cache' => $browser_cache;
+
+subtest home_page => $home_page;
+subtest aliases   => $aliases;
 done_testing;
 
 package Slovo::Test::Text;

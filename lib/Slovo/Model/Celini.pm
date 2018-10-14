@@ -36,7 +36,6 @@ sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
   }
   my $sql = join("\nUNION\n", @SQL);
   return $m->dbx->db->query($sql, @BINDS)->hashes;
-
 }
 
 sub where_with_permissions ($self, $user, $preview) {
@@ -117,12 +116,19 @@ SQL
 }
 
 sub save ($m, $id, $row) {
+  state $stranici_table = $m->c->stranici->table;
 
   # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  $row->{tstamp} = time - 1;
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
     $m->upsert_aliases($db, $id, $row->{alias});
+    $db->update($stranici_table,
+                {tstamp => $row->{tstamp}},
+                {id     => $row->{page_id}});    #parent page
+    $db->update($table, {tstamp => $row->{tstamp}}, {id => $row->{pid}})
+      ;                                          #parent
     $db->update($table, $row, {id => $id});
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");

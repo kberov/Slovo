@@ -11,7 +11,14 @@ with 'Slovo::Controller::Role::Stranica';
 # ANY /<страница:str>.html
 # Display a page in the site
 sub execute ($c, $page, $user, $l, $preview) {
-  return $c->render();
+
+  # Make the root page looks like just updated when max_age elapsed and the
+  # browser makes a request again, because it is very rarely directly
+  # updated.
+  my $refresh_root = $page->{page_type} eq 'коренъ';
+  return $c->is_fresh(last_modified => $refresh_root ? time : $page->{tstamp})
+    ? $c->rendered(304)
+    : $c->render();
 }
 
 # All the following routes are under /Ꙋправленѥ

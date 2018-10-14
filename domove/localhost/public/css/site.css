@@ -10,12 +10,9 @@ html,
 body {
   height: 100%;
   background-color: #eee;
-  font-size:18px;
-  /* TODO: change body/html font-size dynamically to change the lenght values
-   * to everything set in "rem"s (root ems). Useful for screens with bigger
-   * resolution where the font is too small.
-   */
+  font-size:22px;
 }
+
 
 html,
 body,

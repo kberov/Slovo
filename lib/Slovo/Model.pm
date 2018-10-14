@@ -140,7 +140,6 @@ SQL
 
 # Remove aliases history for a record from a given table.
 sub remove_aliases ($m, $db, $id, $table) {
-  $m->c->debug('removing alias history for id ' . $id . 'from table ' . $table);
   return $db->delete('aliases', {alias_table => $table, alias_id => $id});
 }
 

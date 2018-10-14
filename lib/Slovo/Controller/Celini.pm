@@ -33,7 +33,9 @@ sub execute ($c, $page, $user, $l, $preview) {
          {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
-  return $c->render(celina => $celina, 'цѣлина' => $celina->{alias});
+  return $c->is_fresh(last_modified => $celina->{tstamp})
+    ? $c->rendered(304)
+    : $c->render(celina => $celina, 'цѣлина' => $celina->{alias});
 }
 
 sub _go_to_new_celina_url ($c, $page, $celina, $l) {

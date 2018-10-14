@@ -31,7 +31,11 @@ sub register ($self, $app, $config) {
   $app->helper(
          is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
 
-  $app->helper(language => sub { $_[0]->stash('ѩꙁыкъ') });
+  $app->helper(
+    language => sub {
+      $_[1] ? $_[0]->stash('ѩꙁыкъ' => $_[1]) : $_[0]->stash('ѩꙁыкъ');
+    }
+  );
   $app->helper(debug => \&_debug);
   return $self;
 }

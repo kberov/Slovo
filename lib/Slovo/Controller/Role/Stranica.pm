@@ -6,22 +6,24 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
-around execute => sub ($execute, $c) {
+around execute => \&_around_execute;
+
+sub _around_execute ($execute, $c) {
   state $cache_pages = $c->config('cache_pages');
   state $list_columns
     = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
-  return 1
-    if $cache_pages && !$c->is_user_authenticated && $c->_render_cached_page();
-  my $preview = $c->is_user_authenticated && $c->param('прегледъ');
+  my $is_guest = !$c->is_user_authenticated;
+
+  return 1 if $cache_pages && $is_guest && $c->_render_cached_page();
+  my $preview = !$is_guest && $c->param('прегледъ');
   my $alias   = $c->stash->{'страница'};
   my $l       = $c->language;
   my $user    = $c->user;
-
-  my $str    = $c->stranici;
-  my $domain = $c->host_only;
-  my $page   = $str->find_for_display($alias, $user, $domain, $preview);
+  my $str     = $c->stranici;
+  my $domain  = $c->host_only;
+  my $page    = $str->find_for_display($alias, $user, $domain, $preview);
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
@@ -33,6 +35,9 @@ around execute => sub ($execute, $c) {
   $c->stash($page->{template} ? (template => $page->{template}) : ());
   my $celini
     = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
+
+  # We were looking for content with 'en' but found en-US
+  $l = $c->language($celini->[0]{language})->language;
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
@@ -63,12 +68,22 @@ around execute => sub ($execute, $c) {
   }
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l));
   my $ok = $execute->($c, $page, $user, $l, $preview);
+  if ($cache_pages && $c->res->is_success) {
+    state $cache_control = $c->app->config('cache_control');
+    my $hs = $c->res->headers;
 
-  # Cache this page on disk if user is not authenticated.
-  $c->_cache_page()
-    if $cache_pages && $c->res->is_success && !$c->is_user_authenticated;
+    # Cache this page on disk if user is not authenticated.
+    if ($is_guest) {
+      $hs->cache_control($cache_control);
+      $c->_cache_page($l);
+    }
+    else {
+      $hs->cache_control($cache_control =~ s/public/private/r);
+    }
+  }
   return $ok;
-};
+}
+
 
 sub _go_to_new_page_url ($c, $page, $l) {
 
@@ -83,21 +98,24 @@ my $cached    = 'cached';
 my $cacheable = qr/\.html$/;
 
 sub _render_cached_page($c) {
-  my $url_path = $c->req->url->path->canonicalize->leading_slash(0)->to_route;
+  state $cache_control = $c->app->config('cache_control');
+  $c->res->headers->cache_control($cache_control);
+  my $url_path = $c->req->url->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
   my $file = path($c->app->static->paths->[0], $cached, $url_path);
-  return $c->render(text => b($file->slurp)->decode) if -f $file;
+  return $c->reply->file($file) if -f $file;
   return;
 }
 
-sub _cache_page($c) {
-  my $url_path = $c->req->url->path->canonicalize->leading_slash(0)->to_route;
+# Cache the page on disk which is being rendered for non authenticated users.
+# Cached files are deleted when any page or content is changed.
+sub _cache_page ($c, $l) {
+  my $url_path
+    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
   my $file = path($c->app->static->paths->[0], $cached, $url_path);
   $file->dirname->make_path({mode => oct(700)});
 
-  # This file will be deleted automatically when the page or its заглавѥ is
-  # changed.
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
 }
 
@@ -264,6 +282,7 @@ sub writable ($v, $name, $value, $c) {
               . __LINE__);
   return 0;
 }
+
 
 =encoding utf8
 

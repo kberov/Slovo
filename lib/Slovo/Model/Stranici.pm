@@ -185,16 +185,17 @@ sub find_for_edit ($m, $id, $l) {
 
 sub save ($m, $id, $row) {
   my $title = {};
+  $row->{tstamp} = time - 1;
 
   # Get the values for celini
   @$title{
     qw(page_id title body language id data_format
-      alias changed_by permissions published)
+      alias changed_by permissions published tstamp)
     }
     = (
        $id,
        delete @$row{qw(title body language title_id data_format)},
-       @$row{qw(alias changed_by permissions published)}
+       @$row{qw(alias changed_by permissions published tstamp)}
       );
   my $db = $m->dbx->db;
   eval {
