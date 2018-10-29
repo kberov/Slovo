@@ -1,5 +1,11 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.29
+    - Changes
+        * Upgraded to Mojolicious 8.04.
+        * Fixed Slovo::Validator. It was failing with the above version.
+        * Removed alias 'can' for check 'is' from Slovo::Validator.
+
 2018.10.16
     - Features
         * Implemented browser caching for both signed and not signed in

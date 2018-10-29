@@ -1,27 +1,19 @@
 package Slovo::Validator;
 use Mojo::Base 'Mojolicious::Validator', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
-use Mojo::ByteStream 'b';
-use Mojo::File 'path';
-has filters => sub {
-  return {
-          %{$_[0]->SUPER::filters},
-          xml_escape => sub { Mojo::Util::xml_escape($_[2]) },
-          slugify    => sub { Mojo::Util::slugify($_[2], 1) },
-         };
-};
+use feature qw(unicode_strings);
 
-has checks => sub {
-  return {
-    %{$_[0]->SUPER::checks},
 
-    # some generic custom checks
-    can => \&_can,
-    is  => \&_can,
-         };
-};
+sub new {
+  my $self = shift->SUPER::new(@_);
+
+  # new filters
+  $self->add_filter(xml_escape => sub { Mojo::Util::xml_escape($_[2]) });
+  $self->add_filter(slugify => sub { Mojo::Util::slugify($_[2], 1) });
+
+  # new checks
+  $self->add_check(is => \&_can);
+  return $self;
+}
 
 sub _can ($v, $name, $value, $sub, @args) {
   return !$sub->($v, $name, $value, @args);
@@ -57,10 +49,6 @@ otherwise.
   $v->required('sum')->is(sub($v, $name, $value) {
     $v->param('one') + $v->param('two') == $value
   });
-
-=head2 can
-
-An alias for L</is>.
 
 =head1 FILTERS
 
