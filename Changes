@@ -6,6 +6,8 @@ Revision history for Mojolicious application Slovo
           their articles(celini) on the home page and caused Status 500 for
           calls to /api/страници.
         * Cleaned up Slovo::Model::Stranici::all_for_home.
+        * Made article boxes on home page adaptive for small screens between
+          270 and 450 px width.
 
 2018.10.29
     - Changes

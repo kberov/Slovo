@@ -280,7 +280,7 @@ section.множество article.писанѥ a.писанѥ {
 
 section.множество article.писанѥ {
     display: inline-block;
-    max-width: 30rem;
+    max-width: 100%;
     min-width: 15rem;
     width: 25rem;
     margin: auto;
