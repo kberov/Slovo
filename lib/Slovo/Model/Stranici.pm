@@ -227,7 +227,13 @@ my sub _transform_columns($col) {
     return "$/$celini_table.$col AS $col";
   }
   elsif ($col eq 'is_dir') {
-    return "$/EXISTS (SELECT 1 WHERE $table.permissions LIKE 'd%') AS is_dir";
+    return
+      "$/coalesce((SELECT 1 WHERE $table.permissions LIKE 'd%'),0) AS is_dir";
+  }
+
+  # do not touch any other made up custom columns
+  elsif ($col =~ /\s+AS\s+/msx) {
+    return $col;
   }
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
@@ -269,30 +275,25 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
 # will be passed respectively to all_for_list() and
 # all_for_display_in_stranica().
 sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
-  state $ct = $celini_table;
-  state $t  = $table;
   my $stranici_opts = {
-
-    #columns => $list_columns,
-    #pid     => $page->{pid},
-    where => {"$ct.permissions" => {-like => 'd%'}},
-    %{delete $opts->{stranici_opts}}
+                      where => {"$celini_table.permissions" => {-like => 'd%'}},
+                      %{delete $opts->{stranici_opts}}
   };
   my $celini_opts = {
           columns => 'title, id, alias, substr(body,1,555) as teaser, language',
           limit   => 6,
-          where   => {"$ct.data_type" => {'!=' => 'заглавѥ'}},
+          where   => {"$celini_table.data_type" => {'!=' => 'заглавѥ'}},
           %{delete $opts->{celini_opts}}
   };
 
   return $m->all_for_list($user, $domain, $preview, $l, $stranici_opts)->each(
     sub ($p, $i) {
       state $SQL = <<"SQL";
-=(SELECT id FROM $ct
+=(SELECT id FROM $celini_table
   WHERE pid=? AND page_id=? AND data_type=? limit 1)
 SQL
       my $opts = {%$celini_opts};    #copy
-      $opts->{where}{"$ct.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
+      $opts->{where}{"$celini_table.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
       $p->{articles}
         = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview,
                                                   $opts);

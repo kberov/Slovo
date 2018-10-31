@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2018.10.31
+    - Changes
+        * Fixed a bug where only pages(stranici) which are directories can list
+          their articles(celini) on the home page and caused Status 500 for
+          calls to /api/страници.
+        * Cleaned up Slovo::Model::Stranici::all_for_home.
+
 2018.10.29
     - Changes
         * Upgraded to Mojolicious 8.04.
