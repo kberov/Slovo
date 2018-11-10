@@ -89,7 +89,8 @@ sub readable_by ($self, $user) {
 
     # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
        "$t.group_id" => \[
-           "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
+                   "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
+                     ($user->{group_id}, $user->{id})
        ],
       },
     ],
@@ -116,14 +117,15 @@ sub writable_by ($self, $user) {
 
     # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
        "$t.group_id" => \[
-           "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
+                   "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
+                     ($user->{group_id}, $user->{id})
        ],
       },
     ],
   };
 }
 
-# Inserts relations for redirects from old to new aliase. Must be
+# Inserts relations for redirects from old to new alias. Must be
 # called only from save() and before $db->update($table,..)
 sub upsert_aliases ($m, $db, $alias_id, $new_alias) {
   my $alias_table = $m->table;

@@ -104,12 +104,13 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $validation = $c->_validation;
-  return $c->render(action => 'edit', in => {}) if $validation->has_error;
+  my $v  = $c->_validation;
+  my $in = $v->output;
+  return $c->render(action => 'edit', in => $in) if $v->has_error;
 
   # Update the record
   my $id = $c->stash('id');
-  $c->celini->save($id, $validation->output);
+  $c->celini->save($id, $in);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204

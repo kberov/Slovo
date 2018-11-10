@@ -7,4 +7,3 @@
     % }
 </h2>
 %= include 'celini/_form', caption => 'Update', target => 'update_celini'
-%= button_to Remove => remove_celini => {id => $in->{id}}, (style =>'float:right')

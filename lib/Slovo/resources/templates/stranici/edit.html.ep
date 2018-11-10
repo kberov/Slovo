@@ -7,4 +7,4 @@
     % }
 </h2>
 %= include 'stranici/_form', caption => 'Update', target => 'update_stranici'
-%= button_to Remove => remove_stranici => {id => $in->{id}}, (style =>'float:right')
+%#= button_to Remove => remove_stranici => {id => $in->{id}}, (style =>'float:right')

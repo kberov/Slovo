@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.10.31';
+our $VERSION   = '2018.11.11';
 our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
 my $CLASS = __PACKAGE__;
 
@@ -232,7 +232,7 @@ with nice core features like:
 
 =item * Multiple groups per user - BASIC;
 
-=item * Fine-grained access permissions per page and it's content in the site - DONE;
+=item * Ownership and access permissions management per page and it's content - DONE;
 
 =item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
 and content - DONE;
@@ -441,9 +441,6 @@ This distribution contains other free software which belongs to their
 respective authors.
 
 =head1 TODO
-
-Add fine-grained permissions for accessing and modifying resources in the
-administration area - L<http://localhost:3000/Ꙋправленѥ>.
 
 Considerably improve the Adminiastration UI - now it is quite simplistic and
 lacks essential features.

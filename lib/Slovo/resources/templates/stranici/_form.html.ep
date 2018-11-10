@@ -23,13 +23,6 @@ $in->{group_id} //= $c->user->{group_id};
     page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
     required => 1, label => 'Page type'
   %>
-  <%=
-  # TODO: document and design the behavior for pages which are "d" (directories) and "l" (links)
-  select_box
-    permissions => [map { [$_ => $_] } @$permissions],
-    required    => 1, $in->{user_id} != $c->user->{id} ? (readonly => undef) :()
-  %>
-  
   %= label_for sorting => 'Sorting'
   %= number_field sorting => (size => 3)
   %= label_for template => 'Template'
@@ -39,13 +32,55 @@ $in->{group_id} //= $c->user->{group_id};
   %= number_field 'start'
   %= label_for stop => 'Stop'
   %= number_field 'stop'
-  <%= select_box published => [
-  ['for (p)review' => 1], ['no'=>0], ['Yes'=> 2]] %>
   %= label_for hidden => 'Hidden'
   %= check_box hidden => 1
   %= label_for deleted => 'Deleted'
   %= check_box deleted => 1
 % end
+% if (${target} eq 'update_stranici') {
+%= t fieldset => (id=>'permissions') => begin
+  %= t legend => 'Разрешения и обнародване'
+<%
+# TODO: Make these listings an Ajax request and implement Autocomplete making
+# requests each 500ms. like in jQ UI
+# This will be needed when we have many (more than 100) users
+state $users
+  = users->all({where => {login_name => {'!=' => 'guest'}, disabled => 0}})
+  ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
+state $groups
+  = groups->all({where => {name => {'!=' => 'guest'}, disabled => 0}})
+  ->map(sub { [$_->{name} => $_->{id}] });
+%>
+  <% if($in->{user_id} != $c->user->{id}){ %>
+  <span style ="display: inline-block"> Собственик:
+  %= $users->first(sub{$_->[1] eq $in->{user_id}})->[0]
+  %= hidden_field(user_id => $in->{user_id})
+  <% } else { %>
+  <%=
+  select_box(
+    user_id => [['Изберете нов собственик' => ''], @$users],
+    label   => 'Собственик')
+  %>
+  % }
+  <%=
+  select_box
+    group_id => [['Изберете сътрудници' => ''], @$groups],
+    label    => 'Сътрудници'
+  %>
+  <%=
+# TODO: document and design the behavior for stranici which are "d" (directories) and "l" (links)
+  select_box
+    permissions => [map { [$_ => $_] } @$permissions],
+    required    => 1,
+    label       => 'Права'
+  %>
+  <%=
+  select_box
+    published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
+    label => 'Обнародвано'
+  %>
+% end ;# fieldset
+% }
 %=t fieldset => (id=>'title') => begin
       %=t legend => 'Page Content'
       %= input_tag  'title_id' => (type =>'hidden')

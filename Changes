@@ -1,5 +1,15 @@
 Revision history for Mojolicious application Slovo
 
+2018.11.11
+    - Features
+        * Ownership and the group (list of contributors) of a цѣлина and
+          страница can be changed.
+    - Changes
+        * A celini item cannot be deleted anymore by mistake. "Remove" button
+          was removed.
+        * "Permissions", "published" and change of user_id and group_id were
+          moved into separate fieldset "Разрешения и обнародване".
+
 2018.10.31
     - Changes
         * Fixed a bug where only pages(stranici) which are directories can list

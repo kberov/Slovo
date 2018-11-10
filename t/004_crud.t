@@ -7,7 +7,7 @@ use Mojo::ByteStream 'b';
 use Mojo::File qw(path);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-#  '.' => '/tmp/slovo'
+# '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 isa_ok($app, 'Slovo');
@@ -195,6 +195,21 @@ my $update_celini = sub {
                         },
             'created proper new/old alias relation for celini'
            );
+
+# change permisssions so on the next update user has enough permissions to write.
+  $cform->{permissions} = '-rwxrwxr-x';
+  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302);
+
+  # change ownership.
+  $cform->{user_id} = 4;
+  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302);
+  my $e_celini_url = $app->url_for('edit_celini', {id => $max_id})->to_string;
+  $t->get_ok($e_celini_url)->status_is(200)
+    ->text_like('#permissions > span:nth-child(2)' => qr'Test 2')
+    ->text_is('select[name="group_id"]>option[selected]' => 'краси')
+    ->text_is(
+        'select[name="permissions"]>option[selected]' => $cform->{permissions});
+
 };
 
 # Remove Celini
@@ -302,6 +317,27 @@ my $user_permissions = sub {
   $t->get_ok('/Ꙋправленѥ/stranici')->status_is(200)
     ->element_exists_not('html body table tbody tr.deleted',
                          "page $id not listed");
+  delete $sform->{title_id};
+
+# change permisssions so on the next update user has enough permissions to write.
+  $sform->{alias}       = 'alabalanicaaaa';
+  $sform->{permissions} = '-rwxrwxr-x';
+
+  $t->post_ok($stranici_url => {} => form => $sform)->status_is(302);
+  $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
+  my $stranica_url = $app->url_for('update_stranici', id => $new_page_id);
+  $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)
+    ->status_is(302);
+
+  # change ownership.
+  $sform->{user_id} = 4;
+  $t->put_ok($stranica_url => {} => form => $sform)->status_is(302);
+  $t->get_ok($app->url_for('edit_stranici', id => $new_page_id))
+    ->status_is(200)
+    ->text_like('#permissions > span:nth-child(2)' => qr'Test 2')
+    ->text_is('select[name="group_id"]>option[selected]' => 'краси')
+    ->text_is(
+        'select[name="permissions"]>option[selected]' => $cform->{permissions});
 };
 
 subtest create_user => $create_user;
