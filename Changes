@@ -1,4 +1,9 @@
 Revision history for Mojolicious application Slovo
+2018.11.12
+    - Changes
+        * Added dependency Mojolicious::Plugin::PODViewer because
+          Mojolicious::Plugin::PODRenderer will be removed from Mojolicious.
+        * Upgraded to Mojolicious 8.06.
 
 2018.11.11
     - Features
