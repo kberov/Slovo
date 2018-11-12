@@ -1,4 +1,4 @@
 % layout 'upravlenie', title => 'Edit users';
 <h2>Edit users</h2>
 %= include 'users/_form', caption => 'Update', target => 'update_users'
-%= button_to Remove => remove_users => {id => $users->{id}}
+%#= button_to Remove => remove_users => {id => $users->{id}}

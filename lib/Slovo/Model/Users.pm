@@ -4,12 +4,14 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
-my $table = 'users';
-
+my $table    = 'users';
+my $ug_table = 'user_group';
 sub table { return $table }
 
-# Create a primary group for the user and the user itself.
-# Add the primary group to user_group.
+sub groups_table { return Slovo::Model::Groups->table }
+
+# Create a user and the primary group for the user.
+# Add the primary group to $ug_table.
 sub add ($self, $row) {
   my $db = $self->dbx->db;
   my $id;
@@ -22,11 +24,10 @@ sub add ($self, $row) {
                   };
   eval {
     my $tx = $db->begin;
-    my $gid
-      = $db->insert(Slovo::Model::Groups->table, $group_row)->last_insert_id;
+    my $gid = $db->insert(groups_table, $group_row)->last_insert_id;
     $row->{group_id} = $gid;
     $id = $db->insert($table, $row)->last_insert_id;
-    $db->insert(user_group => {user_id => $id, group_id => $gid});
+    $db->insert($ug_table => {user_id => $id, group_id => $gid});
     $tx->commit;
   } || Carp::croak("Error creating user: $@");
   return $id;
@@ -47,9 +48,10 @@ sub all ($self, $opts = {}) {
   $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
   $opts->{offset} //= 0;
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
+  $opts->{columns} //= '*';
   my $where = {$loadable->(), %{$opts->{where} // {}}};
   state $abstr = $self->dbx->abstract;
-  my ($sql, @bind) = $abstr->select($table, '*', $where);
+  my ($sql, @bind) = $abstr->select($table, $opts->{columns}, $where);
   $sql .= " LIMIT $opts->{limit}"
     . (defined $opts->{offset} ? " OFFSET $opts->{offset}" : '');
   return $self->dbx->db->query($sql, @bind)->hashes;
@@ -73,6 +75,31 @@ sub purge ($self, $id) {
 
 sub remove ($self, $id) {
   return $self->dbx->db->update($table, {disabled => 1}, {id => $id});
+}
+
+#update a user
+sub save ($m, $id, $row) {
+  my $groups
+    = ref $row->{groups} eq 'ARRAY'
+    ? delete $row->{groups}
+    : [delete $row->{groups}];
+  my $db = $m->dbx->db;
+
+  # local $db->dbh->{tracelevel} = "3|sql";
+  state $gid_SQL= "(SELECT group_id FROM $table WHERE id=?)";
+  eval {
+    my $tx = $db->begin;
+    $m->dbx->db->update($m->table, $row, {id => $id});
+
+    # remove all previous groups
+    $db->delete(
+       $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}});
+    for my $gid (@$groups) {
+      $db->query("INSERT OR IGNORE INTO $ug_table VALUES (?,?)", $id, $gid);
+    }
+    $tx->commit;
+  } || Carp::croak("Error updating $table: $@");
+  return $id;
 }
 
 1;

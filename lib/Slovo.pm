@@ -220,9 +220,9 @@ with nice core features like:
 
 =item * Multi-domain support - DONE;
 
-=item * Multi-user support - BASIC;
+=item * Multi-user support - DONE;
 
-=item * User registration - TODO;
+=item * User onboarding - STARTED;
 
 =item * User sign in - DONE;
 
@@ -230,7 +230,7 @@ with nice core features like:
 
 =item * Managing groups - TODO;
 
-=item * Multiple groups per user - BASIC;
+=item * Multiple groups per user - DONE;
 
 =item * Ownership and access permissions management per page and it's content - DONE;
 

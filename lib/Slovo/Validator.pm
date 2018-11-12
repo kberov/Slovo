@@ -1,7 +1,12 @@
 package Slovo::Validator;
 use Mojo::Base 'Mojolicious::Validator', -signatures;
-use feature qw(unicode_strings);
+use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 
+# can this $name with $value do $sub with @args?
+my sub _can ($v, $name, $value, $sub, @args) {
+  return !$sub->($v, $name, $value, @args);
+};
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -13,10 +18,6 @@ sub new {
   # new checks
   $self->add_check(is => \&_can);
   return $self;
-}
-
-sub _can ($v, $name, $value, $sub, @args) {
-  return !$sub->($v, $name, $value, @args);
 }
 
 1;

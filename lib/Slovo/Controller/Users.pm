@@ -47,7 +47,11 @@ sub store($c) {
 # GET /users/:id/edit
 # Display form for edititing resource in table users.
 sub edit($c) {
-  return $c->render(users => $c->users->find($c->param('id')));
+  my $row = $c->users->find($c->param('id'));
+  for (keys %$row) {
+    $c->req->param($_ => $row->{$_});    # prefill form fields.
+  }
+  return $c->render(users => $row);
 }
 
 # PUT /users/:id
@@ -56,17 +60,21 @@ sub update($c) {
 
   # Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'edit', users => {}) if $v->has_error;
+  return $c->render(action => 'edit', users => $v->input) if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
-  $c->users->save($id, $v->output);
+  my $in = $v->output;
+  $in->{changed_by} = $c->user->{id};
+  $in->{tstamp}     = time - 1;
+  $c->users->save($id, $in);
+
+  return $c->redirect_to('show_users', id => $id);
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
-  # return $c->redirect_to('show_users', id => $id);
-  $c->res->headers->location($c->url_for(show_users => {id => $id}));
-  return $c->render(text => '', status => 204);
+  # $c->res->headers->location($c->url_for(show_users => {id => $id}));
+  # return $c->render(text => '', status => 204);
 }
 
 # GET /users/:id
@@ -127,28 +135,27 @@ sub _validation($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
-  $v->optional('group_id', 'trim')->like(qr/^\d+$/);
-  $v->optional('login_name', 'trim')->size(0, 100);
+  $v->optional('group_id',   'trim')->like(qr/^\d+$/);
+  $v->optional('login_name', 'trim')->like(qr/^\p{IsAlnum}{4,12}$/x);
   if ($c->stash->{action} eq 'store') {
-    $v->required('login_password', 'trim')->size(0, 40);
-    $v->required('first_name',     'trim')->size(0, 100);
-    $v->required('last_name',      'trim')->size(0, 100);
+    $v->required('login_password', 'trim')->like(qr/^[A-F0-9]{40}$/i);
+    $v->required('first_name',     'trim')->size(2, 100);
+    $v->required('last_name',      'trim')->size(2, 100);
     $v->required('email',          'trim')->size(0, 255);
   }
   else {
-    $v->optional('login_password', 'trim')->size(0, 40);
-    $v->optional('first_name',     'trim')->size(0, 100);
-    $v->optional('last_name',      'trim')->size(0, 100);
+    $v->optional('login_password', 'trim')->like(qr/^[A-F0-9]{40}$/i);
+    $v->optional('first_name',     'trim')->size(2, 100);
+    $v->optional('last_name',      'trim')->size(2, 100);
     $v->optional('email',          'trim')->size(0, 255);
     $v->optional('id',             'trim')->like(qr/^\d+$/);
+    my $groups
+      = $c->groups->all_with_member($c->stash('id'))->map(sub { $_->{id} });
+    $v->optional('groups')->in(@$groups);
   }
   $v->optional('description', 'trim')->size(0, 255);
 
-  #$v->optional('created_by',  'trim')->like(qr/\d+(\.\d+)?/);
-  #$v->optional('changed_by',  'trim')->like(qr/\d+(\.\d+)?/);
-  #$v->required('tstamp',     'trim')->like(qr/\d+(\.\d+)?/);
-  #$v->required('reg_time',   'trim')->like(qr/\d+(\.\d+)?/);
-  $v->optional('disabled', 'trim')->like(qr/^\d$/);
+  $v->optional('disabled', 'trim')->like(qr/^[01]$/);
   my $time_qr = qr/^\d{1,10}$/;
   $v->optional('start_date', 'trim')->like($time_qr);
   $v->optional('stop_date',  'trim')->like($time_qr);

@@ -7,16 +7,18 @@
 <table>
     <thead>
         <tr>
+            <th>ID</th>
     % for my $column (@columns) {
             <th><%= uc($column) %></th>
     % }
         </tr>
     </thead>
     <tbody>
+% my $user = $c->user;
 % for my $item (@$users) {
-        <tr>
+        <tr class="<%= $user->{id} == $item->{id} ? 'b' : '' %>">
             <td><%= link_to $item->{id} => show_users => {id => $item->{id}} %></td>
-    % for my $column (@columns[1 .. $#columns]) {
+    % for my $column (@columns) {
             <td><%= $item->{$column} %></td>
     % }
         </tr>

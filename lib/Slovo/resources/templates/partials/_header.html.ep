@@ -22,7 +22,6 @@
           <td class="mui--text-right">
               %= link_to Ѿносно => 'страница_с_ѩꙁыкъ' => {страница => 'ѿносно',ѩꙁыкъ =>$ѩꙁыкъ}
               % if ($c->is_user_authenticated) {
-              %# TODO: make the name to be a link to user profile
               % my $name = $c->user->{first_name} . ' ' . $c->user->{last_name};
                   %= link_to '| Изходъ '.$name => 'sign_out'
               % } else {

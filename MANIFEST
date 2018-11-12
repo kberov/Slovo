@@ -78,6 +78,7 @@ lib/Slovo/resources/templates/groups/edit.html.ep
 lib/Slovo/resources/templates/groups/index.html.ep
 lib/Slovo/resources/templates/groups/show.html.ep
 lib/Slovo/resources/templates/layouts/default.html.ep
+lib/Slovo/resources/templates/layouts/podviewer.html.ep
 lib/Slovo/resources/templates/layouts/site.html.ep
 lib/Slovo/resources/templates/layouts/upravlenie.html.ep
 lib/Slovo/resources/templates/partials/_beleyazhka.html.ep

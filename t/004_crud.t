@@ -5,6 +5,7 @@ use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
 use Mojo::File qw(path);
+use Mojo::Util qw(encode sha1_sum);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # '.' => '/tmp/slovo'
@@ -13,11 +14,25 @@ my $app = $t->app;
 isa_ok($app, 'Slovo');
 $t->login_ok();
 
-my $users_url  = $app->url_for('home_users')->to_string;
-my $groups_url = $app->url_for('home_groups')->to_string;
-my $user6_url  = $app->url_for('show_users', id => 6)->to_string;
+my $users_url      = $app->url_for('home_users')->to_string;
+my $groups_url     = $app->url_for('home_groups')->to_string;
+my $user6_url      = $app->url_for('show_users', id => 6)->to_string;
+my $edit_user6_url = $app->url_for('edit_users', id => 6);
 $t->get_ok("$users_url/5")->status_is(200)
   ->text_is('#first_name' => 'first_name: Краси');
+
+# no privileges to edit other users
+$t->get_ok("$users_url/2")->status_is(302)->header_is(
+                                   Location => $app->url_for('home_upravlenie'),
+                                   'Location: /Ꙋправленѥ');
+
+# no privileges to edit groups
+$t->get_ok("$groups_url/2")->status_is(302)->header_is(
+                                   Location => $app->url_for('home_upravlenie'),
+                                   'Location: /Ꙋправленѥ');
+
+# Add the logged in user краси to 'admin' group.
+$app->dbx->db->insert('user_group', {user_id => 5, group_id => 1});
 
 # Disabled User
 $t->get_ok("$users_url/0")->status_is(404);
@@ -28,12 +43,12 @@ $t->get_ok("$groups_url/0")->status_is(404);
 # Create a user (creates a primary group for the user too)
 my $create_user = sub {
   my $user_form = {
-      login_name     => 'шест',
-      login_password => 'da',              #TODO: SHA1 login_name+login_password
-      first_name     => 'Шести',
-      last_name      => 'Шестак',
-      email          => 'шести@хост.бг',
-      disabled       => 0,
+                   login_name     => 'шестi',
+                   login_password => sha1_sum(encode('utf8', "шестilabala")),
+                   first_name     => 'Шести',
+                   last_name      => 'Шестак',
+                   email          => 'шести@хост.бг',
+                   disabled       => 0,
                   };
   $t->post_ok($users_url => form => $user_form)->status_is(201)
     ->header_is(Location => $user6_url, 'Location: /Ꙋправленѥ/users/6')
@@ -44,6 +59,9 @@ my $create_user = sub {
     $user_show->content_like(qr/$_/);
   }
   $t->get_ok($user6_url)->status_is(200);
+  $t->get_ok($edit_user6_url)->status_is(200)
+    ->text_is(
+          'select[name="groups"]>option[selected]' => $user_form->{login_name});
 
   # Primary group for this user
   my $group = $app->groups->find($user->{id});    #now group has the same id
@@ -52,9 +70,14 @@ my $create_user = sub {
 
 # Update a user
 my $update_user = sub {
-  $t->put_ok($user6_url => form => {last_name => 'Седмак'})
+  my $groups = [4, 5];
+  $t->put_ok($user6_url => form => {last_name => 'Седмак', groups => $groups})
     ->header_is(Location => $user6_url, 'Location: /Ꙋправленѥ/users/6')
-    ->content_is('', 'empty content')->status_is(204);
+    ->content_is('', 'empty content')->status_is(302);
+  $t->get_ok($edit_user6_url)->status_is(200);
+  for (@$groups, 6) {
+    $t->element_exists(qq|select[name="groups"]>option[selected,value="$_"]|);
+  }
 };
 
 # Remove a user

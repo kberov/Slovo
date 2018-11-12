@@ -64,9 +64,8 @@ SQL
     $preview ? () : ("$table.start" => [{'=' => 0}, {'<' => $now}]),
     $preview ? () : ("$table.stop"  => [{'=' => 0}, {'>' => $now}]),
 
-    # the page must belong to the current domain
-    "$table.dom_id" =>
-      \[$domain_sql, => ($domain, "%$domain%", "%$domain%", 2)],
+    # the page must be published and belong to the current domain
+    $m->where_domain_is($domain),
 
     # TODO: May be drop this column as 'hidden' can be
     # implemented by putting '.' as first character for the alias.
@@ -90,14 +89,30 @@ SQL
       {
        "$table.permissions" => {-like => '____r_x%'},
        "$table.published"   => $preview ? 1 : 2,
-
-    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
-       "$table.group_id" => \[
+       "$table.group_id"    => \[
            "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
        ],
       },
     ]
   };
+}
+
+# Returns part of the where clause for $domain($c->host_only) as a HASH pair.
+sub where_domain_is ($m, $domain) {
+
+  # Match by domain or one of the domain aliases or IPs - in that order. This
+  # is to give chance to all domains and their aliases to match in case the
+  # request URL does not start with an IP. In case the request URL starts with
+  # an IP (e.g. http://127.0.0.1/some/route) the first domain record with that
+  # IP will take the request.
+  state $domain_sql = <<"SQL";
+= (SELECT id FROM domove
+    WHERE (? LIKE '%' || domain OR aliases LIKE ? OR ips LIKE ?) AND published=2 LIMIT 1)
+SQL
+
+  # the page must belong to the current domain
+  return (
+     "$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", "%$domain%")]);
 }
 
 # Find a page by $alias which can be seen by the current user

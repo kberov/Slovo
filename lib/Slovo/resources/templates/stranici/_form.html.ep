@@ -45,10 +45,10 @@ $in->{group_id} //= $c->user->{group_id};
 # requests each 500ms. like in jQ UI
 # This will be needed when we have many (more than 100) users
 state $users
-  = users->all({where => {login_name => {'!=' => 'guest'}, disabled => 0}})
+  = users->all({where => {login_name => {'!=' => 'guest'}}})
   ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
 state $groups
-  = groups->all({where => {name => {'!=' => 'guest'}, disabled => 0}})
+  = groups->all({where => {name => {'!=' => 'guest'}}})
   ->map(sub { [$_->{name} => $_->{id}] });
 %>
   <% if($in->{user_id} != $c->user->{id}){ %>

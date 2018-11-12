@@ -1,7 +1,9 @@
 @charset "utf-8";
 
-label.field-with-error { color: #dd7e5e }
-input.field-with-error { background-color: #fd9e7e }
+.field-with-error {
+    color: #fff;
+    background-color:  #F44336;
+}
 .hidden, .deleted, .expired, .upcoming {opacity: 0.50;}
 .deleted {text-decoration: line-through red;}
 .upcoming {text-decoration: green wavy overline;}
@@ -22,4 +24,22 @@ font-size: 1.5rem;
 
 input, textarea, option, button {
     font-size: 1rem;
+}
+
+.mui--appbar-min-height, .mui-appbar, .mui--appbar-height {
+    min-height: 1rem;
+    max-height: 6rem;
+    cursor: default;
+}
+footer.mui-appbar table, header.mui-appbar table {
+    height: 100%;
+    width: 100%;
+    padding: 0 1rem 0 1rem;
+}
+
+header a, footer a {
+    color: white;
+}
+.b {
+    font-weight:bold;
 }

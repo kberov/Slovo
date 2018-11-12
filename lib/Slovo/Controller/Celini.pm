@@ -136,23 +136,32 @@ sub show($c) {
 }
 
 # GET /celini
-# List resources from table celini.
+# List resources from table celini in the current domain.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
+
+  # restrict to the current domain root page
+  my $str = $c->stranici;
+  my $in
+    = $str->all(
+             {columns => 'id', where => {$str->where_domain_is($c->host_only)}})
+    ->map(sub { $_->{id} })->to_array;
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
   }
-
   my $v = $c->validation;
-  $v->optional('page_id', 'trim')->like(qr/^\d+$/);
+  $v->optional('page_id', 'trim')->in(@$in);
   my $o      = $v->output;
   my $celini = $c->celini;
   my $opts   = {where => {%{$celini->readable_by($c->user)}}};
 
   if (defined $o->{page_id}) {
     $opts->{where}{page_id} = $o->{page_id};
+  }
+  else {
+    $opts->{where}{page_id} = {-in => $in};
   }
   $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
   return $c->render(celini => $celini->all($opts));

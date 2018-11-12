@@ -20,4 +20,7 @@
 -nbl     # Opening brace on the same line as the keyword introducing it
 -lp      # Add extra indentation to cause the data to begin past the opening parentheses
 -cti=1   # 1 extra indentation such that the closing token aligns with its opening token.
+--nodelete-semicolons #needed because of a bug in Perl::Critic not recognising
+# private subrotines if there is no semicolumn at the closing curly brace. It
+# also reports arbitrary nonsense.
 

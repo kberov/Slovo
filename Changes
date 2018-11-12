@@ -1,9 +1,19 @@
 Revision history for Mojolicious application Slovo
 2018.11.12
+    - Features
+        * A user can be member of more than one group.
+        * Only admins can change other's accounts and manage groups.
     - Changes
+        * Listing of цѣлини and страници  in /Ꙋправленѥ/ are now restricted
+          only to the current domain.
         * Added dependency Mojolicious::Plugin::PODViewer because
           Mojolicious::Plugin::PODRenderer will be removed from Mojolicious.
         * Upgraded to Mojolicious 8.06.
+        * Worked around a bug in Perl::Critic by adding extra semicolumn after
+        * the closing brace of a lexical sub.
+        * Better validation when creating/editing users.
+        * Started work on experimental onboarding process for users.
+        * Enhanced adminstration area UI a little bit.
 
 2018.11.11
     - Features

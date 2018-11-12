@@ -28,8 +28,8 @@ sub register ($self, $app, $config) {
   );
 
   # replace is_user_authenticated from M::P::Authentication
-  $app->helper(
-         is_user_authenticated => sub { $_[0]->user->{login_name} ne 'guest' });
+  $app->helper(is_user_authenticated =>
+               sub { $_[0]->user && $_[0]->user->{login_name} ne 'guest' });
 
   $app->helper(
     language => sub {

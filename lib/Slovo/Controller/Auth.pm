@@ -60,9 +60,34 @@ sub sign_out ($c) {
 }
 
 sub under_management($c) {
-  return 1 if ($c->is_user_authenticated);
-  $c->redirect_to('authform');
-  return 0;
+  unless ($c->is_user_authenticated) {
+    $c->redirect_to('authform');
+    return 0;
+  }
+
+  my $uid   = $c->user->{id};
+  my $path  = $c->req->url->path->to_string;
+  my $route = $c->current_route;
+
+  return 1 if $c->groups->is_admin($uid);
+
+  # for now only admins can manage groups
+  if ($route =~ /groups$/) {
+    $c->flash(message => 'Само управителите се грижат'
+              . ' за множествата от потребители.');
+    $c->redirect_to('home_upravlenie');
+    return 0;
+  }
+
+  # only admins can change another's user account
+  if ($route =~ /^(show|edit|update|remove)_users$/x && $path !~ m|/$uid|) {
+    $c->flash(
+           message => 'Само управителите могат да ' . 'променят чужда сметка.');
+    $c->redirect_to('home_upravlenie');
+    return 0;
+  }
+
+  return 1;
 }
 
 sub load_user ($c, $uid) {

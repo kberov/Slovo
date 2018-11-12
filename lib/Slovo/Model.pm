@@ -86,9 +86,7 @@ sub readable_by ($self, $user) {
       # by one of the groups to which this user belongs.
       {
        "$t.permissions" => {-like => '____r__%'},
-
-    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
-       "$t.group_id" => \[
+       "$t.group_id"    => \[
                    "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
                      ($user->{group_id}, $user->{id})
        ],
@@ -114,9 +112,7 @@ sub writable_by ($self, $user) {
       # by one of the groups to which this user belongs.
       {
        "$t.permissions" => {-like => '_____w_%'},
-
-    # TODO: Implement 'adding users to multiple groups in /Ꙋправленѥ/users/:id':
-       "$t.group_id" => \[
+       "$t.group_id"    => \[
                    "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
                      ($user->{group_id}, $user->{id})
        ],

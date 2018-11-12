@@ -1,34 +1,93 @@
 %= form_for $target => begin
 
-  %= label_for login_name =>'Login_name'
-  %= text_field login_name => $users->{login_name},  size => 100
-<br />
-  %= label_for login_password =>'Login_password'
-  %= text_field login_password => $users->{login_password}, required => 1, size => 40
-<br />
-  %= label_for first_name =>'First_name'
-  %= text_field first_name => $users->{first_name}, required => 1, size => 100
-<br />
-  %= label_for last_name =>'Last_name'
-  %= text_field last_name => $users->{last_name}, required => 1, size => 100
-<br />
-  %= label_for email =>'Email'
-  %= text_field email => $users->{email}, required => 1, size => 255
-<br />
-  %= label_for description =>'Description'
-  %= text_field description => $users->{description},  size => 255
-<br />
-  %= label_for disabled => 'Disabled'
-  %= number_field disabled => $users->{disabled}, size => 1
-<br />
+  %= label_for login_name =>'Име за вход'
+  %= text_field 'login_name'
+<br>
+  %= label_for login_password =>'Тайна дума за вход'
+  <%= text_field login_password => readonly=>'', size => 40, style=>'border:none' %>
+  <%= t button => id=>'generate_pass' =>'Нова' %>
+<br>
+  %= label_for first_name =>'Име'
+  %= text_field first_name => required => 1, size => 40
+<br>
+  %= label_for last_name =>'Фамилия'
+  %= text_field last_name => required => 1, size => 40
+<br>
+  %= label_for email =>'Е-поща'
+  %= text_field email => required => 1, size => 55
+<br>
+  %= label_for description =>'Описание'
+  %= text_field description =>size => 65
+<br>
+  %= select_box disabled => [['Да'=>0],['Не'=>1]], label => 'Действащ'
+<br>
   %= label_for start_date => 'Start_date'
-  %= number_field start_date => $users->{start_date}, 
-<br />
+  %= number_field 'start_date'
+<br>
   %= label_for stop_date => 'Stop_date'
-  %= number_field stop_date => $users->{stop_date}, 
-<br />
-  %= label_for group_id => 'Group Id'
-  %= number_field group_id => $users->{group_id}
-<br />
+  %= number_field 'stop_date'
+  % if($target eq 'update_users' && stash->{id}) {
+    <br>
+    %= label_for group_id => 'Главно множество'
+    <b><%= groups->find($users->{group_id})->{name} %></b>
+    %#= hidden_field group_id => $users->{group_id}
+    <br>
+    <%
+    my $user_groups = [];
+    my $groups = groups->all_with_member(stash->{id})->map(
+      sub {
+        push @$user_groups, $_->{id} if $_->{is_member};
+        return [$_->{name} => $_->{id}];
+      }
+    );
+    %>
+    <%=
+    select_box groups => $groups,( multiple => '', value => $user_groups, label =>'Член на')
+    %>
+% }
+<br>
   %= submit_button $caption
+% end
+<script>
+    let same_user = <%= $c->user->{id} == ($users->{id} || 0) ? 'true' : 'false' %>;
+</script>
+%= javascript '/js/CryptoJS-v3.1.2/sha1.js'
+%= javascript begin
+"use strict";
+function generate_password(e) {
+  e.preventDefault();
+  let $d = document;
+  $d.qS = document.querySelector;
+  const name_field = $d.qS('[name="login_name"]');
+  const passw_field = $d.qS('[name="login_password"]');
+  if (name_field.value === "") {
+    alert(
+      "Моля, въведете име за потребителя," +
+        " преди да създадете тайната дума за вход" +
+        " и не го променяйте след това."
+    );
+    return;
+  }
+  let length = 8;
+  let charset =
+    "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ" +
+    "абвгдежзийклмнопрстуфхцчшщъьюя" +
+    "1234567890!@#$%^&*()_+-=[];:,.~/<>";
+  let pass = "";
+  for (var i = 0, n = charset.length; i < length; ++i) {
+    pass += charset.charAt(Math.floor(Math.random() * n));
+  }
+  //this aler should not be shown if the user is not the same as the edited one.
+  if (same_user)
+    alert(
+      `Новата тайна дума за вход е "${pass}" без ограждащите кавички. ` +
+      `Състои се от букви от българската азбука, числа и печатаеми знаци. ` +
+      `Запомнете я, защото няма да я видите повече.`
+    );
+  const concat_ln_lp = name_field.value + passw_field.value;
+  const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);
+  passw_field.value = passw_sha1;
+}
+
+$("#generate_pass").click(generate_password);
 % end
