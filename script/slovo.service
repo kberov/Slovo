@@ -2,7 +2,7 @@
 # like this:
 # cpanm -L ~/opt/slovo Slovo
 # Modify this file by replacing $USER with your username and copy it to
-# /lib/systemd/system/slovo.service
+# /etc/systemd/system/slovo.service
 # For details see https://askubuntu.com/questions/676007
 # and then for more https://wiki.ubuntu.com/SystemdForUpstartUsers
 
