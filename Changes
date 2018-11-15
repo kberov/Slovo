@@ -1,5 +1,5 @@
 Revision history for Mojolicious application Slovo
-2018.11.12
+2018.11.15
     - Features
         * A user can be member of more than one group.
         * Only admins can change other's accounts and manage groups.
