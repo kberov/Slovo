@@ -428,6 +428,8 @@ Ordered by time of first commit.
 
 =item * KABANOID (Mikhail Katasonov)
 
+=item * 0xAF (Stanislav Lechev)
+
 =back
 
 =head1 COPYRIGHT
