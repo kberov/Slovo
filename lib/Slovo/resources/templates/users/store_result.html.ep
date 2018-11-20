@@ -1,0 +1,6 @@
+% layout 'upravlenie', title => 'Създаване на потребителска сметка';
+<h2>Създаване на потребителска сметка</h2>
+%= dumper $result
+
+
+%#= button_to Remove => remove_users => {id => $users->{id}}

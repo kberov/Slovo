@@ -19,6 +19,7 @@ WriteMakefile(
                 'Cpanel::JSON::XS'                    => '4.06',
                 'Mojo::SQLite'                        => '3.001',
                 'Mojolicious'                         => '8.04',
+                'Minion::Backend::SQLite'             => '4.002',
                 'Mojolicious::Plugin::PODViewer'      => '0.02',
                 'Mojolicious::Plugin::Authentication' => '1.32',
                 'Mojolicious::Plugin::OpenAPI'        => '2.00',

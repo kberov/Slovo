@@ -112,10 +112,11 @@ sub _load_pugins($app) {
     # some plugins return $self and we are going to abuse this.
     my $plug;
     if (ref $plugin eq 'HASH') {
-      $plug = $app->plugin(%$plugin);
+      my $value = (values %$plugin)[0];
+      $plug = $app->plugin($name => ref $value eq 'CODE' ? $value->() : $value);
     }
     elsif (!ref($plugin)) {
-      $plug = $app->plugin($plugin);
+      $plug = $app->plugin($name);
     }
 
     # Make OpenAPI specification allways available!
@@ -131,11 +132,6 @@ sub _load_pugins($app) {
   for my $setting (@{$app->config('sessions') // []}) {
     my ($a, $v) = (keys %$setting, values %$setting);
     $app->sessions->$a($v);
-  }
-
-  # Default "/perldoc" page is Slovo
-  if (my $doc = $app->routes->lookup('perldocmodule')) {
-    $doc->to->{module} = 'Slovo';
   }
 
   return $app;

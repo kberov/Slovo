@@ -86,7 +86,19 @@ sub under_management($c) {
     $c->redirect_to('home_upravlenie');
     return 0;
   }
+  return 1;
+}
 
+# secure route /minion.
+# Allow access to only authenticated members of the admin group.
+sub under_minion($c) {
+
+  # TODO: make the group configurable
+  unless ($c->groups->is_admin($c->user->{id})) {
+    $c->flash(message => 'Само управителите могат да управляват задачите.');
+    $c->redirect_to('home_upravlenie');
+    return 0;
+  }
   return 1;
 }
 
