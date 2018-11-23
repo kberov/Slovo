@@ -3,9 +3,15 @@
   %= label_for login_name =>'Име за вход'
   %= text_field 'login_name'
 <br>
-  %= label_for login_password =>'Тайна дума за вход'
-  <%= text_field login_password => readonly=>'', size => 40, style=>'border:none' %>
-  <%= t button => id=>'generate_pass' =>'Нова' %>
+% my $l_p_title = 'Създайте случайна тайна дума, като използвате бутона отдясно.';
+%= label_for login_password =>'Тайна дума за вход', title => $l_p_title
+  <%=
+  text_field login_password => readonly => '',
+    size                    => 40,
+    title                   => $l_p_title,
+    placeholder             => $l_p_title
+  %>
+  <%= t button => id=>'generate_pass' =>'Нова тайна дума' %>
 <br>
   %= label_for first_name =>'Име'
   %= text_field first_name => required => 1, size => 40
@@ -30,7 +36,7 @@
     <br>
     %= label_for group_id => 'Главно множество'
     <b><%= groups->find($users->{group_id})->{name} %></b>
-    %#= hidden_field group_id => $users->{group_id}
+    %= hidden_field group_id => $users->{group_id}
     <br>
     <%
     my $user_groups = [];
@@ -66,13 +72,12 @@ function generate_password(e) {
         " преди да създадете тайната дума за вход" +
         " и не го променяйте след това."
     );
-    return;
+    return false;
   }
   let length = 8;
-  let charset =
-    "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ" +
-    "абвгдежзийклмнопрстуфхцчшщъьюя" +
-    "1234567890!@#$%^&*()_+-=[];:,.~/<>";
+  let charset = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ";
+  "абвгдежзийклмнопрстуфхцчшщъьюя";
+  "1234567890!@#$%^&*()_+-=[];:,.~/<>";
   let pass = "";
   for (var i = 0, n = charset.length; i < length; ++i) {
     pass += charset.charAt(Math.floor(Math.random() * n));
@@ -81,8 +86,8 @@ function generate_password(e) {
   if (same_user)
     alert(
       `Новата тайна дума за вход е "${pass}" без ограждащите кавички. ` +
-      `Състои се от букви от българската азбука, числа и печатаеми знаци. ` +
-      `Запомнете я, защото няма да я видите повече.`
+        "Състои се от букви от българската азбука, числа и печатаеми знаци. " +
+        "Запомнете я, защото няма да я видите повече."
     );
   const concat_ln_lp = name_field.value + passw_field.value;
   const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);

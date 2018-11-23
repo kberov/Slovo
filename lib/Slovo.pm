@@ -102,7 +102,7 @@ sub _load_pugins($app) {
   # Namespaces to load plugins from
   # See /perldoc/Mojolicious#plugins
   # See /perldoc/Mojolicious/Plugins#PLUGINS
-  $app->plugins->namespaces(['Slovo::Plugin', 'Mojolicious::Plugin']);
+  $app->plugins->namespaces(['Slovo::Plugin', 'Slovo', 'Mojolicious::Plugin']);
   my $plugins = $app->config('plugins') // [];
   push @$plugins, qw(DefaultHelpers TagHelpers);
   foreach my $plugin (@$plugins) {

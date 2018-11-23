@@ -13,10 +13,11 @@ sub create($c) {
 # POST /users
 # Add a new record to table users.
 sub store($c) {
+  my $users = $c->users;
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
-    my $id = $c->users->add($in);
+    my $id = $users->add($in);
     $c->res->headers->location(
                            $c->url_for("api.show_users", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
@@ -34,14 +35,42 @@ sub store($c) {
   $in->{disabled}   //= 0;
   $in->{stop_date} = 0;
 
+  # 1.1 Check if user already exists
+  my $u = $c->users->find_where(
+                  [{login_name => $in->{login_name}}, {email => $in->{email}}]);
+  if ($u) {
+    my @data = ();
+    if ($u->{login_name} eq $in->{login_name}) {
+      push @data, $u->{login_name};
+    }
+    if ($u->{email} eq $in->{email}) {
+      push @data, $u->{email};
+    }
+    $c->flash(  message => 'Потребител със същите данни ('
+              . join(', ', @data)
+              . ') вече съществува.');
+    return $c->redirect_to('create_users');
+  }
+
   # 2. Insert it into the database
-  my $id = $c->users->add($in);
+  my $id = $users->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
   # TODO: make it more user friendly.
-  $c->res->headers->location($c->url_for(show_users => {id => $id}));
-  return $c->render(text => '', status => 201);
+  # $c->res->headers->location($c->url_for(show_users => {id => $id}));
+
+  # send email from the current user to the new user to login for the first
+  # time and change his password.
+  my $job_id = $c->minion->enqueue(mail_first_login =>
+             [{%{$c->user}} => {%{$users->find($id)}}, $c->req->headers->host]);
+  return $c->redirect_to('users_store_result', jid => $job_id);
+}
+
+sub store_result ($c) {
+  return $c->reply->not_found
+    unless my $job = $c->minion->job($c->param('jid'));
+  $c->render(job => $job);
 }
 
 # GET /users/:id/edit
@@ -59,16 +88,15 @@ sub edit($c) {
 sub update($c) {
 
   # Validate input
-  my $v = $c->_validation;
-  return $c->render(action => 'edit', users => $v->input) if $v->has_error;
+  my $v  = $c->_validation;
+  my $in = $v->output;
+  my $id = $c->param('id');
+  return $c->render(action => 'edit', users => $in) if $v->has_error;
 
   # Update the record
-  my $id = $c->param('id');
-  my $in = $v->output;
   $in->{changed_by} = $c->user->{id};
   $in->{tstamp}     = time - 1;
   $c->users->save($id, $in);
-
   return $c->redirect_to('show_users', id => $id);
 
   # Redirect to the updated record or just send "204 No Content"

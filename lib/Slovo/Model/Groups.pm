@@ -28,6 +28,7 @@ sub all_with_member ($m, $uid) {
             WHERE user_id=$uid AND $table.id=group_id ),0)
             AS is_member
 COLS
+
   return
     $m->all(
             {

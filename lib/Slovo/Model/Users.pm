@@ -79,6 +79,9 @@ sub remove ($self, $id) {
 
 #update a user
 sub save ($m, $id, $row) {
+
+  #never update primary group
+  delete $row->{group_id};
   my $groups
     = ref $row->{groups} eq 'ARRAY'
     ? delete $row->{groups}
@@ -91,7 +94,7 @@ sub save ($m, $id, $row) {
     my $tx = $db->begin;
     $m->dbx->db->update($m->table, $row, {id => $id});
 
-    # remove all previous groups
+    # remove all previous groups except primary
     $db->delete(
        $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}});
     for my $gid (@$groups) {
