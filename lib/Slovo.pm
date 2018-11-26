@@ -407,6 +407,8 @@ source of truth so here it is.
 
 =head1 BUGS, SUPPORT, COMMIT, DISCUSS
 
+=for html <a href="https://travis-ci.org/kberov/Slovo"><img src="https://travis-ci.org/kberov/Slovo.svg?branch=master"></a>
+
 Please use issues at L<GitHub|https://github.com/kberov/Slovo/issues>, fork the
 project and make pull requests.
 
