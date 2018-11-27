@@ -54,17 +54,16 @@ sub store($c) {
 
   # 2. Insert it into the database
   my $id = $users->add($in);
+  #3. redirect
+  if ($INC{'Slovo/Task/SendOnboardingEmail.pm'}) {
 
-  # 3. Prepare the response data or just return "201 Created"
-  # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
-  # TODO: make it more user friendly.
-  # $c->res->headers->location($c->url_for(show_users => {id => $id}));
-
-  # send email from the current user to the new user to login for the first
-  # time and change his password.
-  my $job_id = $c->minion->enqueue(mail_first_login =>
+    # send email from the current user to the new user to login for the first
+    # time and change his password.
+    my $job_id = $c->minion->enqueue(mail_first_login =>
              [{%{$c->user}} => {%{$users->find($id)}}, $c->req->headers->host]);
-  return $c->redirect_to('users_store_result', jid => $job_id);
+    return $c->redirect_to('users_store_result', jid => $job_id);
+  }
+  return $c->redirect_to('home_users');
 }
 
 sub store_result ($c) {

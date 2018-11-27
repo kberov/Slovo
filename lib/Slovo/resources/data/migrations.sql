@@ -543,7 +543,7 @@ CREATE table first_login (
   token VARCHAR(40) UNIQUE,
   -- User for which this login token is valid
   user_id INTEGER REFERENCES users(id),
-  -- timestam before which this login token is not yet valid.
+  -- timestamp before which this login token is not yet valid.
   start_date INTEGER DEFAULT 9543310605,
   -- timestam after which this login token is no more valid.
   stop_date INTEGER DEFAULT 1

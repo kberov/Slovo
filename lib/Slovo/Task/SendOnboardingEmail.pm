@@ -13,7 +13,7 @@ my $CONF = {};
 my sub _send_mail_by_net_smtp ($message, $to_user, $app) {
   state $DEV = $app->mode =~ /^dev/;
 
-  #return 1 if $DEV;
+  return 1 if $DEV;
 
   my $cnf  = $CONF->{smtp};
   my $smtp = eval {
@@ -51,14 +51,14 @@ my sub _send_mail_by_net_smtp ($message, $to_user, $app) {
 # Sends a message for first login to $to_user and returns the generated token
 # The token will be deleted by _delete_first_login_token($job,$token).
 my sub _mail_message ($from_user, $to_user, $app, $domain) {
-  state $mt            = Mojo::Template->new(vars => 1);
-  state $mail_body     = 'task/send_onboarding_email.txt.ep';
-  state $mail_template = c(@{$app->renderer->paths})
+  state $mt        = Mojo::Template->new(vars => 1);
+  state $mail_body = 'task/send_onboarding_email.txt.ep';
+  state $mail_tmpl = c(@{$app->renderer->paths})
     ->first(sub { -f path($_, $mail_body)->to_string; }) . "/$mail_body";
 
   my $token = sha1_sum(steady_time . $to_user->{id});
   my $body = $mt->render_file(
-                              $mail_template => {
+                              $mail_tmpl => {
                                     from_user       => $from_user,
                                     to_user         => $to_user,
                                     domain          => $domain,
@@ -90,7 +90,8 @@ MAIL
   return $token;
 };
 
-# Job implementation for mail_first_login.
+# Job implementation for mail_first_login. Sends an email to the newly created
+# user with a first time login link.
 my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
   state $app = $job->app;
   $app->debug('Send mail with info about first login for the created user');
@@ -112,6 +113,8 @@ my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
                . ' бе успешно изпратено!');
 };    ## Perl::Critic bug needs ";" at the end of private subs
 
+# Job implementation for deleting the token record for first login of the newly
+# created user.
 my sub _delete_first_login ($job, $uid, $token) {
   state $app = $job->app;
   $app->debug("Deleting token $token for first login for user $uid.");
@@ -129,4 +132,38 @@ sub register ($self, $app, $conf) {
 }
 
 1;
+
+
+=encoding utf8
+
+=head1 NAME
+
+Slovo::Task::SendOnboardingEmail - Send an email with link for first time login
+
+=head1 SYNOPSIS
+
+  #load the plugin in slovo.conf
+  plugins => [
+    #...
+    #Tasks
+        {
+         'Task::SendOnboardingEmail' => {
+            token_valid_for => 24 * 3600,
+            smtp            => {
+                  mailhost  => 'mail.example.com',
+                  ssl       => 1,
+                  mail_from => 'onboarding@example.com',
+                  username  => 'onboarding@example.com',
+                  port      => 465,
+                  password  => 'pas5w0r4',
+                  timeout   => 30,
+            },
+         }
+        },
+    ],
+
+
+
+
+=cut
 
