@@ -22,6 +22,7 @@ WriteMakefile(
                 'Minion::Backend::SQLite'             => '4.002',
                 'Mojo::SQLite'                        => '3.001',
                 'Mojolicious'                         => '8.07',
+                'Mojolicious::Plugin::PODViewer'      => '0.002',
                 'Mojolicious::Plugin::Authentication' => '1.32',
                 'Mojolicious::Plugin::OpenAPI'        => '2.00',
                 'Mojolicious::Plugin::PODViewer'      => '0.02',
