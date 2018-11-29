@@ -8,18 +8,21 @@ perl:
 # Whitelist branches for CI, ignore all other branches
 branches:
   only:
-    - master
+    - addusergroup
 env:
   global:
     - "HARNESS_OPTIONS=j9"
     - "cpanm -n --installdeps ."
-  matrix:
-    - TEST_AUTHOR=1
-    - TEST_AUTHOR=0
+
 matrix:
   allow_failures:
     - TEST_AUTHOR=1
   fast_finish: true
+  include:
+    - "TEST_AUTHOR=1"
+      "cpanm -n Test::Perl::Critic Test::Pod"
+      "5.22"
+
 notifications:
   email: false
 sudo: false
