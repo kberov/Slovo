@@ -35,13 +35,16 @@ sub save ($self, $id, $row) {
   return $self->dbx->db->update($self->table, $row, {id => $id});
 }
 
-sub find_where ($m, $where = {1 => 1}) {
+sub find_where ($m, $where = {}) {
 
   # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   state $abstr = $m->dbx->abstract;
-  my ($sql, @bind) = $abstr->where($where);
-  return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1", @bind)
-    ->hash;
+  if (ref $where eq 'HASH' ? keys %$where : @$where) {
+    my ($sql, @bind) = $abstr->where($where);
+    return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1",
+                              @bind)->hash;
+  }
+  return;
 }
 
 sub find {

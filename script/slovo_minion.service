@@ -7,23 +7,17 @@
 # and then for more https://wiki.ubuntu.com/SystemdForUpstartUsers
 
 [Unit]
-Description=Slovo - Искони бѣ Слово
-Requires=network.target
-After=network.target
-# put here other service requirements
+Description=Роботници за Слово
+After=slovo.service
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
+Type=simple
+ExecStart=/home/$USER/opt/slovo/bin/slovo minion worker -m production
+KillMode=process
 WorkingDirectory=/home/$USER/opt/slovo/bin
-Restart=always
-Type=forking
 User=$USER
 Group=$USER
-SyslogIdentifier=slovo
-PIDFile=/home/$USER/opt/slovo/bin/slovo.pid
-ExecStart=/home/$USER/opt/slovo/bin/hypnotoad slovo
-ExecStop=/home/$USER/opt/slovo/bin/hypnotoad -s slovo
-ExecReload=/home/$USER/opt/slovo/bin/hypnotoad slovo
-
+SyslogIdentifier=slovo_minion

@@ -7,11 +7,11 @@ no warnings "experimental::lexical_subs";
 # This action will render a template
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
-  state $menu = [qw(groups users domove stranici celini)];
+  state $menu = [qw(minion groups users domove stranici celini)];
   return $c->render(
     menu => [
       map {
-        $_ eq 'groups' && !$c->groups->is_admin($c->user->{id})
+        $_ =~ m'groups|minion|domove' && !$c->groups->is_admin($c->user->{id})
           ? ()
           : $_
         } @$menu

@@ -1,6 +1,7 @@
 .perltidyrc
 Changes
 domove/localhost/apache2.4-vhost.conf
+domove/localhost/nginx-slovo.conf
 domove/localhost/public/img/slovo-white.svg
 domove/localhost/public/img/slovo.svg
 domove/localhost/templates/partials/_footer_right.html.ep
@@ -59,6 +60,7 @@ lib/Slovo/resources/public/js/trumbowyg-2.10/plugins/template/trumbowyg.template
 lib/Slovo/resources/public/js/trumbowyg-2.10/trumbowyg.min.js
 lib/Slovo/resources/public/js/trumbowyg-2.10/ui/icons.svg
 lib/Slovo/resources/public/js/trumbowyg-2.10/ui/trumbowyg.min.css
+lib/Slovo/resources/templates/auth/first_login_form.html.ep
 lib/Slovo/resources/templates/auth/form.html.ep
 lib/Slovo/resources/templates/celini/_form.html.ep
 lib/Slovo/resources/templates/celini/create.html.ep
@@ -105,18 +107,22 @@ lib/Slovo/resources/templates/stranici/index.html.ep
 lib/Slovo/resources/templates/stranici/show.html.ep
 lib/Slovo/resources/templates/stranici/templates/dom.html.ep
 lib/Slovo/resources/templates/stranici/templates/README
+lib/Slovo/resources/templates/task/send_onboarding_email.txt.ep
 lib/Slovo/resources/templates/upravlenie/index.html.ep
 lib/Slovo/resources/templates/users/_form.html.ep
 lib/Slovo/resources/templates/users/create.html.ep
 lib/Slovo/resources/templates/users/edit.html.ep
 lib/Slovo/resources/templates/users/index.html.ep
 lib/Slovo/resources/templates/users/show.html.ep
+lib/Slovo/resources/templates/users/store_result.html.ep
+lib/Slovo/Task/SendOnboardingEmail.pm
 lib/Slovo/Validator.pm
 LICENSE
 Makefile.PL
 MANIFEST
 script/slovo
 script/slovo.service
+script/slovo_minion.service
 t/.perlcriticrc
 t/001_load.t
 t/002_basic.t
@@ -125,6 +131,7 @@ t/004_crud.t
 t/005_site.t
 t/006_api.t
 t/007_domove.t
+t/008_first_login.t
 t/data/images/node.png
 t/data/images/perl.gif
 t/data/images/perl6.jpeg

@@ -1,5 +1,6 @@
-% layout 'upravlenie', title => 'Showing User ' . $users->{login_name};
-<h2><%= $users->{id} %></h2>
+% my $title = 'Прѣгледъ  на потребителска сметка на '. $users->{login_name};
+% layout 'upravlenie', title => $title;
+<h2><%= $title %></h2>
 
 <hr>
 % for my $k (keys %$users) {

@@ -17,11 +17,11 @@
 <div id="error_login" class="error message"><%= stash->{error_login} %></div>
 % }
 %= form_for sign_in => (id => 'sign_in', autocomplete =>'off') => begin
-%= label_for login_name => '"Име за входъ" е задължително поле (ѿ 1 до 100 знака).'
+%= label_for login_name => '"Име за входъ" е задължително поле (от 5 до 100 знака).'
 <br>
 %= text_field 'login_name', placeholder => 'Име за входъ', title => 'Име за входъ'
 <br>
-%= label_for login_key => '"Таен ключъ" е задължително поле (ѿ 1 до 40 знака).'
+%= label_for login_key => '"Таен ключъ" е задължително поле (от 8 до 40 знака).'
 <br>
 %= text_field login_key => placeholder => 'Таен ключ', title => 'Таен ключ'
 %= hidden_field 'digest'

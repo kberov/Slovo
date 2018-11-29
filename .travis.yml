@@ -9,17 +9,16 @@ perl:
 branches:
   only:
     - master
-env:
-  global:
-    - "HARNESS_OPTIONS=j9"
-    - "cpanm -n --installdeps ."
-  matrix:
-    - TEST_AUTHOR=1
-    - TEST_AUTHOR=0
-matrix:
-  allow_failures:
-    - TEST_AUTHOR=1
-  fast_finish: true
 notifications:
   email: false
 sudo: false
+env:
+  global:
+    - HARNESS_OPTIONS=j9
+  matrix:
+    - TEST_AUTHOR=1
+    - TEST_AUTHOR=0
+before_install:
+  - "cpanm -n Test::Pod Test::Perl::Critic"
+install:
+  - cpanm -n --installdeps .

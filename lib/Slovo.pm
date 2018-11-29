@@ -17,8 +17,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.11.15';
-our $CODENAME  = 'U+2C10 GLAGOLITIC CAPITAL LETTER NASHI (Ⱀ)';
+our $VERSION   = '2018.11.28';
+our $CODENAME  = 'U+2C11 GLAGOLITIC CAPITAL LETTER ONU (Ⱁ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
@@ -102,7 +102,7 @@ sub _load_pugins($app) {
   # Namespaces to load plugins from
   # See /perldoc/Mojolicious#plugins
   # See /perldoc/Mojolicious/Plugins#PLUGINS
-  $app->plugins->namespaces(['Slovo::Plugin', 'Mojolicious::Plugin']);
+  $app->plugins->namespaces(['Slovo::Plugin', 'Slovo', 'Mojolicious::Plugin']);
   my $plugins = $app->config('plugins') // [];
   push @$plugins, qw(DefaultHelpers TagHelpers);
   foreach my $plugin (@$plugins) {
@@ -112,10 +112,11 @@ sub _load_pugins($app) {
     # some plugins return $self and we are going to abuse this.
     my $plug;
     if (ref $plugin eq 'HASH') {
-      $plug = $app->plugin(%$plugin);
+      my $value = (values %$plugin)[0];
+      $plug = $app->plugin($name => ref $value eq 'CODE' ? $value->() : $value);
     }
     elsif (!ref($plugin)) {
-      $plug = $app->plugin($plugin);
+      $plug = $app->plugin($name);
     }
 
     # Make OpenAPI specification allways available!
@@ -131,11 +132,6 @@ sub _load_pugins($app) {
   for my $setting (@{$app->config('sessions') // []}) {
     my ($a, $v) = (keys %$setting, values %$setting);
     $app->sessions->$a($v);
-  }
-
-  # Default "/perldoc" page is Slovo
-  if (my $doc = $app->routes->lookup('perldocmodule')) {
-    $doc->to->{module} = 'Slovo';
   }
 
   return $app;
@@ -161,7 +157,8 @@ sub _set_routes_attrs ($app) {
   push @{$r->base_classes}, $app->controller_class;
   $r->namespaces($r->base_classes);
   my $w = qr/[\w\-]+/;
-  @{$r->types}{qw(lng str cel)} = (qr/[A-z]{2}(?:\-[A-z]{2})?/a, $w, $w);
+  @{$r->types}{qw(lng str cel fl_token)}
+    = (qr/[A-z]{2}(?:\-[A-z]{2})?/a, $w, $w, qr/[a-f0-9]{40}/);
   return $app;
 }
 
@@ -222,7 +219,7 @@ with nice core features like:
 
 =item * Multi-user support - DONE;
 
-=item * User onboarding - STARTED;
+=item * User onboarding - BETA;
 
 =item * User sign in - DONE;
 
@@ -232,7 +229,7 @@ with nice core features like:
 
 =item * Multiple groups per user - DONE;
 
-=item * Ownership and access permissions management per page and it's content - DONE;
+=item * Ownership and permissions management per page and it's content - DONE;
 
 =item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
 and content - DONE;
@@ -246,9 +243,9 @@ DONE;
 
 =item * Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>.
 
-=item * Example startup script for
-L<systemd|https://freedesktop.org/wiki/Software/systemd/> and L<Apache
-2.4|https://httpd.apache.org/docs/2.4/> vhost configuration file.
+=item * Example startup scripts for slovo and slovo_minion services
+for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
+2.4|https://httpd.apache.org/docs/2.4/> and NGINX vhost configuration files.
 
 =item * and more to come…
 
@@ -261,10 +258,11 @@ corresponding SQL dialects. Contributors are wellcome.
 
 The word "slovo" (слово) has one unchanged during the senturies meaning in all
 slavic languages. It is actually one language that started splitting apart less
-than one thousand years ago. The meaning is "word" - the God's word. Hence the
-self-naming of this group of people C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who
-have been given the God's word or people who can speak. All others were "mute",
-hense the naming (немци)...
+than one thousand years ago. The meaning is "word" - the God's word when used
+with capital letter. Hence the self-naming of this group of people
+C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who have been given the God's word or
+people who can speak. All others were considered "mute", hense the naming
+(немци)...
 
 =head1 INSTALL
 
@@ -278,7 +276,7 @@ If you already downloaded it and you have L<cpanm>.
 
     $ cpanm -l ~/opt/slovo Slovo-XXXX.XX.XX.tar.gz
 
-Or even if you don't have C<cpanm>.
+Or even if you don't have C<cpanm>, but you need to install dependencies first.
 
     tar zxf Slovo-XXXX.XX.XX.tar.gz
     cd  Slovo-XXXX.XX.XX
@@ -429,6 +427,8 @@ Ordered by time of first commit.
 =item * MANWAR (Mohammad S Anwar)
 
 =item * KABANOID (Mikhail Katasonov)
+
+=item * 0xAF (Stanislav Lechev)
 
 =back
 

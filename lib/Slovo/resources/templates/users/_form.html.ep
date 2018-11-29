@@ -1,36 +1,60 @@
-%= form_for $target => begin
-
+%= form_for $target => (class => 'mui-form') => begin
+<div class="mui-textfield">
+  %= text_field 'login_name', class => 'mui-textfield'
   %= label_for login_name =>'Име за вход'
-  %= text_field 'login_name'
-<br>
-  %= label_for login_password =>'Тайна дума за вход'
-  <%= text_field login_password => readonly=>'', size => 40, style=>'border:none' %>
-  <%= t button => id=>'generate_pass' =>'Нова' %>
-<br>
+</div>
+% my $l_p_title = 'Създайте случайна тайна дума, като използвате бутона отдясно.';
+<div class="mui-textfield">
+  <%=
+  text_field login_password => (
+                                readonly    => '',
+                                required    => '',
+                                size        => 40,
+                                title       => $l_p_title,
+                                placeholder => $l_p_title,
+                                class       => 'mui-textfield',
+                                style =>'display:inline;vertical-align:middle'
+                               )
+  %>
+  %= label_for login_password =>'Тайна дума за вход', title => $l_p_title
+  <button
+      id="generate_pass"
+      class ="mui-btn mui-btn--small mui-btn--primary mui-btn--fab"
+      title="Нова тайна дума"
+       style="display:inline;vertical-align:middle"
+      >+</button>
+</div>
+<div class="mui-textfield">
+  %= text_field first_name => required => 1, size => 40, class => 'mui-textfield'
   %= label_for first_name =>'Име'
-  %= text_field first_name => required => 1, size => 40
-<br>
-  %= label_for last_name =>'Фамилия'
+</div>
+<div class="mui-textfield">
   %= text_field last_name => required => 1, size => 40
-<br>
+  %= label_for last_name =>'Фамилия'
+</div>
+<div class="mui-textfield">
+  %= text_field email => required => 1, size => 40, class => 'mui-textfield'
   %= label_for email =>'Е-поща'
-  %= text_field email => required => 1, size => 55
-<br>
+</div>
+<div class="mui-textfield">
+  %= text_field description =>size => 65, class => 'mui--is-empty mui--is-untouched mui--is-pristine'
   %= label_for description =>'Описание'
-  %= text_field description =>size => 65
-<br>
-  %= select_box disabled => [['Да'=>0],['Не'=>1]], label => 'Действащ'
-<br>
-  %= label_for start_date => 'Start_date'
+</div>
+<div class="mui-select">
+%= select_box disabled => [['Да'=>0],['Не'=>1]], label =>'Действащ'
+</div>
+<div class="mui-textfield">
   %= number_field 'start_date'
-<br>
-  %= label_for stop_date => 'Stop_date'
+  %= label_for start_date => 'Start_date'
+</div>
+<div class="mui-textfield">
   %= number_field 'stop_date'
+  %= label_for stop_date => 'Stop_date'
+</div>
   % if($target eq 'update_users' && stash->{id}) {
-    <br>
     %= label_for group_id => 'Главно множество'
     <b><%= groups->find($users->{group_id})->{name} %></b>
-    %#= hidden_field group_id => $users->{group_id}
+    %= hidden_field group_id => $users->{group_id}
     <br>
     <%
     my $user_groups = [];
@@ -41,32 +65,34 @@
       }
     );
     %>
+<div class="mui-select">
     <%=
-    select_box groups => $groups,( multiple => '', value => $user_groups, label =>'Член на')
+    select_box groups => $groups,( multiple => '', value => $user_groups, label => 'Член на' )
     %>
+</div>
 % }
-<br>
-  %= submit_button $caption
+%= submit_button $caption =>(class => 'mui-btn mui-btn--raised')
 % end
 <script>
-    let same_user = <%= $c->user->{id} == ($users->{id} || 0) ? 'true' : 'false' %>;
+    let same_user = <%=
+        (user->{id} == ($users->{id} || 0)) ? 'true' : 'false'
+        %>;
+    let form_target = '<%= $target %>';
 </script>
 %= javascript '/js/CryptoJS-v3.1.2/sha1.js'
 %= javascript begin
 "use strict";
 function generate_password(e) {
   e.preventDefault();
-  let $d = document;
-  $d.qS = document.querySelector;
-  const name_field = $d.qS('[name="login_name"]');
-  const passw_field = $d.qS('[name="login_password"]');
-  if (name_field.value === "") {
+  const name_field = $('[name="login_name"]');
+  const passw_field = $('[name="login_password"]');
+  if (name_field.val() === "") {
     alert(
       "Моля, въведете име за потребителя," +
         " преди да създадете тайната дума за вход" +
         " и не го променяйте след това."
     );
-    return;
+    return false;
   }
   let length = 8;
   let charset =
@@ -74,19 +100,34 @@ function generate_password(e) {
     "абвгдежзийклмнопрстуфхцчшщъьюя" +
     "1234567890!@#$%^&*()_+-=[];:,.~/<>";
   let pass = "";
-  for (var i = 0, n = charset.length; i < length; ++i) {
+  for (let i = 0, n = charset.length; i < length; ++i) {
     pass += charset.charAt(Math.floor(Math.random() * n));
   }
-  //this aler should not be shown if the user is not the same as the edited one.
-  if (same_user)
-    alert(
+  if (same_user) {
+    pass = prompt(
       `Новата тайна дума за вход е "${pass}" без ограждащите кавички. ` +
-      `Състои се от букви от българската азбука, числа и печатаеми знаци. ` +
-      `Запомнете я, защото няма да я видите повече.`
+        "Състои се от букви от българската азбука, числа и печатаеми знаци. " +
+        "Можете да я промените, но я запомнете, защото няма да я видите повече.",
+      pass
     );
-  const concat_ln_lp = name_field.value + passw_field.value;
+    if (Boolean(pass)) passw_field.val(pass);
+    else return;
+  } else {
+    let change_pass =
+      form_target === "update_users"
+        ? confirm(
+            "Наистина ли искате да промените тайната дума за вход на " +
+              $('[name="login_name"]').val() +
+              "?"
+          )
+        : true;
+    if (Boolean(change_pass)) passw_field.val(pass);
+    else return;
+  }
+  const concat_ln_lp = name_field.val() + passw_field.val();
   const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);
-  passw_field.value = passw_sha1;
+  passw_field.val(passw_sha1);
+  return;
 }
 
 $("#generate_pass").click(generate_password);
