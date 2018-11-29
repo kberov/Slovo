@@ -11,7 +11,7 @@ sub index($c) {
   return $c->render(
     menu => [
       map {
-        $_ =~ m'groups|minion' && !$c->groups->is_admin($c->user->{id})
+        $_ =~ m'groups|minion|domove' && !$c->groups->is_admin($c->user->{id})
           ? ()
           : $_
         } @$menu

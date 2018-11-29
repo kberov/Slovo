@@ -5,7 +5,7 @@ use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
 use Mojo::File qw(path);
-use Mojo::Util qw(decode encode sha1_sum url_escape);
+use Mojo::Util qw(decode encode sha1_sum);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # '.' => '/tmp/slovo'
@@ -55,7 +55,7 @@ my $create_user = sub {
                                      'Location: /Ꙋправленѥ/users/store_result/1'
   )->content_is('', 'empty content');
   my $user_show = $t->get_ok($user6_url)->status_is(200);
-  my $user      = $app->users->find_by_login_name('шест');
+  my $user      = $app->users->find(6);
   for (values %$user_form) {
     $user_show->content_like(qr/$_/);
   }
@@ -65,7 +65,7 @@ my $create_user = sub {
           'select[name="groups"]>option[selected]' => $user_form->{login_name});
 
   # Primary group for this user
-  my $group = $app->groups->find($user->{id});    #now group has the same id
+  my $group = $app->groups->find($user->{id});    # now group has the same id
   is($group->{name} => $user->{login_name}, 'primary group name');
 };
 
@@ -379,6 +379,4 @@ subtest crud_domain      => $crud_domain;
 subtest user_permissions => $user_permissions;
 
 done_testing;
-exit;
-
 

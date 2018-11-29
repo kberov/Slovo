@@ -18,7 +18,7 @@ WriteMakefile(
   PREREQ_PM     => {
                 'Authen::SASL'                        => '2.16',
                 'Class::Method::Modifiers'            => '2.12',
-                'Cpanel::JSON::XS'                    => '4.06',
+                'Cpanel::JSON::XS'                    => '4.08',
                 'Minion::Backend::SQLite'             => '4.002',
                 'Mojo::SQLite'                        => '3.001',
                 'Mojolicious'                         => '8.07',

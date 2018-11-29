@@ -14,7 +14,7 @@ BEGIN {
 use Mojo::File 'path';
 
 BEGIN {
-  $ENV{MOJO_HOME} ||= path(__FILE__)->sibling('../')->realpath;
+  $ENV{MOJO_HOME} ||= path(__FILE__)->sibling('../')->realpath->to_string;
   my @libs = (
               path($ENV{MOJO_HOME}, 'site', 'lib')->to_string,
               path($ENV{MOJO_HOME}, 'lib')->to_string

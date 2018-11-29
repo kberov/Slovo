@@ -1,0 +1,32 @@
+% layout 'upravlenie';
+% my $title = 'Първи входъ';
+% title $title;
+%= form_for first_login => (id => 'first_login', autocomplete =>'off', class => "mui-form") => begin
+%= t 'legend' => $title
+% if(stash->{error_message}){
+<div class="mui-panel field-with-error" ><%= stash->{error_message} %></div>
+%}
+% if (stash->{row}) {
+<p>
+Добре дошли за първи път в слово.бг.
+</p>
+<p>
+Щом се намирате на тази страница, това означава, че някой е създал сметка за
+вас и сте получили електронно писмо с препратката, която ви доведе тук.
+Моля, въведете пълното име на човека, създал вашата сметка, за да можете на
+следващата стъпка да зададете тайната си дума за вход. От сега нататък ще
+използвате нея при влизане.
+</p>
+%= input_tag 'token' => (type =>'hidden')
+
+<br>
+  %= label_for first_name =>'Име'
+  %= text_field first_name => required => 1, size => 40, class => 'mui-textfield'
+<br>
+  %= label_for last_name =>'Фамилия'
+  %= text_field last_name => required => 1, size => 40, class => 'mui-textfield'
+<br>
+%= submit_button 'Нататък'=> (class=>"mui-btn mui-btn--raised")
+% }
+% end
+

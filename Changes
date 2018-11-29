@@ -1,9 +1,15 @@
 Revision history for Mojolicious application Slovo
 
-2018.11.21
+2018.11.28
     - Features
+        * Implemented onboarding workflow. A user can create account for other
+          users and invite them to sign in for the first time. An email with
+          first-time login token is sent to the new user via SMTP. See
+          Slovo::Task::SendOnboardingEmail.
+        * We have Bootstrap CSS 4 for free. Comming together with Minion.
         * Minion admin UI (Mojolicious::Plugin::Minion::Admin) is available for
-          members of the admin group at /Ꙋправленѥ/minion.
+          members of the admin group at /Ꙋправленѥ/minion. Note: Links in UI do
+          not work. TODO: fix.
 
     - Changes
         * Slovo now depends on Minion and Minion::Backend::SQLite which will be

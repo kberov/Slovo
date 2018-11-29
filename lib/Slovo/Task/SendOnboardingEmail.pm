@@ -4,7 +4,7 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 use Net::SMTP;
-use Mojo::Util qw(b64_encode encode sha1_sum steady_time);
+use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';
 use Mojo::Collection 'c';
 
@@ -56,7 +56,13 @@ my sub _mail_message ($from_user, $to_user, $app, $domain) {
   state $mail_tmpl = c(@{$app->renderer->paths})
     ->first(sub { -f path($_, $mail_body)->to_string; }) . "/$mail_body";
 
-  my $token = sha1_sum(steady_time . $to_user->{id});
+  #This token will be compared with the provided by the new user data
+  #(first_name and last_name).
+  my $token
+    = sha1_sum(
+           encode('UTF-8' => $from_user->{first_name} . $from_user->{last_name})
+             . $from_user->{id}
+             . $to_user->{id});
   my $body = $mt->render_file(
                               $mail_tmpl => {
                                     from_user       => $from_user,
@@ -94,16 +100,15 @@ MAIL
 # user with a first time login link.
 my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
   state $app = $job->app;
-  $app->debug('Send mail with info about first login for the created user');
   my $token = _mail_message($from_user, $to_user, $app, $domain);
   my $token_row = {
-                   user_id    => $to_user->{id},
+                   from_uid   => $from_user->{id},
+                   to_uid     => $to_user->{id},
                    token      => $token,
                    start_date => time,
                    stop_date  => time + $CONF->{token_valid_for}
                   };
   $app->dbx->db->insert('first_login' => $token_row);
-  $app->debug('token_row' => $token_row);
   $app->minion->enqueue(delete_first_login => [$to_user->{id}, $token] =>
                         {delay => $CONF->{token_valid_for}});
   $job->finish(  'Писмото за първo влизане в '
@@ -117,11 +122,10 @@ my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
 # created user.
 my sub _delete_first_login ($job, $uid, $token) {
   state $app = $job->app;
-  $app->debug("Deleting token $token for first login for user $uid.");
-  $app->dbx->db->delete('first_login' => {token => $token, user_id => $uid});
+  $app->dbx->db->delete('first_login' => {token => $token, to_uid => $uid});
 
   # also delete expired but not deleted (for any reason) login tokens.
-  $app->dbx->db->delete('first_login' => {stop_date => {'<=' => time}});
+  $app->dbx->db->delete('first_login' => {stop_date => {'<' => time}});
   $job->finish;
 };
 
@@ -129,6 +133,7 @@ sub register ($self, $app, $conf) {
   $CONF = $conf;
   $app->minion->add_task(mail_first_login   => \&_mail_first_login);
   $app->minion->add_task(delete_first_login => \&_delete_first_login);
+  return $self;
 }
 
 1;
@@ -142,28 +147,76 @@ Slovo::Task::SendOnboardingEmail - Send an email with link for first time login
 
 =head1 SYNOPSIS
 
-  #load the plugin in slovo.conf
+  #load the plugin via slovo.conf
   plugins => [
     #...
     #Tasks
         {
          'Task::SendOnboardingEmail' => {
-            token_valid_for => 24 * 3600,
+            token_valid_for => 24 * 3600, #24 hours
             smtp            => {
-                  mailhost  => 'mail.example.com',
                   ssl       => 1,
+                  port      => 465,
+                  timeout   => 30,
+                  mailhost  => 'mail.example.com',
                   mail_from => 'onboarding@example.com',
                   username  => 'onboarding@example.com',
-                  port      => 465,
                   password  => 'pas5w0r4',
-                  timeout   => 30,
             },
          }
         },
     ],
 
+=head1 DESCRIPTION
 
+This is the first L<Minion> task implemented in L<Slovo>.
 
+Slovo is not integrated with any social network. A plugin can be relatively
+easily written and there are maybe already some L<Mojolicious::Plugin> written.
+L<Ado|https://github.com/kberov/Ado> had L<such
+functionality|https://github.com/kberov/Ado/blob/master/etc/plugins/auth.conf>
+by leveraging L<Mojolicious::Plugin::OAuth2>.
+
+Slovo takes another approach. Its users can invite each other to join the set
+of sites one Slovo instance manages. Slovo is the social network it self. We
+may use L<Mojolicious::Plugin::OAuth2::Server> at some point.
+
+A user in Slovo can create others users' accounts. Upon creation of the new
+user account an email is sent to the new user. In the email there is a link for
+the first time login fo the new user. The new user follows the link and is
+signed in after confirming the names of the user who created his account. After
+that the user has to change his password to be able to sign in next time.
+
+Slovo::Task::SendOnboardingEmail inherits L<Mojolicious::Plugin> and implements
+the following functionality.
+
+=head1 METHODS
+
+Only one method is implemented.
+
+=head1 register
+
+Reads the configuration and adds the implemented tasks to L<Minion>.
+
+=head1 TASKS
+
+The following tasks are provided.
+
+=head2 mail_first_login
+
+Prepares and sends email using L<Net::SMTP> to the newly created user. The
+email contains a link for the first sign in. The task is enqued upon creation
+of the new account. The first time sign in is implemented in L<Slovo::Controller::Auth/first_login_form> and L<Slovo::Controller::Auth/first_login>.
+
+=head2 delete_first_login
+
+Deletes the record with the login token fro the new user. The task is enqued by
+L</mail_first_login> with delay C<token_valid_for> as configured. Defaults to
+24 hours after creation of the account.
+
+=head1 SEE ALSO
+
+L<Slovo::Controller::Auth>
 
 =cut
 

@@ -18,6 +18,8 @@
           <td class="mui--text-title">
     %= link_to '/' => sub{ t img => id=> "logo", src=>"/img/slovo-white.png" }
     |
+    %= link_to 'perldoc' => 'perldoc' =>(target => '_blank')
+    |
     %= link_to '/Ꙋправленѥ' => 'under_management'
           </td>
           <td class="mui--text-right">
@@ -30,6 +32,8 @@
         </tr>
       </tbody></table>
     </header>
+    <div class="mui-container-fluid">
     %= content
+    </div>
   % end
 % end

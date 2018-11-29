@@ -80,7 +80,7 @@ sub remove ($self, $id) {
 #update a user
 sub save ($m, $id, $row) {
 
-  #never update primary group
+  #never change the primary group
   delete $row->{group_id};
   my $groups
     = ref $row->{groups} eq 'ARRAY'
@@ -88,18 +88,26 @@ sub save ($m, $id, $row) {
     : [delete $row->{groups}];
   my $db = $m->dbx->db;
 
-  # local $db->dbh->{tracelevel} = "3|sql";
   state $gid_SQL= "(SELECT group_id FROM $table WHERE id=?)";
   eval {
     my $tx = $db->begin;
-    $m->dbx->db->update($m->table, $row, {id => $id});
+    $db->update($table, $row, {id => $id});
 
-    # remove all previous groups except primary
-    $db->delete(
-       $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}});
-    for my $gid (@$groups) {
-      $db->query("INSERT OR IGNORE INTO $ug_table VALUES (?,?)", $id, $gid);
+    # Remove all previous groups except primary and insert the selected groups.
+    if ($groups) {
+      $db->delete(
+         $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}}
+      );
+      for my $gid (@$groups) {
+        $db->query("INSERT OR IGNORE INTO $ug_table VALUES (?,?)", $id, $gid);
+      }
     }
+
+    # disable/enable primary group if needed
+    $db->update(groups_table,
+                {disabled => $row->{disabled}},
+                {id       => {'=' => \[$gid_SQL => $id]}})
+      if defined $row->{disabled};
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");
   return $id;

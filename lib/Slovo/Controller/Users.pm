@@ -36,7 +36,7 @@ sub store($c) {
   $in->{stop_date} = 0;
 
   # 1.1 Check if user already exists
-  my $u = $c->users->find_where(
+  my $u = $users->find_where(
                   [{login_name => $in->{login_name}}, {email => $in->{email}}]);
   if ($u) {
     my @data = ();
@@ -54,13 +54,18 @@ sub store($c) {
 
   # 2. Insert it into the database
   my $id = $users->add($in);
+
   #3. redirect
   if ($INC{'Slovo/Task/SendOnboardingEmail.pm'}) {
 
     # send email from the current user to the new user to login for the first
     # time and change his password.
-    my $job_id = $c->minion->enqueue(mail_first_login =>
-             [{%{$c->user}} => {%{$users->find($id)}}, $c->req->headers->host]);
+    my $job_id = $c->minion->enqueue(
+                        mail_first_login => [
+                          {%{$c->user}} => {%{$users->find_where({id => $id})}},
+                          $c->req->headers->host
+                        ]
+    );
     return $c->redirect_to('users_store_result', jid => $job_id);
   }
   return $c->redirect_to('home_users');
@@ -69,7 +74,7 @@ sub store($c) {
 sub store_result ($c) {
   return $c->reply->not_found
     unless my $job = $c->minion->job($c->param('jid'));
-  $c->render(job => $job);
+  return $c->render(job => $job);
 }
 
 # GET /users/:id/edit
@@ -116,7 +121,6 @@ sub show($c) {
       unless $row;
     return $c->render(openapi => $row);
   }
-  $row = $c->users->find($c->param('id'));
   return $c->render(text => $c->res->default_message(404), status => 404)
     unless $row;
   return $c->render(users => $row);
