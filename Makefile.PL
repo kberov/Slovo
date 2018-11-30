@@ -28,12 +28,14 @@ my $PREREQ_PM = {
 if ($ENV{TEST_AUTHOR}) {
   $PREREQ_PM = {
                 %$PREREQ_PM,
-                'Test::Pod'          => '1.52',
-                'Test::Perl::Critic' => '1.04',
-                'Perl::Critic'       => '1.132',
-                'Perl::Tidy'         => '20181119',
+                'Test::Pod'           => '1.52',
+                'Test::Perl::Critic'  => '1.04',
+                'Perl::Critic'        => '1.132',
+                'Perl::Tidy'          => '20181119',
+                'Test::CheckManifest' => '1.33',
                };
 }
+
 WriteMakefile(
   NAME          => 'Slovo',
   VERSION_FROM  => $module_file,                        # finds \$VERSION
