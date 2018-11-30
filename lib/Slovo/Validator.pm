@@ -13,7 +13,7 @@ sub new {
 
   # new filters
   $self->add_filter(xml_escape => sub { Mojo::Util::xml_escape($_[2]) });
-  $self->add_filter(slugify => sub { Mojo::Util::slugify($_[2], 1) });
+  $self->add_filter(slugify    => sub { Mojo::Util::slugify($_[2], 1) });
 
   # new checks
   $self->add_check(is => \&_can);

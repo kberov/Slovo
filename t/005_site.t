@@ -282,7 +282,7 @@ sub _pisania {
   for my $cel (0 .. ($cels < 10 ? 10 : $cels)) {
 
     #create dummy body
-    my $body = c(split /[,.\n]?\s+/, $data)->shuffle->join(' ');
+    my $body    = c(split /[,.\n]?\s+/, $data)->shuffle->join(' ');
     my $tlength = int rand(100);
     $tlength < 20 && ($tlength = 20);
 

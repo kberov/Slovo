@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.11.28';
+our $VERSION   = '2018.11.30';
 our $CODENAME  = 'U+2C11 GLAGOLITIC CAPITAL LETTER ONU (Ⱁ)';
 my $CLASS = __PACKAGE__;
 

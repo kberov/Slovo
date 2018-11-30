@@ -5,7 +5,7 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 
 
-has not_found_id => sub { $_[0]->stranici->not_found_id };
+has not_found_id   => sub { $_[0]->stranici->not_found_id };
 has not_found_code => 404;
 
 has description => 'Slovo is a simple extensible CMS.';

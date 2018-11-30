@@ -8,32 +8,43 @@ use utf8;
 # the contents of the Makefile that is written.
 my $module_file = 'lib/Slovo.pm';
 my $git_url     = 'https://github.com/kberov/Slovo';
+my $PREREQ_PM = {
+                 'Authen::SASL'                        => '2.16',
+                 'Class::Method::Modifiers'            => '2.12',
+                 'Cpanel::JSON::XS'                    => '4.08',
+                 'Minion::Backend::SQLite'             => '4.002',
+                 'Mojo::SQLite'                        => '3.001',
+                 'Mojolicious'                         => '8.07',
+                 'Mojolicious::Plugin::PODViewer'      => '0.002',
+                 'Mojolicious::Plugin::Authentication' => '1.32',
+                 'Mojolicious::Plugin::OpenAPI'        => '2.00',
+                 'Mojolicious::Plugin::PODViewer'      => '0.002',
+                 'Mojolicious::Plugin::RoutesConfig'   => '0.05',
+                 'Net::SMTP'                           => '3.11',
+                 'Role::Tiny'                          => '2.000006',
+                 'EV'                                  => '4.22'
+                };
 
+if ($ENV{TEST_AUTHOR}) {
+  $PREREQ_PM = {
+                %$PREREQ_PM,
+                'Test::Pod'          => '1.52',
+                'Test::Perl::Critic' => '1.04',
+                'Perl::Critic'       => '1.132',
+                'Perl::Tidy'         => '20181119',
+               };
+}
 WriteMakefile(
   NAME          => 'Slovo',
   VERSION_FROM  => $module_file,                        # finds \$VERSION
   AUTHOR        => 'Красимир Беров (berov@cpan.org)',
   ABSTRACT_FROM => $module_file,
   LICENSE       => 'artistic_2',
-  PREREQ_PM     => {
-                'Authen::SASL'                        => '2.16',
-                'Class::Method::Modifiers'            => '2.12',
-                'Cpanel::JSON::XS'                    => '4.08',
-                'Minion::Backend::SQLite'             => '4.002',
-                'Mojo::SQLite'                        => '3.001',
-                'Mojolicious'                         => '8.07',
-                'Mojolicious::Plugin::PODViewer'      => '0.002',
-                'Mojolicious::Plugin::Authentication' => '1.32',
-                'Mojolicious::Plugin::OpenAPI'        => '2.00',
-                'Mojolicious::Plugin::PODViewer'      => '0.02',
-                'Mojolicious::Plugin::RoutesConfig'   => '0.05',
-                'Net::SMTP'                           => '3.11',
-                'Role::Tiny'                          => '2.000006',
-               },
+  PREREQ_PM     => $PREREQ_PM,
   TEST_REQUIRES => {},
   test          => {TESTS => 't/*.t'},
   EXE_FILES     => ['script/slovo'],
-  clean         => {FILES => 'Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
+  clean => {FILES => 'Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
   MIN_PERL_VERSION => '5.020000',
   META_MERGE       => {
        dynamic_config => 0,
@@ -96,7 +107,7 @@ Start the server and open a browser
 Build Makefile even directly in vim
 
     !perl Makefile.PL
-    
+
 When you want to add new files to the ditribution
 
     make manifest
@@ -105,7 +116,7 @@ Beautify your code
 
     make perltidy
 
-Generate README and README.POD
+Re-generate README and README.POD
 
     make readme
 

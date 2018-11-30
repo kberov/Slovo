@@ -199,7 +199,7 @@ my $create_celini = sub {
 };
 
 # Update celini
-my $sh_up_url = $app->url_for('update_celini', {id => $max_id})->to_string;
+my $sh_up_url     = $app->url_for('update_celini', {id => $max_id})->to_string;
 my $update_celini = sub {
   my $old_title = $cform->{title};
   $cform->{title} = 'Заглавие на цѣлината';

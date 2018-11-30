@@ -182,7 +182,7 @@ sub add ($m, $row) {
 
 sub find_for_edit ($m, $id, $l) {
   my $db = $m->dbx->db;
-  my $p = $db->select($table, undef, {id => $id})->hash;
+  my $p  = $db->select($table, undef, {id => $id})->hash;
   my $title = $db->select(
                           $celini_table,
                           'title,body,language,id as title_id',

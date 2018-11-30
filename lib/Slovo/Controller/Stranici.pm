@@ -144,7 +144,7 @@ sub remove($c) {
     return $c->render(openapi => '', status => 204);
   }
   my $id = $c->param('id');
-  my $v = $c->validation->input({id => $id});
+  my $v  = $c->validation->input({id => $id});
   $v->required('id');
   $v->error('id' => ['not_writable'])
     unless $c->stranici->find_where(

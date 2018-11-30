@@ -23,7 +23,7 @@ sub add ($self, $row) {
                    disabled    => $row->{disabled},
                   };
   eval {
-    my $tx = $db->begin;
+    my $tx  = $db->begin;
     my $gid = $db->insert(groups_table, $group_row)->last_insert_id;
     $row->{group_id} = $gid;
     $id = $db->insert($table, $row)->last_insert_id;

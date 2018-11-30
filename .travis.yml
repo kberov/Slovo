@@ -3,22 +3,17 @@ dist: xenial
 perl:
   - "5.28"
   - "5.26"
-  - "5.24"
-  - "5.22"
-# Whitelist branches for CI, ignore all other branches
-branches:
-  only:
-    - master
-notifications:
-  email: false
-sudo: false
 env:
   global:
-    - HARNESS_OPTIONS=j9
+    - "HARNESS_OPTIONS=j9"
+    - "cpanm -n --installdeps ."
   matrix:
     - TEST_AUTHOR=1
     - TEST_AUTHOR=0
-before_install:
-  - "cpanm -n Test::Pod Test::Perl::Critic"
-install:
-  - cpanm -n --installdeps .
+matrix:
+  allow_failures:
+    - TEST_AUTHOR=1
+  fast_finish: true
+notifications:
+  email: false
+

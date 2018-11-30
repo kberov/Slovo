@@ -182,7 +182,7 @@ sub remove($c) {
     return $c->render(openapi => '', status => 204);
   }
   my $id = $c->param('id');
-  my $v = $c->validation->input({id => $id});
+  my $v  = $c->validation->input({id => $id});
   $v->required('id');
   $v->error('id' => ['not_writable'])
     unless $c->celini->find_where(
@@ -215,7 +215,7 @@ sub _validation($c) {
 
   # For all but the last two types the following properties are required
   my $types_rx = join '|', @$types[0 .. @$types - 2];
-  my $dt = $v->param('data_type') // '';
+  my $dt       = $v->param('data_type') // '';
   if ($dt =~ /^($types_rx)$/x) {
     $title = $alias = 'required';
   }

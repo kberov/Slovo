@@ -50,7 +50,7 @@ if ($DEV_MODE) {
     # Redefine Data::Dumper::qquote() to do nothing
     ##no critic qw(TestingAndDebugging::ProhibitNoWarnings)
     no warnings 'redefine';
-    local *Data::Dumper::qquote = sub {qq["${\(shift)}"]};
+    local *Data::Dumper::qquote  = sub {qq["${\(shift)}"]};
     local $Data::Dumper::Useperl = 1;
     my ($package, $filename, $line) = caller(1);
     state $log = $c->app->log;

@@ -30,7 +30,7 @@ sub store($c) {
   return $c->render(action => 'create', users => {}) if $v->has_error;
   my $in = $v->output;
   $in->{created_by} = $in->{changed_by} = $c->user->{id};
-  $in->{reg_time} = time - 1;
+  $in->{reg_time}   = time - 1;
   $in->{start_date} //= time - 1;
   $in->{disabled}   //= 0;
   $in->{stop_date} = 0;

@@ -14,7 +14,7 @@ sub all ($self, $opts = {}) {
   $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
   $opts->{offset} //= 0;
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
-  $opts->{where} //= {};
+  $opts->{where}    //= {};
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
 
   state $abstr = $self->dbx->abstract;
