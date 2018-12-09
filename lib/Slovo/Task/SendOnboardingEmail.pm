@@ -50,7 +50,7 @@ my sub _send_mail_by_net_smtp ($message, $to_user, $app) {
 
 # Sends a message for first login to $to_user and returns the generated token
 # The token will be deleted by _delete_first_login_token($job,$token).
-my sub _mail_message ($from_user, $to_user, $app, $domain) {
+my sub _mail_message ($t, $from_user, $to_user, $app, $domain) {
   state $mt        = Mojo::Template->new(vars => 1);
   state $mail_body = 'task/send_onboarding_email.txt.ep';
   state $mail_tmpl = c(@{$app->renderer->paths})
@@ -59,12 +59,13 @@ my sub _mail_message ($from_user, $to_user, $app, $domain) {
   #This token will be compared with the provided by the new user data
   #(first_name and last_name).
   my $token
-    = sha1_sum(
-           encode('UTF-8' => $from_user->{first_name} . $from_user->{last_name})
-             . $from_user->{id}
-             . $to_user->{id});
+    = sha1_sum($t
+         . encode('UTF-8' => $from_user->{first_name} . $from_user->{last_name})
+         . $from_user->{id}
+         . $to_user->{id});
   my $body = $mt->render_file(
                               $mail_tmpl => {
+                                    time            => $t,
                                     from_user       => $from_user,
                                     to_user         => $to_user,
                                     domain          => $domain,
@@ -100,13 +101,14 @@ MAIL
 # user with a first time login link.
 my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
   state $app = $job->app;
-  my $token = _mail_message($from_user, $to_user, $app, $domain);
+  my $t     = time;
+  my $token = _mail_message($t, $from_user, $to_user, $app, $domain);
   my $token_row = {
                    from_uid   => $from_user->{id},
                    to_uid     => $to_user->{id},
                    token      => $token,
-                   start_date => time,
-                   stop_date  => time + $CONF->{token_valid_for}
+                   start_date => $t,
+                   stop_date  => $t + $CONF->{token_valid_for}
                   };
   $app->dbx->db->insert('first_login' => $token_row);
   $app->minion->enqueue(delete_first_login => [$to_user->{id}, $token] =>

@@ -1,5 +1,16 @@
 Revision history for Mojolicious application Slovo
 
+2018.12.08
+    - Changes
+        * Now Slovo looks for configuration file in the following order:
+          1. $ENV{MOJO_CONFIG};
+          2. $app->home->child("$moniker.$mode.conf")
+          3. $app->home->child("$moniker.conf")
+          4. $app->resources->child("etc/$moniker.$mode.conf").
+          Default: $app->resources->child("etc/$moniker.conf")
+        * Improved Slovo.pm POD.
+        * Improved the generated token for first login.
+
 2018.11.30
     - Features
         * Implemented experimental onboarding workflow. A user can create

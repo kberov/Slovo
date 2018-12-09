@@ -46,7 +46,7 @@ WriteMakefile(
   TEST_REQUIRES => {},
   test          => {TESTS => 't/*.t'},
   EXE_FILES     => ['script/slovo'],
-  clean => {FILES => 'Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
+  clean => {FILES => '*.conf Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
   MIN_PERL_VERSION => '5.020000',
   META_MERGE       => {
        dynamic_config => 0,

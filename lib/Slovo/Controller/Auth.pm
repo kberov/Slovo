@@ -170,7 +170,8 @@ sub first_login($c) {
   my $in = $v->output;
   my $ok = (
             sha1_sum(
-                         encode('UTF-8' => $in->{first_name} . $in->{last_name})
+                         $row->{start_date}
+                       . encode('UTF-8' => $in->{first_name} . $in->{last_name})
                        . $row->{from_uid}
                        . $row->{to_uid}
               ) eq $token

@@ -17,12 +17,12 @@ Run slovo for the first time in debug mode
 
     ~/opt/slovo/bin/slovo daemon
 
-Visit L<http://127.0.0.1:3000>
-For help visit L<http://127.0.0.1:3000/perldoc>
+Visit L<http://127.0.0.1:3000>.
+For help visit L<http://127.0.0.1:3000/perldoc>.
 
 =head1 DESCRIPTION
 
-This is a useable release!
+This is a usable release!
 
 L<Slovo> is a simple and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
@@ -112,7 +112,8 @@ Or even if you don't have C<cpanm>, but you need to install dependencies first.
 L<Slovo> is a L<Mojolicious> application which means that everything
 applying to Mojolicious applies to it too. Slovo main configuration file is
 in C<lib/Slovo/resourses/etc/slovo.conf>. You can use your own by setting
-C<$ENV{MOJO_CONFIG}>. New routes can be described in C<routes.conf>. See
+C<$ENV{MOJO_CONFIG}> or by just copying C<slovo.conf> to $ENV{MOJO_HOME} and
+modify it as you wish. New routes can be described in C<routes.conf>. See
 L<Mojolicious::Plugin::RoutesConfig> for details and examples.
 
 C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and
