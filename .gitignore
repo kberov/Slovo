@@ -40,10 +40,10 @@ _Deparsed_XSubs.pm
 *.sublime-workspace
 
 # Other project specific files
-Slovo-*
-log
-domove/*/public/img
-domove/*/public/js
-domove/*/public/cached
+/Slovo-*
+/log
+/domove/
+/data
+/*.conf
 
 

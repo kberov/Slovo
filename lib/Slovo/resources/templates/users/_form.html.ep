@@ -3,7 +3,7 @@
   %= text_field 'login_name', class => 'mui-textfield'
   %= label_for login_name =>'Име за вход'
 </div>
-% my $l_p_title = 'Създайте случайна тайна дума, като използвате бутона отдясно.';
+% my $l_p_title = 'Създайте случайна тайна дума, като използвате бутона (+).';
 <div class="mui-textfield">
   <%=
   text_field login_password => (
@@ -41,7 +41,7 @@
   %= label_for description =>'Описание'
 </div>
 <div class="mui-select">
-%= select_box disabled => [['Да'=>0],['Не'=>1]], label =>'Действащ'
+%= select_box disabled => [['Не'=>1],['Да'=>0]], label =>'Действащ'
 </div>
 <div class="mui-textfield">
   %= number_field 'start_date'

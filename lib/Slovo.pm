@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.11.30';
+our $VERSION   = '2018.12.08';
 our $CODENAME  = 'U+2C11 GLAGOLITIC CAPITAL LETTER ONU (Ⱁ)';
 my $CLASS = __PACKAGE__;
 
@@ -83,11 +83,17 @@ sub _load_config($app) {
   my $etc     = $app->resources->child('etc');
   my $moniker = $app->moniker;
   my $mode    = $app->mode;
+  my $home    = $app->home;
 
   # Load configuration from hash returned by "slovo.conf"
-  my $config_file      = "$etc/$moniker.conf";
-  my $mode_config_file = "$etc/$moniker.$mode.conf";
-  $ENV{MOJO_CONFIG} //= -e $mode_config_file ? $mode_config_file : $config_file;
+  my $file      = $etc->child("$moniker.conf");
+  my $mode_file = $etc->child("$moniker.$mode.conf");
+  $ENV{MOJO_CONFIG}
+    //= (-e $app->home->child("$moniker.$mode.conf")
+         && $app->home->child("$moniker.$mode.conf"))
+    || (-e $app->home->child("$moniker.conf")
+        && $app->home->child("$home/$moniker.conf"))
+    || (-e $mode_file ? $mode_file : $file);
 
   my $config = $app->plugin('Config');
   for my $class (@{$config->{load_classes} // []}) {
@@ -198,12 +204,12 @@ Run slovo for the first time in debug mode
 
     ~/opt/slovo/bin/slovo daemon
 
-Visit L<http://127.0.0.1:3000>
-For help visit L<http://127.0.0.1:3000/perldoc>
+Visit L<http://127.0.0.1:3000>.
+For help visit L<http://127.0.0.1:3000/perldoc>.
 
 =head1 DESCRIPTION
 
-This is a useable release!
+This is a usable release!
 
 L<Slovo> is a simple and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
@@ -293,7 +299,8 @@ Or even if you don't have C<cpanm>, but you need to install dependencies first.
 L<Slovo> is a L<Mojolicious> application which means that everything
 applying to Mojolicious applies to it too. Slovo main configuration file is
 in C<lib/Slovo/resourses/etc/slovo.conf>. You can use your own by setting
-C<$ENV{MOJO_CONFIG}>. New routes can be described in C<routes.conf>. See
+C<$ENV{MOJO_CONFIG}> or by just copying C<slovo.conf> to $ENV{MOJO_HOME} and
+modify it as you wish. New routes can be described in C<routes.conf>. See
 L<Mojolicious::Plugin::RoutesConfig> for details and examples.
 
 C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and

@@ -48,3 +48,6 @@ header a, footer a {
     font-size: 1.5rem;
 }
 
+.trumbowyg-editor {
+    font-family: Veleka, FreeSerif, BukyvedeRegular, serif;
+}

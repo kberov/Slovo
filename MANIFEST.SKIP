@@ -44,10 +44,15 @@
 \.tmp$
 \.#
 \.rej$
-domove\/.*?\/public\/img/.*?\.(gif|jpe?g|png|ico)
-domove\/.*?\/public\/cached/.*
-domove\/.*?\/public\/(js|css)
-domove\/log
+^domove\/localhost\/public\/img/.*?\.(gif|jpe?g|png|ico)
+^domove\/localhost\/public\/cached/.*
+^domove\/localhost\/public\/(js|css)
+^domove\/log
+^domove\/(?!localhost)
+^log\/
+^data\/
+^slovo.conf
+^slovo.+\.conf
 # Avoid OS-specific files/dirs
 # Mac OSX metadata
 \B\.DS_Store

@@ -1,5 +1,5 @@
 % use Time::Piece ();
-% my $t = Time::Piece->new;
+% my $t = Time::Piece->new($time);
 Здравейте, <%= $to_user->{first_name}.' '. $to_user->{last_name} %>.
 Днес, <%= $t->strftime('%F') %> в <%= $t->strftime('%H:%M:%S %Z') %>, <%=
     $from_user->{first_name}.' '. $from_user->{last_name} %> създаде потребителска сметка за вас в <%= $domain %>.
