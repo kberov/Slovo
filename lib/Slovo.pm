@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.12.08';
+our $VERSION   = '2018.12.09';
 our $CODENAME  = 'U+2C11 GLAGOLITIC CAPITAL LETTER ONU (Ⱁ)';
 my $CLASS = __PACKAGE__;
 
@@ -92,7 +92,7 @@ sub _load_config($app) {
     //= (-e $app->home->child("$moniker.$mode.conf")
          && $app->home->child("$moniker.$mode.conf"))
     || (-e $app->home->child("$moniker.conf")
-        && $app->home->child("$home/$moniker.conf"))
+        && $app->home->child("$moniker.conf"))
     || (-e $mode_file ? $mode_file : $file);
 
   my $config = $app->plugin('Config');

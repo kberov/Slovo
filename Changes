@@ -1,5 +1,9 @@
 Revision history for Mojolicious application Slovo
 
+2018.12.09
+    - Changes
+        * Fixed mistake in path generation for config file.
+
 2018.12.08
     - Changes
         * Now Slovo looks for configuration file in the following order:
