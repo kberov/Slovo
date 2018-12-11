@@ -11,7 +11,7 @@ unless ($ENV{TEST_DOMAIN}) {
     skip_all => qq|Advanced test. Do the following to run this test.
      \$ export TEST_DOMAIN="${\ $test_class->domain_aliases}"
      \$ sudo vim /etc/hosts and add the following domains to 127.0.0.1
-     bg.localhost en.localhost local.xn--b1arjbl.xn--90ae ${\ $test_class->domain_aliases}
+     bg.localhost en.localhost ${\ $test_class->domain_aliases}
      Then run this test again.
      |
       );
@@ -23,6 +23,9 @@ my $t = $test_class->install(
 )->new('Slovo');
 
 my $app = $t->app;
+
+#make краси admin:
+$t->app->dbx->db->insert("user_group" => {user_id => 5, group_id => 1});
 
 subtest create_domain_and_page => sub {
   my ($dom_id) = $t->create_edit_domain_ok() =~ /(\d+)$/;
