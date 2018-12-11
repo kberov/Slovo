@@ -60,7 +60,10 @@ sub sign_in($c) {
 
 # GET /изходъ
 sub sign_out ($c) {
-  return $c->logout && $c->redirect_to('/');
+  my $login_name = $c->user->{login_name};
+  $c->logout;
+  $c->app->log->info('$user ' . $login_name . ' logged out!');
+  return $c->redirect_to('authform');
 }
 
 sub under_management($c) {

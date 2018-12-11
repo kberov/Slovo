@@ -29,7 +29,7 @@ my $previewed_pages = sub {
 
 my $site_layout = sub {
   $t->get_ok($app->url_for('sign_out'))->status_is(302)
-    ->header_is('Location' => '/');
+    ->header_is('Location' => $app->url_for('authform'));
   $t->get_ok("/коренъ.html")->status_is(200)
     ->element_exists('body header.mui-appbar')
     ->element_exists('aside#sidedrawer')
@@ -348,7 +348,7 @@ subtest 'previewed pages' => $previewed_pages;
 subtest 'site layout'     => $site_layout;
 subtest breadcrumb        => $breadcrumb;
 
-# Disabled untill proper test cases are prepared
+# Disabled until proper test cases are prepared
 # subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages    => $cached_pages;
 subtest 'Browser cache' => $browser_cache;
