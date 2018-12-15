@@ -31,31 +31,30 @@ sub sign_in($c) {
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
 
   if ($v->csrf_protect->has_error('csrf_token')) {
-
     return
       $c->render(
-                 error_login => 'Bad CSRF token!',
-                 status      => 401,
-                 template    => 'auth/form'
+                 sign_in_error => 'Bad CSRF token!',
+                 status        => 401,
+                 template      => 'auth/form'
                 );
   }
   elsif ($v->has_error) {
     return
       $c->render(
-                 error_login => 'Could not login!...',
-                 status      => 401,
-                 template    => 'auth/form'
+                 sign_in_error => 'И двете полета са задължителни!...',
+                 status        => 401,
+                 template      => 'auth/form'
                 );
   }
 
   my $o = $v->output;
 
   # TODO: Redirect to the page where user wanted to go or where he was before
-  # TODO: No need to redirect if login is unsuccessful. Just render auth/form
-  # and display an error message. "Forgotten password?"
-  return $c->authenticate($o->{login_name}, $o->{digest}, $o)
-    ? $c->redirect_to('/')
-    : $c->redirect_to('authform');
+  if ($c->authenticate($o->{login_name}, $o->{digest}, $o)) {
+    return $c->redirect_to('home_upravlenie');
+  }
+  $c->stash(sign_in_error => 'Няма такъв потребител или ключът ви е грешен.');
+  return $c->render('auth/form');
 }
 
 # GET /изходъ
@@ -123,8 +122,12 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
   if (!$u) { delete $c->session->{csrf_token} && return; }
 
   my $checksum = sha1_sum($c->csrf_token . $u->{login_password});
-  return unless ($checksum eq $csrf_digest);
-  $c->app->log->info('$user ' . $u->{login_name} . ' logged in!');
+  state $log = $c->app->log;
+  unless ($checksum eq $csrf_digest) {
+    $log->error("Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)");
+    return;
+  }
+  $log->info('$user ' . $u->{login_name} . ' logged in!');
   delete $c->session->{csrf_token};
 
   return $u->{id};
