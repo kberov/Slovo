@@ -15,7 +15,7 @@ sub register ($self, $app, $config) {
 
 sub _select_box ($c, $name, $options, %attrs) {
   return $c->tag(
-    span => class => 'field ' . $name => sub {
+    div => class => 'mui-select' => sub {
       my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);
       $c->param($name => delete $attrs{value}) if exists $attrs{value};
       return $label . ' ' . $c->select_field($name, $options, %attrs);

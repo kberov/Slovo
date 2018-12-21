@@ -14,9 +14,14 @@
         </tr>
     </thead>
     <tbody>
-% my $user = $c->user;
-% for my $item (@$users) {
-        <tr class="<%= $user->{id} == $item->{id} ? 'b' : '' %>">
+<%
+my $user = $c->user;
+    debug($users);
+for my $item (@$users) {
+  my $class = ($user->{id} == $item->{id} ? 'b' : '')
+    . ($item->{disabled} ? ' disabled' : '');
+%>
+        <tr <%== $class ? qq|class="$class"| : '' %>>
             <td><%= link_to $item->{id} => show_users => {id => $item->{id}} %></td>
     % for my $column (@columns) {
             <td><%= $item->{$column} %></td>

@@ -1,10 +1,11 @@
 Revision history for Mojolicious application Slovo
 
-2018.12.18
+2018.12.21
     - Changes
         S::C::Auth::signout now redirects to S::C::Auth::authform.
         Fixed t/007_domove.t. Only admins can edit domains.
         Improved "Sign In" form.
+        Improved users' form and celini's show.html.ep.
 
 2018.12.09
     - Changes
