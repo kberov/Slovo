@@ -1,12 +1,6 @@
 % layout 'upravlenie';
 % title 'Входъ';
 
-%= stylesheet begin
-[name="login_key"] {
-    color: rgba(81,81,81,0.1);
-    text-shadow: 0 0 15px rgba(0,0,0,1);
-}
-% end
 <div class="mui-container">
     <h1><%= title %></h1>
     <div class="mui-panel">
@@ -14,24 +8,26 @@
     <div id="sign_in_error" class="mui-panel field-with-error"><%= stash->{sign_in_error} %></div>
 % }
 %= form_for sign_in => (id => 'sign_in', class => 'mui-form') => begin
-<div class="mui-textfield">
-%= label_for login_name => 'Име за входъ'
+    <div class="mui-textfield">
+% my $name_title = 'Полето „Име за вход“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
+%= label_for login_name => 'Име за входъ', title => $name_title
 <%=
 text_field 'login_name',
-  placeholder => '"Име за входъ" е задължително поле (от 5 до 100 знака).',
-  title       => 'Име за входъ'
+  placeholder => $name_title,
+  title       => $name_title
 %>
-</div>
-<div class="mui-textfield">
+    </div>
+    <div class="mui-textfield">
 %= label_for login_key => 'Таен ключ'
-%= password_field login_key => placeholder => '"Таен ключъ" е задължително поле (от 8 до 40 знака).', title => 'Таен ключ'
+% my $key_title = '"Таен ключ" е задължително поле (от 8 до 40 знака).';
+%= password_field login_key => placeholder => $key_title, title => $key_title
 %= hidden_field 'digest'
 %= csrf_field
-</div>
-%= submit_button 'Входъ' => (class=> 'mui-btn mui-btn--primary')
+    </div>
 % if(stash->{sign_in_error}) {
-%= t 'button' => (id => 'forgotten_pass', class => 'mui-btn mui-btn--danger')  => 'Забравен ключ?'
-% }
+%= link_to  'Забравен таен ключ?' => 'lost_password_form' =>(id=>'passw_login',style =>'float: inline-end')
+% } #end if stash->{sign_in_error}
+%= submit_button 'Входъ' => (class=> 'mui-btn mui-btn--primary')
 %= end
     </div>
 </div>

@@ -10,29 +10,18 @@ use Mojo::Collection 'c';
 
 my $CONF = {};
 
-my sub _send_mail_by_net_smtp ($message, $to_user, $app) {
+sub send_mail_by_net_smtp ($message, $to_user, $app) {
   state $DEV = $app->mode =~ /^dev/;
 
   return 1 if $DEV;
 
-  my $cnf  = $CONF->{smtp};
-  my $smtp = eval {
-    Net::SMTP->new(
-                   $cnf->{mailhost},
-                   Timeout => $cnf->{timeout},
-                   Debug   => $DEV,
-                   SSL     => $cnf->{ssl},
-                   Port    => $cnf->{port},
-                  );
-    }
-    or do {
-    my $error = 'Net::SMTP could not establish connection to '
-      . $cnf->{mailhost} . ": $@";
+  my $smtp = eval { Net::SMTP->new(%{$CONF->{'Net::SMTP'}{new}}); } or do {
+    my $error = "Net::SMTP could not instantiate: $@";
     $app->log->error($error);
     Mojo::Exception->throw($error);
-    };
-  $smtp->auth($cnf->{username}, $cnf->{password});
-  $smtp->mail($cnf->{mail_from});
+  };
+  $smtp->auth(@{$CONF->{'Net::SMTP'}{auth}});
+  $smtp->mail($CONF->{'Net::SMTP'}{mail});
 
   if ($smtp->to($to_user->{email})) {
     $smtp->data;
@@ -46,7 +35,7 @@ my sub _send_mail_by_net_smtp ($message, $to_user, $app) {
   $smtp->quit;
 
   return 1;
-};
+}
 
 # Sends a message for first login to $to_user and returns the generated token
 # The token will be deleted by _delete_first_login_token($job,$token).
@@ -80,7 +69,7 @@ my sub _mail_message ($t, $from_user, $to_user, $app, $domain) {
     . $domain;
   my $message = <<"MAIL";
 To: $to_user->{email}
-From: $CONF->{smtp}{mail_from}
+From: $CONF->{'Net::SMTP'}{mail}
 Subject: =?UTF-8?B?${\ b64_encode(encode('UTF-8', $subject), '') }?=
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -93,7 +82,7 @@ ${\ encode('UTF-8', $body)}
 MAIL
 
   $app->debug('Message to be send:' . $/ . $message);
-  _send_mail_by_net_smtp($message, $to_user, $app);
+  send_mail_by_net_smtp($message, $to_user, $app);
   return $token;
 };
 
@@ -132,12 +121,30 @@ my sub _delete_first_login ($job, $uid, $token) {
 };
 
 sub register ($self, $app, $conf) {
-  $CONF = $conf;
+  $CONF = $self->validate_conf($conf);
   $app->minion->add_task(mail_first_login   => \&_mail_first_login);
   $app->minion->add_task(delete_first_login => \&_delete_first_login);
   return $self;
 }
 
+sub validate_conf ($self, $conf) {
+  my $ME = 'Mojo::Exception';
+  $ME->throw(
+    q|Parameters to Net::SMT->new ('Net::SMTP'->{new}) must be a reference to hash.|
+    )
+    unless ref($conf->{'Net::SMTP'}{new}) eq 'HASH';
+  $ME->throw(
+       q|Username ('Net::SMTP'->{auth}[0]) is a mandatory configuration value.|)
+    unless $conf->{'Net::SMTP'}{auth} && $conf->{'Net::SMTP'}{auth}[0];
+  $ME->throw(
+       q|Password ('Net::SMTP'->{auth}[1]) is a mandatory configuration value.|)
+    unless $conf->{'Net::SMTP'}{auth} && $conf->{'Net::SMTP'}{auth}[1];
+  $ME->throw(  q|Mail ('Net::SMTP'->{mail}) is a mandatory configuration value.|
+             . 'It must be a valid email')
+    unless $conf->{'Net::SMTP'}{mail}
+    =~ /^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x;
+  return $conf;
+}
 1;
 
 

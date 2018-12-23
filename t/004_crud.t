@@ -34,9 +34,6 @@ $t->get_ok("$groups_url/2")->status_is(302)->header_is(
 # Add the logged in user краси to 'admin' group.
 $app->dbx->db->insert('user_group', {user_id => 5, group_id => 1});
 
-# Disabled User
-$t->get_ok("$users_url/0")->status_is(404);
-
 # Disabled group
 $t->get_ok("$groups_url/0")->status_is(404);
 

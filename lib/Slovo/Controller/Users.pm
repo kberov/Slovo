@@ -163,7 +163,7 @@ sub remove($c) {
 # Validation for actions that store or update
 sub _validation($c) {
   my $v       = $c->validation;
-  my $mail_rx = qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/;
+  my $mail_rx = qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x;
 
   # Add validation rules for the record to be stored in the database
   $v->optional('group_id',   'trim')->like(qr/^\d+$/);

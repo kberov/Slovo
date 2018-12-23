@@ -66,8 +66,10 @@ sub login_ok ($t, $login_name = '', $login_password = '') {
     my $form = $t->fill_in_login_form($login_name, $login_password);
     my $body
       = $t->post_ok($login_url, {} => form => $form)->status_is(302)
-      ->header_is(Location => '/', 'Location: /')
-      ->content_is('', 'empty content')->tx->res->body;
+      ->header_is(
+                  Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
+                  'Location: /Ꙋправленѥ'
+                 )->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };
   return $t;
@@ -90,8 +92,8 @@ sub fill_in_login_form ($t, $login_name = '', $login_password = '') {
 
 sub login ($t, $login_name = '', $login_password = '') {
   my $form = $t->fill_in_login_form($login_name, $login_password);
-  my $body = $t->ua->post($t->app->url_for('sign_in') => {} => form => $form)
-    ->res->body;
+  my $body = $t->post_ok($t->app->url_for('sign_in') => {} => form => $form)
+    ->tx->res->body;
   return $t->authenticated($body eq '')->authenticated;
 }
 

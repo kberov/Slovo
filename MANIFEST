@@ -5,7 +5,6 @@ domove/localhost/nginx-slovo.conf
 domove/localhost/public/img/slovo-white.svg
 domove/localhost/public/img/slovo.svg
 domove/localhost/templates/partials/_footer_right.html.ep
-domove/README
 lib/Slovo.pm
 lib/Slovo/Controller.pm
 lib/Slovo/Controller/Auth.pm
@@ -62,6 +61,7 @@ lib/Slovo/resources/public/js/trumbowyg-2.10/ui/icons.svg
 lib/Slovo/resources/public/js/trumbowyg-2.10/ui/trumbowyg.min.css
 lib/Slovo/resources/templates/auth/first_login_form.html.ep
 lib/Slovo/resources/templates/auth/form.html.ep
+lib/Slovo/resources/templates/auth/lost_password_form.html.ep
 lib/Slovo/resources/templates/celini/_form.html.ep
 lib/Slovo/resources/templates/celini/create.html.ep
 lib/Slovo/resources/templates/celini/edit.html.ep
@@ -108,6 +108,7 @@ lib/Slovo/resources/templates/stranici/show.html.ep
 lib/Slovo/resources/templates/stranici/templates/dom.html.ep
 lib/Slovo/resources/templates/stranici/templates/README
 lib/Slovo/resources/templates/task/send_onboarding_email.txt.ep
+lib/Slovo/resources/templates/task/send_passw_email.txt.ep
 lib/Slovo/resources/templates/upravlenie/index.html.ep
 lib/Slovo/resources/templates/users/_form.html.ep
 lib/Slovo/resources/templates/users/create.html.ep
@@ -116,6 +117,7 @@ lib/Slovo/resources/templates/users/index.html.ep
 lib/Slovo/resources/templates/users/show.html.ep
 lib/Slovo/resources/templates/users/store_result.html.ep
 lib/Slovo/Task/SendOnboardingEmail.pm
+lib/Slovo/Task/SendPasswEmail.pm
 lib/Slovo/Validator.pm
 LICENSE
 Makefile.PL

@@ -4,7 +4,7 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
-# This action will render a template
+# ANY /Ꙋправленѥ/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
   state $menu = [qw(minion groups users domove stranici celini)];
@@ -20,3 +20,33 @@ sub index($c) {
 }
 
 1;
+
+=encoding utf8
+
+=head1 NAME
+
+Slovo::Controller::Upravlenie - the management dashboard
+
+=head1 DESCRIPTION
+
+Slovo::Controller::Upravlenie inherits all methods from L<Slovo::Controller> and implements the following.
+
+
+=head1 ACTIONS
+
+Slovo::Controller::Upravlenie implements the following actions C<under  => '/Ꙋправленѥ'>.
+
+=head2 index
+
+Route: C<{any  => '/', to => 'upravlenie#index', name => 'home_upravlenie'}>
+
+Displays the main page C<under  => '/Ꙋправленѥ'>.
+
+
+=head1 SEE ALSO
+
+L<Slovo::Controller>
+
+=cut
+
+

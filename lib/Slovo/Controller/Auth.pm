@@ -27,7 +27,7 @@ sub sign_in($c) {
 
   #1. do basic validation first
   my $v = $c->validation;
-  $v->required('login_name', 'trim')->size(5, 100);
+  $v->required('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{4,12}$/x);
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
 
   if ($v->csrf_protect->has_error('csrf_token')) {
@@ -41,7 +41,7 @@ sub sign_in($c) {
   elsif ($v->has_error) {
     return
       $c->render(
-                 sign_in_error => 'И двете полета са задължителни!...',
+                 sign_in_error => 'И двете полета са задължителни!..',
                  status        => 401,
                  template      => 'auth/form'
                 );
@@ -51,7 +51,11 @@ sub sign_in($c) {
 
   # TODO: Redirect to the page where user wanted to go or where he was before
   if ($c->authenticate($o->{login_name}, $o->{digest}, $o)) {
-    return $c->redirect_to('home_upravlenie');
+    my $route
+      = ($c->stash('passw_login')
+         ? {'edit_users' => {id => $c->user->{id}}}
+         : 'home_upravlenie');
+    return $c->redirect_to(ref($route) ? %$route : $route);
   }
   $c->stash(sign_in_error => 'Няма такъв потребител или ключът ви е грешен.');
   return $c->render('auth/form');
@@ -85,10 +89,15 @@ sub under_management($c) {
     return 0;
   }
 
-  # only admins can change another's user account
-  if ($route =~ /^(show|edit|update|remove)_users$/x && $path !~ m|/$uid|) {
-    $c->flash(
-           message => 'Само управителите могат да ' . 'променят чужда сметка.');
+  # only admins and users with id=created_by can change another's user account
+  my ($e_uid) = $path =~ m|/users/(\d+)|;    #Id of the user being edited
+  my $e_user = $e_uid ? $c->users->find_where({id => $e_uid}) : undef;
+  if (   $route =~ /^(show|edit|update|remove)_users$/x
+      && $e_user
+      && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
+  {
+    $c->flash(message => 'Само управителите на сметки могат да '
+              . 'променят чужда сметка.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -117,25 +126,56 @@ sub load_user ($c, $uid) {
   return $c->users->find($uid);
 }
 
+# Used in $c->authenticate by Mojolicious::Plugin::Authentication
+# returns the user id or nothing.
 sub validate_user ($c, $login_name, $csrf_digest, $dat) {
+  state $app = $c->app;
+  state $log = $app->log;
   my $u = $c->users->find_by_login_name($login_name);
-  if (!$u) { delete $c->session->{csrf_token} && return; }
-
-  my $checksum = sha1_sum($c->csrf_token . $u->{login_password});
-  state $log = $c->app->log;
+  if (!$u) {
+    $log->error("Error signing in user [$login_name]: No such user!");
+    return;
+  }
+  my $csrf_token = $c->csrf_token;
+  my $checksum   = sha1_sum($csrf_token . $u->{login_password});
   unless ($checksum eq $csrf_digest) {
-    $log->error("Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)");
+
+    # try the passw_login
+    my $t = time;
+    my $row = $c->dbx->db->select(
+                                  passw_login => 'token',
+                                  {
+                                   start_date => {'<=' => $t},
+                                   to_uid     => $u->{id},
+                                   stop_date  => {'>' => $t}
+                                  },
+                                  {-desc => ['id']}
+                                 )->hash;
+    my $checksum2 = sha1_sum($csrf_token
+               . sha1_sum(encode('UTF-8' => $u->{login_name} . $row->{token})));
+    if ($row && ($checksum2 eq $csrf_digest)) {
+      $app->dbx->db->delete('passw_login' => {to_uid => $u->{id}});
+
+      # also delete expired but not deleted (for any reason) login tokens.
+      $app->dbx->db->delete('passw_login' => {stop_date => {'<=' => $t}});
+      $log->info('$user ' . $u->{login_name} . ' logged in using passw_login!');
+      $c->flash(message => 'Задайте нов таен ключ!');
+      $c->stash(passw_login => 1);
+      return $u->{id};
+    }
+    $log->error(
+      "Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)"
+    );
     return;
   }
   $log->info('$user ' . $u->{login_name} . ' logged in!');
-  delete $c->session->{csrf_token};
 
   return $u->{id};
 }
 
-my $msg_expired_token = 'Връзката, която ви доведе тук, е с изтекла годност. ';
+my $msg_expired_token
+  = 'Връзката, която ви доведе тук, е с изтекла годност.' . '';
 
-# TODO:  . 'Помолете да ви изпратят нова.';
 # GET /първи-входъ/<token:fl_token>
 # GET /първи-входъ/32e36608c72bc51c7c39a72fd7e71cba55f3e9ad
 sub first_login_form ($c) {
@@ -203,6 +243,32 @@ sub first_login($c) {
   return $c->redirect_to('edit_users' => {id => $row->{to_uid}});
 }
 
+# GET /загубенъ-ключъ
+sub lost_password_form ($c) {
+  if ($c->req->method eq 'POST') {
+    my $v = $c->validation;
+    $v->required('email', 'trim')
+      ->like(qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x);
+    my $in = $v->output;
+
+    if ($INC{'Slovo/Task/SendPasswEmail.pm'}) {
+
+      # send email to thw user to login with a temprary password and change his
+      # password.
+      if (my $user = $c->users->find_where({email => $in->{email}})) {
+        my $job_id = $c->minion->enqueue(
+                           mail_passw_login => [$user, $c->req->headers->host]);
+      }
+      else {
+        $c->app->log->warn(
+                   'User not found by email to send temporary login password.');
+      }
+    }
+  }
+  return $c->render();
+
+}
+
 1;
 
 =encoding utf8
@@ -238,13 +304,14 @@ This is a callback when user tries to access a page I<under> C</Ꙋправле�
 user is authenticated returns true. If not, returns false and redirects to
 L</form>.
 
+
 =head2 sign_in
 
 Route: C<{post =E<gt> '/входъ', to =E<gt> 'auth#sign_in', name =E<gt> 'sign_in'}>.
 
-Finds and logs in a user locally. On success redirects the user to the page
-from which it was redirected to the login page. On failure redirects again to
-the login page.
+Finds and logs in a user locally. On success redirects the user to
+L<home_upravlenie|Slovo::Cotroller::Upravlenie/index>. On failure redirects
+again to the login page.
 
 =head2 first_login_form
 
