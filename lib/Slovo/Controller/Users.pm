@@ -71,6 +71,7 @@ sub store($c) {
   return $c->redirect_to('home_users');
 }
 
+# GET /users/store_result/:jid
 sub store_result ($c) {
   return $c->reply->not_found
     unless my $job = $c->minion->job($c->param('jid'));
@@ -80,7 +81,7 @@ sub store_result ($c) {
 # GET /users/:id/edit
 # Display form for edititing resource in table users.
 sub edit($c) {
-  my $row = $c->users->find($c->param('id'));
+  my $row = $c->users->find_where({id => $c->param('id')});
   for (keys %$row) {
     $c->req->param($_ => $row->{$_});    # prefill form fields.
   }
@@ -112,7 +113,7 @@ sub update($c) {
 # GET /users/:id
 # Display a record from table users.
 sub show($c) {
-  my $row = $c->users->find($c->param('id'));
+  my $row = $c->users->find_where({id => $c->param('id')});
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return
       $c->render(
@@ -136,9 +137,7 @@ sub index($c) {
     $stashkey = 'openapi';
   }
 
-  my $input = $c->validation->output;
-  my $users = $c->users->all($input);
-
+  my $users = $c->users->all({where => {disabled => {-in => [0, 1]}}});
   return $c->render($stashkey => $users);
 }
 
@@ -163,22 +162,23 @@ sub remove($c) {
 
 # Validation for actions that store or update
 sub _validation($c) {
-  my $v = $c->validation;
+  my $v       = $c->validation;
+  my $mail_rx = qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x;
 
   # Add validation rules for the record to be stored in the database
   $v->optional('group_id',   'trim')->like(qr/^\d+$/);
-  $v->optional('login_name', 'trim')->like(qr/^\p{IsAlnum}{4,12}$/x);
+  $v->optional('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{4,12}$/x);
   if ($c->stash->{action} eq 'store') {
     $v->required('login_password', 'trim')->like(qr/^[A-F0-9]{40}$/i);
     $v->required('first_name',     'trim')->size(2, 100);
     $v->required('last_name',      'trim')->size(2, 100);
-    $v->required('email',          'trim')->size(0, 255);
+    $v->required('email',          'trim')->like($mail_rx);
   }
   else {
     $v->optional('login_password', 'trim')->like(qr/^[A-F0-9]{40}$/i);
     $v->optional('first_name',     'trim')->size(2, 100);
     $v->optional('last_name',      'trim')->size(2, 100);
-    $v->optional('email',          'trim')->size(0, 255);
+    $v->optional('email',          'trim')->like($mail_rx);
     $v->optional('id',             'trim')->like(qr/^\d+$/);
     my $groups
       = $c->groups->all_with_member($c->stash('id'))->map(sub { $_->{id} });

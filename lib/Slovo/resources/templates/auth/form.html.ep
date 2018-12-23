@@ -1,49 +1,52 @@
 % layout 'upravlenie';
 % title 'Входъ';
 
-%= stylesheet begin
-[name="login_key"] {
-    color: rgba(81,81,81,0.1);
-    text-shadow: 0 0 15px rgba(0,0,0,1);
-}
-
-[type=text]:focus {
-   background: white;
-   box-shadow: .1em .1em .5em .1em rgba(0, 0, 0, .9) inset;
-}
-% end
-
-% if(stash->{error_login}) {
-<div id="error_login" class="error message"><%= stash->{error_login} %></div>
+<div class="mui-container">
+    <h1><%= title %></h1>
+    <div class="mui-panel">
+% if(stash->{sign_in_error}) {
+    <div id="sign_in_error" class="mui-panel field-with-error"><%= stash->{sign_in_error} %></div>
 % }
-%= form_for sign_in => (id => 'sign_in', autocomplete =>'off') => begin
-%= label_for login_name => '"Име за входъ" е задължително поле (от 5 до 100 знака).'
-<br>
-%= text_field 'login_name', placeholder => 'Име за входъ', title => 'Име за входъ'
-<br>
-%= label_for login_key => '"Таен ключъ" е задължително поле (от 8 до 40 знака).'
-<br>
-%= text_field login_key => placeholder => 'Таен ключ', title => 'Таен ключ'
+%= form_for sign_in => (id => 'sign_in', class => 'mui-form') => begin
+    <div class="mui-textfield">
+% my $name_title = 'Полето „Име за вход“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
+%= label_for login_name => 'Име за входъ', title => $name_title
+<%=
+text_field 'login_name',
+  placeholder => $name_title,
+  title       => $name_title
+%>
+    </div>
+    <div class="mui-textfield">
+%= label_for login_key => 'Таен ключ'
+% my $key_title = '"Таен ключ" е задължително поле (от 8 до 40 знака).';
+%= password_field login_key => placeholder => $key_title, title => $key_title
 %= hidden_field 'digest'
 %= csrf_field
-<br>
-%= submit_button 'Входъ'
+    </div>
+% if(stash->{sign_in_error}) {
+%= link_to  'Забравен таен ключ?' => 'lost_password_form' =>(id=>'passw_login',style =>'float: inline-end')
+% } #end if stash->{sign_in_error}
+%= submit_button 'Входъ' => (class=> 'mui-btn mui-btn--primary')
 %= end
+    </div>
+</div>
 %= javascript 'js/CryptoJS-v3.1.2/sha1.js'
-
 %= javascript begin
-'use strict';
-const name_field   = document.querySelector('[name="login_name"]');
-const passw_field  = document.querySelector('[name="login_key"]');
-const dijest_field = document.querySelector('[name="digest"]');
-const csrf_field   = document.querySelector('[name="csrf_token"]');
-const login_form   = document.querySelector('#sign_in');
+"use strict";
+const qS = document.querySelector.bind(document);
+
+const name_field = qS('[name="login_name"]');
+const passw_field = qS('[name="login_key"]');
+const dijest_field = qS('[name="digest"]');
+const csrf_field = qS('[name="csrf_token"]');
+const login_form = qS("#sign_in");
 login_form.onsubmit = function() {
-    const concat_ln_lp   = name_field.value  + passw_field.value;
-    passw_field.remove();
-    const passw_sha1     = CryptoJS.SHA1(concat_ln_lp);
-    dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
-    return true;
+  const concat_ln_lp = name_field.value + passw_field.value;
+  passw_field.parentNode.removeChild(passw_field);
+  const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);
+  dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
+  return true;
 };
 % end
 

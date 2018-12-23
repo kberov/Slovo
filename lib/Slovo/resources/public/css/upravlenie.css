@@ -1,21 +1,46 @@
 @charset "utf-8";
 
+html,
+body {
+  height: 100%;
+  background-color: #eee;
+  font-size:16px;
+  /* TODO: change body/html font-size dynamically to change the lenght values
+   * to everything set in "rem"s (root ems). Useful for screens with bigger
+   * resolution where the font is too small.
+   */
+}
+
+html,
+body,
+input,
+textarea,
+button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+}
+
+.mui-textfield > .field-with-error,
 .field-with-error {
     color: #fff;
     background-color:  #F44336;
+    font-size:1.5em;
 }
-.hidden, .deleted, .expired, .upcoming {opacity: 0.50;}
-.deleted {text-decoration: line-through red;}
+
+.hidden, .deleted, .disabled, .expired, .upcoming {opacity: 0.50;}
+.deleted, .disabled {text-decoration: line-through red;}
 .upcoming {text-decoration: green wavy overline;}
 .expired {text-decoration: green wavy underline;}
 #logo {
     height: 1rem;
     vertical-align:middle;
 }
+
 .item-field {
-    border: 1px #ddd solid;
-    margin: 1ex 0 1ex 1ex;
-    text-wrap:none;
+    border:  1px #ddd solid;
+    margin:  1ex 0 1ex 1ex;
+    display: block;
 }
 
 td.buttons {
@@ -31,6 +56,7 @@ input, textarea, option, button {
     max-height: 6rem;
     cursor: default;
 }
+
 footer.mui-appbar table, header.mui-appbar table {
     height: 100%;
     width: 100%;
@@ -40,12 +66,15 @@ footer.mui-appbar table, header.mui-appbar table {
 header a, footer a {
     color: white;
 }
+
 .b {
     font-weight:bold;
 }
 
+.mui-select > label,
 .mui-textfield > label {
-    font-size: 1.5rem;
+    line-height: 1.1em;
+    font-size: 1.2rem;
 }
 
 .trumbowyg-editor {

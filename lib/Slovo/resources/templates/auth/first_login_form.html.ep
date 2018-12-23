@@ -1,10 +1,15 @@
-% layout 'upravlenie';
-% my $title = 'Първи входъ';
-% title $title;
+% layout 'upravlenie', title => 'Първи входъ';
+<h2><%= title %></h2>
+<div class="mui-container">
+    <div class="mui-panel">
 %= form_for first_login => (id => 'first_login', autocomplete =>'off', class => "mui-form") => begin
-%= t 'legend' => $title
 % if(stash->{error_message}){
-<div class="mui-panel field-with-error" ><%= stash->{error_message} %></div>
+<div class="mui-panel field-with-error" >
+    <%= stash->{error_message} %>
+    Ако това не помогне, помолете човека, създал вашата сметка, да направи
+    потребителя ви „Действащ“ и използвайте
+    <%=link_to 'временен ключь' => 'lost_password_form' %> за влизане.
+</div>
 %}
 % if (stash->{row}) {
 <p>
@@ -13,20 +18,22 @@
 <p>
 Щом се намирате на тази страница, това означава, че някой е създал сметка за
 вас и сте получили електронно писмо с препратката, която ви доведе тук.
-Моля, въведете пълното име на човека, създал вашата сметка, за да можете на
-следващата стъпка да зададете тайната си дума за вход. От сега нататък ще
-използвате нея при влизане.
+Моля, въведете имената на човека, създал вашата сметка, за да можете на
+следващата стъпка да зададете тайния си ключ за вход. Отсега нататък ще
+използвате него при влизане.
 </p>
 %= input_tag 'token' => (type =>'hidden')
 
-<br>
+<div class="mui-textfield">
   %= label_for first_name =>'Име'
   %= text_field first_name => required => 1, size => 40, class => 'mui-textfield'
-<br>
+</div>
+  <div class="mui-textfield">
   %= label_for last_name =>'Фамилия'
   %= text_field last_name => required => 1, size => 40, class => 'mui-textfield'
-<br>
-%= submit_button 'Нататък'=> (class=>"mui-btn mui-btn--raised")
+</div>
+%= submit_button 'Нататък'=> (class=>"mui-btn mui-btn--primary")
 % }
 % end
-
+    </div>
+  </div>

@@ -1,5 +1,5 @@
-% my $title = 'Промѣна на потрѣбителска сметка';
-% layout 'upravlenie', title => $title;
-<h2><%= $title %></h2>
+% layout 'upravlenie', title => 'Промѣна на потрѣбителска сметка';
+<h2><%= title %></h2>
+%= button_to Remove => remove_users => {id => $users->{id}} =>(style=>'float:right')
+%= link_to '☰ Потрѣбители' => 'home_users'
 %= include 'users/_form', caption => 'Update', target => 'update_users'
-%#= button_to Remove => remove_users => {id => $users->{id}}

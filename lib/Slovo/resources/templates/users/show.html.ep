@@ -1,13 +1,15 @@
-% my $title = 'Прѣгледъ  на потребителска сметка на '. $users->{login_name};
-% layout 'upravlenie', title => $title;
-<h2><%= $title %></h2>
+% layout 'upravlenie', title => 'Прѣгледъ  на потребителска сметка на '. $users->{login_name};
+<h2><%= title %></h2>
+%= link_to '☰ Потрѣбители' => 'home_users'
+|
+%= link_to '📝 Промѣна' => edit_users => {id => $users->{id}}
 
-<hr>
+  <div class="mui-container">
+    <div class="mui-panel">
 % for my $k (keys %$users) {
 <%== t span => (id =>$k, class => 'item-field')
     => "$k: " . ($users->{$k} // '') %>
 % }
-<hr>
-
-%= link_to 'Edit' => edit_users => {id => $users->{id}}
+    </div>
+  </div>
 

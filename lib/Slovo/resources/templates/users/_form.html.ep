@@ -1,10 +1,16 @@
+  <div class="mui-container">
+    <div class="mui-panel">
 %= form_for $target => (class => 'mui-form') => begin
 <div class="mui-textfield">
-  %= text_field 'login_name', class => 'mui-textfield'
-  %= label_for login_name =>'Име за вход'
+  % my $name_title = 'Полето „Име за вход“ може да съдържа от 4 до 12 букви, цифри и знаците „.“,„-“ и „$“';
+  %= text_field 'login_name', placeholder => $name_title,title=> $name_title
+  %= label_for login_name =>'Име за вход', title => $name_title
 </div>
-% my $l_p_title = 'Създайте случайна тайна дума, като използвате бутона (+).';
+% my $l_p_title = 'Създайте случаен таен ключ, като използвате бутона (＋).';
 <div class="mui-textfield">
+  <button id="generate_pass"
+      class ="mui-btn mui-btn--small mui-btn--primary mui-btn--fab"
+      title="Нов таен ключ" style="float:right;font-weight:700">＋</button>
   <%=
   text_field login_password => (
                                 readonly    => '',
@@ -12,20 +18,13 @@
                                 size        => 40,
                                 title       => $l_p_title,
                                 placeholder => $l_p_title,
-                                class       => 'mui-textfield',
-                                style =>'display:inline;vertical-align:middle'
+                                style =>'width:92%'
                                )
   %>
-  %= label_for login_password =>'Тайна дума за вход', title => $l_p_title
-  <button
-      id="generate_pass"
-      class ="mui-btn mui-btn--small mui-btn--primary mui-btn--fab"
-      title="Нова тайна дума"
-       style="display:inline;vertical-align:middle"
-      >+</button>
+  %= label_for login_password =>'Таен ключ за вход', title => $l_p_title
 </div>
 <div class="mui-textfield">
-  %= text_field first_name => required => 1, size => 40, class => 'mui-textfield'
+  %= text_field first_name => required => 1, size => 40
   %= label_for first_name =>'Име'
 </div>
 <div class="mui-textfield">
@@ -33,16 +32,14 @@
   %= label_for last_name =>'Фамилия'
 </div>
 <div class="mui-textfield">
-  %= text_field email => required => 1, size => 40, class => 'mui-textfield'
+  %= text_field email => required => 1, size => 40
   %= label_for email =>'Е-поща'
 </div>
 <div class="mui-textfield">
   %= text_field description =>size => 65, class => 'mui--is-empty mui--is-untouched mui--is-pristine'
   %= label_for description =>'Описание'
 </div>
-<div class="mui-select">
 %= select_box disabled => [['Не'=>1],['Да'=>0]], label =>'Действащ'
-</div>
 <div class="mui-textfield">
   %= number_field 'start_date'
   %= label_for start_date => 'Start_date'
@@ -53,7 +50,7 @@
 </div>
   % if($target eq 'update_users' && stash->{id}) {
     %= label_for group_id => 'Главно множество'
-    <b><%= groups->find($users->{group_id})->{name} %></b>
+    <b><%= groups->find_where({id=>$users->{group_id}})->{name} %></b>
     %= hidden_field group_id => $users->{group_id}
     <br>
     <%
@@ -65,13 +62,15 @@
       }
     );
     %>
-<div class="mui-select">
     <%=
-    select_box groups => $groups,( multiple => '', value => $user_groups, label => 'Член на' )
+    select_box groups => $groups,
+    (multiple => '', value => $user_groups, label => 'Член на', style=>'height:5rem' )
     %>
-</div>
 % }
-%= submit_button $caption =>(class => 'mui-btn mui-btn--raised')
+<%= input_tag cancel => 'Отказъ',
+    (type=>'reset', class => 'mui-btn mui-btn--secondary', style => 'float :right;') %>
+% my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+%= submit_button $button_txt => (class => 'mui-btn mui-btn--raised mui-btn--primary')
 % end
 <script>
     let same_user = <%=
@@ -89,7 +88,7 @@ function generate_password(e) {
   if (name_field.val() === "") {
     alert(
       "Моля, въведете име за потребителя," +
-        " преди да създадете тайната дума за вход" +
+        " преди да създадете тайния ключ за вход" +
         " и не го променяйте след това."
     );
     return false;
@@ -105,9 +104,9 @@ function generate_password(e) {
   }
   if (same_user) {
     pass = prompt(
-      `Новата тайна дума за вход е "${pass}" без ограждащите кавички. ` +
+      `Новият таен ключ за вход е "${pass}" без ограждащите кавички. ` +
         "Състои се от букви от българската азбука, числа и печатаеми знаци. " +
-        "Можете да я промените, но я запомнете, защото няма да я видите повече.",
+        "Можете да го промените, но го запомнете, защото няма да го видите повече.",
       pass
     );
     if (Boolean(pass)) passw_field.val(pass);
@@ -132,3 +131,6 @@ function generate_password(e) {
 
 $("#generate_pass").click(generate_password);
 % end
+    </div>
+  </div>
+

@@ -2,11 +2,16 @@
 % my $t = Time::Piece->new($time);
 Здравейте, <%= $to_user->{first_name}.' '. $to_user->{last_name} %>.
 Днес, <%= $t->strftime('%F') %> в <%= $t->strftime('%H:%M:%S %Z') %>, <%=
-    $from_user->{first_name}.' '. $from_user->{last_name} %> създаде потребителска сметка за вас в <%= $domain %>.
+    $from_user->{first_name}.' '. $from_user->{last_name} %>
+създаде потребителска сметка за вас в <%= $domain %>.
+
+Вашето потребителско име е „<%= $to_user->{login_name}%>“ без ограждащите кавички.
+
 Отидете на адрес http://<%= $domain %>/първи-входъ/<%= $token %>,
-за да влезете за първи път и промените тайната си дума за вход.
+за да влезете за първи път и промените тайния си ключ за вход.
+
 Препратката по-горе ще работи до <%=
- Time::Piece->new(time + $token_valid_for)->strftime('%F %H:%M:%S %Z') %>.
+ Time::Piece->new(time + $token_valid_for)->strftime('%F %H:%M:%S %Z') %> или докато влезете.
 Благодарим ви, че помагате за осъществяването на това предприятие.
 
 С благодарност от създателите на <%= $domain %>: <%= $t->strftime('%F') %>.

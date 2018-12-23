@@ -1,4 +1,4 @@
-% my $title = 'Нова потребителска сметка';
-% layout 'upravlenie', title => $title;
-<h2><%= $title %></h2>
+% layout 'upravlenie', title => 'Нова потрѣбителска сметка';
+<h2><%= title %></h2>
+%= link_to '☰ Потрѣбители' => 'home_users'
 %= include 'users/_form', caption => 'Create', target => 'store_users'
