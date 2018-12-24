@@ -15,7 +15,7 @@ sub register ($self, $app, $config) {
 
 sub _select_box ($c, $name, $options, %attrs) {
   return $c->tag(
-    div => class => 'mui-select' => sub {
+    div => class => "mui-select $name" => sub {
       my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);
       $c->param($name => delete $attrs{value}) if exists $attrs{value};
       return $label . ' ' . $c->select_field($name, $options, %attrs);
@@ -113,8 +113,8 @@ additional optional attributes C<label> and C<value>. If label is not provided,
 the name of the field is used as label. If value is not provided, it is
 retreived from input C<$c-E<gt>every_param($name)> by the wrapped
 C<select_field>. If value is provided it does C<$c-E<gt>param($name =E<gt>
-$attrs{value})>. The generated tags are wrapped in a common C<span> tag with
-C<class="field $name">.
+$attrs{value})>. The generated tags are wrapped in a C<div> tag with
+C<class="mui-select $name">.
 
 =head2 html_substr
 

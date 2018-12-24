@@ -17,8 +17,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2018.12.22';
-our $CODENAME  = 'U+2C11 GLAGOLITIC CAPITAL LETTER ONU (Ⱁ)';
+our $VERSION   = '2018.12.24';
+our $CODENAME  = 'U+2C12 GLAGOLITIC CAPITAL LETTER POKOJI (Ⱂ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
@@ -100,6 +100,17 @@ sub _load_config($app) {
     $app->load_class($class);
   }
   $app->secrets($config->{secrets});
+
+  # Enable response compression
+  if ($config->{response_compression}) {
+    $app->renderer->compress(1);
+  }
+
+  for my $setting (@{$config->{sessions} // []}) {
+    my ($a, $v) = (keys %$setting, values %$setting);
+    $app->sessions->$a($v);
+  }
+
   return $app;
 }
 
@@ -133,11 +144,6 @@ sub _load_pugins($app) {
         }
       );
     }
-  }
-
-  for my $setting (@{$app->config('sessions') // []}) {
-    my ($a, $v) = (keys %$setting, values %$setting);
-    $app->sessions->$a($v);
   }
 
   return $app;

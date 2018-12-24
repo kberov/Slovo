@@ -92,6 +92,91 @@ sub register ($self, $app, $conf) {
   return $self;
 }
 
-
 1;
+
+=encoding utf8
+
+=head1 NAME
+
+Slovo::Task::SendPasswEmail - sends email to user containing one time password.
+
+=head1 SYNOPSIS
+
+  # common configuration for similar Tasks in slovo.conf
+  my $mail_cfg = {
+    token_valid_for => 24 * 3600,
+    'Net::SMTP'     => {
+      new => {
+        Host => 'mail.example.org',
+
+        #Debug          => 1,
+        SSL             => 1,
+        SSL_version     => 'TLSv1',
+        SSL_verify_mode => 0,
+        Timeout         => 60,
+             },
+      auth => ['slovo@example.org', 'Pa55w03D'],
+      mail => 'slovo@example.org',
+    },
+  };
+
+  #load the plugin via slovo.conf
+  plugins => [
+    #...
+    #Tasks
+    {'Task::SendOnboardingEmail' => $mail_cfg},
+    {'Task::SendPasswEmail'      => $mail_cfg},
+  ],
+
+=head1 DESCRIPTION
+
+Slovo::Task::SendPasswEmail extends L<Slovo::Task::SendOnboardingEmail>. This
+is poor design, but quick and working solution for now. It implements tasks for
+sending email for forgotten password and for deleting the temporary password.
+
+
+
+=head1 METHODS
+
+The following methods are implemented.
+
+=head2 register
+
+Reads the configuration and adds the implemented tasks to L<Minion>.
+
+=head1 TASKS
+
+The following tasks are implemented.
+
+=head2 mail_passw_login
+
+Sends an email containing one time password to users who claim they forgot
+their password.  It uses
+L<Slovo::Task::SendOnboardingEmail/send_mail_by_net_smtp> to send the mail. The
+taks is invoked by action L<Slovo::Controller::Auth/lost_password_form>
+
+Arguments: C<$job, $to_user, $domain>.
+
+C<job> is the job object provided by L<Minion>. C<$to_user> is a hash reference
+containing the user properties found in a C<users> table record. C<$domain> is
+the current domain.
+
+  my $job_id = $c->minion->enqueue(
+                     mail_passw_login => [$user, $c->req->headers->host]);
+
+=head2 delete_passw_login
+
+Arguments: C<$job, $uid, $token>.
+
+Invoked by L</mail_passw_login>. Deletes the temporary password after delay
+C<$CONF-E<gt>{token_valid_for}>.
+
+  $app->minion->enqueue(delete_passw_login => [$to_user->{id}, $token] =>
+                        {delay => $CONF->{token_valid_for}});
+
+=head1 SEE ALSO
+
+L<Slovo::Controller::Auth>, L<Slovo::Task::SendOnboardingEmail>.
+
+=cut
 

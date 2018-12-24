@@ -145,8 +145,8 @@ sub validate_conf ($self, $conf) {
     =~ /^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x;
   return $conf;
 }
-1;
 
+1;
 
 =encoding utf8
 
@@ -156,38 +156,45 @@ Slovo::Task::SendOnboardingEmail - Send an email with link for first time login
 
 =head1 SYNOPSIS
 
+  # common configuration for similar Tasks in slovo.conf
+  my $mail_cfg = {
+    token_valid_for => 24 * 3600,
+    'Net::SMTP'     => {
+      new => {
+        Host => 'mail.example.org',
+
+        #Debug          => 1,
+        SSL             => 1,
+        SSL_version     => 'TLSv1',
+        SSL_verify_mode => 0,
+        Timeout         => 60,
+             },
+      auth => ['slovo@example.org', 'Pa55w03D'],
+      mail => 'slovo@example.org',
+    },
+  };
+
   #load the plugin via slovo.conf
   plugins => [
     #...
     #Tasks
-        {
-         'Task::SendOnboardingEmail' => {
-            token_valid_for => 24 * 3600, #24 hours
-            smtp            => {
-                  ssl       => 1,
-                  port      => 465,
-                  timeout   => 30,
-                  mailhost  => 'mail.example.com',
-                  mail_from => 'onboarding@example.com',
-                  username  => 'onboarding@example.com',
-                  password  => 'pas5w0r4',
-            },
-         }
-        },
-    ],
+    {'Task::SendOnboardingEmail' => $mail_cfg},
+    {'Task::SendPasswEmail'      => $mail_cfg},
+  ],
 
 =head1 DESCRIPTION
 
 This is the first L<Minion> task implemented in L<Slovo>.
 
-Slovo is not integrated with any social network. A plugin can be relatively
-easily written and there are maybe already some L<Mojolicious::Plugin> written.
-L<Ado|https://github.com/kberov/Ado> had L<such
+Slovo is not integrated with any social network. A plugin for such integration
+can be relatively easily written and there are maybe already some
+L<Mojolicious::Plugin> written.  L<Ado|https://github.com/kberov/Ado> had
+L<such
 functionality|https://github.com/kberov/Ado/blob/master/etc/plugins/auth.conf>
 by leveraging L<Mojolicious::Plugin::OAuth2>.
 
 Slovo takes another approach. Its users can invite each other to join the set
-of sites one Slovo instance manages. Slovo is the social network it self. We
+of sites that one Slovo instance manages. Slovo is the social network it self. We
 may use L<Mojolicious::Plugin::OAuth2::Server> at some point.
 
 A user in Slovo can create others users' accounts. Upon creation of the new
@@ -201,15 +208,55 @@ the following functionality.
 
 =head1 METHODS
 
-Only one method is implemented.
+The following methods are implemented.
 
-=head1 register
+=head2 register
 
 Reads the configuration and adds the implemented tasks to L<Minion>.
 
+=head2 validate_conf
+
+Validates provided in slovo.conf configuration and throws a L<Mojo::Exception>
+in case some values are invalid.
+
+
+=head1 FUNCTIONS
+
+The following functions are implemented.
+
+=head2 send_mail_by_net_smtp
+
+Arguments: C<$message, $to_user, $app>
+
+C<$message> must be already fully prepared and looks something like:
+
+    my $message = <<"MAIL";
+  To: $to_user->{email}
+  From: $CONF->{'Net::SMTP'}{mail}
+  Subject: =?UTF-8?B?${\ b64_encode(encode('UTF-8', $subject), '') }?=
+  Content-Type: text/plain; charset="utf-8"
+  Content-Transfer-Encoding: 8bit
+  Message-Id: <acc-msg-to-$to_user->{login_name}${\ time}\@$domain>
+  Date: ${\ Mojo::Date->new->to_datetime }
+  MIME-Version: 1.0
+  
+  ${\ encode('UTF-8', $body)}
+  
+  MAIL
+
+C<$to_user> is a hash reference containing at least C<$to_user-E<gt>{email}>
+and C<$to_user-E<gt>{id}>.
+
+C<$app> is the current L<Slovo> instance.
+
+This function sends the prepared message using L<Net::SMTP>.
+
+  $app->debug('Message to be send:' . $/ . $message);
+  send_mail_by_net_smtp($message, $to_user, $app);
+
 =head1 TASKS
 
-The following tasks are provided.
+The following tasks are implemented.
 
 =head2 mail_first_login
 
@@ -219,13 +266,13 @@ of the new account. The first time sign in is implemented in L<Slovo::Controller
 
 =head2 delete_first_login
 
-Deletes the record with the login token fro the new user. The task is enqued by
+Deletes the record with the login token for the new user. The task is enqued by
 L</mail_first_login> with delay C<token_valid_for> as configured. Defaults to
 24 hours after creation of the account.
 
 =head1 SEE ALSO
 
-L<Slovo::Controller::Auth>
+L<Slovo::Controller::Auth>, L<Slovo::Task::SendPasswEmail>.
 
 =cut
 

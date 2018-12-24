@@ -82,19 +82,24 @@ Slovo::Plugin::MojoDBx - switch between Mojo::Pg/mysql/SQLite
 
 =head1 SYNOPSIS
 
-  $app->plugin(
+  # in slovo.conf
+  plugins => [
+   #... Should be one of the first plugins
+   {
     MojoDBx => {
-      adaptor   => 'SQLite',    # Load Mojo::SQLite or 'mysql', or 'Pg'
-      new => $app->resources->child("data/$moniker.$mode.sqlite"),
+      adaptor   => 'SQLite',
+      new       => $db_file,
+      sql_debug => 0,          #4,
       on_connection => [
-                        'PRAGMA synchronous = OFF',
-                        'PRAGMA journal_mode=WAL',
-                        'PRAGMA foreign_keys = ON',
-                        sub($dbh) {
-                            # do something after DBI connects
-                            }
+        'PRAGMA synchronous = OFF', 'PRAGMA foreign_keys = ON',
+        'PRAGMA cache_size = 80000',    #80M cache size
+
+    #   sub($dbh) {
+    #      $app->log->debug('SQLite version: '
+    #                 . $dbh->selectrow_arrayref('select sqlite_version()')->[0]);
+    #      # $dbh->{TraceLevel} = "3|SQL";
+    #     }
                        ],
-      sql_debug       => 4,  # how many callframes to skip..(0 means 'no debug')
       max_connections => 3,
       auto_migrate    => 1,
       migration_file  => $rsc->child("data/migrations.sql")->to_string,
@@ -102,7 +107,10 @@ Slovo::Plugin::MojoDBx - switch between Mojo::Pg/mysql/SQLite
       # Which helpers for Models to load:
       # Slovo::Model::Users,Slovo::Model::Groups... etc.
       tables => ['users', 'groups', 'domove', 'stranici', 'celini'],
-              );
+               }
+   },
+  #... Other plugins
+  ],
 
 =head1 DESCRIPTION
 
@@ -123,16 +131,11 @@ Mojolicious.
 
 The specific part of the name of a known database adaptor  - SQLite for
 Mojo::SQLite, Pg for Mojo::Pg, etc. This adaptor will be loaded via
-L<Mojo::Loader/load_class>.
+L<Slovo/load_class>.
 
-=head2 adaptor_attributes
+=head2 migration_file
 
-Array reference of hash references. See L<Mojo::Pg/ATTRIBUTES>. Keys will be
-called as setters and the values will be passed as arguments.
-
-=head2 migration_files
-
-Array reference of full paths to files which will be used for migrations.
+Full path to file which will be used for migrations.
 
 =head2 new
 
@@ -156,8 +159,11 @@ reporting the calling subroutine.
 
 =head2 tables
 
-Tables for which to be generated helpers. Each table name  becomes a helper. (e.g. C<users> becomes
-C<$c-E<gt>users> ot C<$app-E<gt>users>).
+Tables for which to be generated helpers. Each table name becomes a helper.
+(e.g. C<users> becomes C<$c-E<gt>users> ot C<$app-E<gt>users>). Note that it is
+expected that the respective model class to be instantiated already exists f.e.
+L<Slovo::Model::Users> for the table C<users>. These classes can be initially
+generated using L<Mojolicious::Command::Author::generate::resources>.
 
 =head1 AUTHOR
 
@@ -175,7 +181,8 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-L<Mojo::Pg>, L<Mojo::mysql>, L<Mojo::SQLite>
+L<Mojo::Pg>, L<Mojo::mysql>, L<Mojo::SQLite>,
+L<Mojolicious::Command::Author::generate::resources>.
 
 =cut
 

@@ -253,7 +253,7 @@ sub lost_password_form ($c) {
 
     if ($INC{'Slovo/Task/SendPasswEmail.pm'}) {
 
-      # send email to thw user to login with a temprary password and change his
+      # send email to the user to login with a temporary password and change his
       # password.
       if (my $user = $c->users->find_where({email => $in->{email}})) {
         my $job_id = $c->minion->enqueue(
@@ -289,30 +289,6 @@ L<Mojolicious::Plugin::RoutesConfig>.
 
 Mojolicious::Plugin::Authentication implements the following actions.
 
-=head2 form
-
-Route: C<{get =E<gt> '/входъ', to =E<gt> 'auth#form', name =E<gt> 'authform'}>.
-
-Renders a login form. The password is never transmitted in plain text. A digest
-is prepared in the browser using JavaScript (see
-C<lib/Slovo/resources/templates/auth/form.html.ep>). The digest is sent and
-compared on the server side. The digest is different in every POST request.
-
-=head2 under_management
-
-This is a callback when user tries to access a page I<under> C</Ꙋправленѥ>. If
-user is authenticated returns true. If not, returns false and redirects to
-L</form>.
-
-
-=head2 sign_in
-
-Route: C<{post =E<gt> '/входъ', to =E<gt> 'auth#sign_in', name =E<gt> 'sign_in'}>.
-
-Finds and logs in a user locally. On success redirects the user to
-L<home_upravlenie|Slovo::Cotroller::Upravlenie/index>. On failure redirects
-again to the login page.
-
 =head2 first_login_form
 
 Displays a form for confirmation of the names of the user who invited the new
@@ -326,6 +302,44 @@ C<fl_token> is a route type matching C<qr/[a-f0-9]{40}/>.
 
 Compares the entered names of the inviting user with the token and makes other
 checks. Signs in the user for the first time.
+
+=head2 form
+
+Route: C<{get =E<gt> '/входъ', to =E<gt> 'auth#form', name =E<gt> 'authform'}>.
+
+Renders a login form. The password is never transmitted in plain text. A digest
+is prepared in the browser using JavaScript (see
+C<lib/Slovo/resources/templates/auth/form.html.ep>). The digest is sent and
+compared on the server side. The digest is different in every POST request.
+
+=head2 lost_password_form
+
+Route:
+
+   {
+    any  => '/загубенъ-ключъ',
+    to   => 'auth#lost_password_form',
+    name => 'lost_password_form'
+   },
+
+In case the request is not C<POST> C<$c-E<gt>url_for('lost_password_form')> displays a form
+for entering email to which a temporary password to be send. If the request
+method is C<POST>, enqueues L<Slovo::Task::SendPasswEmail/mail_passw_login>, if a
+user with the given email is found in the database.
+
+=head2 sign_in
+
+Route: C<{post =E<gt> '/входъ', to =E<gt> 'auth#sign_in', name =E<gt> 'sign_in'}>.
+
+Finds and logs in a user locally. On success redirects the user to
+L<home_upravlenie|Slovo::Cotroller::Upravlenie/index>. On failure redirects
+again to the login page.
+
+=head2 under_management
+
+This is a callback when user tries to access a page I<under> C</Ꙋправленѥ>. If
+user is authenticated returns true. If not, returns false and redirects to
+L</form>.
 
 =head2 under_minion
 
