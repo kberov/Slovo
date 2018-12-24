@@ -307,12 +307,12 @@ To the wrapped methods are passed the parameters C<$page, $user, $language,
 $preview>.  C<$page> is the current page with the заглавѥ celina in the current
 $ѩꙁыкъ.  C<$user> is the current user. C<$language> is the current C<$ѩꙁыкъ>.
 C<$preview>  is a boolean value - true if the current request is just a preview.
-In preview mode C<permissions> and c<published> columns of the records in the
+In preview mode C<permissions> and C<published> columns of the records in the
 database are not respected.
 
 Beside constructing the page, if there is a cached page or celina with the
-requested url path, it is simply slurped and rendered for non autheticated
-users.
+requested url path, it is simply slurped and rendered, but only for non
+autheticated users.
 
 After the rendering is done by the consuming classes, the constructed response
 body is cached and saved on disk. On the next request by a guest user it is
@@ -326,7 +326,7 @@ Returns the result of C<$c-E<gt>render()>.
 =head2 around update
 
 In case a celina or a stranica is updated or removed, all cached pages on disk
-are deleted. This may fell like small slowdown if you have thousands of cached
+are deleted. This may feell like small slowdown if you have thousands of cached
 pages.
 
 
@@ -337,14 +337,14 @@ pages.
 Cleans up a parameter from base64 images and updates it with path to extracted
 images.
 
-Expects that the value of the parameter with name 'foo' is a HTML string. Scans
-it for C<img> tags wich contain base64 encoded image in their C<src> attribute.
-Decodes the encoded values and saves them in files in the specific domain
-public directory. The files are named after the alias of the record + count.
-Example (Second image in the body of a celina record with alias 'hello'):
-C<hello1.png>. Puts the URL path to the newly created file into the src
-attribute (e.g. C</img/hello01.png>). The <src> attributes of the images are
-replaced with the paths to the newly created files.
+Expects that the value of the form parameter with name 'foo' is a HTML string.
+Scans it for C<img> tags wich contain base64 encoded image in their C<src>
+attribute.  Decodes the encoded values and saves them in files in the specific
+domain public directory. The files are named after the alias of the record +
+count.  Example (Second image in the body of a celina record with alias
+'hello'): C<hello-01.png>. Puts the URL path to the newly created file into the
+src attribute (e.g. C</img/hello-01.png>). The <src> attributes of the images
+are replaced with the paths to the newly created files.
 
 =head2 SEE ALSO
 

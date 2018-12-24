@@ -1,5 +1,16 @@
 Revision history for Mojolicious application Slovo
 
+2018.12.24
+    - Changes
+        * Removed development dependencies, added by mistake.
+        * Sligntly improved and updated documentation.
+        * Added option in slovo.conf to enable HTTP response compression -
+          still experimental in Mojolicious.
+        * Changed shebang line in script/slovo to use the Perl at time of
+          installation instead of the Perl at time of execution.
+        * Changed CODENAME to U+2C12 GLAGOLITIC CAPITAL LETTER POKOJI (Ⱂ)
+          It's time for Рождество Христово.
+
 2018.12.22
     - Changes
         * S::C::Auth::signout now redirects to S::C::Auth::authform.
