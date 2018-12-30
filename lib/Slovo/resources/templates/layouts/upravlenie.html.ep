@@ -5,7 +5,9 @@
     %= t 'title' => title
     %= stylesheet '/css/slovo-min.css'
     %= stylesheet '/css/upravlenie.css'
+    %= stylesheet '/minion/fontawesome/fontawesome.css'
     %= javascript '/mojo/jquery/jquery.js'
+    %= javascript '/js/mui.min.js'
     %= javascript '/js/trumbowyg-2.10/trumbowyg.min.js'
     %= javascript '/js/trumbowyg-2.10/plugins/base64/trumbowyg.base64.min.js'
     %= javascript '/js/trumbowyg-2.10/langs/bg.min.js'
@@ -31,7 +33,7 @@
         </tr>
       </tbody></table>
     </header>
-    <div class="mui-container-fluid">
+    <div class="mui-container-fluid <%= current_route %>">
     % my $messgage = flash('message');
     %= $messgage ? t(div => (class => 'mui-panel field-with-error') => $messgage) : ''
     %= content

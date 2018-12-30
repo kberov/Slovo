@@ -283,6 +283,37 @@ sub writable ($v, $name, $value, $c) {
   return 0;
 }
 
+# Returns true if this page or content is editable by the current user
+sub is_item_editable ($c, $e) {
+  my $u = $c->user;
+  if ($u->{id} == $e->{user_id}) {
+    $c->debug($e->{id} . ' is_item_editable? - $u->{id} == $e->{user_id}');
+    return 1;
+  }
+  if ($u->{group_id} == $e->{group_id}) {
+    $c->debug(
+            $e->{id} . ' is_item_editable? - $u->{group_id} == $e->{group_id}');
+    return 1;
+  }
+  my $groups = $c->stash->{user_groups}
+    //= $c->dbx->db->select('user_group', '*', {user_id => $u->{id}})->hashes;
+
+  state $rwx = qr/[r\-][w\-][x\-]/x;
+
+  if (   $groups->first(sub { $_->{group_id} == $e->{group_id} })
+      && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
+  {
+    $c->debug($e->{id} . ' is_item_editable? - group with "rw" priviledges');
+    return 1;
+  }
+
+  if ($e->{permissions} =~ /^[ld\-]$rwx${rwx}rw/x) {
+    $c->debug($e->{id} . ' is_item_editable? - others with "rw" priviledges');
+    return 1;
+  }
+  $c->debug($e->{id} . ' is_item_editable? - NO.');
+  return 0;
+}
 
 =encoding utf8
 
@@ -345,6 +376,21 @@ count.  Example (Second image in the body of a celina record with alias
 'hello'): C<hello-01.png>. Puts the URL path to the newly created file into the
 src attribute (e.g. C</img/hello-01.png>). The <src> attributes of the images
 are replaced with the paths to the newly created files.
+
+=head2 is_item_editable
+
+Checks the ownership  and permissions of a content item.
+Returns true if this page or content is editable by the current user.
+
+
+    % if ($c->is_item_editable($p)) {
+    <li>
+        <%= link_to
+        url_for(edit_stranici => {id => $p->{id}})
+        ->query([language=>$p->{language}]) => (title => 'Промѣна'),
+        begin %><i class="fas fa-edit"></i> Промѣна<% end %>
+    </li>
+    % }
 
 =head2 SEE ALSO
 

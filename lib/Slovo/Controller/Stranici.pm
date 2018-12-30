@@ -111,22 +111,38 @@ sub show($c) {
 # List resources from table stranici.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
+  my $str = $c->stranici;
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   my $domain = $c->host_only;
-  my $str    = $c->stranici;
+  my $v      = $c->validation;
+
+  $v->optional(pid => 'trim')->like(qr/^\d+$/);
+  my $in   = $v->output;
+  my $l    = $c->language;
+  my $user = $c->user;
+  my $columns = [
+               @$list_columns,
+               qw(start stop user_id group_id permissions deleted hidden dom_id)
+  ];
+
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
-    my $input = $c->validation->output;
 
-    # TODO: Modify $input: add where clause, get also title in the requested
+    # TODO: Modify $in: add where clause, get also title in the requested
     # language from celini and merge it into the stranici object. Modify the
     # Swagger description of response object to conform to the output.
-    return $c->render(openapi => $str->all($input));
+    return $c->render(openapi => $str->all($in));
   }
-  my $opts
-    = {where => {%{$str->readable_by($c->user)}, $str->where_domain_is($domain)}
-    };
 
-  return $c->render(stranici => $str->all($opts));
+  return
+    $c->render(
+               user       => $user,
+               domain     => $domain,
+               columns    => $columns,
+               l          => $l,
+               breadcrumb => $str->breadcrumb($in->{pid}, $l),
+              );
 }
 
 # DELETE /stranici/:id

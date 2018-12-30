@@ -22,13 +22,14 @@ has celini          => sub { $_[0]->c->celini };
 # https://sqlite.org/lang_with.html
 sub breadcrumb ($m, $pid, $l) {
   state $sqla = $m->dbx->abstract;
+  $pid //= 0;
   my $lang_like = {'c.language' => $m->celini->language_like($l)};
   state $LSQL = ($sqla->where($lang_like) =~ s/WHERE//r);
   my @lang_like = map { $_->{'-like'} } $sqla->values($lang_like);
   state $SQL = <<"SQL";
 WITH RECURSIVE pids(p)
   AS(VALUES(?) UNION SELECT pid FROM $table s, pids WHERE s.id = p)
-  SELECT s.alias, c.title, c.language FROM $table s, $celini_table c
+  SELECT s.alias, c.title, c.language, s.id, s.pid FROM $table s, $celini_table c
   WHERE s.id IN pids
     AND c.page_id = s.id
     AND $LSQL
@@ -276,6 +277,31 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
     %{$self->celini->where_with_permissions($user, $preview)},
+    %{$opts->{where} // {}}
+                   };
+
+  # local $db->dbh->{TraceLevel} = "3|SQL";
+  return $self->all($opts);
+}
+
+# Returns all pages for listing under 'home_stranici' or via Swagger API.
+# Beware not to mention one column twice as a key in the WHERE clause, because
+# only the second mention will remain for generating the SQL.
+sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
+  $opts->{table} = [$table, $celini_table];
+  my @columns = map { _transform_columns($_) } @{$opts->{columns}};
+  $opts->{columns} = join ",", @columns;
+  my $pid = delete $opts->{pid};
+  $opts->{where} = {
+    defined $pid
+    ? ("$table.pid" => $pid, "$table.id" => {'!=' => $pid})
+    : ("$table.page_type" => 'коренъ'),
+
+    "$celini_table.page_id"   => {-ident => "$table.id"},
+    "$celini_table.data_type" => $self->title_data_type,
+    "$celini_table.language"  => $self->celini->language_like($l),
+    "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    $self->where_domain_is($domain), %{$self->readable_by($user)},
     %{$opts->{where} // {}}
                    };
 

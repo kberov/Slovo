@@ -50,10 +50,12 @@ state $users
 state $groups
   = groups->all({where => {name => {'!=' => 'guest'}}})
   ->map(sub { [$_->{name} => $_->{id}] });
+
+if ($in->{user_id} != $c->user->{id}){
+    my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
 %>
-  <% if($in->{user_id} != $c->user->{id}){ %>
   <span style ="display: inline-block"> Собственик:
-  %= $users->first(sub{$_->[1] eq $in->{user_id}})->[0]
+      %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
   %= hidden_field(user_id => $in->{user_id})
   <% } else { %>
   <%=

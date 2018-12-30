@@ -1,5 +1,9 @@
 Revision history for Mojolicious application Slovo
 
+2018.12.30
+    - Changes
+        * Listing pages under route 'under_management' with breadcrumb above.
+
 2018.12.24
     - Changes
         * Removed development dependencies, added by mistake.
