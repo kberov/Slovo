@@ -49,23 +49,26 @@
   %= label_for stop_date => 'Stop_date'
 </div>
   % if($target eq 'update_users' && stash->{id}) {
-    %= label_for group_id => 'Главно множество'
-    <b><%= groups->find_where({id=>$users->{group_id}})->{name} %></b>
-    %= hidden_field group_id => $users->{group_id}
-    <br>
     <%
-    my $user_groups = [];
-    my $groups = groups->all_with_member(stash->{id})->map(
+    my $groups   = groups->all_with_member(stash->{id});
+    my $is_admin = !!groups->is_admin($user->{id});
+    $groups = $groups->map(
       sub {
-        push @$user_groups, $_->{id} if $_->{is_member};
-        return [$_->{name} => $_->{id}];
+        return [
+                $_->{name} => $_->{id},
+                $_->{is_member} ? (checked => undef) : (),
+                !$is_admin || ($_->{id} == $user->{group_id}) ? (disabled => '') : ()
+               ];
       }
     );
     %>
-    <%=
-    select_box groups => $groups,
-    (multiple => '', value => $user_groups, label => 'Член на', style=>'height:5rem' )
-    %>
+    <%= checkboxes(groups => $groups, label =>'Множества') %>
+    <div class="mui-textfield">
+    %= label_for group_id => 'Главно множество'
+    <b><%= groups->find_where({id => $users->{group_id}})->{name} %></b>
+    %= hidden_field group_id => $users->{group_id}
+    </div>
+
 % }
 <%= input_tag cancel => 'Отказъ',
     (type=>'reset', class => 'mui-btn mui-btn--secondary', style => 'float :right;') %>
@@ -74,7 +77,7 @@
 % end
 <script>
     let same_user = <%=
-        (user->{id} == ($users->{id} || 0)) ? 'true' : 'false'
+        ($user->{id} == ($users->{id} || 0)) ? 'true' : 'false'
         %>;
     let form_target = '<%= $target %>';
 </script>

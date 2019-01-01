@@ -82,10 +82,13 @@ sub save ($m, $id, $row) {
 
   #never change the primary group
   delete $row->{group_id};
-  my $groups
-    = ref $row->{groups} eq 'ARRAY'
-    ? delete $row->{groups}
-    : [delete $row->{groups}];
+  my $groups;
+  if ($row->{groups}) {
+    $groups
+      = ref $row->{groups} eq 'ARRAY'
+      ? delete $row->{groups}
+      : [delete $row->{groups}];
+  }
   my $db = $m->dbx->db;
 
   state $gid_SQL= "(SELECT group_id FROM $table WHERE id=?)";

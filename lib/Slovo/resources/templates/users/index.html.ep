@@ -15,8 +15,6 @@
     </thead>
     <tbody>
 <%
-my $user = $c->user;
-    debug($users);
 for my $item (@$users) {
   my $class = ($user->{id} == $item->{id} ? 'b' : '')
     . ($item->{disabled} ? ' disabled' : '');
