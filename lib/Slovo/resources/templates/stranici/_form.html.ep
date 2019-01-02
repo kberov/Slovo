@@ -8,98 +8,103 @@ $in->{user_id} //= $c->user->{id};
 $in->{group_id} //= $c->user->{group_id};
 %>
 %= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
-%= form_for $target => begin
+<div class="mui-container">
+    <div class="mui-panel">
+        %= form_for $target => (class=>'mui-form') => begin
 
-%=t fieldset => (id=>'page_attributes', class=>$class) => begin
-  %=t legend =>'Page Attributes'
-  %= label_for pid => 'Pid'
-  %= number_field pid => (readonly=>undef)
-  %= label_for dom_id => 'Dom_id',
-  %= number_field 'dom_id'
-  %= label_for alias =>'Alias'
-  %= text_field alias => size => 32
-  <%=
-  select_box
-    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
-    required => 1, label => 'Page type'
-  %>
-  %= label_for sorting => 'Sorting'
-  %= number_field sorting => (size => 3)
-  %= label_for template => 'Template'
-  %= text_field template => (size => 255, style => 'width:50%')
-  %= label_for group_id => 'Group_id'
-  %= label_for start => 'Start'
-  %= number_field 'start'
-  %= label_for stop => 'Stop'
-  %= number_field 'stop'
-  %= label_for hidden => 'Hidden'
-  %= check_box hidden => 1
-  %= label_for deleted => 'Deleted'
-  %= check_box deleted => 1
-% end
-% if (${target} eq 'update_stranici') {
-%= t fieldset => (id=>'permissions') => begin
-  %= t legend => 'Разрешения и обнародване'
-<%
+        %=t fieldset => (id=>'page_attributes', class=>$class) => begin
+          %=t legend =>'Page Attributes'
+          %= label_for pid => 'Pid'
+          %= number_field pid => (readonly=>undef)
+          %= label_for dom_id => 'Dom_id',
+          %= number_field 'dom_id'
+          %= label_for alias =>'Alias'
+          %= text_field alias => size => 32
+          <%=
+          select_box
+            page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+            required => 1, label => 'Page type'
+          %>
+          %= label_for sorting => 'Sorting'
+          %= number_field sorting => (size => 3)
+          %= label_for template => 'Template'
+          %= text_field template => (size => 255, style => 'width:50%')
+          %= label_for group_id => 'Group_id'
+          %= label_for start => 'Start'
+          %= number_field 'start'
+          %= label_for stop => 'Stop'
+          %= number_field 'stop'
+          %= label_for hidden => 'Hidden'
+          %= check_box hidden => 1
+          %= label_for deleted => 'Deleted'
+          %= check_box deleted => 1
+        % end
+        % if (${target} eq 'update_stranici') {
+        %= t fieldset => (id=>'permissions') => begin
+          %= t legend => 'Разрешения и обнародване'
+        <%
 # TODO: Make these listings an Ajax request and implement Autocomplete making
-# requests each 500ms. like in jQ UI
-# This will be needed when we have many (more than 100) users
-state $users
-  = users->all({where => {login_name => {'!=' => 'guest'}}})
-  ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
-state $groups
-  = groups->all({where => {name => {'!=' => 'guest'}}})
-  ->map(sub { [$_->{name} => $_->{id}] });
-%>
-  <% if($in->{user_id} != $c->user->{id}){ %>
-  <span style ="display: inline-block"> Собственик:
-  %= $users->first(sub{$_->[1] eq $in->{user_id}})->[0]
-  %= hidden_field(user_id => $in->{user_id})
-  <% } else { %>
-  <%=
-  select_box(
-    user_id => [['Изберете нов собственик' => ''], @$users],
-    label   => 'Собственик')
-  %>
-  % }
-  <%=
-  select_box
-    group_id => [['Изберете сътрудници' => ''], @$groups],
-    label    => 'Сътрудници'
-  %>
-  <%=
-# TODO: document and design the behavior for stranici which are "d" (directories) and "l" (links)
-  select_box
-    permissions => [map { [$_ => $_] } @$permissions],
-    required    => 1,
-    label       => 'Права'
-  %>
-  <%=
-  select_box
-    published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
-    label => 'Обнародвано'
-  %>
-% end ;# fieldset
-% }
-%=t fieldset => (id=>'title') => begin
-      %=t legend => 'Page Content'
-      %= input_tag  'title_id' => (type =>'hidden')
-      %= label_for title => 'Title'
-      %= text_field title => (required => 1 , placeholder =>'Title for the page')
-      %= select_box language => [map {[$_=>$_]} @$languages]
-      <%=
-      select_box
-        data_format => [map { [$_ => $_] } @$formats],
-        label       => 'Data format'
-      %>
-      <br />
-      %= label_for body =>'Body'
-      <div id="_body">
-      %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
-      % end
-      </div>
-  %=javascript '/js/editor.js'
+# requests each 500ms. like in jQ UI. This will be needed when we have many (more
+# than 100) users
+        state $users
+          = users->all({where => {login_name => {'!=' => 'guest'}}})
+          ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
+        state $groups
+          = groups->all({where => {name => {'!=' => 'guest'}}})
+          ->map(sub { [$_->{name} => $_->{id}] });
 
-  %= submit_button $caption
-% end
-
+        if ($in->{user_id} != $c->user->{id}){
+            my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
+        %>
+          <span style ="display: inline-block"> Собственик:
+              %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
+          %= hidden_field(user_id => $in->{user_id})
+          <% } else { %>
+          <%=
+          select_box(
+            user_id => [['Изберете нов собственик' => ''], @$users],
+            label   => 'Собственик')
+          %>
+          % }
+          <%=
+          select_box
+            group_id => [['Изберете сътрудници' => ''], @$groups],
+            label    => 'Сътрудници'
+          %>
+          <%=
+# TODO: document and design the behavior for stranici which are "d"
+# (directories) and "l" (links)
+          select_box
+            permissions => [map { [$_ => $_] } @$permissions],
+            required    => 1,
+            label       => 'Права'
+          %>
+          <%=
+          select_box
+            published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
+            label => 'Обнародвано'
+          %>
+        % end ;# fieldset
+        % }
+        %=t fieldset => (id=>'title') => begin
+              %=t legend => 'Page Content'
+              %= input_tag  'title_id' => (type =>'hidden')
+              %= label_for title => 'Title'
+              %= text_field title => (required => 1 , placeholder =>'Title for the page')
+              %= select_box language => [map {[$_=>$_]} @$languages]
+              <%=
+              select_box
+                data_format => [map { [$_ => $_] } @$formats],
+                label       => 'Data format'
+              %>
+              <br />
+              %= label_for body =>'Body'
+              <div id="_body">
+              %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
+              </div>
+        % end
+          %= submit_button $caption => (class => 'mui-btn mui-btn--primary')
+        % end
+    </div>
+</div>
+%=javascript '/js/editor.js'

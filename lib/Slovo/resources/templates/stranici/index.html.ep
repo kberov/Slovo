@@ -1,52 +1,30 @@
-% layout 'upravlenie', title => 'Blog/Stranici';
-% my @columns = qw(id pid dom_id alias page_type permissions user_id group_id); #table columns
-%= link_to '✨' => 'create_stranici' =>(title=>'New record in table "stranici"')
-<table>
-    <thead>
-        <tr>
-    % for my $column (@columns) {
-            <th><%= uc($column) %></th>
-    % }
-        </tr>
-    </thead>
-    <tbody>
-% for my $s (@$stranici) {
-% my $class = join ' ', map {$s->{$_} ? $_ : ()} qw(hidden deleted);
-% $class .= $s->{stop} != 0 && $s->{stop} < time ? ' expired' : '';
-% $class .= $s->{start} != 0 && $s->{start} > time ? ' upcoming' : '';
-  %= t tr => (class=> $class) => begin
-            <td><%= link_to $s->{id} => show_stranici => {id => $s->{id}} %></td>
-    % for my $column (@columns[1 .. $#columns]) {
-            <td><%= $s->{$column} %></td>
-    % }
+<%
+layout 'upravlenie', title => 'Blog/Stranici';
+my $stranici = stranici->all_for_edit(
+                                          $user, $domain,
+                                          $l, {columns => [@$columns]}
+                                         );
+%>
+<div class="mui-panel breadcrumb">
+    %= link_to url_with('create_stranici') =>(title=>'Нова страница', style=>'float: right') => begin
+    <i class="fas fa-plus-square"></i>
+    <% end %>
+  %= link_to '⸙'
+% if(@$breadcrumb) {
+  <%=
+  $breadcrumb->map(
+    sub {
+    link_to $_->{alias} => url_for()->query([pid=>$_->{id}])
+    }
+    )->join(' ⸙ ')
+  %>
+% }
+</div>
 
-    <td class="buttons">
-    % my $l = $c->dbx->db->select('celini','language',{page_id=>$s->{id}, sorting => 0,data_type => 'заглавѥ'})->hash;
-    % $l = $l ? $l->{language} : $ѩꙁыкъ;
-    <%= link_to '📝' =>
-    url_with(edit_stranici => {id => $s->{id}})->query([language=>$l]) => (title => 'Edit') %>
-% if(!$s->{deleted} && !$s->{hidden}) {
-    <%= link_to '✨' =>
-        url_with('create_stranici')->query([pid => $s->{id}, dom_id => $s->{dom_id}]),
-        (title => 'Add page under '. $s->{alias})
-    %>
-    <%= link_to '🖹🗌' =>
-        url_with('create_celini')->query([page_id => $s->{id}, ]),
-        (title => 'Add content to page '. $s->{alias})
-    %>
-    <%= link_to '☰' =>
-        url_with('home_celini')->query([page_id => $s->{id}, ]),
-        (title => 'List content of page '. $s->{alias})
-    %>
+
+<div class="mui-panel pages">
     <%=
-    link_to
-      '🖺' => url_with(
-       'страница' => {страница => $s->{alias}})->query([прегледъ => 1]),
-      (title => 'Preview', target => 'new')
+    include 'partials/_stranici_index_pid-list' => (stranici => $stranici)
     %>
-% }
-    </td>
-  % end
-% }
-    </tbody>
-</table>
+</div> <!-- end class="mui-panel pages" -->
+

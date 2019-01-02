@@ -1,5 +1,14 @@
 Revision history for Mojolicious application Slovo
 
+2019.01.01
+    - Changes
+        * Happy New Year 2019!
+        * Listing pages as expandable tree under route 'under_management' with
+        * breadcrumb above.
+        * Added new tag helper 'checkboxes'.
+        * Only admin users can add a user to a group.
+        * Slightly improved pages and users forms.
+
 2018.12.24
     - Changes
         * Removed development dependencies, added by mistake.

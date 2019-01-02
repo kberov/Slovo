@@ -97,6 +97,7 @@ lib/Slovo/resources/templates/partials/_otgowory.html.ep
 lib/Slovo/resources/templates/partials/_pisanie.html.ep
 lib/Slovo/resources/templates/partials/_pisanie_otkysy.html.ep
 lib/Slovo/resources/templates/partials/_right.html.ep
+lib/Slovo/resources/templates/partials/_stranici_index_pid-list.html.ep
 lib/Slovo/resources/templates/partials/_wyprosy.html.ep
 lib/Slovo/resources/templates/partials/_zaglawie.html.ep
 lib/Slovo/resources/templates/stranici/_form.html.ep

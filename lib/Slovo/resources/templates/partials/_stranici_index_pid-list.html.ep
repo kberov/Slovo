@@ -1,0 +1,98 @@
+<%
+@$stranici || return;
+my $new_subpage_title = 'Нова подстраница';
+my $new_celina = 'Ново писание';
+my $list_page_content = 'Писания в страница';
+my $param_pid = param('pid') // 0;
+my $time = time;
+%>
+<!-- _stranici_index_pid-list -->
+    <ul class="fa-ul" id="<%= 'pid-' . $stranici->[0]{pid} %>" >
+        <%
+for my $p (@$stranici) {
+    my $fa_class    = 'fa-file';
+    my $podstranici = [];
+    if ($p->{is_dir}) {
+      if (   (@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid})
+          || ($p->{id} == $param_pid))
+      {
+        $podstranici = stranici->all_for_edit($user, $domain, $l,
+                                     {pid => $p->{id}, columns => [@$columns]});
+        shift @$breadcrumb if @$breadcrumb;
+      }
+      $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';
+    }
+    my $class = join ' ', map { $p->{$_} ? $_ : () } qw(hidden deleted);
+    $class .= $p->{stop} != 0  && $p->{stop} < $time  ? ' expired'  : '';
+    $class .= $p->{start} != 0 && $p->{start} > $time ? ' upcoming' : '';
+        %>
+        <li class="fa-li">
+            <i class="fas <%== $fa_class %>"></i>
+            <%=
+    $p->{is_dir}
+      ? link_to $p->{alias} => url_for->query([pid => $p->{id}]),
+      (class => $class
+       . ($p->{id} == $param_pid ? ' mui--color-deep-orange' : 0))
+      : $p->{alias}
+                %>
+            <div class="mui-dropdown">
+                <button class="mui-btn mui-btn--raised mui-btn--small"
+                    data-mui-toggle="dropdown">
+                <span class="mui-caret"></span>
+                </button>
+              <ul class="mui-dropdown__menu">
+% if ($c->is_item_editable($p)) {
+                <li>
+                    <%= link_to
+                    url_for(edit_stranici => {id => $p->{id}})
+                    ->query([language=>$p->{language}]) => (title => 'Промѣна') =>
+                    begin %><i class="fas fa-edit"></i> Промѣна<% end %>
+                </li>
+% }
+                <li>
+    <%=
+    link_to
+      '🖺 Прегледъ' => url_for('страница' => {страница => $p->{alias}})
+      ->query([прегледъ => 1]),
+      (title => 'Прегледъ', target => '_blank')
+    %>
+                </li>
+
+                <li>
+    <%=
+    link_to  url_for(show_stranici => {id => $p->{id}}),
+      (title => 'Свойства', target => '_blank')=> begin %><i
+          class="fas fa-info-circle"></i> Свойства<% end %>
+                </li>
+% if(!$p->{deleted} && !$p->{hidden}) {
+                <li>
+    <%=
+    link_to url_with('create_stranici')
+      ->query([pid => $p->{id}, dom_id => $p->{dom_id}]),
+      (title => "$new_subpage_title на „$p->{alias}”") => begin %><i
+          class="fas fa-plus-square"></i> <%= $new_subpage_title %><% end %>
+                </li>
+                <li>
+    <%= link_to url_with('create_celini')->query([page_id => $p->{id}, ]),
+    (title => "$new_celina в „$p->{alias}”") => begin %><i
+            class="fas fa-plus-square"></i><i
+            class="fas fa-file"></i> <%= $new_celina %><% end %>
+                </li>
+                <li>
+    <%= link_to url_for('home_celini')->query([page_id => $p->{id}, ]),
+        (title => "$list_page_content „$p->{alias}”") => begin %><i
+            class="fas fa-bars"></i> <%= $list_page_content %><% end %>
+                </li>
+% }
+              </ul>
+            </div>
+<%=
+$podstranici ? include 'partials/_stranici_index_pid-list' => (stranici => $podstranici): ''
+%>
+        </li>
+<%
+}
+%>
+    </ul>
+
+

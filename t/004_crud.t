@@ -57,12 +57,13 @@ my $create_user = sub {
     $user_show->content_like(qr/$_/);
   }
   $t->get_ok($user6_url)->status_is(200);
+
+  # the primary group is checked
   $t->get_ok($edit_user6_url)->status_is(200)
-    ->text_is(
-          'select[name="groups"]>option[selected]' => $user_form->{login_name});
+    ->element_exists('input[name="groups"][checked][value="6"]');
 
   # Primary group for this user
-  my $group = $app->groups->find($user->{id});    # now group has the same id
+  my $group = $app->groups->find($user->{group_id});
   is($group->{name} => $user->{login_name}, 'primary group name');
 };
 
@@ -74,7 +75,7 @@ my $update_user = sub {
     ->content_is('', 'empty content')->status_is(302);
   $t->get_ok($edit_user6_url)->status_is(200);
   for (@$groups, 6) {
-    $t->element_exists(qq|select[name="groups"]>option[selected,value="$_"]|);
+    $t->element_exists(qq|input[name="groups"][checked,value="$_"]|);
   }
 };
 
@@ -117,6 +118,22 @@ my $create_stranici  = sub {
   # get some title properties to check in the next subtest
   $sform->{title_id} = $title->[0]{id};
   $sform->{title}    = $title->[0]{title};
+};
+
+# List all stranici as an expandable tree
+my $read_stranici = sub {
+  my $url = $app->url_with('home_stranici');
+
+  $t->get_ok($url)->text_is('div.mui-panel.breadcrumb > a:nth-child(2)' => '⸙');
+  $t->text_is(  'div.mui-panel.pages > ul.fa-ul > '
+              . 'li.fa-li > ul.fa-ul > li.fa-li > a:nth-child(2)' => 'писания');
+  $t->get_ok($url->query([pid => 1]))
+    ->text_is('div.mui-panel.breadcrumb > a:nth-child(3)' => 'писания');
+  $t->element_exists(  'div.mui-panel.pages > ul.fa-ul > '
+                     . 'li.fa-li > ul.fa-ul > li.fa-li > i.fa-folder-open');
+  $t->text_is(  'div.mui-panel.pages > ul.fa-ul > '
+              . 'li.fa-li > ul.fa-ul > li.fa-li > a.mui--color-deep-orange' =>
+              'писания');
 };
 
 # Update stranici
@@ -366,6 +383,7 @@ subtest update_user => $update_user;
 subtest remove_user => $remove_user;
 
 subtest create_stranici => $create_stranici;
+subtest read_stranici   => $read_stranici;
 subtest update_stranica => $update_stranica;
 
 subtest create_celini => $create_celini;

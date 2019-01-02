@@ -23,9 +23,9 @@ sub all ($self, $opts = {}) {
 # New admins are added only via the command line.
 sub all_with_member ($m, $uid) {
   my $columns = <<"COLS";
-    name, id, description AS title,
+    name, id, description AS title, disabled,
     coalesce((SELECT 1 from user_group
-            WHERE user_id=$uid AND $table.id=group_id ),0)
+            WHERE user_id=$uid AND group_id=$table.id),0)
             AS is_member
 COLS
 

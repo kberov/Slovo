@@ -28,6 +28,10 @@ button {
     font-size:1.5em;
 }
 
+.home_stranici .mui-panel {
+    padding: .3rem;
+}
+
 .hidden, .deleted, .disabled, .expired, .upcoming {opacity: 0.50;}
 .deleted, .disabled {text-decoration: line-through red;}
 .upcoming {text-decoration: green wavy overline;}
@@ -79,4 +83,39 @@ header a, footer a {
 
 .trumbowyg-editor {
     font-family: Veleka, FreeSerif, BukyvedeRegular, serif;
+}
+
+/* Pages: Font Awesome 5 Free styles */
+.pages .mui-dropdown {
+    /* float:right; */
+}
+
+.pages .mui-dropdown__menu li a{
+    font-family: "Font Awesome 5 Free";
+}
+.pages .mui-btn--small {
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;
+    padding: .1rem;
+}
+
+.mui-btn--small .mui-caret {margin:0;}
+
+
+.pages ul .fa-li {
+    left: -1em;
+    width: 100%;
+    /* border-top: 1px dotted; */
+    text-align: left;
+}
+
+.pages ul li.folder::before {
+     content: "\f07b";
+     font-family: "Font Awesome 5 Free";
+}
+
+.pages ul li.file::before {
+     content: "\f1ea";
+     font-family: "Font Awesome 5 Free";
 }

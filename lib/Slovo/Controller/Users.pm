@@ -7,7 +7,7 @@ no warnings "experimental::lexical_subs";
 # GET /users/create
 # Display form for creating resource in table users.
 sub create($c) {
-  return $c->render(users => {});
+  return $c->render(users => {}, user => $c->user);
 }
 
 # POST /users
@@ -85,7 +85,7 @@ sub edit($c) {
   for (keys %$row) {
     $c->req->param($_ => $row->{$_});    # prefill form fields.
   }
-  return $c->render(users => $row);
+  return $c->render(users => $row, user => $c->user);
 }
 
 # PUT /users/:id
@@ -97,6 +97,9 @@ sub update($c) {
   my $in = $v->output;
   my $id = $c->param('id');
   return $c->render(action => 'edit', users => $in) if $v->has_error;
+
+  # only admins can edit groups
+  delete $in->{groups} unless ($c->groups->is_admin($c->user->{id}));
 
   # Update the record
   $in->{changed_by} = $c->user->{id};
@@ -138,7 +141,7 @@ sub index($c) {
   }
 
   my $users = $c->users->all({where => {disabled => {-in => [0, 1]}}});
-  return $c->render($stashkey => $users);
+  return $c->render($stashkey => $users, user => $c->user);
 }
 
 # DELETE /users/:id
