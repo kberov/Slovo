@@ -99,7 +99,7 @@ sub update($c) {
   return $c->render(action => 'edit', users => $in) if $v->has_error;
 
   # only admins can edit groups
-  delete $in->{groups} unless (!!$c->groups->is_admin($c->user->{id}));
+  delete $in->{groups} unless ($c->groups->is_admin($c->user->{id}));
 
   # Update the record
   $in->{changed_by} = $c->user->{id};

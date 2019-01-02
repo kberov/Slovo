@@ -5,7 +5,6 @@ my $new_celina = 'Ново писание';
 my $list_page_content = 'Писания в страница';
 my $param_pid = param('pid') // 0;
 my $time = time;
-debug($breadcrumb);
 %>
 <!-- _stranici_index_pid-list -->
     <ul class="fa-ul" id="<%= 'pid-' . $stranici->[0]{pid} %>" >
@@ -29,7 +28,7 @@ for my $p (@$stranici) {
         %>
         <li class="fa-li">
             <i class="fas <%== $fa_class %>"></i>
-            <%= 
+            <%=
     $p->{is_dir}
       ? link_to $p->{alias} => url_for->query([pid => $p->{id}]),
       (class => $class
@@ -91,8 +90,8 @@ for my $p (@$stranici) {
 $podstranici ? include 'partials/_stranici_index_pid-list' => (stranici => $podstranici): ''
 %>
         </li>
-<% 
-} 
+<%
+}
 %>
     </ul>
 
