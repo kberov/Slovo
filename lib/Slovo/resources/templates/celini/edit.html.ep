@@ -1,9 +1,2 @@
-% layout 'upravlenie', title => 'Edit celini';
-<h2>
-    % if (${id}) {
-    Промяна на цѣлина <%= ${id} %>
-    % } else {
-    Нова цѣлина
-    % }
-</h2>
+% layout 'upravlenie', title => ${id} ? 'Промѣна на цѣлина ' . ${id} : 'Нова цѣлина';
 %= include 'celini/_form', caption => 'Update', target => 'update_celini'

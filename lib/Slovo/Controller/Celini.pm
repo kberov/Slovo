@@ -94,9 +94,27 @@ sub store($c) {
 # GET /celini/:id/edit
 # Display form for edititing resource in table celini.
 sub edit($c) {
+  state $types       = $c->openapi_spec('/parameters/data_type/enum');
+  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
+  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $row = $c->celini->find($c->param('id'));
-  $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
-  return $c->render(in => $row);
+
+# prefill form fields.
+  $c->req->param($_ => $row->{$_}) for keys %$row;
+  my $l     = $c->language;
+  my $bread = $c->stranici->breadcrumb($row->{page_id}, $l);
+  my $u     = $c->user;
+  return
+    $c->render(
+               breadcrumb  => $bread,
+               formats     => $formats,
+               languages   => $languages,
+               permissions => $permissions,
+               types       => $types,
+               u           => $u,
+               in          => $row
+              );
 }
 
 # PUT /celini/:id
@@ -114,7 +132,9 @@ sub update($c) {
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
-  return $c->redirect_to('show_celini', id => $id);
+  my $redirect = $c->param('redirect') // '';
+  return $c->redirect_to($redirect, id => $id) if $redirect eq 'show_celini';
+  return $c->render(text => '', status => 204);
 }
 
 # GET /celini/:id

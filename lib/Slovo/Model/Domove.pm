@@ -1,6 +1,7 @@
 package Slovo::Model::Domove;
 use Mojo::Base 'Slovo::Model', -signatures;
 use feature qw(lexical_subs unicode_strings);
+use Mojo::Collection;
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 my $table = 'domove';
@@ -20,6 +21,14 @@ sub find_by_host ($m, $h) {
     AND published = ? LIMIT 1
 SQL
   return $cache->{$h} //= $m->dbx->db->query($sql, $h, "%$h%", "%$h%", 2)->hash;
+}
+
+# Returns all published domains and caches them. We expect not more than 100
+# domains per Slovo instance to be served.
+sub all ($d) {
+  state $all = Mojo::Collection->new();
+  return $all->size ? $all : $all = $d->SUPER::all(
+            {where => {published => {'>' => 1}}, order_by => {-asc => ['id']}});
 }
 
 1;

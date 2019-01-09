@@ -1,12 +1,12 @@
 <%
-layout 'upravlenie', title => 'Blog/Stranici';
+layout 'upravlenie', title => 'Страници';
 my $stranici = stranici->all_for_edit(
                                           $user, $domain,
                                           $l, {columns => [@$columns]}
                                          );
 %>
 <div class="mui-panel breadcrumb">
-    %= link_to url_with('create_stranici') =>(title=>'Нова страница', style=>'float: right') => begin
+    %= link_to url_with('create_stranici') =>(title=>'Нова страница') => begin
     <i class="fas fa-plus-square"></i>
     <% end %>
   %= link_to '⸙'

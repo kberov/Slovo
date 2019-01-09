@@ -22,8 +22,6 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 =head1 DESCRIPTION
 
-This is a usable release!
-
 L<Slovo> is a simple and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
 with nice core features like:
@@ -42,9 +40,9 @@ with nice core features like:
 
 =item * User sign in - DONE;
 
-=item * Managing pages, content, domains, users - BASIC;
+=item * Managing pages, content, domains, users - WIP;
 
-=item * Managing groups - TODO;
+=item * Managing groups - BASIC;
 
 =item * Multiple groups per user - DONE;
 
@@ -70,15 +68,17 @@ for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 
 =back
 
+This is a usable release!
+
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
 compatible and/or translating some limited number of SQL queries to the
 corresponding SQL dialects. Contributors are wellcome.
 
-The word "slovo" (слово) has one unchanged during the senturies meaning in all
-slavic languages. It is actually one language that started splitting apart less
-than one thousand years ago. The meaning is "word" - the God's word when used
-with capital letter. Hence the self-naming of this group of people
+The word "slovo" (слово) has one unchanged meaning during the last millenium in
+all slavic languages. It is actually one language that started splitting apart
+less than one thousand years ago. The meaning is "word" – the God's word (when
+used with capital letter). Hence the self-naming of this group of people
 C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who have been given the God's word or
 people who can speak. All others were considered "mute", hense the naming
 (немци)...

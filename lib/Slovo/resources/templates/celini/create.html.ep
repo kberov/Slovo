@@ -1,4 +1,2 @@
-% my $title = 'New record in table "celini"';
-% layout 'upravlenie', title => $title;
-<h2><%= $title %></h2>
+% layout 'upravlenie', title => 'Нова цѣлина';
 %= include 'celini/_form', caption => 'Create', target => 'store_celini'

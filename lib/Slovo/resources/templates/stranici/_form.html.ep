@@ -1,45 +1,104 @@
 <%
 my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
-my $class = join ' ', 'fields', @classes;
-state $formats   = $c->openapi_spec('/parameters/data_format/enum');
-state $languages = $c->openapi_spec('/parameters/language/enum');
-state $permissions = $c->openapi_spec('/parameters/permissions/enum');
-$in->{user_id} //= $c->user->{id};
-$in->{group_id} //= $c->user->{group_id};
+my $class   = join ' ', 'fields', @classes;
+$in->{user_id}  //= $u->{id};
+$in->{group_id} //= $u->{group_id};
+
+my $sorting = [map $_, (0 .. 15)];
+my $sorting_title = 'Мѣсто в подредбата';
+my $body_title = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
 %>
-%= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
+
+<div class="mui-panel breadcrumb">
+    %= link_to url_with('create_stranici')->query(pid => $in->{pid}) =>(title=>'Нова страница') => begin
+    <i class="fas fa-plus-square"></i>
+    <% end %>
+    %= link_to '⸙' =>'home_stranici', title => "Страници"
+% if(@$breadcrumb) {
+  <%=
+  $breadcrumb->map(
+    sub {
+    link_to $_->{alias} => url_for('home_stranici')->query(pid=>$_->{id}),
+        title => "Страници въ „$_->{alias}\""
+    }
+    )->join(' ⸙ ')
+  %>
+% }
+</div>
+
 <div class="mui-container">
     <div class="mui-panel">
         %= form_for $target => (class=>'mui-form') => begin
-
-        %=t fieldset => (id=>'page_attributes', class=>$class) => begin
-          %=t legend =>'Page Attributes'
-          %= label_for pid => 'Pid'
-          %= number_field pid => (readonly=>undef)
-          %= label_for dom_id => 'Dom_id',
-          %= number_field 'dom_id'
-          %= label_for alias =>'Alias'
-          %= text_field alias => size => 32
-          <%=
-          select_box
-            page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
-            required => 1, label => 'Page type'
-          %>
-          %= label_for sorting => 'Sorting'
-          %= number_field sorting => (size => 3)
-          %= label_for template => 'Template'
-          %= text_field template => (size => 255, style => 'width:50%')
-          %= label_for group_id => 'Group_id'
-          %= label_for start => 'Start'
-          %= number_field 'start'
-          %= label_for stop => 'Stop'
-          %= number_field 'stop'
-          %= label_for hidden => 'Hidden'
-          %= check_box hidden => 1
-          %= label_for deleted => 'Deleted'
-          %= check_box deleted => 1
+        %= t legend => title
+        %= t fieldset => (id=>'page_attributes', class=>$class) => begin
+          %= t legend =>'Свойства'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-3', title=>'В страница') => begin
+                  <%=
+                  select_box
+                    pid   => $parents,
+                    required => 1,
+                    label    => 'В страница'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    dom_id   => $domove,
+                    required => 1,
+                    label    => 'Дом',
+                    title => 'В кой сайт се намира страницата.'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                  %= label_for alias =>'Слогъ'
+                  %= text_field 'alias'
+              % end
+          % end
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-3', title => $sorting_title) => begin
+                  <%=
+                  select_box
+                    sorting => $sorting,
+                    label => $sorting_title, title => $sorting_title
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+                    required => 1, label => 'Вид страница'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                  %= label_for template => 'Образец'
+                  <%= 
+                  text_field 'template',
+                  title => 'Образец, намиращ се в папка templates/.',
+                  placeholder => "partials/template_for_page_id-$in->{id}.html.ep"
+                  %>
+              % end
+          % end
+          %= t 'div' => (class => 'mui-row') => begin
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Начало на обнародването (в секунди от 1970) (има да се направи по-добре с избор от калѧдар)') => begin %>
+                  %= label_for start => 'Начало'
+                  %= number_field 'start'
+              % end
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Край на обнародването (в секунди от 1970)') => begin %>
+                  %= label_for stop => 'Край'
+                  %= number_field 'stop'
+              % end
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-6') => begin
+                  %= label_for hidden => 'Скрита'
+                  %= check_box hidden => 1
+                  %= label_for deleted => 'Изтрита'
+                  %= check_box deleted => 1
+              % end
+          % end
         % end
-        % if (${target} eq 'update_stranici') {
+        % if ($target eq 'update_stranici') {
         %= t fieldset => (id=>'permissions') => begin
           %= t legend => 'Разрешения и обнародване'
         <%
@@ -52,8 +111,12 @@ $in->{group_id} //= $c->user->{group_id};
         state $groups
           = groups->all({where => {name => {'!=' => 'guest'}}})
           ->map(sub { [$_->{name} => $_->{id}] });
+          %>
 
-        if ($in->{user_id} != $c->user->{id}){
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+          <%
+        if ($in->{user_id} != $c->user->{id}) {
             my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
         %>
           <span style ="display: inline-block"> Собственик:
@@ -66,11 +129,15 @@ $in->{group_id} //= $c->user->{group_id};
             label   => 'Собственик')
           %>
           % }
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
           <%=
           select_box
             group_id => [['Изберете сътрудници' => ''], @$groups],
-            label    => 'Сътрудници'
+            label    => 'Множество сътрудници'
           %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
           <%=
 # TODO: document and design the behavior for stranici which are "d"
 # (directories) and "l" (links)
@@ -79,32 +146,73 @@ $in->{group_id} //= $c->user->{group_id};
             required    => 1,
             label       => 'Права'
           %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
           <%=
           select_box
             published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
             label => 'Обнародвано'
           %>
-        % end ;# fieldset
+              % end
+          % end; # mui-row
+        % end; # fieldset
         % }
         %=t fieldset => (id=>'title') => begin
-              %=t legend => 'Page Content'
-              %= input_tag  'title_id' => (type =>'hidden')
-              %= label_for title => 'Title'
-              %= text_field title => (required => 1 , placeholder =>'Title for the page')
-              %= select_box language => [map {[$_=>$_]} @$languages]
-              <%=
-              select_box
-                data_format => [map { [$_ => $_] } @$formats],
-                label       => 'Data format'
-              %>
-              <br />
-              %= label_for body =>'Body'
-              <div id="_body">
-              %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
-              </div>
-        % end
-          %= submit_button $caption => (class => 'mui-btn mui-btn--primary')
+              %=t legend => 'Съдържанѥ на страницата'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= input_tag  'title_id' => (type =>'hidden')
+                %= label_for title => 'Заглавѥ'
+                %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+              %= select_box language => [map {[$_=>$_]} @$languages] => (label =>'Ѩꙁыкъ')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                <%=
+                select_box
+                  data_format => [map { [$_ => $_] } @$formats],
+                  label       => 'Форматъ на съдържанѥто'
+                %>
+              % end
+          % end; # mui-row
+          %= t div => (class => 'mui-row') => begin
+              %= t div => (class => 'mui-textfield mui-col-md-12') => begin
+              %= label_for body =>'Цѣлина', title => $body_title
+              %= t div => (id => '_body', class => 'mui-textfield', title => $body_title) => begin
+                  %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
+              % end
+              % end; # mui-textfield
+          % end; # mui-row
+        % end; # fieldset
+          % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+          %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
+          <%= $caption eq 'Create' ? '' :
+            t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
+              name => 'redirect', value => 'show_stranici') => '… и прегледъ' %>
         % end
     </div>
 </div>
 %=javascript '/js/editor.js'
+%=javascript begin
+
+$(".mui-form>fieldset>legend").click(function() {
+  let self = this;
+  let rows = $(".mui-row", this.parentNode);
+  if (rows.is(":visible")) {
+    rows.hide(600, function() {
+      let text = $(self).text();
+      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
+    });
+  } else {
+    rows.show(600, function() {
+      let text = $(self).text();
+      $(self).text(text.replace(/…/, ""));
+    });
+  }
+});
+
+// hide Properties and Permissions by default.
+$(".mui-form>fieldset:nth-of-type(1)>legend").click();
+$(".mui-form>fieldset:nth-of-type(2)>legend").click();
+% end

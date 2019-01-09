@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2019.01.21
+    - Changes
+        * Improved form for 'stranici' a lot.
+        * Improved form for 'celini' a lot.
+
 2019.01.01
     - Changes
         * Happy New Year 2019!

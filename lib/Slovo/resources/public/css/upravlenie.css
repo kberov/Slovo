@@ -28,10 +28,6 @@ button {
     font-size:1.5em;
 }
 
-.home_stranici .mui-panel {
-    padding: .3rem;
-}
-
 .hidden, .deleted, .disabled, .expired, .upcoming {opacity: 0.50;}
 .deleted, .disabled {text-decoration: line-through red;}
 .upcoming {text-decoration: green wavy overline;}
@@ -48,7 +44,7 @@ button {
 }
 
 td.buttons {
-font-size: 1.5rem;
+    font-size: 1.5rem;
 }
 
 input, textarea, option, button {
@@ -85,12 +81,19 @@ header a, footer a {
     font-family: Veleka, FreeSerif, BukyvedeRegular, serif;
 }
 
+.mui-panel {
+    padding: .3rem;
+}
+
+.mui-panel.breadcrumb a:first-child {
+    float:right;
+}
 /* Pages: Font Awesome 5 Free styles */
 .pages .mui-dropdown {
     /* float:right; */
 }
 
-.pages .mui-dropdown__menu li a{
+.pages .mui-dropdown__menu li a {
     font-family: "Font Awesome 5 Free";
 }
 .pages .mui-btn--small {
@@ -110,12 +113,18 @@ header a, footer a {
     text-align: left;
 }
 
-.pages ul li.folder::before {
-     content: "\f07b";
-     font-family: "Font Awesome 5 Free";
+.mui-form>legend {font-size: 2rem;}
+.mui-form>fieldset>legend {
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
-.pages ul li.file::before {
-     content: "\f1ea";
-     font-family: "Font Awesome 5 Free";
+.mui-form>fieldset>legend {color: rgba(0,0,0,.54);}
+.mui-form>fieldset>legend:hover {color: rgba(0,0,0,1);}
+
+.mui-select__menu {
+    z-index:100;
+}
+.mui-select__menu>.mui--is-selected {
+    font-weight: bold;
 }
