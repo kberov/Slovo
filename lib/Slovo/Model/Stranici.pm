@@ -29,7 +29,7 @@ sub breadcrumb ($m, $pid, $l) {
   state $SQL = <<"SQL";
 WITH RECURSIVE pids(p)
   AS(VALUES(?) UNION SELECT pid FROM $table s, pids WHERE s.id = p)
-  SELECT s.alias, c.title, c.language, s.id, s.pid FROM $table s, $celini_table c
+  SELECT s.alias, c.title, c.language, s.id, s.pid, c.id as title_id FROM $table s, $celini_table c
   WHERE s.id IN pids
     AND c.page_id = s.id
     AND $LSQL

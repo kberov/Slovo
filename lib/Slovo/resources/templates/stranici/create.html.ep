@@ -1,4 +1,2 @@
-% my $title = 'New record in table "stranici"';
-% layout 'upravlenie', title => $title;
-<h2><%= $title %></h2>
+% layout 'upravlenie', title => 'Нова страница';
 %= include 'stranici/_form', caption => 'Create', target => 'store_stranici'

@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.01.01';
+our $VERSION   = '2019.01.21';
 our $CODENAME  = 'U+2C12 GLAGOLITIC CAPITAL LETTER POKOJI (Ⱂ)';
 my $CLASS = __PACKAGE__;
 
@@ -63,16 +63,17 @@ sub _around_dispatch ($next, $c) {
 
   state $s_paths = $app->static->paths;
   state $r_paths = $app->renderer->paths;
-  my $domain;
-  eval { $domain = $c->domove->find_by_host($c->host_only)->{domain} }
+  my $dom;
+  eval { $dom = $c->domove->find_by_host($c->host_only) }
     || die 'No such Host ('
     . $c->host_only
     . ')! Looks like a Proxy Server misconfiguration'
     . " or a missing domain alias in table domove.\n";
 
   # Use domain specific public and templates' paths with priority.
-  unshift @{$s_paths}, "$droot/$domain/public";
-  unshift @{$r_paths}, "$droot/$domain/templates";
+  unshift @{$s_paths}, "$droot/$dom->{domain}/public";
+  unshift @{$r_paths}, "$droot/$dom->{domain}/templates";
+  $app->defaults(domain => $dom);
   $next->();
   shift @{$s_paths};
   shift @{$r_paths};
@@ -215,8 +216,6 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 =head1 DESCRIPTION
 
-This is a usable release!
-
 L<Slovo> is a simple and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
 with nice core features like:
@@ -235,9 +234,9 @@ with nice core features like:
 
 =item * User sign in - DONE;
 
-=item * Managing pages, content, domains, users - BASIC;
+=item * Managing pages, content, domains, users - WIP;
 
-=item * Managing groups - TODO;
+=item * Managing groups - BASIC;
 
 =item * Multiple groups per user - DONE;
 
@@ -263,15 +262,17 @@ for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 
 =back
 
+This is a usable release!
+
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
 compatible and/or translating some limited number of SQL queries to the
 corresponding SQL dialects. Contributors are wellcome.
 
-The word "slovo" (слово) has one unchanged during the senturies meaning in all
-slavic languages. It is actually one language that started splitting apart less
-than one thousand years ago. The meaning is "word" - the God's word when used
-with capital letter. Hence the self-naming of this group of people
+The word "slovo" (слово) has one unchanged meaning during the last millenium in
+all slavic languages. It is actually one language that started splitting apart
+less than one thousand years ago. The meaning is "word" – the God's word (when
+used with capital letter). Hence the self-naming of this group of people
 C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who have been given the God's word or
 people who can speak. All others were considered "mute", hense the naming
 (немци)...

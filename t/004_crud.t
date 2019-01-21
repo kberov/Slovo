@@ -148,7 +148,12 @@ my $update_stranica = sub {
   $sform->{body} = $dom->at('textarea[name="body"]')->text;
 
   $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204)->content_is('');
+  $sform->{redirect} = 'show_stranici';
+  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)
+    ->status_is(302)
+    ->header_is(
+            Location => $app->url_for('show_stranici' => {id => $new_page_id}));
   my $aliases
     = $app->dbx->db->select('aliases', '*', {new_alias => $sform->{alias}})
     ->hash;
@@ -217,15 +222,14 @@ my $sh_up_url     = $app->url_for('update_celini', {id => $max_id})->to_string;
 my $update_celini = sub {
   my $old_title = $cform->{title};
   $cform->{title} = 'Заглавие на цѣлината';
-  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302)
-    ->header_is(Location => $sh_up_url);
+  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
   my $new_alias = Mojo::Util::slugify($cform->{title}, 1);
   $t->get_ok($sh_up_url)->text_is('#alias' => 'alias: ' . $new_alias);
   my $aliases
     = $app->dbx->db->select('aliases', '*', {new_alias => $new_alias})->hash;
   is_deeply(
             $aliases => {
-                         id          => 2,
+                         id          => 3,
                          new_alias   => $new_alias,
                          old_alias   => Mojo::Util::slugify($old_title, 1),
                          alias_table => 'celini',
@@ -236,14 +240,17 @@ my $update_celini = sub {
 
 # change permisssions so on the next update user has enough permissions to write.
   $cform->{permissions} = '-rwxrwxr-x';
-  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302);
+  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
 
   # change ownership.
   $cform->{user_id} = 4;
-  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(302);
+  $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
+  $cform->{redirect} = 'show_celini';
+  $t->put_ok($sh_up_url => {Accept => '*/*'} => form => $cform)->status_is(302)
+    ->header_is(Location => $app->url_for('show_celini' => {id => $max_id}));
   my $e_celini_url = $app->url_for('edit_celini', {id => $max_id})->to_string;
   $t->get_ok($e_celini_url)->status_is(200)
-    ->text_like('#permissions > span:nth-child(2)' => qr'Test 2')
+    ->text_like('#permissions > .mui-row > .mui-col-md-3 > span' => qr'Test 2')
     ->text_is('select[name="group_id"]>option[selected]' => 'краси')
     ->text_is(
         'select[name="permissions"]>option[selected]' => $cform->{permissions});
@@ -282,10 +289,16 @@ my $user_permissions = sub {
   # permissions: drwxr-xr-x
   my $sform = {%$sform};    #copy
   $sform->{alias} = $sform->{title} = 'blabla1';
-  my $id = 6;
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(400);
+  my $id        = 6;
+  my $e_str_url = $app->url_for('edit_stranici' => {id => $id});
+  my $u_str_url = $app->url_for('update_stranici' => {id => $id});
+
+# page redirects back to edit_stranici with flash message "Failed validation for: permissions,writable"
+  $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302)
+    ->header_is(Location => $e_str_url);
+  $t->get_ok($e_str_url)
+    ->text_is(
+         '.field-with-error' => 'Failed validation for: permissions, writable');
 
   # make the page writable to others
   my $permissions = 'drwxr-xrwx';
@@ -309,8 +322,7 @@ my $user_permissions = sub {
 
   #user is not able to change another's user permissions
   $sform->{permissions} = 'drwxrwxrwx';
-  $t->put_ok('/Ꙋправленѥ/stranici/6' => {Accept => '*/*'} => form => $sform)
-    ->status_is(400);
+  $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302);
 
   #change page ownership and change permissions
   $permissions = 'dr-xr-xr-x';
@@ -326,9 +338,7 @@ my $user_permissions = sub {
 
   #invalid permissions notation!
   $sform->{permissions} = 'drwxrRxrwx';
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(400);
+  $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302);
 
   $sform->{permissions} = 'drwxr-xr-x';
   $t->put_ok(
@@ -372,7 +382,7 @@ my $user_permissions = sub {
   $t->put_ok($stranica_url => {} => form => $sform)->status_is(302);
   $t->get_ok($app->url_for('edit_stranici', id => $new_page_id))
     ->status_is(200)
-    ->text_like('#permissions > span:nth-child(2)' => qr'Test 2')
+    ->text_like('#permissions > .mui-row > .mui-col-md-3 > span' => qr'Test 2')
     ->text_is('select[name="group_id"]>option[selected]' => 'краси')
     ->text_is(
         'select[name="permissions"]>option[selected]' => $cform->{permissions});

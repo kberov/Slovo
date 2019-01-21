@@ -21,12 +21,89 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render();
 }
 
+sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
+  return unless $crow->{is_dir};
+  return if ($crow->{id} == $row->{id} // 0);
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  my $opts
+    = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
+
+  my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);
+  my $option = [
+                ('- ' x $indent) . $crow->{alias} => $crow->{id},
+                $crow->{id} == $row->{pid} ? (selected => 'selected') : ()
+               ];
+  if (@$stranici) {
+    return $option, @{
+      $stranici->map(
+        sub {
+          my $crow = shift;
+          _options($c, $crow, $row, $indent + 1, $u, $d, $l);
+        }
+      )
+    };
+  }
+
+  return $option;
+}
+
+my sub _parents_options ($c, $bread, $row, $u, $d, $l) {
+  my $str = $c->stranici;
+  state $root = $str->find_where(
+          {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
+  state $pt = $str->table;
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  my $opts
+    = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
+  my $parents_options = [
+    [$root->{alias}, $root->{id}],
+    @{
+      $str->all_for_edit($u, $d, $l, $opts)->map(
+        sub {
+          my $crow = shift;
+          _options($c, $crow, $row, 1, $u, $d, $l);
+        }
+      )
+     }
+  ];
+
+# TODO refactor all_for_edit to not require hacks like this (do not pass pid as
+# an option, but only in the 'where' suboption)
+# Call all_for_edit recursively and show optiongroups for subfolders
+
+  return $parents_options;
+};
+
 # All the following routes are under /Ꙋправленѥ
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.
 sub create($c) {
-  return $c->render(in => {});
+
+  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
+  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
+  my $str    = $c->stranici;
+  my $l      = $c->language;
+  my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
+  my $pid    = $c->param('pid') // 0;
+  my $bread  = $str->breadcrumb($pid, $l);
+  my $u      = $c->user;
+  my $domain = $c->host_only;
+  return
+    $c->render(
+        in          => {},
+        domove      => $domove,
+        l           => $l,
+        formats     => $formats,
+        languages   => $languages,
+        permissions => $permissions,
+        u           => $u,
+        breadcrumb  => $bread,
+        parents => _parents_options($c, $bread, {pid => $pid}, $u, $domain, $l),
+    );
 }
 
 # POST /stranici
@@ -60,14 +137,36 @@ sub store($c) {
   return $c->redirect_to(edit_stranici => {id => $id});
 }
 
+
 # GET /stranici/:id/edit
 # Display form for edititing resource in table stranici.
 sub edit($c) {
 
+  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
+  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
+  my $str    = $c->stranici;
+  my $row    = $str->find_for_edit($c->stash('id'), $c->language);
+  my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
+  my $l      = $c->language;
+  my $bread  = $str->breadcrumb($row->{id}, $l);
+  my $u      = $c->user;
+  my $domain = $c->host_only;
+
   #TODO: implement language switching based on Ado::L18n
-  my $row = $c->stranici->find_for_edit($c->stash('id'), $c->language);
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
-  return $c->render(in => $row);
+  return
+    $c->render(
+               domove      => $domove,
+               l           => $l,
+               in          => $row,
+               formats     => $formats,
+               languages   => $languages,
+               permissions => $permissions,
+               u           => $u,
+               breadcrumb  => $bread,
+               parents => _parents_options($c, $bread, $row, $u, $domain, $l),
+              );
 }
 
 # PUT /stranici/:id
@@ -77,7 +176,12 @@ sub update($c) {
   # Validate input
   my $v  = $c->_validation;
   my $in = $v->output;
-  return $c->render(action => 'edit', in => $in, status => '400')
+
+  #TODO: Make proper error displaying for flash mesages and/or just make sure
+  #all stash variables are prepared and error messages are displayed near the
+  #failed fields ot in this page
+  $c->flash(message => 'Failed validation for: ' . join(', ', @{$v->failed}));
+  return $c->redirect_to('edit_stranici', id => $c->stash->{id})
     if $v->has_error;
 
   # Update the record
@@ -86,7 +190,9 @@ sub update($c) {
 
   # Redirect to the updated record or just send "204 No Content"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/204
-  return $c->redirect_to('show_stranici', id => $id);
+  my $redirect = $c->param('redirect') // '';
+  return $c->redirect_to($redirect, id => $id) if $redirect eq 'show_stranici';
+  return $c->render(text => '', status => 204);
 }
 
 # GET /stranici/:id

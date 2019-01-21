@@ -1,143 +1,260 @@
 <%
-state $types     = $c->openapi_spec('/parameters/data_type/enum');
-state $formats   = $c->openapi_spec('/parameters/data_format/enum');
-state $languages = $c->openapi_spec('/parameters/language/enum');
-state $permissions = $c->openapi_spec('/parameters/permissions/enum');
+$in->{user_id}  //= $u->{id};
+$in->{group_id} //= $u->{group_id};
+my $sorting = [map $_, (0 .. 15)];
+my $sorting_title = 'Мѣсто в подредбата';
+my $sorting_label = 'Мѣсто в подредбата';
+my $body_title = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
+my $pid_new = $in->{data_type} eq 'заглавѥ' ? $in->{id} : $in->{pid};
 %>
-%= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
-<%= link_to '🖹⮉☰' => url_for('home_celini')->query([page_id => $in->{page_id}])
-    => (title => 'Up to list of celini in the same page')
-%>
-<hr />
-%= form_for $target => begin
 
-%= t fieldset => (id=>'main_properties') => begin
-  %= t legend => 'Главни свойства'
-  %= label_for title =>'Title'
-  %= text_field title => (placeholder =>'Title for the content element', required => 1, size => 55)
-  %= label_for alias =>'Alias'
-  %= text_field alias => (size => 55)
-<br />
-  %= label_for 'body' => 'Body'
-  <div id="_body">
-  %= text_area 'body' => (required => 1, style=>'width:100%;height:25em')
-  </div>
-<br />
-  <%=
-  select_box
-    data_type => [map {[$_=>$_]} @$types],
-    label => 'Data type'
-  %>
-  <%=
-  select_box
-    data_format => [map {[$_=>$_]} @$formats],
-    label => 'Data format'
-  %>
-  %=javascript '/js/editor.js'
-  <%=
-  select_box
-    language => [map {[$_=>$_]} @$languages],
-    label => 'Language'
-  %>
-% end ;# fieldset
 
-% if (${target} eq 'update_celini') {
-%= t fieldset => (id=>'permissions') => begin
-  %= t legend => 'Разрешения и обнародване'
-<%
+<div class="mui-panel breadcrumb">
+    <%= link_to url_with('create_celini')->query(pid => $pid_new, page_id => $in->{page_id}) 
+        => (title => 'Нова цѣлина в сѫщата страница') => begin %>
+    <i class="fas fa-plus-square"></i>
+    <% end %>
+    %= link_to '⸙' =>'home_celini', title => "Цѣлини"
+% if(@$breadcrumb) {
+  <%=
+  $breadcrumb->map(
+    sub {
+    link_to $_->{alias} => url_for('home_celini')->query(page_id=>$_->{id}),
+        title => "Цѣлини въ страница „$_->{alias}\""
+    }
+    )->join(' ⸙ ')
+  %>
+% }
+</div>
+
+
+<div class="mui-container">
+    <div class="mui-panel">
+        %= form_for $target => (class=>'mui-form') => begin
+        %= t legend => title
+        %= t fieldset => (id=>'main_properties') => begin
+          %= t legend => 'Главни свойства'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= label_for title =>'Заглавѥ'
+                %= text_field title => (placeholder =>'Заглавѥ на цѣлината', required => 1)
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= label_for alias =>'Слогъ'
+                %= text_field 'alias'
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                data_type => [map {[$_=>$_]} @$types],
+                label => 'Видъ съдържанѥ'
+              %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                data_format => [map {[$_=>$_]} @$formats],
+                label => 'Форматъ на съдържанѥто'
+              %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                language => [map {[$_=>$_]} @$languages],
+                label => 'Ѩꙁыкъ'
+              %>
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-12') => begin
+                %= label_for 'body' => 'Цѣлина'
+                <div id="_body" class="mui-textfield">
+                %= text_area 'body' => (required => 1)
+                </div>
+              % end; # mui-col
+          % end; # mui-row
+        % end ;# fieldset
+
+
+        % if (${target} eq 'update_celini') {
+        %= t fieldset => (id=>'permissions') => begin
+          %= t legend => 'Разрешения и обнародване'
+          %= t div => (class => 'mui-row') => begin
+        <%
 # TODO: Make these listings an Ajax request and implement Autocomplete making
 # requests each 500ms. like in jQ UI
 # This will be needed when we have many (more than 100) users
-state $users
-  = users->all({where => {login_name => {'!=' => 'guest'}, disabled => 0}})
-  ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
-  state $groups
-  = groups->all({where => {name => {'!=' => 'guest'}, disabled => 0}})
-  ->map(sub { [$_->{name} => $_->{id}] });
-%>
-  <% if($in->{user_id} != $c->user->{id}){ %>
-  <span style ="display: inline-block"> Собственик:
-  %= $users->first(sub{$_->[1] eq $in->{user_id}})->[0]
-  %= hidden_field(user_id => $in->{user_id})
-  <% } else { %>
-  <%=
-  select_box(
-    user_id => [['Изберете нов собственик' => ''], @$users],
-    label   => 'Собственик')
-  %>
-  % }
-  <%=
-  select_box
-    group_id => [['Изберете сътрудници' => ''], @$groups],
-    label    => 'Сътрудници'
-  %>
-  <%=
-# TODO: document and design the behavior for celini which are "d" (directories) and "l" (links)
-  select_box
-    permissions => [map { [$_ => $_] } @$permissions],
-    required    => 1,
-    label       => 'Права'
-  %>
-  <%=
-  select_box
-    published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
-    label => 'Обнародвано'
-  %>
-% end ;# fieldset
-% }
-%= t fieldset => (id=>'additional_properties') => begin
-  %= t legend => 'Допълнителни свойства'
+        state $users
+          = users->all({where => {login_name => {'!=' => 'guest'}}})
+          ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] }) || c();
+          state $groups
+          = groups->all({where => {name => {'!=' => 'guest'}, disabled => 0}})
+          ->map(sub { [$_->{name} => $_->{id}] });
+        %>
 
-  %= label_for pid => 'Pid'
-  %= number_field 'pid'
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%
+                if ($in->{user_id} != $c->user->{id}) {
+                    my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
+                %>
+                  <span style ="display: inline-block"> Собственик:
+                      %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
+                  %= hidden_field(user_id => $in->{user_id})
+                  <% } else { %>
+                  <%=
+                  select_box(
+                    user_id => [['Изберете нов собственик' => ''], @$users],
+                    label   => 'Собственик')
+                  %>
+                  % }
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    group_id => [['Изберете сътрудници' => ''], @$groups],
+                    label    => 'Сътрудници'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+% # TODO: document and design the behavior for celini which are "d"
+% # (directories) and "l" (links)
+                  <%=
+                  select_box
+                    permissions => [map { [$_ => $_] } @$permissions],
+                    required    => 1,
+                    label       => 'Права'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
+                    label => 'Обнародвано'
+                  %>
+              % end
+          % end; # mui-row
+        % end ;# fieldset
+        % }
+        %= t fieldset => (id=>'additional_properties') => begin
+          %= t legend => 'Допълнителни свойства'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-3') => begin
+                %= check_box deleted => 1
+                %= label_for deleted => 'Изтрито'
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
+                %= label_for pid => 'В цѣлина с №'
+                %= number_field 'pid' => $in->{data_type} eq 'ѿговоръ' ? (readonly => ''):()
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
+                %= label_for from_id => 'Превѣдено отъ №'
+                %= number_field 'from_id', readonly => ''
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
+                %= label_for page_id => 'В страница №'
+                %= number_field page_id => readonly => ''
+              % end
+          % end; # mui-row
 
-  %= label_for from_id => 'From_id'
-  %= number_field 'from_id'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-4', title => $sorting_title) => begin
+                  <%=
+                  select_box
+                    sorting => $sorting,
+                    label => $sorting_label, title => $sorting_title
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-4', title => 'Препорѫчано (на първо мѣсто)') => begin
+                  %= check_box 'featured' => 1
+                  %= label_for featured => 'Препорѫчано'
+              % end
+              <%= t 'div' => (class => 'mui-col-md-4', 
+              title => 'В коя част на страницата се намира') => begin %>
+                  <%=
+                  select_box
+                    box => [
+                            ['main'   => 'главна'],
+                            ['top'    => 'горѣ'],
+                            ['left'   => 'лѣво'],
+                            ['right'  => 'дѣсно'],
+                            ['bottom' => 'долу']
+                           ],
+                    label => 'Кутия'
+                  %>
+              % end
+          % end; # mui-row
 
-  %= label_for page_id => 'Page_id'
-  %= number_field page_id => readonly => 1
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-12', title => 'Описанѥ') => begin
+                  %= label_for description =>'Описанѥ'
+                  %= text_field 'description'
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6', title => 'Ключови думи') => begin
+                  %= label_for keywords =>'Ключови думи'
+                  %= text_field 'keywords'
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6', title => 'Тагове') => begin
+                  %= label_for tags =>'Тагове'
+                  %= text_field tags => size => 100
+              % end
+          % end; # mui-row
 
-  %= label_for sorting => 'Sorting'
-  %= number_field sorting =>  size => 3
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-3', title => 'Ако това е „въпрос”, приет ли е?') => begin
+                  %= check_box accepted => 1
+                  %= label_for accepted => 'Приет'
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3', title => 'Означаване като „лошо” съдържанѥ и в каква степен.') => begin
+                  %= label_for bad => 'Лошо'
+                  %= number_field 'bad'
+              % end
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Начало на обнародването (в секунди от 1970) (има да се направи по-добре с избор от калѧдар)') => begin %>
+                  %= label_for start => 'Начало'
+                  %= number_field 'start'
+              % end
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Край на обнародването (в секунди от 1970)') => begin %>
+                  %= label_for stop => 'Край'
+                  %= number_field 'stop'
+              % end
+          % end; # mui-row
+        % end ;# fieldset
 
-  %= label_for description =>'Description'
-  %= text_field description =>  size => 55
+          % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+          %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
+          <%= $caption eq 'Create' ? '' :
+            t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
+              name => 'redirect', value => 'show_celini') => '… и прегледъ' %>
+        % end
+    </div>
+</div>
 
-  %= label_for keywords =>'Keywords'
-  %= text_field keywords => size => 55
+%=javascript '/js/editor.js'
+%=javascript begin
 
-  %= label_for tags =>'Tags'
-  %= text_field tags => size => 100
+$(".mui-form>fieldset>legend").click(function() {
+  let self = this;
+  let rows = $(".mui-row", this.parentNode);
+  if (rows.is(":visible")) {
+    rows.hide(600, function() {
+      let text = $(self).text();
+      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
+    });
+  } else {
+    rows.show(600, function() {
+      let text = $(self).text();
+      $(self).text(text.replace(/…/, ""));
+    });
+  }
+});
 
-  <%=
-  select_box
-    box => [
-            ['main'   => 'главна'],
-            ['top'    => 'горѣ'],
-            ['left'   => 'лѣво'],
-            ['right'  => 'дѣсно'],
-            ['bottom' => 'долу']
-           ],
-    label => 'Box'
-  %>
-  %= label_for featured => 'Featured'
-  %= check_box 'featured' => 1
+// hide Permissions and additional fields by default.
+$(".mui-form>fieldset:nth-of-type(2)>legend").click();
+$(".mui-form>fieldset:nth-of-type(3)>legend").click();
 
-  %= label_for accepted => 'Accepted'
-  %= check_box accepted => 1, (title =>'If this is a "въпрос", is it accepted?')
-
-  %= label_for bad => 'Bad'
-  %= number_field bad => size => 2
-
-  %= label_for deleted => 'Deleted'
-  %= check_box deleted => 1
-
-  %= label_for start => 'Start'
-  %= number_field 'start'
-
-  %= label_for stop => 'Stop'
-  %= number_field 'stop'
-% end ;# fieldset
-
-  %= submit_button $caption
 % end
