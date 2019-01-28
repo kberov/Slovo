@@ -103,7 +103,8 @@ my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
   $app->minion->enqueue(delete_first_login => [$to_user->{id}, $token] =>
                         {delay => $CONF->{token_valid_for}});
   $job->finish(  'Писмото за първo влизане в '
-               . $domain . ' до '
+               . $domain
+               . ' до '
                . $to_user->{first_name} . ' '
                . $to_user->{last_name}
                . ' бе успешно изпратено!');

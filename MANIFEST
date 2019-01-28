@@ -141,4 +141,5 @@ t/data/images/perl6.jpeg
 t/lib/Test/Mojo/Role/Slovo.pm
 t/manifest.t
 t/perl-critic.t
+t/perltidy.t
 t/pod.t

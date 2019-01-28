@@ -61,15 +61,16 @@ sub login_ok ($t, $login_name = '', $login_password = '') {
 
     $t->get_ok('/Ꙋправленѥ')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /входъ');
-    $t->get_ok('/входъ')->status_is(200)->text_is('head title' => 'Входъ');
+    $t->get_ok('/входъ')->status_is(200)
+      ->text_is('head title' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password);
     my $body
       = $t->post_ok($login_url, {} => form => $form)->status_is(302)
       ->header_is(
-                  Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
-                  'Location: /Ꙋправленѥ'
-                 )->content_is('', 'empty content')->tx->res->body;
+                 Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
+                 'Location: /Ꙋправленѥ'
+    )->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };
   return $t;

@@ -16,13 +16,18 @@ my $app = $t->app;
 # like in production
 $app->config->{cache_pages} = 1;
 my $not_found = sub {
-  for my $alias (qw(скрита изтрита предстояща изтекла несъществуваща)) {
+  for my $alias (
+    qw(скрита изтрита предстояща изтекла несъществуваща)
+    )
+  {
     $t->get_ok("/$alias.html")->status_is(404);
   }
 };
 $t->login('краси', 'беров');
 my $previewed_pages = sub {
-  for my $alias (qw(скрита изтрита предстояща изтекла)) {
+  for my $alias (
+            qw(скрита изтрита предстояща изтекла))
+  {
     $t->get_ok("/$alias.html?прегледъ=1")->status_is(200);
   }
 };
@@ -53,15 +58,19 @@ my $breadcrumb = sub {
   $t->get_ok('/вести.html')
     ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
     ->element_exists(
-             'main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)')
-    ->text_is(  'section.заглавѥ.множество article.писанѥ:nth-child(3)'
-              . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
+    'main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)'
+    )
+    ->text_is(
+    'section.заглавѥ.множество article.писанѥ:nth-child(3)'
+      . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
 
   $t->get_ok('/вести/alabala.html')->status_is(404)
-    ->text_is('.заглавѥ > h1:nth-child(1)' => 'Страницата не е намерена')
-    ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
+    ->text_is('.заглавѥ > h1:nth-child(1)' =>
+              'Страницата не е намерена')
+    ->text_is(
+         'aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
 };
 
 my $multi_language_pages = sub {
@@ -115,32 +124,33 @@ my $cached_pages = sub {
      ' /foo/bar.bg.html IS NOT YET on disk');
 
   $body
-    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
+    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
+    ->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          'On first celina with path /foo/bar.bg.html was just cached');
 
-  $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")->status_is(200)
-    ->tx->res->body;
+  $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")
+    ->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
        'celina with canonical name is cached');
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
      '/foo/bar.bg.html IS NOT ever cached');
   $body
-    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
+    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
+    ->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
          ' /foo/bar.bg.html is not canonical and thus not cached');
   $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or писанѥ
-  my $id
-    = $app->dbx->db->query("SELECT id FROM celini WHERE alias='вътора-вест'")
-    ->hash->{id};
+  my $id = $app->dbx->db->query(
+       "SELECT id FROM celini WHERE alias='вътора-вест'")->hash->{id};
 
   $t->delete_ok('/Ꙋправленѥ/celini/' . $id)->status_is(302);
   ok(!-f $cache_dir->child('вести/вътора-вест.bg-bg.html'),
      '/foo/bar.bg.html IS NOT anymore on disk');
   ok(!-d $cache_dir->child('вести'), '/foo IS NOT anymore on disk');
-  ok(!-e $cache_dir,                 '$cache_dir IS NOT anymore on disk');
+  ok(!-e $cache_dir,                      '$cache_dir IS NOT anymore on disk');
 };
 
 my $browser_cache = sub {
@@ -161,28 +171,32 @@ my $browser_cache = sub {
   $t->get_ok("/вести.bg.html" => {'If-None-Match' => $headers->etag})
     ->status_is(200);
   $t->get_ok(
-           "/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
+      "/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
     ->status_is(304);
   $t->header_is('Cache-Control' => $app->config('cache_control'));
 
   # this is cannonical
-  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  $headers
+    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
   $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $headers->etag})
     ->status_is(304);
 
   # Browser cache for signed in users
   $t->login('краси', 'беров');
-  my $tstamp = $app->dbx->db->select('stranici', 'tstamp', {alias => 'вести'})
+  my $tstamp
+    = $app->dbx->db->select('stranici', 'tstamp', {alias => 'вести'})
     ->hash->{tstamp};
 
   my $date = Mojo::Date->new($tstamp);
   my $etag = Mojo::Util::md5_sum($date->epoch);
 
-  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  $headers
+    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
 
   $t->header_is(
         'Cache-Control' => $app->config('cache_control') =~ s/public/private/r);
-  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $etag})->status_is(200);
+  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $etag})
+    ->status_is(200);
 
   $t->get_ok("/вести.bg-bg.html" => {'If-Modified-Since' => "$date"})
     ->status_is(304);
@@ -193,7 +207,8 @@ my $browser_cache = sub {
 
 # Generate and test a fullblown home page with several sections consisting of
 # content in category pages.
-my @cats      = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
+my @cats
+  = qw(време нрави днесъ сѫд въпроси сбирка бележки техника наука);
 my $home_page = sub {
 
   #create category pages
@@ -275,7 +290,7 @@ sub _pisania {
   my $in = {};
   @$in{qw(user_id group_id changed_by created_at)} = (5, 5, 5, time - 1);
   my $pid = $app->celini->find_where(
-                   {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
+            {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];
   my $data = lc data_section('Slovo::Test::Text', 'text.txt');

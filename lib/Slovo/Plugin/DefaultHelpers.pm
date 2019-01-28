@@ -33,7 +33,9 @@ sub register ($self, $app, $config) {
 
   $app->helper(
     language => sub {
-      $_[1] ? $_[0]->stash('ѩꙁыкъ' => $_[1]) : $_[0]->stash('ѩꙁыкъ');
+      $_[1]
+        ? $_[0]->stash('ѩꙁыкъ' => $_[1])
+        : $_[0]->stash('ѩꙁыкъ');
     }
   );
   $app->helper(debug => \&_debug);

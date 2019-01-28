@@ -33,12 +33,13 @@ if ($ENV{TEST_AUTHOR}) {
                 'Perl::Critic'        => '1.132',
                 'Perl::Tidy'          => '20181119',
                 'Test::CheckManifest' => '1.33',
+                'Test::PerlTidy'      => '20130104'
                };
 }
 
 WriteMakefile(
-  NAME          => 'Slovo',
-  VERSION_FROM  => $module_file,                        # finds \$VERSION
+  NAME         => 'Slovo',
+  VERSION_FROM => $module_file,    # finds \$VERSION
   AUTHOR        => 'Красимир Беров (berov@cpan.org)',
   ABSTRACT_FROM => $module_file,
   LICENSE       => 'artistic_2',
@@ -64,8 +65,8 @@ WriteMakefile(
 
 
 sub MY::postamble {
-  my $preop = qq 'podselect $module_file > README.pod;';
-  my @perltidy_files;
+  my $preop          = qq 'podselect $module_file > README.pod;';
+  my @perltidy_files = qw(script/slovo Makefile.PL);
   my $options = {
     no_chdir => 1,
     wanted   => sub {
@@ -80,7 +81,7 @@ readme ::
 dist : readme
 
 perltidy ::
-\tperltidy Makefile.PL script/slovo @perltidy_files
+\tperltidy -pro=.perltidyrc @perltidy_files
 TARGETS
 }
 

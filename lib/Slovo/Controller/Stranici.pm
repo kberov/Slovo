@@ -51,7 +51,7 @@ sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
 my sub _parents_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
   state $root = $str->find_where(
-          {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
+    {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
   state $pt = $str->table;
   state $list_columns
     = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');

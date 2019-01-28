@@ -30,16 +30,16 @@ $t->app->dbx->db->insert("user_group" => {user_id => 5, group_id => 1});
 subtest create_domain_and_page => sub {
   my ($dom_id) = $t->create_edit_domain_ok() =~ /(\d+)$/;
   my $form = {
-              alias       => 'коренъ',
-              title       => 'Добре дошли!',
-              page_type   => 'коренъ',
-              body        => 'Добре сте ни дошли на този сайт.',
-              language    => 'bg-bg',
-              published   => 2,
-              permissions => '-rwxr-xr-x',
-              dom_id      => $dom_id,
-              data_format => 'text',
-             };
+            alias     => 'коренъ',
+            title     => 'Добре дошли!',
+            page_type => 'коренъ',
+            body => 'Добре сте ни дошли на този сайт.',
+            language    => 'bg-bg',
+            published   => 2,
+            permissions => '-rwxr-xr-x',
+            dom_id      => $dom_id,
+            data_format => 'text',
+  };
 
   # TODO: add negative test. Implement validation check against adding
   # anodher root page in the same domain.

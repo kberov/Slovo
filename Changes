@@ -1,5 +1,11 @@
 Revision history for Mojolicious application Slovo
 
+2019.01.29
+    - Changes
+        * Added t/perltidy.t to impose the rules in our .perltidyrc to
+          contributors. Ran `make perltidy` and t/perltidy.t. Set
+          ENV{TEST_AUTHOR} to run this test.
+
 2019.01.21
     - Changes
         * Improved form for 'stranici' a lot.

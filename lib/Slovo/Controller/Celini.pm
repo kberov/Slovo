@@ -30,7 +30,12 @@ sub execute ($c, $page, $user, $l, $preview) {
 
   unless ($celina) {
     $celina = $c->celini->find_where(
-         {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
+                                     {
+                                      page_id   => $c->not_found_id,
+                                      language  => $l,
+                                      data_type => 'заглавѥ'
+                                     }
+                                    );
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
   return $c->is_fresh(last_modified => $celina->{tstamp})
@@ -46,10 +51,10 @@ sub _go_to_new_celina_url ($c, $page, $celina, $l) {
   return
     $c->redirect_to(
                     'цѣлина_с_ѩꙁыкъ' => {
-                                         'цѣлина'   => $celina->{alias},
-                                         'страница' => $page->{alias},
-                                         'ѩꙁыкъ'    => $l
-                                        }
+                                           'цѣлина' => $celina->{alias},
+                                           'страница' => $page->{alias},
+                                           'ѩꙁыкъ'      => $l
+                    }
                    );
 }
 
@@ -260,7 +265,9 @@ sub _validation($c) {
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
-    ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
+    ->in(
+    qw(main главна top горѣ left лѣво right дѣсно bottom долу)
+    );
   $v->optional('language', 'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured', 'trim')->in(1, 0);

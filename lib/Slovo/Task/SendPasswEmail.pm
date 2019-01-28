@@ -67,11 +67,13 @@ my sub _mail_passw_login ($job, $to_user, $domain) {
   $app->dbx->db->insert('passw_login' => $token_row);
   $app->minion->enqueue(delete_passw_login => [$to_user->{id}, $token] =>
                         {delay => $CONF->{token_valid_for}});
-  $job->finish(  'Писмото с временен ключ за влизане в '
-               . $domain . ' до '
-               . $to_user->{first_name} . ' '
-               . $to_user->{last_name}
-               . ' бе успешно изпратено!');
+  $job->finish(
+           'Писмото с временен ключ за влизане в '
+             . $domain
+             . ' до '
+             . $to_user->{first_name} . ' '
+             . $to_user->{last_name}
+             . ' бе успешно изпратено!');
 
 };
 

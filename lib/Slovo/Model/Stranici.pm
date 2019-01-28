@@ -274,7 +274,8 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    "$celini_table.box" =>
+      [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
     %{$self->celini->where_with_permissions($user, $preview)},
     %{$opts->{where} // {}}
@@ -300,7 +301,8 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box" => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    "$celini_table.box" =>
+      [{-in => ['main', 'главна', '']}, {'=' => undef}],
     $self->where_domain_is($domain), %{$self->readable_by($user)},
     %{$opts->{where} // {}}
                    };
@@ -334,7 +336,8 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   WHERE pid=? AND page_id=? AND data_type=? limit 1)
 SQL
       my $opts = {%$celini_opts};    #copy
-      $opts->{where}{"$celini_table.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
+      $opts->{where}{"$celini_table.pid"}
+        = \[$SQL, 0, $p->{id}, 'заглавѥ'];
       $p->{articles}
         = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview,
                                                   $opts);

@@ -16,12 +16,12 @@ sub add ($self, $row) {
   my $db = $self->dbx->db;
   my $id;
   my $group_row = {
-                   name        => $row->{login_name},
-                   description => 'Главно множество за ' . $row->{login_name},
-                   created_by  => $row->{created_by},
-                   changed_by  => $row->{changed_by},
-                   disabled    => $row->{disabled},
-                  };
+    name        => $row->{login_name},
+    description => 'Главно множество за ' . $row->{login_name},
+    created_by  => $row->{created_by},
+    changed_by  => $row->{changed_by},
+    disabled    => $row->{disabled},
+  };
   eval {
     my $tx  = $db->begin;
     my $gid = $db->insert(groups_table, $group_row)->last_insert_id;

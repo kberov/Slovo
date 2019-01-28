@@ -40,16 +40,16 @@ $t->get_ok("$groups_url/0")->status_is(404);
 # Create a user (creates a primary group for the user too)
 my $create_user = sub {
   my $user_form = {
-                   login_name     => 'шестi',
-                   login_password => sha1_sum(encode('utf8', "шестilabala")),
-                   first_name     => 'Шести',
-                   last_name      => 'Шестак',
-                   email          => 'шести@хост.бг',
-                   disabled       => 0,
-                  };
+                  login_name     => 'шестi',
+                  login_password => sha1_sum(encode('utf8', "шестilabala")),
+                  first_name     => 'Шести',
+                  last_name      => 'Шестак',
+                  email          => 'шести@хост.бг',
+                  disabled       => 0,
+  };
   $t->post_ok($users_url => form => $user_form)->status_is(302)->header_is(
-                                     Location => $users_url . '/store_result/1',
-                                     'Location: /Ꙋправленѥ/users/store_result/1'
+                           Location => $users_url . '/store_result/1',
+                           'Location: /Ꙋправленѥ/users/store_result/1'
   )->content_is('', 'empty content');
   my $user_show = $t->get_ok($user6_url)->status_is(200);
   my $user      = $app->users->find(6);
@@ -70,9 +70,12 @@ my $create_user = sub {
 # Update a user
 my $update_user = sub {
   my $groups = [4, 5];
-  $t->put_ok($user6_url => form => {last_name => 'Седмак', groups => $groups})
-    ->header_is(Location => $user6_url, 'Location: /Ꙋправленѥ/users/6')
-    ->content_is('', 'empty content')->status_is(302);
+  $t->put_ok(
+         $user6_url => form => {last_name => 'Седмак', groups => $groups})
+    ->header_is(
+                Location => $user6_url,
+                'Location: /Ꙋправленѥ/users/6'
+               )->content_is('', 'empty content')->status_is(302);
   $t->get_ok($edit_user6_url)->status_is(200);
   for (@$groups, 6) {
     $t->element_exists(qq|input[name="groups"][checked,value="$_"]|);
@@ -91,15 +94,16 @@ my $remove_user = sub {
 # Create stranici
 my $stranici_url = $app->url_for('store_stranici')->to_string;
 my $sform = {
-             alias       => 'събития',
-             page_type   => 'обичайна',
-             permissions => '-rwxr-xr-x',
-             published   => 1,
-             title       => 'Събития',
-             body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
-             language    => 'bg-bg',
-             data_format => 'text'
-            };
+  alias       => 'събития',
+  page_type   => 'обичайна',
+  permissions => '-rwxr-xr-x',
+  published   => 1,
+  title       => 'Събития',
+  body =>
+    'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
+  language    => 'bg-bg',
+  data_format => 'text'
+};
 my $new_page_id      = 0;
 my $stranici_url_new = "$stranici_url/";
 my $create_stranici  = sub {
@@ -110,9 +114,10 @@ my $create_stranici  = sub {
                 Location => "$stranici_url_new/edit",
                 "Location: /Ꙋправленѥ/stranici/$new_page_id/edit"
                )->content_is('', 'empty content');
-  $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
+  $t->get_ok($stranici_url_new)->status_is(200)
+    ->content_like(qr/събития/);
   my $title = $app->celini->all(
-                  {where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
+           {where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
   is(@$title, 1, 'only one title');
 
   # get some title properties to check in the next subtest
@@ -124,9 +129,10 @@ my $create_stranici  = sub {
 my $read_stranici = sub {
   my $url = $app->url_with('home_stranici');
 
-  $t->get_ok($url)->text_is('div.mui-panel.breadcrumb > a:nth-child(2)' => '⸙');
-  $t->text_is(  'div.mui-panel.pages > ul.fa-ul > '
-              . 'li.fa-li > ul.fa-ul > li.fa-li > a:nth-child(2)' => 'писания');
+  $t->get_ok($url)
+    ->text_is('div.mui-panel.breadcrumb > a:nth-child(2)' => '⸙');
+  $t->text_is('div.mui-panel.pages > ul.fa-ul > '
+       . 'li.fa-li > ul.fa-ul > li.fa-li > a:nth-child(2)' => 'писания');
   $t->get_ok($url->query([pid => 1]))
     ->text_is('div.mui-panel.breadcrumb > a:nth-child(3)' => 'писания');
   $t->element_exists(  'div.mui-panel.pages > ul.fa-ul > '
@@ -206,7 +212,8 @@ my $create_celini = sub {
   unlike($cform->{body} => qr/<img.+?src=['"]data\:.+?base64/mso,
          'No base64 src in body.');
   for ('01.png', '02.gif', '03.jpeg') {
-    my $img = $app->home->child('domove/localhost/public/img', 'цѣлина-' . $_);
+    my $img
+      = $app->home->child('domove/localhost/public/img', 'цѣлина-' . $_);
     ok(-s $img, "Image *-$_ is created on disk.");
     my ($img_path) = $img =~ m|public(/.+)$|;
     like($cform->{body} => qr/src="$img_path"/,
@@ -307,9 +314,8 @@ my $user_permissions = sub {
   # Now user is able to udate the page
   $sform->{permissions} = $permissions;
 
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+  $t->put_ok('/Ꙋправленѥ/stranici/'
+             . $id => {Accept => '*/*'} => form => $sform)->status_is(302);
 
   $t->get_ok('/Ꙋправленѥ/stranici/' . $id)->text_like(
                                 '#permissions' => qr/\s$permissions$/,
@@ -341,23 +347,19 @@ my $user_permissions = sub {
   $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302);
 
   $sform->{permissions} = 'drwxr-xr-x';
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+  $t->put_ok('/Ꙋправленѥ/stranici/'
+             . $id => {Accept => '*/*'} => form => $sform)->status_is(302);
   $sform->{permissions} = 'dr-xrwxr-x';
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+  $t->put_ok('/Ꙋправленѥ/stranici/'
+             . $id => {Accept => '*/*'} => form => $sform)->status_is(302);
   $sform->{permissions} = 'dr-xr-xrwx';
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+  $t->put_ok('/Ꙋправленѥ/stranici/'
+             . $id => {Accept => '*/*'} => form => $sform)->status_is(302);
   $sform->{permissions} = 'd---------';
-  $t->put_ok(
-            '/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+  $t->put_ok('/Ꙋправленѥ/stranici/'
+             . $id => {Accept => '*/*'} => form => $sform)->status_is(302);
 
-  #now page should not be listed in /Ꙋправленѥ/stranici for other users
+ #now page should not be listed in /Ꙋправленѥ/stranici for other users
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
 
   # Use another user

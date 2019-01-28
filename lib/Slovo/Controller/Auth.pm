@@ -41,10 +41,11 @@ sub sign_in($c) {
   elsif ($v->has_error) {
     return
       $c->render(
-                 sign_in_error => 'И двете полета са задължителни!..',
-                 status        => 401,
-                 template      => 'auth/form'
-                );
+                sign_in_error =>
+                  'И двете полета са задължителни!..',
+                status   => 401,
+                template => 'auth/form'
+      );
   }
 
   my $o = $v->output;
@@ -57,7 +58,9 @@ sub sign_in($c) {
          : 'home_upravlenie');
     return $c->redirect_to(ref($route) ? %$route : $route);
   }
-  $c->stash(sign_in_error => 'Няма такъв потребител или ключът ви е грешен.');
+  $c->stash(sign_in_error =>
+    'Няма такъв потребител или ключът ви е грешен.'
+  );
   return $c->render('auth/form');
 }
 
@@ -84,7 +87,8 @@ sub under_management($c) {
   # for now only admins can manage groups and domains
   if ($route =~ /groups|domove$/) {
     $c->flash(message => 'Само управителите се грижат'
-              . ' за множествата от потребители и домейните.');
+      . ' за множествата от потребители и домейните.'
+    );
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -96,8 +100,9 @@ sub under_management($c) {
       && $e_user
       && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
   {
-    $c->flash(message => 'Само управителите на сметки могат да '
-              . 'променят чужда сметка.');
+    $c->flash(message =>
+          'Само управителите на сметки могат да '
+          . 'променят чужда сметка.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -110,7 +115,9 @@ sub under_minion($c) {
 
   # TODO: make the group configurable
   unless ($c->groups->is_admin($c->user->{id})) {
-    $c->flash(message => 'Само управителите могат да управляват задачите.');
+    $c->flash(message =>
+      'Само управителите могат да управляват задачите.'
+    );
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -174,7 +181,8 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
 }
 
 my $msg_expired_token
-  = 'Връзката, която ви доведе тук, е с изтекла годност.' . '';
+  = 'Връзката, която ви доведе тук, е с изтекла годност.'
+  . '';
 
 # GET /първи-входъ/<token:fl_token>
 # GET /първи-входъ/32e36608c72bc51c7c39a72fd7e71cba55f3e9ad
@@ -223,9 +231,11 @@ sub first_login($c) {
               ) eq $token
            );
   unless ($ok) {
-    $c->stash(  error_message => 'Моля, въведете имената на човека,'
-              . ' създал вашата сметка, както са изписани в'
-              . ' електроннто съобщение с препратката за първо влизане.');
+    $c->stash(error_message =>
+        'Моля, въведете имената на човека,'
+      . ' създал вашата сметка, както са изписани в'
+      . ' електроннто съобщение с препратката за първо влизане.'
+    );
     return $c->render(template => 'auth/first_login_form', row => $row);
   }
   if ($INC{'Slovo/Task/SendOnboardingEmail.pm'}) {

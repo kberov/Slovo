@@ -47,8 +47,9 @@ my sub _html_substr ($c, $html, $selector, $chars) {
       if ($length >= $chars) {
         $last_tag = 1;
         return
-          '<p>'
-          . substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…</p>';
+            '<p>'
+          . substr($txt, 0, $first_tag ? $chars : $length - $chars)
+          . '…</p>';
       }
       $first_tag = 0;
       return '<p>' . $txt . '</p>' . $/;
@@ -66,7 +67,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
         $last_tag = 1;
         return
           tag_to_html($el->tag, %{$el->attr},
-                 substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…');
+               substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…');
       }
       $first_tag = 0;
       return tag_to_html($el->tag, %{$el->attr}, $txt) . $/;

@@ -41,22 +41,22 @@ sub _around_execute ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    'страница'   => $page->{alias},
-    celini       => $celini,
-    domain       => $domain,
-    list_columns => $list_columns,
-    page         => $page,
-    preview      => $preview,
-    user         => $user,
+    'страница' => $page->{alias},
+    celini             => $celini,
+    domain             => $domain,
+    list_columns       => $list_columns,
+    page               => $page,
+    preview            => $preview,
+    user               => $user,
 
     # data_type to template name
     d2t => {
             'белѣжка' => '_beleyazhka',
             'въпросъ' => '_wyprosy',
             'заглавѥ' => '_zaglawie',
-            'книга'   => '_kniga',
-            'писанѥ'  => '_pisanie',
-            'цѣлина'  => '_ceyalina',
+            'книга'     => '_kniga',
+            'писанѥ'   => '_pisanie',
+            'цѣлина'   => '_ceyalina',
             'ѿговоръ' => '_otgowory'
            },
   );
@@ -90,8 +90,8 @@ sub _go_to_new_page_url ($c, $page, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to(
-           'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+  return $c->redirect_to('страница_с_ѩꙁыкъ' =>
+                   {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
 }
 
 my $cached    = 'cached';
@@ -111,7 +111,8 @@ sub _render_cached_page($c) {
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
   my $url_path
-    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
+    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route
+    =~ s/^\///r;
   return unless $url_path =~ $cacheable;
   my $file = path($c->app->static->paths->[0], $cached, $url_path);
   $file->dirname->make_path({mode => oct(700)});

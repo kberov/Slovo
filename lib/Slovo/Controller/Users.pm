@@ -46,7 +46,7 @@ sub store($c) {
     if ($u->{email} eq $in->{email}) {
       push @data, $u->{email};
     }
-    $c->flash(  message => 'Потребител със същите данни ('
+    $c->flash(message => 'Потребител със същите данни ('
               . join(', ', @data)
               . ') вече съществува.');
     return $c->redirect_to('create_users');
