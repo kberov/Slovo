@@ -31,21 +31,18 @@ sub sign_in($c) {
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
 
   if ($v->csrf_protect->has_error('csrf_token')) {
-    return
-      $c->render(
-                 sign_in_error => 'Bad CSRF token!',
-                 status        => 401,
-                 template      => 'auth/form'
-                );
+    return $c->render(
+      sign_in_error => 'Bad CSRF token!',
+      status        => 401,
+      template      => 'auth/form'
+    );
   }
   elsif ($v->has_error) {
-    return
-      $c->render(
-                sign_in_error =>
-                  'И двете полета са задължителни!..',
-                status   => 401,
-                template => 'auth/form'
-      );
+    return $c->render(
+      sign_in_error => 'И двете полета са задължителни!..',
+      status        => 401,
+      template      => 'auth/form'
+    );
   }
 
   my $o = $v->output;
@@ -54,12 +51,12 @@ sub sign_in($c) {
   if ($c->authenticate($o->{login_name}, $o->{digest}, $o)) {
     my $route
       = ($c->stash('passw_login')
-         ? {'edit_users' => {id => $c->user->{id}}}
-         : 'home_upravlenie');
+      ? {'edit_users' => {id => $c->user->{id}}}
+      : 'home_upravlenie');
     return $c->redirect_to(ref($route) ? %$route : $route);
   }
   $c->stash(sign_in_error =>
-    'Няма такъв потребител или ключът ви е грешен.'
+      'Няма такъв потребител или ключът ви е грешен.'
   );
   return $c->render('auth/form');
 }
@@ -87,7 +84,7 @@ sub under_management($c) {
   # for now only admins can manage groups and domains
   if ($route =~ /groups|domove$/) {
     $c->flash(message => 'Само управителите се грижат'
-      . ' за множествата от потребители и домейните.'
+        . ' за множествата от потребители и домейните.'
     );
     $c->redirect_to('home_upravlenie');
     return 0;
@@ -96,13 +93,13 @@ sub under_management($c) {
   # only admins and users with id=created_by can change another's user account
   my ($e_uid) = $path =~ m|/users/(\d+)|;    #Id of the user being edited
   my $e_user = $e_uid ? $c->users->find_where({id => $e_uid}) : undef;
-  if (   $route =~ /^(show|edit|update|remove)_users$/x
-      && $e_user
-      && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
+  if ( $route =~ /^(show|edit|update|remove)_users$/x
+    && $e_user
+    && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
   {
-    $c->flash(message =>
-          'Само управителите на сметки могат да '
-          . 'променят чужда сметка.');
+    $c->flash(
+      message => 'Само управителите на сметки могат да '
+        . 'променят чужда сметка.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -116,7 +113,7 @@ sub under_minion($c) {
   # TODO: make the group configurable
   unless ($c->groups->is_admin($c->user->{id})) {
     $c->flash(message =>
-      'Само управителите могат да управляват задачите.'
+        'Само управителите могат да управляват задачите.'
     );
     $c->redirect_to('home_upravlenie');
     return 0;
@@ -148,18 +145,13 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
   unless ($checksum eq $csrf_digest) {
 
     # try the passw_login
-    my $t = time;
+    my $t   = time;
     my $row = $c->dbx->db->select(
-                                  passw_login => 'token',
-                                  {
-                                   start_date => {'<=' => $t},
-                                   to_uid     => $u->{id},
-                                   stop_date  => {'>' => $t}
-                                  },
-                                  {-desc => ['id']}
-                                 )->hash;
-    my $checksum2 = sha1_sum($csrf_token
-               . sha1_sum(encode('UTF-8' => $u->{login_name} . $row->{token})));
+      passw_login => 'token',
+      {start_date => {'<=' => $t}, to_uid => $u->{id}, stop_date => {'>' => $t}},
+      {-desc      => ['id']})->hash;
+    my $checksum2 = sha1_sum(
+      $csrf_token . sha1_sum(encode('UTF-8' => $u->{login_name} . $row->{token})));
     if ($row && ($checksum2 eq $csrf_digest)) {
       $app->dbx->db->delete('passw_login' => {to_uid => $u->{id}});
 
@@ -171,8 +163,7 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
       return $u->{id};
     }
     $log->error(
-      "Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)"
-    );
+      "Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)");
     return;
   }
   $log->info('$user ' . $u->{login_name} . ' logged in!');
@@ -191,16 +182,14 @@ sub first_login_form ($c) {
     if $c->is_user_authenticated;
   my $token = $c->param('token');
   my $t     = time;
-  my $row = $c->dbx->db->select(
-         first_login => '*',
-         {start_date => {'<=' => $t}, stop_date => {'>' => $t}, token => $token}
-  )->hash;
+  my $row   = $c->dbx->db->select(
+    first_login => '*',
+    {start_date => {'<=' => $t}, stop_date => {'>' => $t}, token => $token})->hash;
   unless (defined $row) {
     $c->stash('error_message' => $msg_expired_token);
-    $c->app->log->error(
-               'Token for first_login_form was not found for user comming from '
-                 . ($c->req->headers->referrer || 'nowhere')
-                 . '.');
+    $c->app->log->error('Token for first_login_form was not found for user comming from '
+        . ($c->req->headers->referrer || 'nowhere')
+        . '.');
   }
   return $c->render(row => $row);
 }
@@ -210,10 +199,9 @@ sub first_login($c) {
   state $app = $c->app;
   my $token = $c->param('token');
   my $t     = time;
-  my $row = $c->dbx->db->select(
-         first_login => '*',
-         {start_date => {'<=' => $t}, stop_date => {'>' => $t}, token => $token}
-  )->hash;
+  my $row   = $c->dbx->db->select(
+    first_login => '*',
+    {start_date => {'<=' => $t}, stop_date => {'>' => $t}, token => $token})->hash;
   unless (defined $row) {
     $c->stash(error_message => $msg_expired_token);
     return $c->render('auth/first_login_form');
@@ -223,18 +211,18 @@ sub first_login($c) {
   $v->required('first_name', 'trim')->required('last_name', 'trim');
   my $in = $v->output;
   my $ok = (
-            sha1_sum(
-                         $row->{start_date}
-                       . encode('UTF-8' => $in->{first_name} . $in->{last_name})
-                       . $row->{from_uid}
-                       . $row->{to_uid}
-              ) eq $token
-           );
+    sha1_sum(
+          $row->{start_date}
+        . encode('UTF-8' => $in->{first_name} . $in->{last_name})
+        . $row->{from_uid}
+        . $row->{to_uid}
+    ) eq $token
+  );
   unless ($ok) {
-    $c->stash(error_message =>
-        'Моля, въведете имената на човека,'
-      . ' създал вашата сметка, както са изписани в'
-      . ' електроннто съобщение с препратката за първо влизане.'
+    $c->stash(
+          error_message => 'Моля, въведете имената на човека,'
+        . ' създал вашата сметка, както са изписани в'
+        . ' електроннто съобщение с препратката за първо влизане.'
     );
     return $c->render(template => 'auth/first_login_form', row => $row);
   }
@@ -242,8 +230,7 @@ sub first_login($c) {
     $app->minion->enqueue(delete_first_login => [$row->{to_uid}, $token]);
   }
   else {
-    $app->dbx->db->delete(
-                 'first_login' => {token => $token, user_id => $row->{to_uid}});
+    $app->dbx->db->delete('first_login' => {token => $token, user_id => $row->{to_uid}});
 
     # also delete expired but not deleted (for any reason) login tokens.
     $app->dbx->db->delete('first_login' => {stop_date => {'<=' => time}});
@@ -257,8 +244,7 @@ sub first_login($c) {
 sub lost_password_form ($c) {
   if ($c->req->method eq 'POST') {
     my $v = $c->validation;
-    $v->required('email', 'trim')
-      ->like(qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x);
+    $v->required('email', 'trim')->like(qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x);
     my $in = $v->output;
 
     if ($INC{'Slovo/Task/SendPasswEmail.pm'}) {
@@ -266,12 +252,11 @@ sub lost_password_form ($c) {
       # send email to the user to login with a temporary password and change his
       # password.
       if (my $user = $c->users->find_where({email => $in->{email}})) {
-        my $job_id = $c->minion->enqueue(
-                           mail_passw_login => [$user, $c->req->headers->host]);
+        my $job_id
+          = $c->minion->enqueue(mail_passw_login => [$user, $c->req->headers->host]);
       }
       else {
-        $c->app->log->warn(
-                   'User not found by email to send temporary login password.');
+        $c->app->log->warn('User not found by email to send temporary login password.');
       }
     }
   }

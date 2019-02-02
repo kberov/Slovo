@@ -8,8 +8,8 @@ my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
-# * 1:always.
-my $sidedrawer = 1;    # @$left || $page->{is_dir};
+# * 1:always. # @$left || $page->{is_dir};
+my $sidedrawer = 1;
 layout 'site',
   title      => $заглавѥто->{title},
   left       => $left,
@@ -18,16 +18,12 @@ layout 'site',
 %>
 %= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
 <%==
-$main->map(
-  sub {
-    my $row = shift;
-    return
-      include(
-      "partials/$d2t->{$row->{data_type}}", $row->{data_type} => $row,
-      level => 1)
-      || include("partials/_data_type" => row => $row, level => 1);
-  }
-)->join($/);
+$main->map(sub {
+  my $row = shift;
+  return include("partials/$d2t->{$row->{data_type}}", $row->{data_type} => $row,
+    level => 1)
+    || include("partials/_data_type" => row => $row, level => 1);
+})->join($/);
 %>
 <!-- end stranici/execute -->
 

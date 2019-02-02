@@ -1,9 +1,7 @@
 <%
 layout 'upravlenie', title => 'Страници';
-my $stranici = stranici->all_for_edit(
-                                          $user, $domain,
-                                          $l, {columns => [@$columns]}
-                                         );
+my $stranici
+  = stranici->all_for_edit($user, $domain, $l, {columns => [@$columns]});
 %>
 <div class="mui-panel breadcrumb">
     %= link_to url_with('create_stranici') =>(title=>'Нова страница') => begin
@@ -12,11 +10,9 @@ my $stranici = stranici->all_for_edit(
   %= link_to '⸙'
 % if(@$breadcrumb) {
   <%=
-  $breadcrumb->map(
-    sub {
-    link_to $_->{alias} => url_for()->query([pid=>$_->{id}])
-    }
-    )->join(' ⸙ ')
+  $breadcrumb->map(sub {
+    link_to $_->{alias} => url_for()->query([pid => $_->{id}]);
+  })->join(' ⸙ ')
   %>
 % }
 </div>

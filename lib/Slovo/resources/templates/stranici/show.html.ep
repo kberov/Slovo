@@ -3,8 +3,9 @@
 %= link_to '⮉ 🗐' => 'home_stranici' => (title => 'Up to list of stranici')
 <hr>
 % for my $s (keys %$stranici) {
-<%== t span => (id =>$s, class => 'item-field')
-    => "$s: ". ($stranici->{$s} // '') %>
+<%== 
+t span => (id => $s, class => 'item-field') => "$s: " . ($stranici->{$s} // '')
+%>
 % }
 <hr>
 %= link_to 'Edit' => edit_stranici => {id => $stranici->{id}}

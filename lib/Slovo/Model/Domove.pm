@@ -27,8 +27,8 @@ SQL
 # domains per Slovo instance to be served.
 sub all ($d) {
   state $all = Mojo::Collection->new();
-  return $all->size ? $all : $all = $d->SUPER::all(
-            {where => {published => {'>' => 1}}, order_by => {-asc => ['id']}});
+  return $all->size ? $all : $all
+    = $d->SUPER::all({where => {published => {'>' => 1}}, order_by => {-asc => ['id']}});
 }
 
 1;

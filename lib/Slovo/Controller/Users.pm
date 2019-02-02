@@ -18,8 +18,7 @@ sub store($c) {
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
     my $id = $users->add($in);
-    $c->res->headers->location(
-                           $c->url_for("api.show_users", id => $id)->to_string);
+    $c->res->headers->location($c->url_for("api.show_users", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
   }
 
@@ -36,8 +35,8 @@ sub store($c) {
   $in->{stop_date} = 0;
 
   # 1.1 Check if user already exists
-  my $u = $users->find_where(
-                  [{login_name => $in->{login_name}}, {email => $in->{email}}]);
+  my $u
+    = $users->find_where([{login_name => $in->{login_name}}, {email => $in->{email}}]);
   if ($u) {
     my @data = ();
     if ($u->{login_name} eq $in->{login_name}) {
@@ -47,8 +46,8 @@ sub store($c) {
       push @data, $u->{email};
     }
     $c->flash(message => 'Потребител със същите данни ('
-              . join(', ', @data)
-              . ') вече съществува.');
+        . join(', ', @data)
+        . ') вече съществува.');
     return $c->redirect_to('create_users');
   }
 
@@ -60,12 +59,8 @@ sub store($c) {
 
     # send email from the current user to the new user to login for the first
     # time and change his password.
-    my $job_id = $c->minion->enqueue(
-                        mail_first_login => [
-                          {%{$c->user}} => {%{$users->find_where({id => $id})}},
-                          $c->req->headers->host
-                        ]
-    );
+    my $job_id = $c->minion->enqueue(mail_first_login =>
+        [{%{$c->user}} => {%{$users->find_where({id => $id})}}, $c->req->headers->host]);
     return $c->redirect_to('users_store_result', jid => $job_id);
   }
   return $c->redirect_to('home_users');
@@ -73,8 +68,7 @@ sub store($c) {
 
 # GET /users/store_result/:jid
 sub store_result ($c) {
-  return $c->reply->not_found
-    unless my $job = $c->minion->job($c->param('jid'));
+  return $c->reply->not_found unless my $job = $c->minion->job($c->param('jid'));
   return $c->render(job => $job);
 }
 
@@ -118,15 +112,13 @@ sub update($c) {
 sub show($c) {
   my $row = $c->users->find_where({id => $c->param('id')});
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
-    return
-      $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
-      unless $row;
+    return $c->render(
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+    ) unless $row;
     return $c->render(openapi => $row);
   }
-  return $c->render(text => $c->res->default_message(404), status => 404)
-    unless $row;
+  return $c->render(text  => $c->res->default_message(404), status => 404) unless $row;
   return $c->render(users => $row);
 }
 
@@ -151,8 +143,9 @@ sub remove($c) {
     my $input = $c->validation->output;
     my $row   = $c->users->find($input->{id});
     $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+      )
       && return
       unless $row;
     $c->users->remove($input->{id});
@@ -183,8 +176,7 @@ sub _validation($c) {
     $v->optional('last_name',      'trim')->size(2, 100);
     $v->optional('email',          'trim')->like($mail_rx);
     $v->optional('id',             'trim')->like(qr/^\d+$/);
-    my $groups
-      = $c->groups->all_with_member($c->stash('id'))->map(sub { $_->{id} });
+    my $groups = $c->groups->all_with_member($c->stash('id'))->map(sub { $_->{id} });
     $v->optional('groups')->in(@$groups);
   }
   $v->optional('description', 'trim')->size(0, 255);

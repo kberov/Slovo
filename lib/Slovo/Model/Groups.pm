@@ -29,19 +29,14 @@ sub all_with_member ($m, $uid) {
             AS is_member
 COLS
 
-  return
-    $m->all(
-            {
-             columns  => $columns,
-             where    => {id => {-not_in => [1, 2]},},
-             order_by => {-desc => ['is_member', 'id']}
-            }
-           );
+  return $m->all({
+    columns  => $columns,
+    where    => {id => {-not_in => [1, 2]},},
+    order_by => {-desc => ['is_member', 'id']}});
 }
 
 sub find ($self, $id) {
-  return $self->dbx->db->select($table, undef, {$loadable->(), id => $id})
-    ->hash;
+  return $self->dbx->db->select($table, undef, {$loadable->(), id => $id})->hash;
 }
 
 

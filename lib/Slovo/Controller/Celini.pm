@@ -14,15 +14,9 @@ sub execute ($c, $page, $user, $l, $preview) {
   # TODO celina breadcrumb
   #my $path = [split m|/|, $c->stash->{'цѣлина'}];
   #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
-  my $alias = $c->stash->{'цѣлина'};
-  my $celina =
-    $c->celini->find_for_display(
-                                 $alias, $user, $l, $preview,
-                                 {
-                                  pid     => $c->stash->{celini}[0]{id},
-                                  page_id => $page->{id}
-                                 }
-                                );
+  my $alias  = $c->stash->{'цѣлина'};
+  my $celina = $c->celini->find_for_display($alias, $user, $l, $preview,
+    {pid => $c->stash->{celini}[0]{id}, page_id => $page->{id}});
 
   # Celina was found, but with a new alias.
   return $c->_go_to_new_celina_url($page, $celina, $l)
@@ -30,12 +24,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 
   unless ($celina) {
     $celina = $c->celini->find_where(
-                                     {
-                                      page_id   => $c->not_found_id,
-                                      language  => $l,
-                                      data_type => 'заглавѥ'
-                                     }
-                                    );
+      {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
   return $c->is_fresh(last_modified => $celina->{tstamp})
@@ -48,14 +37,12 @@ sub _go_to_new_celina_url ($c, $page, $celina, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return
-    $c->redirect_to(
-                    'цѣлина_с_ѩꙁыкъ' => {
-                                           'цѣлина' => $celina->{alias},
-                                           'страница' => $page->{alias},
-                                           'ѩꙁыкъ'      => $l
-                    }
-                   );
+  return $c->redirect_to(
+    'цѣлина_с_ѩꙁыкъ' => {
+      'цѣлина'     => $celina->{alias},
+      'страница' => $page->{alias},
+      'ѩꙁыкъ'      => $l
+    });
 }
 
 # GET /celini/create
@@ -76,15 +63,13 @@ sub store($c) {
     $c->openapi->valid_input or return;
     $in = {%{$c->validation->output}, %$in};
     my $id = $c->celini->add($in);
-    $c->res->headers->location(
-                          $c->url_for("api.show_celini", id => $id)->to_string);
+    $c->res->headers->location($c->url_for("api.show_celini", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
   }
 
   # 1. Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'create', celini => {},
-                    in => {%{$v->output}, %$in})
+  return $c->render(action => 'create', celini => {}, in => {%{$v->output}, %$in})
     if $v->has_error;
 
   # 2. Insert it into the database
@@ -110,16 +95,15 @@ sub edit($c) {
   my $l     = $c->language;
   my $bread = $c->stranici->breadcrumb($row->{page_id}, $l);
   my $u     = $c->user;
-  return
-    $c->render(
-               breadcrumb  => $bread,
-               formats     => $formats,
-               languages   => $languages,
-               permissions => $permissions,
-               types       => $types,
-               u           => $u,
-               in          => $row
-              );
+  return $c->render(
+    breadcrumb  => $bread,
+    formats     => $formats,
+    languages   => $languages,
+    permissions => $permissions,
+    types       => $types,
+    u           => $u,
+    in          => $row
+  );
 }
 
 # PUT /celini/:id
@@ -147,16 +131,14 @@ sub update($c) {
 sub show($c) {
   my $row = $c->celini->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
-    return
-      $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
-      unless $row;
+    return $c->render(
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+    ) unless $row;
     return $c->render(openapi => $row);
   }
   $row = $c->celini->find($c->param('id'));
-  return $c->render(text => $c->res->default_message(404), status => 404)
-    unless $row;
+  return $c->render(text   => $c->res->default_message(404), status => 404) unless $row;
   return $c->render(celini => $row);
 }
 
@@ -167,9 +149,7 @@ sub index($c) {
 
   # restrict to the current domain root page
   my $str = $c->stranici;
-  my $in
-    = $str->all(
-             {columns => 'id', where => {$str->where_domain_is($c->host_only)}})
+  my $in  = $str->all({columns => 'id', where => {$str->where_domain_is($c->host_only)}})
     ->map(sub { $_->{id} })->to_array;
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
@@ -199,8 +179,9 @@ sub remove($c) {
     my $input = $c->validation->output;
     my $row   = $c->celini->find($input->{id});
     $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+      )
       && return
       unless $row;
     $c->celini->remove($input->{id});
@@ -210,8 +191,7 @@ sub remove($c) {
   my $v  = $c->validation->input({id => $id});
   $v->required('id');
   $v->error('id' => ['not_writable'])
-    unless $c->celini->find_where(
-                           {'id' => $id, %{$c->celini->writable_by($c->user)}});
+    unless $c->celini->find_where({'id' => $id, %{$c->celini->writable_by($c->user)}});
   my $in = $v->output;
   if ($in->{id}) {
     $c->celini->remove($in->{id});
@@ -266,8 +246,7 @@ sub _validation($c) {
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
     ->in(
-    qw(main главна top горѣ left лѣво right дѣсно bottom долу)
-    );
+    qw(main главна top горѣ left лѣво right дѣсно bottom долу));
   $v->optional('language', 'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured', 'trim')->in(1, 0);

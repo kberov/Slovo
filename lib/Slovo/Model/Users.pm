@@ -36,11 +36,11 @@ sub add ($self, $row) {
 my $loadable = sub {
   my $time = time;
   return (
-          disabled   => 0,
-          group_id   => {'>' => 0},
-          start_date => {'<' => $time},
-          stop_date  => [{'=' => 0}, {'>' => $time}],
-         );
+    disabled   => 0,
+    group_id   => {'>' => 0},
+    start_date => {'<' => $time},
+    stop_date  => [{'=' => 0}, {'>' => $time}],
+  );
 };
 
 sub all ($self, $opts = {}) {
@@ -59,14 +59,12 @@ sub all ($self, $opts = {}) {
 
 
 sub find ($self, $id) {
-  return $self->dbx->db->select($table, undef, {id => $id, $loadable->()})
-    ->hash;
+  return $self->dbx->db->select($table, undef, {id => $id, $loadable->()})->hash;
 }
 
 sub find_by_login_name ($self, $login_name) {
-  return
-    $self->dbx->db->select($table, undef,
-                           {login_name => $login_name, $loadable->()})->hash;
+  return $self->dbx->db->select($table, undef, {login_name => $login_name, $loadable->()})
+    ->hash;
 }
 
 sub purge ($self, $id) {
@@ -85,9 +83,7 @@ sub save ($m, $id, $row) {
   my $groups;
   if ($row->{groups}) {
     $groups
-      = ref $row->{groups} eq 'ARRAY'
-      ? delete $row->{groups}
-      : [delete $row->{groups}];
+      = ref $row->{groups} eq 'ARRAY' ? delete $row->{groups} : [delete $row->{groups}];
   }
   my $db = $m->dbx->db;
 
@@ -99,18 +95,17 @@ sub save ($m, $id, $row) {
     # Remove all previous groups except primary and insert the selected groups.
     if ($groups) {
       $db->delete(
-         $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}}
-      );
+        $ug_table => {user_id => $id, group_id => {'!=' => \[$gid_SQL => $id]}});
       for my $gid (@$groups) {
         $db->query("INSERT OR IGNORE INTO $ug_table VALUES (?,?)", $id, $gid);
       }
     }
 
     # disable/enable primary group if needed
-    $db->update(groups_table,
-                {disabled => $row->{disabled}},
-                {id       => {'=' => \[$gid_SQL => $id]}})
-      if defined $row->{disabled};
+    $db->update(
+      groups_table,
+      {disabled => $row->{disabled}},
+      {id       => {'=' => \[$gid_SQL => $id]}}) if defined $row->{disabled};
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");
   return $id;

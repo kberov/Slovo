@@ -2,7 +2,7 @@
 -pbp     # Start with Perl Best Practices
 -w       # Show all warnings
 -iob     # Ignore old breakpoints
--l=80    # 80 characters per line
+-l=90    # 90 characters per line
 -mbl=2   # No more than 2 blank lines
 -i=2     # Indentation is 2 columns
 -ci=2    # Continuation indentation is 2 columns
@@ -13,13 +13,13 @@
 -isbc    # Don't indent comments without leading space
 
 # Our additional settings
+-sac     # --stack-all-containers is an abbreviation for -sot -sct.
+-wn      # --weld-nested-containers
 -nst     # --nostandard-output
 #-utf8    # Encoding of both the input and output character streams
 -b       # Modify files in place
 -bext='/' # and delete the originals if there are no error.
 -nbl     # Opening brace on the same line as the keyword introducing it
--lp      # Add extra indentation to cause the data to begin past the opening parentheses
--cti=1   # 1 extra indentation such that the closing token aligns with its opening token.
 --nodelete-semicolons #needed because of a bug in Perl::Critic not recognising
 # private subrotines if there is no semicolumn at the closing curly brace. It
 # also reports arbitrary nonsense.

@@ -52,15 +52,12 @@
     <%
     my $groups   = groups->all_with_member(stash->{id});
     my $is_admin = !!groups->is_admin($user->{id});
-    $groups = $groups->map(
-      sub {
-        return [
-                $_->{name} => $_->{id},
-                $_->{is_member} ? (checked => undef) : (),
-                !$is_admin || ($_->{id} == $user->{group_id}) ? (disabled => '') : ()
-               ];
-      }
-    );
+    $groups = $groups->map(sub {
+      return [
+        $_->{name} => $_->{id},
+        $_->{is_member} ? (checked => undef) : (),
+        !$is_admin || ($_->{id} == $user->{group_id}) ? (disabled => '') : ()];
+    });
     %>
     <%= checkboxes(groups => $groups, label =>'Множества') %>
     <div class="mui-textfield">

@@ -18,11 +18,9 @@ sub all ($self, $opts = {}) {
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
 
   state $abstr = $self->dbx->abstract;
-  my ($sql, @bind)
-    = $abstr->select($opts->{table} // $self->table,
-                     $opts->{columns}, $opts->{where}, $opts->{order_by});
-  $sql .= " LIMIT $opts->{limit}"
-    . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
+  my ($sql, @bind) = $abstr->select($opts->{table} // $self->table,
+    $opts->{columns}, $opts->{where}, $opts->{order_by});
+  $sql .= " LIMIT $opts->{limit}" . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
 
   # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $self->dbx->db->query($sql, @bind)->hashes;
@@ -41,8 +39,7 @@ sub find_where ($m, $where = {}) {
   state $abstr = $m->dbx->abstract;
   if (ref $where eq 'HASH' ? keys %$where : @$where) {
     my ($sql, @bind) = $abstr->where($where);
-    return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1",
-                              @bind)->hash;
+    return $m->dbx->db->query("SELECT * FROM ${\ $m->table } $sql LIMIT 1", @bind)->hash;
   }
   return;
 }
@@ -80,19 +77,19 @@ sub readable_by ($self, $user) {
 
       # user is owner
       {
-       "$t.user_id" => $user->{id},
+        "$t.user_id" => $user->{id},
 
-       # "$table.permissions" => {-like => '_r__%'}
+        # "$table.permissions" => {-like => '_r__%'}
       },
 
       # a page, which can be read
       # by one of the groups to which this user belongs.
       {
-       "$t.permissions" => {-like => '____r__%'},
-       "$t.group_id"    => \[
-                   "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
-                     ($user->{group_id}, $user->{id})
-       ],
+        "$t.permissions" => {-like => '____r__%'},
+        "$t.group_id"    => \[
+          "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
+            ($user->{group_id}, $user->{id})
+        ],
       },
     ],
   };
@@ -114,11 +111,11 @@ sub writable_by ($self, $user) {
       # a page, which can be written
       # by one of the groups to which this user belongs.
       {
-       "$t.permissions" => {-like => '_____w_%'},
-       "$t.group_id"    => \[
-                   "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
-                     ($user->{group_id}, $user->{id})
-       ],
+        "$t.permissions" => {-like => '_____w_%'},
+        "$t.group_id"    => \[
+          "IN (?,(SELECT group_id from user_group WHERE user_id=?))" =>
+            ($user->{group_id}, $user->{id})
+        ],
       },
     ],
   };
@@ -135,8 +132,7 @@ sub upsert_aliases ($m, $db, $alias_id, $new_alias) {
       (SELECT alias FROM $alias_table WHERE id=? AND alias != ?),
       ?,?,?)
 SQL
-  return $db->query($SQL, $alias_id, $new_alias, $new_alias, $alias_id,
-                    $alias_table);
+  return $db->query($SQL, $alias_id, $new_alias, $new_alias, $alias_id, $alias_table);
 }
 
 # Remove aliases history for a record from a given table.

@@ -21,14 +21,10 @@ layout 'site',
 # Get all pages under current (home) page which are directories and have
 # заглавѥ which is directory (i.e. contains articles) and get 6 articles for
 # each
-my $pages = stranici->all_for_home(
-          $user, $domain, $preview, $ѩꙁыкъ,
-          {
-            stranici_opts => { columns => $list_columns, pid => $page->{id}, },
-            celini_opts =>
-            { order_by => { -desc =>[qw(featured created_at)]}, limit => 6 }
-          }
-);
+my $opts = {
+  stranici_opts => {columns => $list_columns, pid => $page->{id},},
+  celini_opts => {order_by => {-desc => [qw(featured created_at)]}, limit => 6}};
+my $pages = stranici->all_for_home($user, $domain, $preview, $ѩꙁыкъ, $opts);
 
 %>
 <% for my $p (@$pages) { %>

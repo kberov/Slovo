@@ -14,9 +14,8 @@ sub index($c) {
         $_ =~ m'groups|minion|domove' && !$c->groups->is_admin($c->user->{id})
           ? ()
           : $_
-        } @$menu
-    ]
-  );
+      } @$menu
+    ]);
 }
 
 1;

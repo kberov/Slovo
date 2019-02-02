@@ -18,8 +18,7 @@ sub store($c) {
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
     my $id = $c->groups->add($in);
-    $c->res->headers->location(
-                          $c->url_for("api.show_groups", id => $id)->to_string);
+    $c->res->headers->location($c->url_for("api.show_groups", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
   }
 
@@ -63,16 +62,14 @@ sub update($c) {
 sub show($c) {
   my $row = $c->groups->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
-    return
-      $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
-      unless $row;
+    return $c->render(
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+    ) unless $row;
     return $c->render(openapi => $row);
   }
   $row = $c->groups->find($c->param('id'));
-  return $c->render(text => $c->res->default_message(404), status => 404)
-    unless $row;
+  return $c->render(text   => $c->res->default_message(404), status => 404) unless $row;
   return $c->render(groups => $row);
 }
 
@@ -95,8 +92,9 @@ sub remove($c) {
     my $input = $c->validation->output;
     my $row   = $c->groups->find($input->{id});
     $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+      )
       && return
       unless $row;
     $c->groups->remove($input->{id});

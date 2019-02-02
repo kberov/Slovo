@@ -45,13 +45,10 @@
     %>
     % if ($item->{permissions} =~/^d/) { # is a container/directory
     <%=
-    link_to '☲🗌' => url_with('create_celini')->query(
-                                                 [
-                                                  page_id => $item->{page_id},
-                                                  sorting => ++$item->{sorting},
-                                                  pid     => $item->{id}
-                                                 ]
-      ) => (title => 'Add new child content to this')
+    link_to '☲🗌' => url_with('create_celini')
+      ->query([
+      page_id => $item->{page_id}, sorting => ++$item->{sorting}, pid => $item->{id}
+      ]) => (title => 'Add new child content to this')
     %>
     % }
     </td>

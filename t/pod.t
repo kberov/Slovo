@@ -4,8 +4,7 @@ use warnings FATAL => 'all';
 use Test::More;
 
 unless ($ENV{TEST_AUTHOR}) {
-  plan(
-     skip_all => 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.');
+  plan(skip_all => 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.');
 }
 
 # Ensure a recent version of Test::Pod

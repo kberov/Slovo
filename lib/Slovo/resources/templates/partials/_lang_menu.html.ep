@@ -14,15 +14,12 @@ my $current = pop @$langs;
   </button>
   <ul class="mui-dropdown__menu mui-dropdown__menu--right">
 <%=
-$langs->sort(sub { $a->{language} cmp $b->{language} })->map(
-  sub {
-    t 'li' => sub {
-      link_to $_->{language} => 'страница_с_ѩꙁыкъ' =>
-        {страница => $page->{alias}, ѩꙁыкъ => $_->{language}} =>
-        (title => $_->{title});
-      }
+$langs->sort(sub { $a->{language} cmp $b->{language} })->map(sub {
+  t 'li' => sub {
+    link_to $_->{language} => 'страница_с_ѩꙁыкъ' =>
+      {страница => $page->{alias}, ѩꙁыкъ => $_->{language}} => (title => $_->{title});
   }
-)->join($/);
+})->join($/);
 %>
   </ul>
 </div>

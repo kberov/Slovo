@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.01.29';
+our $VERSION   = '2019.02.02';
 our $CODENAME  = 'U+2C12 GLAGOLITIC CAPITAL LETTER POKOJI (Ⱂ)';
 my $CLASS = __PACKAGE__;
 
@@ -33,18 +33,15 @@ sub startup($app) {
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
-  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths
-    ->_add_media_types();
+  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
   return $app;
 }
 
 sub _before_dispatch($c) {
-  state $u = $c->users->find_by_login_name('guest');
-  state $auth_config = c(@{$c->config('plugins')})->first(
-    sub {
-      ref $_ eq 'HASH' and exists $_->{Authentication};
-    }
-  );
+  state $u           = $c->users->find_by_login_name('guest');
+  state $auth_config = c(@{$c->config('plugins')})->first(sub {
+    ref $_ eq 'HASH' and exists $_->{Authentication};
+  });
   state $session_key     = $auth_config->{Authentication}{session_key};
   state $current_user_fn = $auth_config->{Authentication}{current_user_fn};
   unless ($c->session->{$session_key}) {
@@ -91,9 +88,8 @@ sub _load_config($app) {
   my $mode_file = $etc->child("$moniker.$mode.conf");
   $ENV{MOJO_CONFIG}
     //= (-e $app->home->child("$moniker.$mode.conf")
-         && $app->home->child("$moniker.$mode.conf"))
-    || (-e $app->home->child("$moniker.conf")
-        && $app->home->child("$moniker.conf"))
+      && $app->home->child("$moniker.$mode.conf"))
+    || (-e $app->home->child("$moniker.conf") && $app->home->child("$moniker.conf"))
     || (-e $mode_file ? $mode_file : $file);
 
   my $config = $app->plugin('Config');
@@ -142,8 +138,7 @@ sub _load_pugins($app) {
       $app->helper(
         openapi_spec => sub ($c_or_app, $path = '/') {
           $plug->validator->get($path);
-        }
-      );
+        });
     }
   }
 

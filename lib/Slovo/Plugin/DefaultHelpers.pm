@@ -17,27 +17,22 @@ sub register ($self, $app, $config) {
   $app->helper(
     host_only => sub {
       lc $_[0]->req->headers->host =~ s/(\:\d+)$//r;
-    }
-  );
+    });
 
   $app->helper(
     ihost_only => sub {
       join '.', map { /^xn--(.+)$/ ? punycode_decode $1 : $_ } split /\./,
         $_[0]->host_only;
-    }
-  );
+    });
 
   # replace is_user_authenticated from M::P::Authentication
-  $app->helper(is_user_authenticated =>
-               sub { $_[0]->user && $_[0]->user->{login_name} ne 'guest' });
+  $app->helper(
+    is_user_authenticated => sub { $_[0]->user && $_[0]->user->{login_name} ne 'guest' });
 
   $app->helper(
     language => sub {
-      $_[1]
-        ? $_[0]->stash('ѩꙁыкъ' => $_[1])
-        : $_[0]->stash('ѩꙁыкъ');
-    }
-  );
+      $_[1] ? $_[0]->stash('ѩꙁыкъ' => $_[1]) : $_[0]->stash('ѩꙁыкъ');
+    });
   $app->helper(debug => \&_debug);
   return $self;
 }

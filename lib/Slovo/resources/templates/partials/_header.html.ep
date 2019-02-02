@@ -1,4 +1,4 @@
-
+<!-- _header -->
     <header class="mui-appbar mui--z1">
       <table>
         <tbody><tr class="mui--align-middle">
@@ -10,13 +10,10 @@
               %= link_to t(img => (id=> 'logo', src=> '/img/slovo-white.png')) => '/'
               %= (@$breadcrumb ? '⸙':'')
               <%=
-              $breadcrumb->map(
-                sub {
-                  link_to $_->{title} => страница_с_ѩꙁыкъ =>
+              $breadcrumb->map(sub {
+                link_to $_->{title} => страница_с_ѩꙁыкъ =>
                   {страница => $_->{alias}, ѩꙁыкъ => $_->{language}};
-                }
-                )->join(' ⸙ ')
-                unless $page->{id} == $c->not_found_id
+                })->join(' ⸙ ') unless $page->{id} == $c->not_found_id
               %>
           </td>
           <td class="mui--text-right">
@@ -32,3 +29,4 @@
         </tr>
       </tbody></table>
     </header>
+

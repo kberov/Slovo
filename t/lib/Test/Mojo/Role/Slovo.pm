@@ -37,8 +37,7 @@ sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
   # idempotent
   $MOJO_HOME->remove_tree->make_path({mode => 0700});
   ok(-d $MOJO_HOME, "created $MOJO_HOME");
-  $MOJO_HOME->child('log')->make_path({mode => 0700})
-    if $to_tempdir eq $random_tempdir;
+  $MOJO_HOME->child('log')->make_path({mode => 0700}) if $to_tempdir eq $random_tempdir;
   path($from, 'lib')->list_tree({dir => 1})->each(\&_copy_to);
   $MOJO_HOME->child('domove')->make_path({mode => 0700});
   path($from, 'domove')->list_tree({dir => 1})->each(\&_copy_to);
@@ -61,15 +60,12 @@ sub login_ok ($t, $login_name = '', $login_password = '') {
 
     $t->get_ok('/Ꙋправленѥ')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /входъ');
-    $t->get_ok('/входъ')->status_is(200)
-      ->text_is('head title' => 'Входъ');
+    $t->get_ok('/входъ')->status_is(200)->text_is('head title' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password);
-    my $body
-      = $t->post_ok($login_url, {} => form => $form)->status_is(302)
-      ->header_is(
-                 Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
-                 'Location: /Ꙋправленѥ'
+    my $body = $t->post_ok($login_url, {} => form => $form)->status_is(302)->header_is(
+      Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
+      'Location: /Ꙋправленѥ'
     )->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };
@@ -83,18 +79,17 @@ sub fill_in_login_form ($t, $login_name = '', $login_password = '') {
     ->res->dom->at('#sign_in [name="csrf_token"]')->{value};
 
   return {
-          login_name => $login_name,
-          csrf_token => $csrf_token,
-          digest     => sha1_sum(
-            $csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))
-          ),
-         };
+    login_name => $login_name,
+    csrf_token => $csrf_token,
+    digest =>
+      sha1_sum($csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))),
+  };
 }
 
 sub login ($t, $login_name = '', $login_password = '') {
   my $form = $t->fill_in_login_form($login_name, $login_password);
-  my $body = $t->post_ok($t->app->url_for('sign_in') => {} => form => $form)
-    ->tx->res->body;
+  my $body
+    = $t->post_ok($t->app->url_for('sign_in') => {} => form => $form)->tx->res->body;
   return $t->authenticated($body eq '')->authenticated;
 }
 
@@ -109,15 +104,15 @@ sub create_edit_domain_ok ($t) {
   my $store_url   = $t->app->url_for('store_domove');
   my $TEST_DOMAIN = $ENV{TEST_DOMAIN} || $t->domain_aliases;
   my $domain      = [split /\s+/, $TEST_DOMAIN];
-  my $form = {
-              domain      => $domain->[0],
-              aliases     => $TEST_DOMAIN,
-              site_name   => 'У дома',
-              description => 'Съвсем у дома',
-              owner_id    => 5,
-              group_id    => 5,
-              published   => 2
-             };
+  my $form        = {
+    domain      => $domain->[0],
+    aliases     => $TEST_DOMAIN,
+    site_name   => 'У дома',
+    description => 'Съвсем у дома',
+    owner_id    => 5,
+    group_id    => 5,
+    published   => 2
+  };
   my $edit_url = $t->post_ok($store_url => form => $form)->status_is(302)
     ->tx->res->headers->location;
   $t->get_ok($edit_url)->text_is('h2' => "1:$form->{domain}");

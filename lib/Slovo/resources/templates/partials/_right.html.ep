@@ -2,12 +2,9 @@
     <!-- right -->
     %= t aside => (class=>"right") => begin
         <%==
-        $right->map(
-          sub {
-              ($_->{title} ? t h2 => $_->{title} : '') . $/
-                . ($_->{body} ? $_->{body} : '');
-          }
-          )->join($/)
+        $right->map(sub {
+          ($_->{title} ? t h2 => $_->{title} : '') . $/ . ($_->{body} ? $_->{body} : '');
+        })->join($/)
         %>
     % end
     % }

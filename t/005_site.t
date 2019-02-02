@@ -25,9 +25,7 @@ my $not_found = sub {
 };
 $t->login('краси', 'беров');
 my $previewed_pages = sub {
-  for my $alias (
-            qw(скрита изтрита предстояща изтекла))
-  {
+  for my $alias (qw(скрита изтрита предстояща изтекла)) {
     $t->get_ok("/$alias.html?прегледъ=1")->status_is(200);
   }
 };
@@ -36,10 +34,8 @@ my $site_layout = sub {
   $t->get_ok($app->url_for('sign_out'))->status_is(302)
     ->header_is('Location' => $app->url_for('authform'));
   $t->get_ok("/коренъ.html")->status_is(200)
-    ->element_exists('body header.mui-appbar')
-    ->element_exists('aside#sidedrawer')
-    ->element_exists('main#content-wrapper')
-    ->element_exists('footer.mui-appbar');
+    ->element_exists('body header.mui-appbar')->element_exists('aside#sidedrawer')
+    ->element_exists('main#content-wrapper')->element_exists('footer.mui-appbar');
   $t->get_ok('/ѿносно.html')->status_is(200)
 
     #   ->element_exists_not('aside#sidedrawer');
@@ -58,26 +54,23 @@ my $breadcrumb = sub {
   $t->get_ok('/вести.html')
     ->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
     ->element_exists(
-    'main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)'
-    )
+    'main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)')
     ->text_is(
-    'section.заглавѥ.множество article.писанѥ:nth-child(3)'
+        'section.заглавѥ.множество article.писанѥ:nth-child(3)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
 
   $t->get_ok('/вести/alabala.html')->status_is(404)
     ->text_is('.заглавѥ > h1:nth-child(1)' =>
-              'Страницата не е намерена')
-    ->text_is(
-         'aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
+      'Страницата не е намерена')
+    ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
 };
 
 my $multi_language_pages = sub {
   $t->get_ok('/вести/alabala.html')->status_is(404)
     ->text_like('.mui-dropdown > button' => qr'bg-bg')
-    ->element_exists_not(
-                      '.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)');
+    ->element_exists_not('.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)');
   my $dom
     = $t->get_ok("/")->text_like('.mui-dropdown > button' => qr'bg')
     ->element_exists('.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)')
@@ -90,65 +83,62 @@ my $cached_pages = sub {
   Mojo::File->import('path');
 
   # Clear any cache
-  my $cached = 'cached';
-  my $cache_dir
-    = path($app->config('domove_root'), 'localhost', 'public', $cached);
+  my $cached    = 'cached';
+  my $cache_dir = path($app->config('domove_root'), 'localhost', 'public', $cached);
   ok($cache_dir->remove_tree => 'clear cache');
   $t->get_ok($app->url_for('sign_out'));
 
   # Root page with path / is not cached
   $t->get_ok("/")->status_is(200);
   my $body = $t->get_ok("/")->status_is(200)->tx->res->body;
-  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-         'Root page with path / is not cached');
+  unlike(
+    $body => qr/<html[^>]+><!-- $cached -->/ => 'Root page with path / is not cached');
 
   # Page with alias as name is cached
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-         'On first load page with path /foo.html IS NOT cached');
+      'On first load page with path /foo.html IS NOT cached');
 
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
-       'On second load page with path /foo.html IS cached');
+      'On second load page with path /foo.html IS cached');
 
-  ok(-s $cache_dir->child('коренъ.html'), 'and file is on disk');
-  ok(!-f $cache_dir->child('коренъ.bg.html'),
-     ' /foo.bg.html IS NOT YET cached');
+  ok(-s $cache_dir->child('коренъ.html'),     'and file is on disk');
+  ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT YET cached');
 
   $t->get_ok("/коренъ.bg.html");
   $body = $t->get_ok("/коренъ.bg.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-       'Page with alias and language is cached');
+  like(
+    $body => qr/<html[^>]+><!-- $cached -->/ => 'Page with alias and language is cached');
 
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
-     ' /foo/bar.bg.html IS NOT YET on disk');
+    ' /foo/bar.bg.html IS NOT YET on disk');
 
-  $body
-    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
+  $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
     ->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-         'On first celina with path /foo/bar.bg.html was just cached');
+      'On first celina with path /foo/bar.bg.html was just cached');
 
-  $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")
-    ->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-       'celina with canonical name is cached');
+  $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")->status_is(200)
+    ->tx->res->body;
+  like(
+    $body => qr/<html[^>]+><!-- $cached -->/ => 'celina with canonical name is cached');
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
-     '/foo/bar.bg.html IS NOT ever cached');
-  $body
-    = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
+    '/foo/bar.bg.html IS NOT ever cached');
+  $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
     ->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-         ' /foo/bar.bg.html is not canonical and thus not cached');
+      ' /foo/bar.bg.html is not canonical and thus not cached');
   $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or писанѥ
-  my $id = $app->dbx->db->query(
-       "SELECT id FROM celini WHERE alias='вътора-вест'")->hash->{id};
+  my $id
+    = $app->dbx->db->query("SELECT id FROM celini WHERE alias='вътора-вест'")
+    ->hash->{id};
 
   $t->delete_ok('/Ꙋправленѥ/celini/' . $id)->status_is(302);
   ok(!-f $cache_dir->child('вести/вътора-вест.bg-bg.html'),
-     '/foo/bar.bg.html IS NOT anymore on disk');
+    '/foo/bar.bg.html IS NOT anymore on disk');
   ok(!-d $cache_dir->child('вести'), '/foo IS NOT anymore on disk');
   ok(!-e $cache_dir,                      '$cache_dir IS NOT anymore on disk');
 };
@@ -157,46 +147,36 @@ my $browser_cache = sub {
   $t->get_ok($app->url_for('sign_out'));
 
   # file cached on disk and served by $c->reply->file
-  my $headers
-    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  my $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
 
   # this is not cannonical url, we serve it dynamically and provide only
   # Last-Modified header
-  $t->get_ok(
-             "/вести.bg.html" => {
-                                 'If-Modified-Since' => $headers->last_modified,
-                                 'If-None-Match'     => $headers->etag
-             }
-            )->status_is(304);
+  $t->get_ok("/вести.bg.html" =>
+      {'If-Modified-Since' => $headers->last_modified, 'If-None-Match' => $headers->etag})
+    ->status_is(304);
   $t->get_ok("/вести.bg.html" => {'If-None-Match' => $headers->etag})
     ->status_is(200);
-  $t->get_ok(
-      "/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
+  $t->get_ok("/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
     ->status_is(304);
   $t->header_is('Cache-Control' => $app->config('cache_control'));
 
   # this is cannonical
-  $headers
-    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
   $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $headers->etag})
     ->status_is(304);
 
   # Browser cache for signed in users
   $t->login('краси', 'беров');
-  my $tstamp
-    = $app->dbx->db->select('stranici', 'tstamp', {alias => 'вести'})
+  my $tstamp = $app->dbx->db->select('stranici', 'tstamp', {alias => 'вести'})
     ->hash->{tstamp};
 
   my $date = Mojo::Date->new($tstamp);
   my $etag = Mojo::Util::md5_sum($date->epoch);
 
-  $headers
-    = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
+  $headers = $t->get_ok("/вести.bg-bg.html")->status_is(200)->tx->res->headers;
 
-  $t->header_is(
-        'Cache-Control' => $app->config('cache_control') =~ s/public/private/r);
-  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $etag})
-    ->status_is(200);
+  $t->header_is('Cache-Control' => $app->config('cache_control') =~ s/public/private/r);
+  $t->get_ok("/вести.bg-bg.html" => {'If-None-Match' => $etag})->status_is(200);
 
   $t->get_ok("/вести.bg-bg.html" => {'If-Modified-Since' => "$date"})
     ->status_is(304);
@@ -225,34 +205,30 @@ my $home_page = sub {
   for my $p (@cats) {
     my $id = 'section#страница-' . $pages->{$p}{id};
     $t->element_exists($id)->element_count_is($id . ' article.писанѥ', 6);
-    $t->element_exists(
-              $id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
+    $t->element_exists($id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
       for @{$pages->{$p}{articles}}[0 .. 5];
   }
 };
 
 sub _category_page {
   my ($p, $pages) = @_;
-  my $body
-    = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
+  my $body = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
     ->shuffle->slice(0 .. 50)->join(' ');
-  $pages->{$p}{id} = $app->stranici->add(
-                                         {
-                                          title       => ucfirst($p),
-                                          language    => 'bg',
-                                          body        => "<p>$body</p>",
-                                          data_format => 'html',
-                                          tstamp      => time,
-                                          user_id     => 5,
-                                          group_id    => 5,
-                                          changed_by  => 5,
-                                          alias       => slugify($p, 1),
-                                          permissions => 'drwxr-xr-x',
-                                          published   => 2,
-                                          page_type   => 'обичайна',
-                                          dom_id      => 0,
-                                         }
-                                        );
+  $pages->{$p}{id} = $app->stranici->add({
+    title       => ucfirst($p),
+    language    => 'bg',
+    body        => "<p>$body</p>",
+    data_format => 'html',
+    tstamp      => time,
+    user_id     => 5,
+    group_id    => 5,
+    changed_by  => 5,
+    alias       => slugify($p, 1),
+    permissions => 'drwxr-xr-x',
+    published   => 2,
+    page_type   => 'обичайна',
+    dom_id      => 0,
+  });
   _pisania($p, $pages);
   _sub_pages($p, $pages);
   ok(1 => 'generated full set of data for category ' . encode('utf8', $p));
@@ -262,25 +238,21 @@ sub _sub_pages {
   my ($p, $pages) = @_;
   my $sub_pages = {};
   for my $sp (qw(днесъ вчера оня-ден)) {
-    $sub_pages->{$sp} =
-      $app->stranici->add(
-                          {
-                           title       => ucfirst($sp),
-                           language    => 'bg',
-                           body        => "",
-                           data_format => 'html',
-                           tstamp      => time,
-                           user_id     => 5,
-                           group_id    => 5,
-                           changed_by  => 5,
-                           alias       => slugify("$p-$sp", 1),
-                           permissions => 'rwxr-xr-x',
-                           published   => 2,
-                           page_type   => 'обичайна',
-                           dom_id      => 0,
-                           pid         => $pages->{$p}{id}
-                          }
-                         );
+    $sub_pages->{$sp} = $app->stranici->add({
+      title       => ucfirst($sp),
+      language    => 'bg',
+      body        => "",
+      data_format => 'html',
+      tstamp      => time,
+      user_id     => 5,
+      group_id    => 5,
+      changed_by  => 5,
+      alias       => slugify("$p-$sp", 1),
+      permissions => 'rwxr-xr-x',
+      published   => 2,
+      page_type   => 'обичайна',
+      dom_id      => 0,
+      pid         => $pages->{$p}{id}});
   }
 }
 
@@ -290,7 +262,7 @@ sub _pisania {
   my $in = {};
   @$in{qw(user_id group_id changed_by created_at)} = (5, 5, 5, time - 1);
   my $pid = $app->celini->find_where(
-            {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
+    {page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];
   my $data = lc data_section('Slovo::Test::Text', 'text.txt');
@@ -307,26 +279,24 @@ sub _pisania {
     $body = $body x (int rand(5) < 2 || 2);
     my ($title) = $body =~ /^(.{0,$tlength})/;
 
-    my $cid = $app->celini->add(
-                                {
-                                 %$in,
-                                 language    => 'bg',
-                                 page_id     => $pages->{$p}{id},
-                                 pid         => $pid,
-                                 data_format => 'html',
-                                 data_type   => 'писанѥ',
-                                 title       => ucfirst $title,
-                                 alias       => slugify("$title $cel $p", 1),
-                                 body        => $body,
-                                 permissions => 'rwxr-xr-x',
-                                 published   => 2,
-                                }
-                               );
+    my $cid = $app->celini->add({
+      %$in,
+      language    => 'bg',
+      page_id     => $pages->{$p}{id},
+      pid         => $pid,
+      data_format => 'html',
+      data_type   => 'писанѥ',
+      title       => ucfirst $title,
+      alias       => slugify("$title $cel $p", 1),
+      body        => $body,
+      permissions => 'rwxr-xr-x',
+      published   => 2,
+    });
     push @{$pages->{$p}{articles}},
       {
-       alias => slugify("$title $cel $p", 1),
-       title => ucfirst($title) =~ s/<[^>]+>?//gr,
-       id    => $cid
+      alias => slugify("$title $cel $p", 1),
+      title => ucfirst($title) =~ s/<[^>]+>?//gr,
+      id    => $cid
       };
   }
 }
@@ -336,7 +306,7 @@ my $aliases = sub {
   # Get a newly created page and change the alias several times, then make
   # requests to see if the same page is displayed.
   my $page = $app->stranici->find_where(
-                {published => 2, deleted => 0, hidden => 0, id => {'>' => 16}});
+    {published => 2, deleted => 0, hidden => 0, id => {'>' => 16}});
   my $new_alias;
   for my $a ('A' .. 'F') {
     $new_alias = $page->{alias} . $a;
@@ -346,15 +316,14 @@ my $aliases = sub {
   my $new_url = b("$new_alias.bg-bg.html")->encode->url_escape;
   for my $a ('', 'A' .. 'E') {
     my $alias = b("$page->{alias}$a.bg-bg.html")->encode->url_escape;
-    $t->get_ok("/$alias")->status_is(301)
-      ->header_like(Location => qr/$new_url/);
+    $t->get_ok("/$alias")->status_is(301)->header_like(Location => qr/$new_url/);
   }
 
   my $dom = $t->get_ok("/$new_url")->status_is(200)->tx->res->dom;
   like $dom->at('head>link[rel="canonical"]')->attr->{href}, qr/$new_alias/,
     '[rel="canonical"] ok';
-  is $dom->at('head>link[rel="shortcut icon"]')->attr->{href},
-    '/img/favicon.ico', '[rel="shortcut icon"] ok';
+  is $dom->at('head>link[rel="shortcut icon"]')->attr->{href}, '/img/favicon.ico',
+    '[rel="shortcut icon"] ok';
 };
 
 

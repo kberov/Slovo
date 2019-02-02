@@ -13,11 +13,10 @@ for my $p (@$stranici) {
     my $fa_class    = 'fa-file';
     my $podstranici = [];
     if ($p->{is_dir}) {
-      if (   (@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid})
-          || ($p->{id} == $param_pid))
+      if ((@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid}) || ($p->{id} == $param_pid))
       {
         $podstranici = stranici->all_for_edit($user, $domain, $l,
-                                     {pid => $p->{id}, columns => [@$columns]});
+          {pid => $p->{id}, columns => [@$columns]});
         shift @$breadcrumb if @$breadcrumb;
       }
       $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';
@@ -31,8 +30,7 @@ for my $p (@$stranici) {
             <%=
     $p->{is_dir}
       ? link_to $p->{alias} => url_for->query([pid => $p->{id}]),
-      (class => $class
-       . ($p->{id} == $param_pid ? ' mui--color-deep-orange' : 0))
+      (class => $class . ($p->{id} == $param_pid ? ' mui--color-deep-orange' : 0))
       : $p->{alias}
                 %>
             <div class="mui-dropdown">
@@ -52,8 +50,8 @@ for my $p (@$stranici) {
                 <li>
     <%=
     link_to
-      '🖺 Прегледъ' => url_for('страница' => {страница => $p->{alias}})
-      ->query([прегледъ => 1]),
+      '🖺 Прегледъ' =>
+      url_for('страница' => {страница => $p->{alias}})->query([прегледъ => 1]),
       (title => 'Прегледъ', target => '_blank')
     %>
                 </li>

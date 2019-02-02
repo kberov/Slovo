@@ -30,8 +30,7 @@ subtest 'api/stranici' => sub {
   my $pid              = 9;
   my $stranici_url_new = "$stranici_url/$pid";
   $t->ua->post($stranici_url => form => $sform);
-  $t->get_ok($stranici_url_new)->status_is(200)
-    ->content_like(qr/събития/);
+  $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   @$sform{qw(permissions pid)} = ('-rwxr-xr-x', $pid);
   my $id = $pid;
 

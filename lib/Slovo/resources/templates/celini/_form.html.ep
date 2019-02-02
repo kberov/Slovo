@@ -17,12 +17,10 @@ my $pid_new = $in->{data_type} eq 'заглавѥ' ? $in->{id} : $in->{pid};
     %= link_to '⸙' =>'home_celini', title => "Цѣлини"
 % if(@$breadcrumb) {
   <%=
-  $breadcrumb->map(
-    sub {
-    link_to $_->{alias} => url_for('home_celini')->query(page_id=>$_->{id}),
-        title => "Цѣлини въ страница „$_->{alias}\""
-    }
-    )->join(' ⸙ ')
+  $breadcrumb->map(sub {
+    link_to $_->{alias} => url_for('home_celini')->query(page_id => $_->{id}),
+      title             => "Цѣлини въ страница „$_->{alias}\"";
+  })->join(' ⸙ ')
   %>
 % }
 </div>

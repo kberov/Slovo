@@ -5,16 +5,14 @@
 % my $a_title = $писанѥ->{title} =~ s/<[^>]+>?//gr;
 <%=
 link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
-      {страница => $p->{alias}, цѣлина => $писанѥ->{alias},
-       ѩꙁыкъ => $писанѥ->{language}} =>
-      (title => $a_title)
+  {страница => $p->{alias}, цѣлина => $писанѥ->{alias}, ѩꙁыкъ => $писанѥ->{language}} =>
+  (title => $a_title)
 %>
         </h2>
 <%=
     link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
       {страница => $p->{alias}, цѣлина => $писанѥ->{alias},
-       ѩꙁыкъ => $писанѥ->{language}} =>
-      (class => 'писанѥ', title => $a_title)
+      ѩꙁыкъ => $писанѥ->{language}} => (class => 'писанѥ', title => $a_title)
 %>
         <div class="ѿкѫсъ">
         %= html_substr($писанѥ->{teaser}//$писанѥ->{body}, 'p,blockquote', 225);

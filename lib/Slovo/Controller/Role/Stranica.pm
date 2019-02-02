@@ -33,8 +33,7 @@ sub _around_execute ($execute, $c) {
   $page //= $str->find($not_found_id);
   $page->{is_dir} = $page->{permissions} =~ /^d/;
   $c->stash($page->{template} ? (template => $page->{template}) : ());
-  my $celini
-    = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
+  my $celini = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
 
   # We were looking for content with 'en' but found en-US
   $l = $c->language($celini->[0]{language})->language;
@@ -51,14 +50,14 @@ sub _around_execute ($execute, $c) {
 
     # data_type to template name
     d2t => {
-            'белѣжка' => '_beleyazhka',
-            'въпросъ' => '_wyprosy',
-            'заглавѥ' => '_zaglawie',
-            'книга'     => '_kniga',
-            'писанѥ'   => '_pisanie',
-            'цѣлина'   => '_ceyalina',
-            'ѿговоръ' => '_otgowory'
-           },
+      'белѣжка' => '_beleyazhka',
+      'въпросъ' => '_wyprosy',
+      'заглавѥ' => '_zaglawie',
+      'книга'     => '_kniga',
+      'писанѥ'   => '_pisanie',
+      'цѣлина'   => '_ceyalina',
+      'ѿговоръ' => '_otgowory'
+    },
   );
 
   if ($page->{id} == $not_found_id) {
@@ -91,7 +90,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
   return $c->redirect_to('страница_с_ѩꙁыкъ' =>
-                   {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+      {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
 }
 
 my $cached    = 'cached';
@@ -111,8 +110,7 @@ sub _render_cached_page($c) {
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
   my $url_path
-    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route
-    =~ s/^\///r;
+    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
   my $file = path($c->app->static->paths->[0], $cached, $url_path);
   $file->dirname->make_path({mode => oct(700)});
@@ -174,15 +172,13 @@ sub b64_images_to_files ($c, $name) {
       my ($ext) = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
       my $ipad = $i < 10 ? "0$i" : $i;
-      my $src
-        = path($paths->[0], 'img', $v->{alias} . "-$ipad.$ext")->spurt($stream);
+      my $src  = path($paths->[0], 'img', $v->{alias} . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 
       # TODO: resize the image on disc according to 'with' and 'height'
       # attributes if available and keep resolution 96dpi. Save original image
       # as well as resized image. Use resized image in src attribute.
-    }
-  );
+    });
   $v->{$name} = $dom->to_string;
   return;
 }
@@ -195,8 +191,8 @@ sub writable ($v, $name, $value, $c) {
   my ($record_type) = ref($c) =~ m|(\w+)$|;
   $record_type = lc($record_type);
   my $m    = $c->$record_type;
-  my $user = $c->user;           # current user
-  my $old = $m->find_where({'id' => $id, %{$m->writable_by($user)}});
+  my $user = $c->user;                                                   # current user
+  my $old  = $m->find_where({'id' => $id, %{$m->writable_by($user)}});
   state $log = $c->app->log;
 
   # not changing permissions? ok
@@ -205,16 +201,15 @@ sub writable ($v, $name, $value, $c) {
   if ($old) {
     if ($old->{user_id} != $user->{id}) {
       $v->error(
-                writable => [
-                             'not_owner',
-                             "user_id: $old->{user_id} != $user->{id}",
-                             "permissions: $old->{permissions} != $value"
-                            ]
-               );
-      $log->error(  "failed to change mode of $record_type:"
-                  . $c->dumper($v->error('writable'))
-                  . __FILE__ . ':'
-                  . __LINE__);
+        writable => [
+          'not_owner',
+          "user_id: $old->{user_id} != $user->{id}",
+          "permissions: $old->{permissions} != $value"
+        ]);
+      $log->error("failed to change mode of $record_type:"
+          . $c->dumper($v->error('writable'))
+          . __FILE__ . ':'
+          . __LINE__);
       return 0;
     }
   }
@@ -223,16 +218,15 @@ sub writable ($v, $name, $value, $c) {
   $old = $m->find_where({'id' => $id, %{$m->readable_by($user)}});
   if ($old->{user_id} != $user->{id}) {
     $v->error(
-              writable => [
-                           'not_owner',
-                           "user_id: $old->{user_id} != $user->{id}",
-                           "permissions: $old->{permissions} != $value"
-                          ]
-             );
-    $log->error(  "failed to change mode of $record_type:"
-                . $c->dumper($v->error('writable'))
-                . __FILE__ . ':'
-                . __LINE__);
+      writable => [
+        'not_owner',
+        "user_id: $old->{user_id} != $user->{id}",
+        "permissions: $old->{permissions} != $value"
+      ]);
+    $log->error("failed to change mode of $record_type:"
+        . $c->dumper($v->error('writable'))
+        . __FILE__ . ':'
+        . __LINE__);
     return 0;
   }
 
@@ -244,43 +238,36 @@ sub writable ($v, $name, $value, $c) {
   #invalid permissions notation!
   if (!@writable) {
     $v->error(writable => ['invalid_notation', "permissions: '$value'"]);
-    $log->error(  "invalid_notation '$value' for $record_type:"
-                . __FILE__ . ':'
-                . __LINE__);
+    $log->error(
+      "invalid_notation '$value' for $record_type:" . __FILE__ . ':' . __LINE__);
     return 0;
   }
 
   # owner can change permissions in place
-  if (   $writable[0] =~ /^$rwx$/
-      || $writable[1] =~ /^$rwx$/
-      || $writable[2] =~ /^$rwx$/)
-  {
-    $log->warn(  "Making the $record_type with id $old->{id}"
-               . " not listable for group_id $old->{group_id}: $writable[1]")
+  if ($writable[0] =~ /^$rwx$/ || $writable[1] =~ /^$rwx$/ || $writable[2] =~ /^$rwx$/) {
+    $log->warn("Making the $record_type with id $old->{id}"
+        . " not listable for group_id $old->{group_id}: $writable[1]")
       if $writable[1] eq '---';
-    $log->warn(  "Making the $record_type with id $old->{id}"
-               . " not listable for others: $writable[2]")
+    $log->warn("Making the $record_type with id $old->{id}"
+        . " not listable for others: $writable[2]")
       if $writable[2] eq '---';
     return 1;
   }
   my %error = (
-               writable => [
-                            'unknown_not_writable',
-                            {
-                             from         => $old->{permissions},
-                             to           => $value,
-                             owner_id     => $old->{user_id},
-                             current_user => $user->{id}
-                            }
-                           ]
-              );
+    writable => [
+      'unknown_not_writable',
+      {
+        from         => $old->{permissions},
+        to           => $value,
+        owner_id     => $old->{user_id},
+        current_user => $user->{id}}]);
 
   #unknown error /untested conditions
   $v->error(%error);
-  $log->error(  "unknown_not_writable $record_type:"
-              . $c->dumper($v->error('writable'))
-              . __FILE__ . ':'
-              . __LINE__);
+  $log->error("unknown_not_writable $record_type:"
+      . $c->dumper($v->error('writable'))
+      . __FILE__ . ':'
+      . __LINE__);
   return 0;
 }
 
@@ -292,8 +279,7 @@ sub is_item_editable ($c, $e) {
     return 1;
   }
   if ($u->{group_id} == $e->{group_id}) {
-    $c->debug(
-            $e->{id} . ' is_item_editable? - $u->{group_id} == $e->{group_id}');
+    $c->debug($e->{id} . ' is_item_editable? - $u->{group_id} == $e->{group_id}');
     return 1;
   }
   my $groups = $c->stash->{user_groups}
@@ -301,8 +287,8 @@ sub is_item_editable ($c, $e) {
 
   state $rwx = qr/[r\-][w\-][x\-]/x;
 
-  if (   $groups->first(sub { $_->{group_id} == $e->{group_id} })
-      && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
+  if ( $groups->first(sub { $_->{group_id} == $e->{group_id} })
+    && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
   {
     $c->debug($e->{id} . ' is_item_editable? - group with "rw" priviledges');
     return 1;

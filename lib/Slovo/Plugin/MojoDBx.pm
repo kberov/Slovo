@@ -7,8 +7,8 @@ use Mojo::Util 'deprecated';
 
 sub register ($self, $app, $conf) {
   $conf->{adaptor}
-    || croak(  '"adaptor" is a mandatory option! '
-             . 'Please use one of "SQLite", "Pg" or "mysql"!');
+    || croak(
+    '"adaptor" is a mandatory option! ' . 'Please use one of "SQLite", "Pg" or "mysql"!');
   my $adaptor_class = "Mojo::$conf->{adaptor}";
   my $log           = $app->log;
   $log->debug("Loading $adaptor_class");
@@ -26,16 +26,14 @@ sub register ($self, $app, $conf) {
             $dbh->do($sql_or_code) unless ref $sql_or_code;
             $sql_or_code->($dbh) if ref $sql_or_code eq 'CODE';
           }
-        }
-      );
+        });
 
       my $home = $app->home->realpath->to_string;
       if ($conf->{sql_debug}) {
         $dbx->db->dbh->{Callbacks} = {
           prepare => sub {
             my ($dbh, $query, $attrs) = @_;
-            my ($package, $filename, $line, $subroutine)
-              = caller($conf->{sql_debug});
+            my ($package, $filename, $line, $subroutine) = caller($conf->{sql_debug});
             $filename =~ s/$home[\/]?//;
             $log->debug("SQL from $subroutine in $filename:$line :\n$query\n");
             return;
@@ -50,8 +48,7 @@ sub register ($self, $app, $conf) {
       $dbx->auto_migrate($conf->{auto_migrate} // 0)
         ->max_connections($conf->{max_connections} // 3);
       return $dbx;
-    }
-  );
+    });
 
 # Generated resources
 # ./script/slovo generate resources -D dbx -t "groups,users,domove,stranici,celini" \
@@ -66,8 +63,7 @@ sub register ($self, $app, $conf) {
         my $m = $class->new(dbx => $c->dbx, c => $c);
         Scalar::Util::weaken $m->{c};
         return $m;
-      }
-    );
+      });
   }
   return $self;
 }

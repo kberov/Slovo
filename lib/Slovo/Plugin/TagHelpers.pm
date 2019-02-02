@@ -11,8 +11,7 @@ my sub _select_box ($c, $name, $options, %attrs) {
       my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);
       $c->param($name => delete $attrs{value}) if exists $attrs{value};
       return $label . ' ' . $c->select_field($name, $options, %attrs);
-    }
-  );
+    });
 };
 
 my sub _checkboxes ($c, $name, $options, %attrs) {
@@ -24,14 +23,10 @@ my sub _checkboxes ($c, $name, $options, %attrs) {
         my $group_name = $check->[0];
         $check->[0] = $name;
         $html
-          .= tag_to_html(
-                     'label' => sub { $c->check_box(@$check) . " $group_name" })
-          . $/;
+          .= tag_to_html('label' => sub { $c->check_box(@$check) . " $group_name" }) . $/;
       }
-      return $label . $/
-        . tag_to_html(div => (class => 'mui-checkbox') => sub {$html});
-    }
-  );
+      return $label . $/ . tag_to_html(div => (class => 'mui-checkbox') => sub {$html});
+    });
 
 };
 
@@ -40,39 +35,30 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   state $dom = Mojo::DOM->new;
   my $first_tag = 1;
   my $last_tag  = 0;
-  return c(split m|$/$/|, $html)->slice(0 .. 5)->map(
-    sub($txt) {
-      return '' if $last_tag;
-      $length += length($txt);
-      if ($length >= $chars) {
-        $last_tag = 1;
-        return
-            '<p>'
-          . substr($txt, 0, $first_tag ? $chars : $length - $chars)
-          . '…</p>';
-      }
-      $first_tag = 0;
-      return '<p>' . $txt . '</p>' . $/;
+  return c(split m|$/$/|, $html)->slice(0 .. 5)->map(sub($txt) {
+    return '' if $last_tag;
+    $length += length($txt);
+    if ($length >= $chars) {
+      $last_tag = 1;
+      return '<p>' . substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…</p>';
     }
-    )->join('')
-    unless $html =~ /<\w/;
+    $first_tag = 0;
+    return '<p>' . $txt . '</p>' . $/;
+  })->join('') unless $html =~ /<\w/;
 
-  return $dom->parse($html)->find($selector)->slice(0 .. 5)->map(
-    sub($el) {
-      return '' unless $el;
-      return '' if $last_tag;
-      my $txt = $el->all_text;
-      $length += length($txt);
-      if ($length >= $chars) {
-        $last_tag = 1;
-        return
-          tag_to_html($el->tag, %{$el->attr},
-               substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…');
-      }
-      $first_tag = 0;
-      return tag_to_html($el->tag, %{$el->attr}, $txt) . $/;
+  return $dom->parse($html)->find($selector)->slice(0 .. 5)->map(sub($el) {
+    return '' unless $el;
+    return '' if $last_tag;
+    my $txt = $el->all_text;
+    $length += length($txt);
+    if ($length >= $chars) {
+      $last_tag = 1;
+      return tag_to_html($el->tag, %{$el->attr},
+        substr($txt, 0, $first_tag ? $chars : $length - $chars) . '…');
     }
-  )->join('');
+    $first_tag = 0;
+    return tag_to_html($el->tag, %{$el->attr}, $txt) . $/;
+  })->join('');
 };
 
 sub register ($self, $app, $config) {

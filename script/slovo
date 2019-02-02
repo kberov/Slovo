@@ -6,9 +6,8 @@ use File::Basename();
 
 BEGIN {
   my @libs = (
-        File::Basename::dirname(__FILE__) . '/../lib/perl5',
-        File::Basename::dirname(__FILE__) . '/../lib/perl5/' . $Config{archname}
-  );
+    File::Basename::dirname(__FILE__) . '/../lib/perl5',
+    File::Basename::dirname(__FILE__) . '/../lib/perl5/' . $Config{archname});
   for (@libs) { unshift(@INC, $_) if (-d $_) }
 }
 use Mojo::File 'path';
@@ -16,9 +15,9 @@ use Mojo::File 'path';
 BEGIN {
   $ENV{MOJO_HOME} ||= path(__FILE__)->sibling('../')->realpath->to_string;
   my @libs = (
-              path($ENV{MOJO_HOME}, 'site', 'lib')->to_string,
-              path($ENV{MOJO_HOME}, 'lib')->to_string
-             );
+    path($ENV{MOJO_HOME}, 'site', 'lib')->to_string,
+    path($ENV{MOJO_HOME}, 'lib')->to_string
+  );
   for my $d (@libs) {
     unshift @INC, $d if -d $d && !grep { $d eq $_ } @INC;
   }

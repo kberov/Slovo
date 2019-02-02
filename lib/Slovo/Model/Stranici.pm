@@ -80,22 +80,17 @@ SQL
       {"$table.published" => 2, "$table.permissions" => {-like => '%r_x'}},
 
       # preview of a page, owned by this user
-      {
-       "$table.user_id"     => $user->{id},
-       "$table.permissions" => {-like => '_r_x%'}
-      },
+      {"$table.user_id" => $user->{id}, "$table.permissions" => {-like => '_r_x%'}},
 
       # preview of a page, which can be read and executed
       # by one of the groups to which this user belongs.
       {
-       "$table.permissions" => {-like => '____r_x%'},
-       "$table.published"   => $preview ? 1 : 2,
-       "$table.group_id"    => \[
-           "IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}
-       ],
+        "$table.permissions" => {-like => '____r_x%'},
+        "$table.published"   => $preview ? 1 : 2,
+        "$table.group_id" =>
+          \["IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}],
       },
-    ]
-  };
+    ]};
 }
 
 # Returns part of the where clause for $domain($c->host_only) as a HASH pair.
@@ -112,8 +107,7 @@ sub where_domain_is ($m, $domain) {
 SQL
 
   # the page must belong to the current domain
-  return (
-     "$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", "%$domain%")]);
+  return ("$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", "%$domain%")]);
 }
 
 # Find a page by $alias which can be seen by the current user
@@ -134,21 +128,11 @@ sub find_for_display ($m, $alias, $user, $domain, $preview) {
 SQL
 
   #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
-  return
-    $m->dbx->db->select(
-                        $table, undef,
-                        {
-                         alias => [
-                                   $alias,
-                                   \[$old_alias_SQL => $alias, $alias, $alias]
-                                  ],
-                         %{
-                           $m->_where_with_permissions(
-                                                       $user, $domain, $preview
-                                                      )
-                          }
-                        }
-                       )->hash;
+  return $m->dbx->db->select(
+    $table, undef,
+    {
+      alias => [$alias, \[$old_alias_SQL => $alias, $alias, $alias]],
+      %{$m->_where_with_permissions($user, $domain, $preview)}})->hash;
 }
 
 
@@ -158,18 +142,12 @@ sub add ($m, $row) {
   my $title = {};
   @$title{qw(title language body data_format)}
     = delete @$row{qw(title language body data_format)};
-  @$title{
-    qw(sorting data_type created_at user_id
-      group_id changed_by alias permissions published)
-    }
-    = (
+  @$title{qw(sorting data_type created_at user_id
+      group_id changed_by alias permissions published)} = (
     0,
     $m->title_data_type,
-    @$row{
-      qw(tstamp user_id
-        group_id changed_by alias permissions published)
-    }
-    );
+    @$row{qw(tstamp user_id
+        group_id changed_by alias permissions published)});
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
@@ -182,20 +160,19 @@ sub add ($m, $row) {
 
 
 sub find_for_edit ($m, $id, $l) {
-  my $db = $m->dbx->db;
-  my $p  = $db->select($table, undef, {id => $id})->hash;
+  my $db    = $m->dbx->db;
+  my $p     = $db->select($table, undef, {id => $id})->hash;
   my $title = $db->select(
-                          $celini_table,
-                          'title,body,language,id as title_id',
-                          {
-                           page_id   => $id,
-                           language  => $m->celini->language_like($l),
-                           data_type => $m->title_data_type,
-                           sorting   => 0,
-                           box       => $m->main_boxes,
-                          },
-                          {-asc => ['sorting', 'id']}
-                         )->hash // {};
+    $celini_table,
+    'title,body,language,id as title_id',
+    {
+      page_id   => $id,
+      language  => $m->celini->language_like($l),
+      data_type => $m->title_data_type,
+      sorting   => 0,
+      box       => $m->main_boxes,
+    },
+    {-asc => ['sorting', 'id']})->hash // {};
   return {%$p, %$title};
 }
 
@@ -204,15 +181,11 @@ sub save ($m, $id, $row) {
   $row->{tstamp} = time - 1;
 
   # Get the values for celini
-  @$title{
-    qw(page_id title body language id data_format
-      alias changed_by permissions published tstamp)
-    }
-    = (
-       $id,
-       delete @$row{qw(title body language title_id data_format)},
-       @$row{qw(alias changed_by permissions published tstamp)}
-      );
+  @$title{qw(page_id title body language id data_format
+      alias changed_by permissions published tstamp)} = (
+    $id,
+    delete @$row{qw(title body language title_id data_format)},
+    @$row{qw(alias changed_by permissions published tstamp)});
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
@@ -243,8 +216,7 @@ my sub _transform_columns($col) {
     return "$/$celini_table.$col AS $col";
   }
   elsif ($col eq 'is_dir') {
-    return
-      "$/coalesce((SELECT 1 WHERE $table.permissions LIKE 'd%'),0) AS is_dir";
+    return "$/coalesce((SELECT 1 WHERE $table.permissions LIKE 'd%'),0) AS is_dir";
   }
 
   # do not touch any other made up custom columns
@@ -274,12 +246,9 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box" =>
-      [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
-    %{$self->celini->where_with_permissions($user, $preview)},
-    %{$opts->{where} // {}}
-                   };
+    %{$self->celini->where_with_permissions($user, $preview)}, %{$opts->{where} // {}}};
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
@@ -301,11 +270,9 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box" =>
-      [{-in => ['main', 'главна', '']}, {'=' => undef}],
-    $self->where_domain_is($domain), %{$self->readable_by($user)},
-    %{$opts->{where} // {}}
-                   };
+    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    $self->where_domain_is($domain), %{$self->readable_by($user)}, %{$opts->{where} // {}}
+  };
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
@@ -319,15 +286,13 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
 # all_for_display_in_stranica().
 sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   my $stranici_opts = {
-                      where => {"$celini_table.permissions" => {-like => 'd%'}},
-                      %{delete $opts->{stranici_opts}}
-  };
+    where => {"$celini_table.permissions" => {-like => 'd%'}},
+    %{delete $opts->{stranici_opts}}};
   my $celini_opts = {
-          columns => 'title, id, alias, substr(body,1,555) as teaser, language',
-          limit   => 6,
-          where   => {"$celini_table.data_type" => {'!=' => 'заглавѥ'}},
-          %{delete $opts->{celini_opts}}
-  };
+    columns => 'title, id, alias, substr(body,1,555) as teaser, language',
+    limit   => 6,
+    where   => {"$celini_table.data_type" => {'!=' => 'заглавѥ'}},
+    %{delete $opts->{celini_opts}}};
 
   return $m->all_for_list($user, $domain, $preview, $l, $stranici_opts)->each(
     sub ($p, $i) {
@@ -336,13 +301,10 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   WHERE pid=? AND page_id=? AND data_type=? limit 1)
 SQL
       my $opts = {%$celini_opts};    #copy
-      $opts->{where}{"$celini_table.pid"}
-        = \[$SQL, 0, $p->{id}, 'заглавѥ'];
+      $opts->{where}{"$celini_table.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
       $p->{articles}
-        = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview,
-                                                  $opts);
-    }
-  );
+        = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview, $opts);
+    });
 }
 
 # Returns list of languages for this page in which we have readable by the
@@ -358,14 +320,11 @@ sub languages ($m, $alias, $u, $prv) {
 
     # and those titles are readable by the current user
     %{$m->celini->where_with_permissions($u, $prv)},
-              };
+  };
 
   #local $db->dbh->{TraceLevel} = "3|SQL";
-  return
-    $db->select(
-                $celini_table, 'DISTINCT title,language',
-                $where, {-asc => [qw(sorting id)]}
-               )->hashes;
+  return $db->select($celini_table, 'DISTINCT title,language',
+    $where, {-asc => [qw(sorting id)]})->hashes;
 }
 
 

@@ -26,23 +26,18 @@ sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
   return if ($crow->{id} == $row->{id} // 0);
   state $list_columns
     = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
-  my $opts
-    = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
+  my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
 
   my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);
-  my $option = [
-                ('- ' x $indent) . $crow->{alias} => $crow->{id},
-                $crow->{id} == $row->{pid} ? (selected => 'selected') : ()
-               ];
+  my $option   = [
+    ('- ' x $indent) . $crow->{alias} => $crow->{id},
+    $crow->{id} == $row->{pid} ? (selected => 'selected') : ()];
   if (@$stranici) {
     return $option, @{
-      $stranici->map(
-        sub {
-          my $crow = shift;
-          _options($c, $crow, $row, $indent + 1, $u, $d, $l);
-        }
-      )
-    };
+      $stranici->map(sub {
+        my $crow = shift;
+        _options($c, $crow, $row, $indent + 1, $u, $d, $l);
+      })};
   }
 
   return $option;
@@ -55,19 +50,14 @@ my sub _parents_options ($c, $bread, $row, $u, $d, $l) {
   state $pt = $str->table;
   state $list_columns
     = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
-  my $opts
-    = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
+  my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
     @{
-      $str->all_for_edit($u, $d, $l, $opts)->map(
-        sub {
-          my $crow = shift;
-          _options($c, $crow, $row, 1, $u, $d, $l);
-        }
-      )
-     }
-  ];
+      $str->all_for_edit($u, $d, $l, $opts)->map(sub {
+        my $crow = shift;
+        _options($c, $crow, $row, 1, $u, $d, $l);
+      })}];
 
 # TODO refactor all_for_edit to not require hacks like this (do not pass pid as
 # an option, but only in the 'where' suboption)
@@ -92,18 +82,17 @@ sub create($c) {
   my $bread  = $str->breadcrumb($pid, $l);
   my $u      = $c->user;
   my $domain = $c->host_only;
-  return
-    $c->render(
-        in          => {},
-        domove      => $domove,
-        l           => $l,
-        formats     => $formats,
-        languages   => $languages,
-        permissions => $permissions,
-        u           => $u,
-        breadcrumb  => $bread,
-        parents => _parents_options($c, $bread, {pid => $pid}, $u, $domain, $l),
-    );
+  return $c->render(
+    in          => {},
+    domove      => $domove,
+    l           => $l,
+    formats     => $formats,
+    languages   => $languages,
+    permissions => $permissions,
+    u           => $u,
+    breadcrumb  => $bread,
+    parents     => _parents_options($c, $bread, {pid => $pid}, $u, $domain, $l),
+  );
 }
 
 # POST /stranici
@@ -113,11 +102,9 @@ sub store($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
-    @$in{qw(user_id group_id changed_by)}
-      = ($user->{id}, $user->{group_id}, $user->{id});
+    @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
     my $id = $c->stranici->add($in);
-    $c->res->headers->location(
-                        $c->url_for("api.show_stranici", id => $id)->to_string);
+    $c->res->headers->location($c->url_for("api.show_stranici", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
   }
 
@@ -155,18 +142,17 @@ sub edit($c) {
 
   #TODO: implement language switching based on Ado::L18n
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
-  return
-    $c->render(
-               domove      => $domove,
-               l           => $l,
-               in          => $row,
-               formats     => $formats,
-               languages   => $languages,
-               permissions => $permissions,
-               u           => $u,
-               breadcrumb  => $bread,
-               parents => _parents_options($c, $bread, $row, $u, $domain, $l),
-              );
+  return $c->render(
+    domove      => $domove,
+    l           => $l,
+    in          => $row,
+    formats     => $formats,
+    languages   => $languages,
+    permissions => $permissions,
+    u           => $u,
+    breadcrumb  => $bread,
+    parents     => _parents_options($c, $bread, $row, $u, $domain, $l),
+  );
 }
 
 # PUT /stranici/:id
@@ -181,8 +167,7 @@ sub update($c) {
   #all stash variables are prepared and error messages are displayed near the
   #failed fields ot in this page
   $c->flash(message => 'Failed validation for: ' . join(', ', @{$v->failed}));
-  return $c->redirect_to('edit_stranici', id => $c->stash->{id})
-    if $v->has_error;
+  return $c->redirect_to('edit_stranici', id => $c->stash->{id}) if $v->has_error;
 
   # Update the record
   my $id = $c->param('id');
@@ -200,16 +185,14 @@ sub update($c) {
 sub show($c) {
   my $row = $c->stranici->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
-    return
-      $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
-      unless $row;
+    return $c->render(
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+    ) unless $row;
     return $c->render(openapi => $row);
   }
   $row = $c->stranici->find($c->param('id'));
-  return $c->render(text => $c->res->default_message(404), status => 404)
-    unless $row;
+  return $c->render(text     => $c->res->default_message(404), status => 404) unless $row;
   return $c->render(stranici => $row);
 }
 
@@ -227,10 +210,8 @@ sub index($c) {
   my $in   = $v->output;
   my $l    = $c->language;
   my $user = $c->user;
-  my $columns = [
-               @$list_columns,
-               qw(start stop user_id group_id permissions deleted hidden dom_id)
-  ];
+  my $columns
+    = [@$list_columns, qw(start stop user_id group_id permissions deleted hidden dom_id)];
 
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
@@ -241,14 +222,13 @@ sub index($c) {
     return $c->render(openapi => $str->all($in));
   }
 
-  return
-    $c->render(
-               user       => $user,
-               domain     => $domain,
-               columns    => $columns,
-               l          => $l,
-               breadcrumb => $str->breadcrumb($in->{pid}, $l),
-              );
+  return $c->render(
+    user       => $user,
+    domain     => $domain,
+    columns    => $columns,
+    l          => $l,
+    breadcrumb => $str->breadcrumb($in->{pid}, $l),
+  );
 }
 
 # DELETE /stranici/:id
@@ -258,8 +238,9 @@ sub remove($c) {
     my $input = $c->validation->output;
     my $row   = $c->stranici->find($input->{id});
     $c->render(
-         openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
-         status  => 404)
+      openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
+      status  => 404
+      )
       && return
       unless $row;
     $c->stranici->remove($input->{id});
@@ -270,7 +251,7 @@ sub remove($c) {
   $v->required('id');
   $v->error('id' => ['not_writable'])
     unless $c->stranici->find_where(
-                         {'id' => $id, %{$c->stranici->writable_by($c->user)}});
+    {'id' => $id, %{$c->stranici->writable_by($c->user)}});
   my $in = $v->output;
   if ($in->{id}) {
     $c->stranici->remove($in->{id});
@@ -332,8 +313,7 @@ sub list($c) {
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
   my $list
-    = $c->stranici->all_for_list($user, $c->host_only, $preview, $c->language,
-                                 $in);
+    = $c->stranici->all_for_list($user, $c->host_only, $preview, $c->language, $in);
   return $c->render(openapi => $list);
 }
 
