@@ -2,6 +2,7 @@ package Slovo::Controller::Role::Stranica;
 use Mojo::Base -role, -signatures;
 use Mojo::File 'path';
 use Mojo::ByteStream 'b';
+use Mojo::Util qw(encode sha1_sum);
 use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
@@ -101,7 +102,8 @@ sub _render_cached_page($c) {
   $c->res->headers->cache_control($cache_control);
   my $url_path = $c->req->url->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
-  my $file = path($c->app->static->paths->[0], $cached, $url_path);
+  my $file = path($c->app->static->paths->[0],
+    $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
   return $c->reply->file($file) if -f $file;
   return;
 }
@@ -112,7 +114,8 @@ sub _cache_page ($c, $l) {
   my $url_path
     = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
-  my $file = path($c->app->static->paths->[0], $cached, $url_path);
+  my $file = path($c->app->static->paths->[0],
+    $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
   $file->dirname->make_path({mode => oct(700)});
 
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
@@ -172,7 +175,8 @@ sub b64_images_to_files ($c, $name) {
       my ($ext) = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
       my $ipad = $i < 10 ? "0$i" : $i;
-      my $src  = path($paths->[0], 'img', $v->{alias} . "-$ipad.$ext")->spurt($stream);
+      my $src  = path($paths->[0], 'img',
+        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 
       # TODO: resize the image on disc according to 'with' and 'height'

@@ -4,7 +4,7 @@ use lib "$FindBin::Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
-use Mojo::Util qw(slugify encode);
+use Mojo::Util qw(slugify encode sha1_sum);
 use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
@@ -103,7 +103,8 @@ my $cached_pages = sub {
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
       'On second load page with path /foo.html IS cached');
 
-  ok(-s $cache_dir->child('коренъ.html'),     'and file is on disk');
+  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => 'коренъ.html')) . '.html'),
+    'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT YET cached');
 
   $t->get_ok("/коренъ.bg.html");

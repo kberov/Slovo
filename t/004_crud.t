@@ -204,7 +204,8 @@ my $create_celini = sub {
     'No base64 src in body.'
   );
   for ('01.png', '02.gif', '03.jpeg') {
-    my $img = $app->home->child('domove/localhost/public/img', 'цѣлина-' . $_);
+    my $img = $app->home->child('domove/localhost/public/img',
+      sha1_sum(encode('UTF-8' => 'цѣлина')) . '-' . $_);
     ok(-s $img, "Image *-$_ is created on disk.");
     my ($img_path) = $img =~ m|public(/.+)$|;
     like(

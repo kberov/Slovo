@@ -3,6 +3,12 @@ Revision history for Mojolicious application Slovo
 2019.02.02
     - Changes
         * More tidy code.
+        * Optimised script/slovo.
+        * Upgraded to Mojolicious 8.12
+        * Fixed failing test on MSwin32 due to unicode filenames. Now produced
+          files have sha1_sum as name.
+        * Fixed bug in sidedrawer.
+          TODO: Investigate why 'url_for' does not recognise some route names.
 
 2019.01.29
     - Changes

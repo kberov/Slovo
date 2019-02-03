@@ -184,7 +184,7 @@
                }
             ],
             "x-mojo-to" : "stranici#list",
-            "operationId" : "api.list_stranici",
+            "operationId" : "api_list_stranici",
             "summary" : "List all records of type Stranici.",
             "description" : "List all records of type Stranici according to the client's priviledges.",
             "responses" : {

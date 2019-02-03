@@ -14,7 +14,7 @@ my $PREREQ_PM   = {
   'Cpanel::JSON::XS'                    => '4.08',
   'Minion::Backend::SQLite'             => '4.002',
   'Mojo::SQLite'                        => '3.001',
-  'Mojolicious'                         => '8.07',
+  'Mojolicious'                         => '8.12',
   'Mojolicious::Plugin::PODViewer'      => '0.002',
   'Mojolicious::Plugin::Authentication' => '1.32',
   'Mojolicious::Plugin::OpenAPI'        => '2.00',
@@ -31,7 +31,6 @@ if ($ENV{TEST_AUTHOR}) {
     'Test::Pod'           => '1.52',
     'Test::Perl::Critic'  => '1.04',
     'Perl::Critic'        => '1.132',
-    'Perl::Tidy'          => '20181119',
     'Test::CheckManifest' => '1.33',
     'Test::PerlTidy'      => '20130104'
   };
