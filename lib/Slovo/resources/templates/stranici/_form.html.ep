@@ -33,7 +33,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
         %= t fieldset => (id=>'page_attributes', class=>$class) => begin
           %= t legend =>'Свойства'
           %= t 'div' => (class => 'mui-row') => begin
-              %= t 'div' => (class => 'mui-col-md-3', title=>'В страница') => begin
+              %= t 'div' => (class => 'mui-col-md-3', title=>'Въ страница') => begin
                   <%=
                   select_box
                     pid   => $parents,

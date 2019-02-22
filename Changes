@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2019.02.20
+    - Features
+        * User can chose parent page and parent celina for new and existing
+         celina.
+
 2019.02.02
     - Changes
         * More tidy code.

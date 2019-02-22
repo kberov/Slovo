@@ -306,6 +306,53 @@ sub is_item_editable ($c, $e) {
   return 0;
 }
 
+# used to generate the options for parent pages.
+sub page_id_options ($c, $bread, $row, $u, $d, $l) {
+  my $str = $c->stranici;
+  state $root = $str->find_where(
+    {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
+  state $pt = $str->table;
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
+  my $parents_options = [
+    [$root->{alias}, $root->{id}],
+    @{
+      $str->all_for_edit($u, $d, $l, $opts)->map(sub {
+        my $crow = shift;
+        _options($c, $crow, $row, 1, $u, $d, $l);
+      })}];
+
+# TODO refactor all_for_edit to not require hacks like this (do not pass pid as
+# an option, but only in the 'where' suboption)
+# Call all_for_edit recursively and show optiongroups for subfolders
+
+  return $parents_options;
+}
+
+sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
+  return unless $crow->{is_dir};
+  return if ($crow->{id} == ($row->{id} // 0));
+  state $list_columns
+    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
+
+  my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);
+  my $option   = [
+    ('- ' x $indent) . $crow->{alias} => $crow->{id},
+    $crow->{id} == $row->{pid} ? (selected => 'selected') : ()];
+  if (@$stranici) {
+    return $option, @{
+      $stranici->map(sub {
+        my $crow = shift;
+        _options($c, $crow, $row, $indent + 1, $u, $d, $l);
+      })};
+  }
+
+  return $option;
+}
+
+
 =encoding utf8
 
 =head1 NAME

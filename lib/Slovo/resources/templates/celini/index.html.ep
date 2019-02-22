@@ -1,17 +1,32 @@
 % layout 'upravlenie', title => 'Blog/Celini';
+% my $page_id = $c->param('page_id')//0;
+<div class="mui-panel breadcrumb">
+    %= link_to url_with('create_celini')->query(page_id => $page_id) =>(title=>'Нова цѣлина') => begin
+    <i class="fas fa-plus-square"></i>
+    <% end %>
+    <%= link_to
+        url_with('home_stranici')->query(pid => $page_id)
+        => (title => 'Към списъка съ страници', style => 'float:right') => begin %>
+        <i class="fas fa-file"></i>&nbsp;
+    <% end %>
+%= link_to  url_with('home_celini')->query(page_id => 0) => sub{'⸙'}
+% if(@$breadcrumb) {
+  <%=
+  $breadcrumb->map(sub {
+    link_to $_->{alias} => url_for()->query(page_id => $_->{id});
+  })->join(' ⸙ ')
+  %>
+% }
+</div>
+
+
+
+
 % my @columns = qw(page_id id pid title language alias box); #table columns to show
 
-%= link_to '☰✨' => 'create_celini' => (titile => 'New record in table "celini"')
-% my $page_id = $c->param('page_id');
-% if (defined $page_id) {
-    %= link_to '⮉☰' => 'home_celini' => (title => 'Up to list of celini')
-    <%=
-    link_to
-      '🖹🗌' => url_with('create_celini')->query([page_id => $page_id,]),
-      (title => 'Add content to page with id ' . $page_id)
-    %>
-% }
-<table>
+<div class="mui-container">
+    <div class="mui-panel">
+<table class="mui-table mui-table--bordered">
         <tr>
             <th></th>
     % for my $column (@columns) {
@@ -34,24 +49,26 @@
         % if(not defined $page_id) {
         <%=
         link_to '☰' =>
-          url_with('home_celini')->query([page_id => $item->{page_id}]) =>
+          url_with('home_celini')->query(page_id => $item->{page_id}) =>
           (title => 'list siblings')
         %>
         % }
     <%=
     link_to '🖹🗌' => url_with('create_celini')
-      ->query([page_id => $item->{page_id}, sorting => ++$item->{sorting}]) =>
+      ->query(page_id => $item->{page_id}, sorting => ++$item->{sorting}) =>
       (title => 'Add a sibling after this')
     %>
     % if ($item->{permissions} =~/^d/) { # is a container/directory
     <%=
     link_to '☲🗌' => url_with('create_celini')
-      ->query([
+      ->query(
       page_id => $item->{page_id}, sorting => ++$item->{sorting}, pid => $item->{id}
-      ]) => (title => 'Add new child content to this')
+      ) => (title => 'Add new child content to this')
     %>
     % }
     </td>
         </tr>
 % }
 </table>
+    </div>
+</div>

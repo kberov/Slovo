@@ -1,17 +1,21 @@
 <%
 $in->{user_id}  //= $u->{id};
 $in->{group_id} //= $u->{group_id};
-my $sorting = [map $_, (0 .. 15)];
+my $sorting       = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
 my $sorting_label = 'Мѣсто в подредбата';
-my $body_title = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
-my $pid_new = $in->{data_type} eq 'заглавѥ' ? $in->{id} : $in->{pid};
+my $body_title
+  = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
+
+# If this celina is a title, the new celina will have this title id as a pid.
+my $new_pid_for_celina_in_this_page = param('data_type') eq 'заглавѥ' ? $in->{id} : $in->{pid};
 %>
 
-
 <div class="mui-panel breadcrumb">
-    <%= link_to url_with('create_celini')->query(pid => $pid_new, page_id => $in->{page_id}) 
-        => (title => 'Нова цѣлина в сѫщата страница') => begin %>
+    <%=
+    link_to url_with('create_celini')
+      ->query(pid => $new_pid_for_celina_in_this_page, page_id => $in->{page_id}) =>
+      (title => 'Нова цѣлина в сѫщата страница') => begin %>
     <i class="fas fa-plus-square"></i>
     <% end %>
     %= link_to '⸙' =>'home_celini', title => "Цѣлини"
@@ -138,21 +142,39 @@ my $pid_new = $in->{data_type} eq 'заглавѥ' ? $in->{id} : $in->{pid};
         %= t fieldset => (id=>'additional_properties') => begin
           %= t legend => 'Допълнителни свойства'
           %= t 'div' => (class => 'mui-row') => begin
-              %= t 'div' => (class => 'mui-checkbox mui-col-md-3') => begin
-                %= check_box deleted => 1
-                %= label_for deleted => 'Изтрито'
+              %= t 'div' => (class => 'mui-col-md-3', title=>'Въ страница') => begin
+                  <%=
+                  select_box
+                    page_id   => $parent_pages,
+                    required => 1,
+                    label    => 'Въ страница'
+                  %>
               % end
-              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
-                %= label_for pid => 'В цѣлина с №'
-                %= number_field 'pid' => $in->{data_type} eq 'ѿговоръ' ? (readonly => ''):()
+              %= t 'div' => (class => 'mui-col-md-3', title=>'Въ цѣлина') => begin
+                  <%=
+                  select_box
+                    pid      => $parent_celini,
+                    label    => 'Въ цѣлина',
+                    required => 1
+                  %>
+              % end
+              <%= t 'div' => (class => 'mui-col-md-3',
+              title => 'Въ коя частъ на страницата се намира') => begin %>
+                  <%=
+                  select_box
+                    box => [
+                            ['main'   => 'главна'],
+                            ['top'    => 'горѣ'],
+                            ['left'   => 'лѣво'],
+                            ['right'  => 'дѣсно'],
+                            ['bottom' => 'долу']
+                           ],
+                    label => 'Въ кутия'
+                  %>
               % end
               %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
                 %= label_for from_id => 'Превѣдено отъ №'
                 %= number_field 'from_id', readonly => ''
-              % end
-              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
-                %= label_for page_id => 'В страница №'
-                %= number_field page_id => readonly => ''
               % end
           % end; # mui-row
 
@@ -168,19 +190,9 @@ my $pid_new = $in->{data_type} eq 'заглавѥ' ? $in->{id} : $in->{pid};
                   %= check_box 'featured' => 1
                   %= label_for featured => 'Препорѫчано'
               % end
-              <%= t 'div' => (class => 'mui-col-md-4', 
-              title => 'В коя част на страницата се намира') => begin %>
-                  <%=
-                  select_box
-                    box => [
-                            ['main'   => 'главна'],
-                            ['top'    => 'горѣ'],
-                            ['left'   => 'лѣво'],
-                            ['right'  => 'дѣсно'],
-                            ['bottom' => 'долу']
-                           ],
-                    label => 'Кутия'
-                  %>
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-4') => begin
+                %= check_box deleted => 1
+                %= label_for deleted => 'Изтрито'
               % end
           % end; # mui-row
 

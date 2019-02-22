@@ -118,7 +118,8 @@ my $cached_pages = sub {
   $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)
     ->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'On first celina with path /foo/bar.bg.html was just cached');
+        'On first request celina with path /foo/bar.bg.html was just'
+      . ' cached (but using it\'s canonical name )');
 
   $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")->status_is(200)
     ->tx->res->body;

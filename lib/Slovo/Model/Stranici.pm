@@ -210,7 +210,6 @@ sub remove ($m, $id) {
 
 # Transforms a column accordingly as passed from $opts->{columns} and returns
 # the transformed column.
-## no critic (Modules::RequireEndWithOne)
 my sub _transform_columns($col) {
   if ($col eq 'title' or $col eq 'language') {
     return "$/$celini_table.$col AS $col";
@@ -226,7 +225,7 @@ my sub _transform_columns($col) {
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return "$/$table.$col AS $col";
-}
+};
 
 # Returns all pages for listing in a sidebar or via Swagger API. Beware not to
 # mention one column twice as a key in the WHERE clause, because only the

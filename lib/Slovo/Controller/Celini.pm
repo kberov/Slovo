@@ -6,6 +6,33 @@ no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 
+my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
+
+  # https://tools.ietf.org/html/rfc7538#section-3
+  my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
+  $c->res->code($status);
+  return $c->redirect_to(
+    'цѣлина_с_ѩꙁыкъ' => {
+      'цѣлина'     => $celina->{alias},
+      'страница' => $page->{alias},
+      'ѩꙁыкъ'      => $l
+    });
+};
+
+# Prepares collection of parent ids of celiny in which a celina can be put.
+my sub _celini_options ($c, $id, $page_id, $user, $l) {
+  my $celini = $c->celini;
+  my $opts   = {
+    where => {
+      page_id => $page_id,
+      $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
+      language  => $celini->language_like($l),
+      data_type => {in => [qw(заглавѥ книга въпросъ)]}}};
+  my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
+  unshift @$options, ['Въ никоѭ' => 0];
+  return $options;
+};
+
 # ANY /<страница:str>/<цѣлина:cel>.<ѩꙁыкъ:lng>.html
 # ANY /<:страница:str>/<цѣлина:cel>.html
 # Display a content element in a page in the site.
@@ -19,7 +46,7 @@ sub execute ($c, $page, $user, $l, $preview) {
     {pid => $c->stash->{celini}[0]{id}, page_id => $page->{id}});
 
   # Celina was found, but with a new alias.
-  return $c->_go_to_new_celina_url($page, $celina, $l)
+  return $c->_redirect_to_new_celina_url($page, $celina, $l)
     if $celina && $celina->{alias} ne $alias;
 
   unless ($celina) {
@@ -32,23 +59,34 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render(celina => $celina, 'цѣлина' => $celina->{alias});
 }
 
-sub _go_to_new_celina_url ($c, $page, $celina, $l) {
-
-  # https://tools.ietf.org/html/rfc7538#section-3
-  my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
-  $c->res->code($status);
-  return $c->redirect_to(
-    'цѣлина_с_ѩꙁыкъ' => {
-      'цѣлина'     => $celina->{alias},
-      'страница' => $page->{alias},
-      'ѩꙁыкъ'      => $l
-    });
-}
-
 # GET /celini/create
 # Display form for creating resource in table celini.
 sub create($c) {
-  return $c->render(in => {});
+  state $types       = $c->openapi_spec('/parameters/data_type/enum');
+  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
+  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
+
+  my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
+  $c->req->param(data_type => $types->[1]);
+  my $str      = $c->stranici;
+  my $l        = $c->language;
+  my $u        = $c->user;
+  my $bread    = $str->breadcrumb($row->{page_id}, $l);
+  my $page_row = $str->find_for_edit($row->{page_id}, $l);
+  my $domain   = $c->host_only;
+  return $c->render(
+    breadcrumb    => $bread,
+    formats       => $formats,
+    languages     => $languages,
+    permissions   => $permissions,
+    types         => $types,
+    u             => $u,
+    in            => $row,
+    parent_celini => _celini_options($c, 0, $row->{page_id}, $u, $l),
+    parent_pages =>
+      $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
+  );
 }
 
 # POST /celini
@@ -69,8 +107,8 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'create', celini => {}, in => {%{$v->output}, %$in})
-    if $v->has_error;
+  $in = {%{$v->output}, %$in};
+  return $c->render(action => 'create', celini => {}, in => $in) if $v->has_error;
 
   # 2. Insert it into the database
   $in = {%{$v->output}, %$in};
@@ -92,17 +130,23 @@ sub edit($c) {
 
 # prefill form fields.
   $c->req->param($_ => $row->{$_}) for keys %$row;
-  my $l     = $c->language;
-  my $bread = $c->stranici->breadcrumb($row->{page_id}, $l);
-  my $u     = $c->user;
+  my $str      = $c->stranici;
+  my $l        = $c->language;
+  my $u        = $c->user;
+  my $bread    = $str->breadcrumb($row->{page_id}, $l);
+  my $page_row = $str->find_for_edit($row->{page_id}, $l);
+  my $domain   = $c->host_only;
   return $c->render(
-    breadcrumb  => $bread,
-    formats     => $formats,
-    languages   => $languages,
-    permissions => $permissions,
-    types       => $types,
-    u           => $u,
-    in          => $row
+    breadcrumb    => $bread,
+    formats       => $formats,
+    languages     => $languages,
+    permissions   => $permissions,
+    types         => $types,
+    u             => $u,
+    in            => $row,
+    parent_celini => _celini_options($c, $row->{id}, $row->{page_id}, $u, $l),
+    parent_pages =>
+      $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
   );
 }
 
@@ -149,8 +193,11 @@ sub index($c) {
 
   # restrict to the current domain root page
   my $str = $c->stranici;
-  my $in  = $str->all({columns => 'id', where => {$str->where_domain_is($c->host_only)}})
+  my $l   = $c->language;
+
+  my $in = $str->all({columns => 'id', where => {$str->where_domain_is($c->host_only)}})
     ->map(sub { $_->{id} })->to_array;
+
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -169,7 +216,8 @@ sub index($c) {
     $opts->{where}{page_id} = {-in => $in};
   }
   $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
-  return $c->render(celini => $celini->all($opts));
+  my $bread = $str->breadcrumb($o->{page_id}, $l);
+  return $c->render(celini => $celini->all($opts), breadcrumb => $bread,);
 }
 
 # DELETE /celini/:id
