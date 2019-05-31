@@ -10,9 +10,8 @@ no warnings "experimental::lexical_subs";
 around execute => \&_around_execute;
 
 sub _around_execute ($execute, $c) {
-  state $cache_pages = $c->config('cache_pages');
-  state $list_columns
-    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $cache_pages    = $c->config('cache_pages');
+  state $list_columns   = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
   my $is_guest = !$c->is_user_authenticated;
@@ -41,22 +40,22 @@ sub _around_execute ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    'страница' => $page->{alias},
-    celini             => $celini,
-    domain             => $domain,
-    list_columns       => $list_columns,
-    page               => $page,
-    preview            => $preview,
-    user               => $user,
+    'страница'   => $page->{alias},
+    celini       => $celini,
+    domain       => $domain,
+    list_columns => $list_columns,
+    page         => $page,
+    preview      => $preview,
+    user         => $user,
 
     # data_type to template name
     d2t => {
       'белѣжка' => '_beleyazhka',
       'въпросъ' => '_wyprosy',
       'заглавѥ' => '_zaglawie',
-      'книга'     => '_kniga',
-      'писанѥ'   => '_pisanie',
-      'цѣлина'   => '_ceyalina',
+      'книга'   => '_kniga',
+      'писанѥ'  => '_pisanie',
+      'цѣлина'  => '_ceyalina',
       'ѿговоръ' => '_otgowory'
     },
   );
@@ -90,8 +89,8 @@ sub _go_to_new_page_url ($c, $page, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to('страница_с_ѩꙁыкъ' =>
-      {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+  return $c->redirect_to(
+    'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
 }
 
 my $cached    = 'cached';
@@ -111,8 +110,7 @@ sub _render_cached_page($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path
-    = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
+  my $url_path = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
   return unless $url_path =~ $cacheable;
   my $file = path($c->app->static->paths->[0],
     $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
@@ -172,10 +170,10 @@ sub b64_images_to_files ($c, $name) {
     sub ($img, $i) {
       my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
       return unless $b64;
-      my ($ext) = $type =~ m|/(.+)$|;
+      my ($ext)  = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
-      my $ipad = $i < 10 ? "0$i" : $i;
-      my $src  = path($paths->[0], 'img',
+      my $ipad   = $i < 10 ? "0$i" : $i;
+      my $src = path($paths->[0], 'img',
         sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 
@@ -311,9 +309,8 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
   state $root = $str->find_where(
     {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
-  state $pt = $str->table;
-  state $list_columns
-    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $pt           = $str->table;
+  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
@@ -333,8 +330,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
 sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
   return unless $crow->{is_dir};
   return if ($crow->{id} == ($row->{id} // 0));
-  state $list_columns
-    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
 
   my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);

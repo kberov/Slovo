@@ -17,8 +17,8 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.02.22';
-our $CODENAME  = 'U+2C12 GLAGOLITIC CAPITAL LETTER POKOJI (Ⱂ)';
+our $VERSION   = '2019.06.09';
+our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
@@ -26,10 +26,25 @@ has resources => sub {
 };
 has validator => sub { Slovo::Validator->new };
 
+# We prefer $MOJO_HOME to be the folder where bin or script resides.
+has home => sub {
+  if ($ENV{MOJO_HOME}) { return Mojo::Home->new($ENV{MOJO_HOME}); }
+  my $r = Mojo::Home->new($INC{class_to_path $CLASS})->dirname->to_abs;
+  my $m = $_[0]->moniker;
+  while (($r = $r->dirname) && @{$r->to_array} > 2) {
+    if (-x $r->child("bin/$m") || -x $r->child("script/$m")) {
+      return $r;
+    }
+  }
+  return shift->SUPER::home;
+};
+
 # This method will run once at server start
 sub startup($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
   $app->controller_class('Slovo::Controller');
+  $app->commands->namespaces(
+    ['Slovo::Command::Author', 'Slovo::Command', 'Mojolicious::Command']);
   ## no critic qw(Subroutines::ProtectPrivateSubs)
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
@@ -211,49 +226,52 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 =head1 DESCRIPTION
 
-L<Slovo> is a simple and extensible L<Mojolicious>
+L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
 with nice core features like:
 
 =over
 
-=item * Multi-language pages - DONE;
+=item On the fly generation of static pages under Apache/CGI – perfect for
+cheap shared hosting and blogging – WIP
 
-=item * Cached published pages and content - DONE;
+=item Multi-domain support - DONE;
 
-=item * Multi-domain support - DONE;
+=item Multi-language pages - DONE;
 
-=item * Multi-user support - DONE;
+=item Cached published pages and content - DONE;
 
-=item * User onboarding - BETA;
+=item Multi-user support - DONE;
 
-=item * User sign in - DONE;
+=item User onboarding - BETA;
 
-=item * Managing pages, content, domains, users - WIP;
+=item User sign in - DONE;
 
-=item * Managing groups - BASIC;
+=item Managing pages, content, domains, users - WIP;
 
-=item * Multiple groups per user - DONE;
+=item Managing groups - BASIC;
 
-=item * Ownership and permissions management per page and it's content - DONE;
+=item Multiple groups per user - DONE;
 
-=item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
+=item Ownership and permissions management per page and it's content - DONE;
+
+=item Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
 and content - DONE;
 
-=item * Embedded fonts for displaying all
+=item Embedded fonts for displaying all
 L<Azbuka|https://en.wikipedia.org/wiki/Cyrillic_script> and
 L<Glagolitsa|https://en.wikipedia.org/wiki/Glagolitic_script> characters -
 DONE;
 
-=item * OpenAPI 2.0 (Swagger) REST API - BASIC;
+=item OpenAPI 2.0 (Swagger) REST API - BASIC;
 
-=item * Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>.
+=item Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>.
 
-=item * Example startup scripts for slovo and slovo_minion services
+=item Example startup scripts for slovo and slovo_minion services
 for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 2.4|https://httpd.apache.org/docs/2.4/> and NGINX vhost configuration files.
 
-=item * and more to come…
+=item and more to come…
 
 =back
 
@@ -305,7 +323,7 @@ C<$ENV{MOJO_CONFIG}> or by just copying C<slovo.conf> to $ENV{MOJO_HOME} and
 modify it as you wish. New routes can be described in C<routes.conf>. See
 L<Mojolicious::Plugin::RoutesConfig> for details and examples.
 
-C<$ENV{MOJO_HOME}> (where you installed Slovo) is automatically detected and
+C<$ENV{MOJO_HOME}> (L<where you installed Slovo|/home>) is automatically detected and
 used. All paths, used in the application, are expected to be its children.  You
 can add your own templates in C<$ENV{MOJO_HOME}/templates> and they will be
 loaded and used with priority. You can theme your own instance of Slovo by just
@@ -324,12 +342,43 @@ or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will automatically load them.
 
 With all the above, you can upgrade L<Slovo> by just installing new versions
 over it and your files will not be touched. And of course, we know that you are
-using versioning just in case anything goes wrong.
+using versioning just in case anything goes wrong. See L</home>.
 
 =head1 ATTRIBUTES
 
 L<Slovo> inherits all attributes from L<Mojolicious> and implements
 the following new ones.
+
+=head2 home
+
+L<Slovo> detects where B<home> is not like L<Mojo::Home> by where
+C<lib/Mojolicous.pm> is but by where the C<script/> or C<bin/> folder resides
+starting from where C<lib/Slovo.pm> is and going up the tree. If in one of
+these folders there is C<$app-E<gt>moniker>, then the upper folder is the home.
+
+Examples:
+
+    berov@Skylake:Slovo$ pwd
+    /home/berov/opt/dev/Slovo
+    berov@Skylake:Slovo$ perl script/slovo eval 'say app->home'
+    /home/berov/opt/dev/Slovo
+
+    berov@Skylake:Slovo$ cpanm . -n -l ~/opt/t.com/slovo
+    --> Working on .
+    Configuring /home/berov/opt/dev/Slovo ... OK
+    Building Slovo-v2019.06.09 ... OK
+    Successfully installed Slovo-v2019.06.09
+    1 distribution installed
+
+    berov@Skylake:t.com$ pwd
+    /home/berov/opt/t.com
+    berov@Skylake:t.com$ slovo/bin/slovo eval 'say app->home'
+    /home/berov/opt/t.com/slovo
+
+    berov@Skylake:t.com$ pwd
+    /home/berov/opt/t.com
+    berov@Skylake:t.com$ perl -Islovo/lib/perl5 -MSlovo -E 'say Slovo->new->home'
+    /home/berov/opt/t.com/slovo
 
 =head2 resources
 

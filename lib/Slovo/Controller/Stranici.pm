@@ -54,10 +54,11 @@ sub create($c) {
 # Add a new record to table stranici.
 sub store($c) {
   my $user = $c->user;
+  my $in   = {};
+  @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
-    my $in = $c->validation->output;
-    @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
+    $in = {%$in, %{$c->validation->output}};
     my $id = $c->stranici->add($in);
     $c->res->headers->location($c->url_for("api.show_stranici", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
@@ -68,9 +69,7 @@ sub store($c) {
   return $c->render(action => 'create', in => {}) if $v->has_error;
 
   # 2. Insert it into the database
-  my $in = $v->output;
-  @$in{qw(user_id group_id)} = ($user->{id}, $user->{group_id});
-
+  $in = {%$in, %{$v->output}};
   my $id = $c->stranici->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
@@ -159,8 +158,7 @@ sub show($c) {
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
   my $str = $c->stranici;
-  state $list_columns
-    = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
   my $domain = $c->host_only;
   my $v      = $c->validation;
 

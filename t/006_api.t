@@ -11,8 +11,7 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 my $app = $t->app;
 
 subtest 'api/stranici' => sub {
-  $t->get_ok("/api/страници")->status_is(200)
-    ->json_is('/0/alias' => 'писания');
+  $t->get_ok("/api/страници")->status_is(200)->json_is('/0/alias' => 'писания');
 
   #create several pages and then check the list again
   ok($t->login('краси', 'беров') => 'login ok');
@@ -21,8 +20,7 @@ subtest 'api/stranici' => sub {
     permissions => 'drwxr-xr-x',
     published   => 2,
     title       => 'Събития',
-    body =>
-      'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
+    body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
     language    => 'bg-bg',
     data_format => 'text'
   };
@@ -42,8 +40,8 @@ subtest 'api/stranici' => sub {
       ->content_like(qr/$title/);
   }
   $t->ua->get('/изходъ');    # logout
-  $t->get_ok("/api/страници?pid=$pid")->status_is(200)
-    ->json_is('/0/alias' => 'foo')->json_is('/2/alias' => 'baz');
+  $t->get_ok("/api/страници?pid=$pid")->status_is(200)->json_is('/0/alias' => 'foo')
+    ->json_is('/2/alias' => 'baz');
 };
 
 done_testing;

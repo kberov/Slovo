@@ -6,6 +6,7 @@ use Test::Mojo;
 use Mojo::ByteStream 'b';
 use Mojo::Collection 'c';
 my $test_class = Test::Mojo->with_roles('+Slovo');
+
 unless ($ENV{TEST_DOMAIN}) {
   plan(
     skip_all => qq|Advanced test. Do the following to run this test.

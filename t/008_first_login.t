@@ -65,15 +65,11 @@ my $first_login = sub {
 my $passw_login = sub {
 
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
-  $t->post_ok(
-    '/входъ' => {},
-    form          => {login_name => 'шестi', login_password => 'грешѧ'}
-  )->element_exists('#passw_login');
-  $t->get_ok('/загубенъ-ключъ')->status_is(200)
-    ->element_exists('[name="email"]');
-  $t->post_ok(
-    '/загубенъ-ключъ' => {},
-    form                           => {email => $user_form->{email}})->status_is(200);
+  $t->post_ok('/входъ' => {}, form => {login_name => 'шестi', login_password => 'грешѧ'})
+    ->element_exists('#passw_login');
+  $t->get_ok('/загубенъ-ключъ')->status_is(200)->element_exists('[name="email"]');
+  $t->post_ok('/загубенъ-ключъ' => {}, form => {email => $user_form->{email}})
+    ->status_is(200);
   $app->minion->perform_jobs;
   my $jobs = $app->dbx->db->select('minion_jobs', '*')->hashes;
   $user = $app->users->find_by_login_name('шестi');

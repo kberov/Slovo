@@ -163,7 +163,7 @@ sub _validation($c) {
 
   # Add validation rules for the record to be stored in the database
   $v->optional('group_id',   'trim')->like(qr/^\d+$/);
-  $v->optional('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{4,12}$/x);
+  $v->optional('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{3,12}$/x);
   if ($c->stash->{action} eq 'store') {
     $v->required('login_password', 'trim')->like(qr/^[A-F0-9]{40}$/i);
     $v->required('first_name',     'trim')->size(2, 100);

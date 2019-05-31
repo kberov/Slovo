@@ -143,11 +143,11 @@ sub add ($m, $row) {
   @$title{qw(title language body data_format)}
     = delete @$row{qw(title language body data_format)};
   @$title{qw(sorting data_type created_at user_id
-      group_id changed_by alias permissions published)} = (
+  group_id changed_by alias permissions published)} = (
     0,
     $m->title_data_type,
     @$row{qw(tstamp user_id
-        group_id changed_by alias permissions published)});
+    group_id changed_by alias permissions published)});
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
@@ -182,7 +182,7 @@ sub save ($m, $id, $row) {
 
   # Get the values for celini
   @$title{qw(page_id title body language id data_format
-      alias changed_by permissions published tstamp)} = (
+  alias changed_by permissions published tstamp)} = (
     $id,
     delete @$row{qw(title body language title_id data_format)},
     @$row{qw(alias changed_by permissions published tstamp)});

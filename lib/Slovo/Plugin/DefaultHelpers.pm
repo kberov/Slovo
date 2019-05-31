@@ -16,7 +16,7 @@ sub register ($self, $app, $config) {
   # Add our helpers eventually overriding some of the existing ones
   $app->helper(
     host_only => sub {
-      lc $_[0]->req->headers->host =~ s/(\:\d+)$//r;
+      lc($_[0]->req->headers->host // 'localhost') =~ s/(\:\d+)$//r;
     });
 
   $app->helper(

@@ -14,9 +14,9 @@ use Mojo::ByteStream 'b';
 use Mojo::Util qw(encode sha1_sum);
 use Mojo::IOLoop::Server;
 
-use FindBin;
-my $default_from   = path($FindBin::Bin)->sibling('./');
-my $random_tempdir = tempdir('slovoXXXX');
+use FindBin qw($Bin);
+my $default_from   = path($Bin)->dirname;
+my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1);
 
 has authenticated  => 0;
 has login_name     => 'краси';
@@ -31,25 +31,31 @@ sub domain_aliases {'some.domain alias.domain alias2.domain'}
 # automatically deleted and you can debug the installed application.
 my $MOJO_HOME;
 
-sub install ($class, $from = $default_from, $to_tempdir = $random_tempdir) {
+sub install ($class, $from = $default_from, $to_tempdir = "$random_tempdir/slovo",
+  $dir_mode = 0700)
+{
   $MOJO_HOME = path($to_tempdir);
+  note '$MOJO_HOME:' . $MOJO_HOME;
 
   # idempotent
-  $MOJO_HOME->remove_tree->make_path({mode => 0700});
+  $MOJO_HOME->remove_tree->make_path({mode => $dir_mode});
   ok(-d $MOJO_HOME, "created $MOJO_HOME");
-  $MOJO_HOME->child('log')->make_path({mode => 0700}) if $to_tempdir eq $random_tempdir;
-  path($from, 'lib')->list_tree({dir => 1})->each(\&_copy_to);
-  $MOJO_HOME->child('domove')->make_path({mode => 0700});
-  path($from, 'domove')->list_tree({dir => 1})->each(\&_copy_to);
+  $MOJO_HOME->child('log')->make_path({mode => $dir_mode})
+    if $to_tempdir eq $random_tempdir;
+  path($from, 'lib')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
+  $MOJO_HOME->child('domove')->make_path({mode => $dir_mode});
+  path($from, 'domove')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
+  $MOJO_HOME->child('script')->make_path({mode => $dir_mode});
+  path($from, 'script')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
   unshift @INC, path($to_tempdir, 'lib')->to_string;
   return $class;
 }
 
-sub _copy_to ($f, $i) {
+sub _copy_to ($f, $i, $dir_mode) {
   $f =~ /\.sqlite$/ && return;    # do not copy existing database
   $f =~ /cached/    && return;    # do not copy cached files
   my $new = $MOJO_HOME->child($f->to_rel);
-  (-d $f) && $new->make_path({mode => 0700});
+  (-d $f) && $new->make_path({mode => $dir_mode});
   (-f $f) && $f->copy_to($new);
 }
 
@@ -124,5 +130,6 @@ sub create_edit_domain_ok ($t) {
   like($body => qr/$form->{aliases}/, 'aliases changed');
   return $edit_url;
 }
+
 
 1;
