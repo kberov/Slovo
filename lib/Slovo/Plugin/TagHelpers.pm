@@ -1,6 +1,8 @@
 package Slovo::Plugin::TagHelpers;
 use Mojo::Base 'Mojolicious::Plugin::TagHelpers', -signatures;
 use feature qw(lexical_subs unicode_strings);
+## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+no warnings "experimental::lexical_subs";
 use Scalar::Util 'blessed';
 use Mojo::DOM::HTML 'tag_to_html';
 use Mojo::Collection 'c';

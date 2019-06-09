@@ -1,5 +1,23 @@
 Revision history for Mojolicious application Slovo
 
+2019.06.09
+
+    - Changes
+        * Changed CODENAME to U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)
+          This is a major release.
+        * reenabled '-utf8' switch for Perl::Tidy. Works well with newest
+          edition and Test::PerlTidy.
+        * Using also 'local/' folder for locally installed dependencies.
+        * Minor fixes for making Perl::Critic happy.
+        * Not using Test::CheckManifest anymore.
+    - Features
+       * Apache/CGI support with the following prerequisites. This is work in progress.
+       * Slovo::Command::Author::generate::cgi_script.
+       * Slovo::Command::Author::generate::a2htaccess.
+       * Slovo::Command::Author::generate::novy_dom.
+       * $app->home detects the common root folder where SLovo is installed, not
+         just where lib/Slovo.pm is.
+
 2019.02.20
     - Features
         * User can chose parent page and parent celina for new and existing

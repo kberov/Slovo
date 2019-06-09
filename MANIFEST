@@ -6,6 +6,11 @@ domove/localhost/public/img/slovo-white.svg
 domove/localhost/public/img/slovo.svg
 domove/localhost/templates/partials/_footer_right.html.ep
 lib/Slovo.pm
+lib/Slovo/Command.pm
+lib/Slovo/Command/Author/generate.pm
+lib/Slovo/Command/Author/generate/a2htaccess.pm
+lib/Slovo/Command/Author/generate/cgi_script.pm
+lib/Slovo/Command/Author/generate/novy_dom.pm
 lib/Slovo/Controller.pm
 lib/Slovo/Controller/Auth.pm
 lib/Slovo/Controller/Celini.pm
@@ -135,6 +140,9 @@ t/005_site.t
 t/006_api.t
 t/007_domove.t
 t/008_first_login.t
+t/009_cgi_script.t
+t/010_a2htaccess.t
+t/011_novy_dom.t
 t/data/images/node.png
 t/data/images/perl.gif
 t/data/images/perl6.jpeg

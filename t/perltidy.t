@@ -16,7 +16,7 @@ Test::PerlTidy::run_tests(
 
   #debug      => 1,
   path       => $ROOT,
-  exclude    => ['blib/', 'data/', 'lib/perl5/', 'domove'],
+  exclude    => ['local/', 'blib/', 'data/', 'lib/perl5/', 'domove'],
   perltidyrc => "$ROOT/.perltidyrc"
 );
 

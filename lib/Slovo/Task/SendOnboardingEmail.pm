@@ -102,9 +102,8 @@ my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
   $app->minion->enqueue(
     delete_first_login => [$to_user->{id}, $token] => {delay => $CONF->{token_valid_for}}
   );
-  $job->finish('Писмото за първo влизане в '
-      . $domain
-      . ' до '
+  return $job->finish('Писмото за първo влизане в '
+      . $domain . ' до '
       . $to_user->{first_name} . ' '
       . $to_user->{last_name}
       . ' бе успешно изпратено!');
@@ -118,7 +117,7 @@ my sub _delete_first_login ($job, $uid, $token) {
 
   # also delete expired but not deleted (for any reason) login tokens.
   $app->dbx->db->delete('first_login' => {stop_date => {'<' => time}});
-  $job->finish;
+  return $job->finish;
 };
 
 sub register ($self, $app, $conf) {

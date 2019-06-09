@@ -1,4 +1,3 @@
-# Avoid version control files.
 \bRCS\b
 \bCVS\b
 \bSCCS\b
@@ -35,7 +34,7 @@
 # Avoid this file
 ^MANIFEST\.SKIP
 
-# Avoid temp and backup files.
+# Avoid temp, generated and backup files.
 ~$
 \.old$
 \#$
@@ -51,8 +50,11 @@
 ^domove\/(?!localhost)
 ^log\/
 ^data\/
+^local\/
 ^slovo.conf
 ^slovo.+\.conf
+^.+\.cgi
+
 # Avoid OS-specific files/dirs
 # Mac OSX metadata
 \B\.DS_Store

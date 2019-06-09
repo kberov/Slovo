@@ -16,7 +16,7 @@
 -sac     # --stack-all-containers is an abbreviation for -sot -sct.
 -wn      # --weld-nested-containers
 -nst     # --nostandard-output
-#-utf8    # Encoding of both the input and output character streams
+-utf8    # Encoding of both the input and output character streams
 -b       # Modify files in place
 -bext='/' # and delete the originals if there are no error.
 -nbl     # Opening brace on the same line as the keyword introducing it

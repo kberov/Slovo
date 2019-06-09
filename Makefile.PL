@@ -11,41 +11,39 @@ my $git_url     = 'https://github.com/kberov/Slovo';
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
   'Class::Method::Modifiers'            => '2.12',
-  'Cpanel::JSON::XS'                    => '4.08',
+  'Cpanel::JSON::XS'                    => '4.09',
   'Minion::Backend::SQLite'             => '4.002',
   'Mojo::SQLite'                        => '3.001',
   'Mojolicious'                         => '8.12',
-  'Mojolicious::Plugin::PODViewer'      => '0.002',
+  'Mojolicious::Plugin::PODViewer'      => '0.004',
   'Mojolicious::Plugin::Authentication' => '1.32',
-  'Mojolicious::Plugin::OpenAPI'        => '2.00',
-  'Mojolicious::Plugin::PODViewer'      => '0.002',
+  'Mojolicious::Plugin::OpenAPI'        => '2.12',
   'Mojolicious::Plugin::RoutesConfig'   => '0.05',
   'Net::SMTP'                           => '3.11',
   'Role::Tiny'                          => '2.000006',
-  'EV'                                  => '4.22'
+  'EV'                                  => '4.25'
 };
 
 if ($ENV{TEST_AUTHOR}) {
   $PREREQ_PM = {
     %$PREREQ_PM,
-    'Test::Pod'           => '1.52',
-    'Test::Perl::Critic'  => '1.04',
-    'Perl::Critic'        => '1.132',
-    'Test::CheckManifest' => '1.33',
-    'Test::PerlTidy'      => '20130104'
+    'Test::Pod'          => '1.52',
+    'Test::Perl::Critic' => '1.04',
+    'Perl::Critic'       => '1.132',
+    'Test::PerlTidy'     => '20130104'
   };
 }
 
 WriteMakefile(
-  NAME          => 'Slovo',
-  VERSION_FROM  => $module_file,                                     # finds \$VERSION
-  AUTHOR        => 'Красимир Беров (berov@cpan.org)',
-  ABSTRACT_FROM => $module_file,
-  LICENSE       => 'artistic_2',
-  PREREQ_PM     => $PREREQ_PM,
-  TEST_REQUIRES => {},
-  test          => {TESTS => 't/*.t'},
-  EXE_FILES     => ['script/slovo'],
+  NAME             => 'Slovo',
+  VERSION_FROM     => $module_file,
+  AUTHOR           => 'Красимир Беров (berov@cpan.org)',
+  ABSTRACT_FROM    => $module_file,
+  LICENSE          => 'artistic_2',
+  PREREQ_PM        => $PREREQ_PM,
+  TEST_REQUIRES    => {},
+  test             => {TESTS => 't/*.t'},
+  EXE_FILES        => ['script/slovo'],
   clean            => {FILES => '*.conf Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
   MIN_PERL_VERSION => '5.020000',
   META_MERGE       => {
@@ -102,9 +100,19 @@ Install
     perl Makefile.PL INSTALL_BASE=$INSTALL_BASE && make && make test && make install \
     && $INSTALL_BASE/bin/slovo
 
-Start the server and open a browser
+Start the development server and open a browser
 
-    $ daemon -l http://*:8080 & sleep 1 exo-open http://localhost:8080
+    $ morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
+
+Start the production server
+
+    $ hypnotoad script/slovo
+    # you will see something like the following:
+    [2019-02-24 19:38:08.69754] [13570] [info] Listening at "http://127.0.0.1:9090"
+    Server available at http://127.0.0.1:9090
+    [2019-02-24 19:38:08.69804] [13570] [info] Listening at "http://[::1]:9090"
+    Server available at http://[::1]:9090
+
 
 Build Makefile even directly in vim
 

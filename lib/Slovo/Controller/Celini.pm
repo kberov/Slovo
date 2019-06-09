@@ -11,12 +11,8 @@ my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to(
-    'цѣлина_с_ѩꙁыкъ' => {
-      'цѣлина'     => $celina->{alias},
-      'страница' => $page->{alias},
-      'ѩꙁыкъ'      => $l
-    });
+  return $c->redirect_to('цѣлина_с_ѩꙁыкъ' =>
+      {'цѣлина' => $celina->{alias}, 'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
 };
 
 # Prepares collection of parent ids of celiny in which a celina can be put.
@@ -293,8 +289,7 @@ sub _validation($c) {
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
-    ->in(
-    qw(main главна top горѣ left лѣво right дѣсно bottom долу));
+    ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
   $v->optional('language', 'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured', 'trim')->in(1, 0);

@@ -7,10 +7,8 @@ unless ($ENV{TEST_AUTHOR}) {
   plan(skip_all => 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.');
 }
 
-my $min_tcm = 0.9;
-eval "use Test::CheckManifest $min_tcm";
-plan skip_all => "Test::CheckManifest $min_tcm required" if $@;
-
-ok_manifest();
+require ExtUtils::Manifest;
+is_deeply [ExtUtils::Manifest::manicheck()], [], 'missing';
+is_deeply [ExtUtils::Manifest::filecheck()], [], 'extra';
 
 done_testing();

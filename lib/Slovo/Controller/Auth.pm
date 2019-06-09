@@ -27,7 +27,7 @@ sub sign_in($c) {
 
   #1. do basic validation first
   my $v = $c->validation;
-  $v->required('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{4,12}$/x);
+  $v->required('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{3,12}$/x);
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
 
   if ($v->csrf_protect->has_error('csrf_token')) {
@@ -55,9 +55,7 @@ sub sign_in($c) {
       : 'home_upravlenie');
     return $c->redirect_to(ref($route) ? %$route : $route);
   }
-  $c->stash(sign_in_error =>
-      'Няма такъв потребител или ключът ви е грешен.'
-  );
+  $c->stash(sign_in_error => 'Няма такъв потребител или ключът ви е грешен.');
   return $c->render('auth/form');
 }
 
@@ -84,8 +82,7 @@ sub under_management($c) {
   # for now only admins can manage groups and domains
   if ($route =~ /groups|domove$/) {
     $c->flash(message => 'Само управителите се грижат'
-        . ' за множествата от потребители и домейните.'
-    );
+        . ' за множествата от потребители и домейните.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -98,8 +95,7 @@ sub under_management($c) {
     && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
   {
     $c->flash(
-      message => 'Само управителите на сметки могат да '
-        . 'променят чужда сметка.');
+      message => 'Само управителите на сметки могат да ' . 'променят чужда сметка.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -112,9 +108,7 @@ sub under_minion($c) {
 
   # TODO: make the group configurable
   unless ($c->groups->is_admin($c->user->{id})) {
-    $c->flash(message =>
-        'Само управителите могат да управляват задачите.'
-    );
+    $c->flash(message => 'Само управителите могат да управляват задачите.');
     $c->redirect_to('home_upravlenie');
     return 0;
   }
@@ -149,7 +143,7 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
     my $row = $c->dbx->db->select(
       passw_login => 'token',
       {start_date => {'<=' => $t}, to_uid => $u->{id}, stop_date => {'>' => $t}},
-      {-desc      => ['id']})->hash;
+      {-desc => ['id']})->hash;
     my $checksum2 = sha1_sum(
       $csrf_token . sha1_sum(encode('UTF-8' => $u->{login_name} . $row->{token})));
     if ($row && ($checksum2 eq $csrf_digest)) {
@@ -171,9 +165,7 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
   return $u->{id};
 }
 
-my $msg_expired_token
-  = 'Връзката, която ви доведе тук, е с изтекла годност.'
-  . '';
+my $msg_expired_token = 'Връзката, която ви доведе тук, е с изтекла годност.' . '';
 
 # GET /първи-входъ/<token:fl_token>
 # GET /първи-входъ/32e36608c72bc51c7c39a72fd7e71cba55f3e9ad
@@ -219,11 +211,9 @@ sub first_login($c) {
     ) eq $token
   );
   unless ($ok) {
-    $c->stash(
-          error_message => 'Моля, въведете имената на човека,'
+    $c->stash(error_message => 'Моля, въведете имената на човека,'
         . ' създал вашата сметка, както са изписани в'
-        . ' електроннто съобщение с препратката за първо влизане.'
-    );
+        . ' електроннто съобщение с препратката за първо влизане.');
     return $c->render(template => 'auth/first_login_form', row => $row);
   }
   if ($INC{'Slovo/Task/SendOnboardingEmail.pm'}) {
