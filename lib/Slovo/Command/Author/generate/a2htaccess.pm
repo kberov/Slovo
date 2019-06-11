@@ -171,20 +171,22 @@ Options +Indexes +FollowSymLinks +ExecCGI
 </Files>
 
 # Make Slovo handle any 404 errors.
-ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>
+ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>%{REQUEST_URI}
 DirectoryIndex /<%=$moniker%>/<%=$cgi_script%>
 
 # Some more security. Redefine the mime type for the most common types of scripts
 AddType text/plain .shtml .php .php3 .phtml .phtm .pl .py
 
 #<IfModule mod_rewrite.c>
-#  RewriteEngine on
-#  # Make sure Authorization HTTP header is available to Slovo
-#  # even when running as CGI or FastCGI.
-#  # RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-#
-#  # Block access to "hidden" directories whose names begin with a period.
-#  RewriteRule "(^|/)\." - [F]
+  RewriteEngine on
+  RewriteBase /
+
+  # Make sure Authorization HTTP header is available to Slovo
+  # even when running as CGI or FastCGI.
+  RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # Block access to "hidden" directories whose names begin with a period.
+  RewriteRule "(^|/)\." - [F]
 #
 #  # To redirect all users to access the site WITHOUT the 'www.' prefix,
 #  # (http://www.example.com/... will be redirected to http://example.com/...)
@@ -192,19 +194,25 @@ AddType text/plain .shtml .php .php3 .phtml .phtm .pl .py
 #  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 #  RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [L,R=301]
 #
-#  # Redirect all requests for Slovo static files to public/ directory.
-#  RewriteCond %{REQUEST_FILENAME} !-f
-#  RewriteCond %{REQUEST_FILENAME} !-d
-#  RewriteRule ^((css|doc|fonts|img|js|vendor|favicon|index)\b.*)$  /<%=$moniker%>/domove/%{HTTP_HOST}/public/$1 [L]
-#  RewriteRule ^(.*\.html)$  /<%=$moniker%>/domove/%{HTTP_HOST}/public/cached/$1 [L]
-#
+  # Redirect all requests for Slovo static files to respective domain's public/ directory.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteRule ^((css|doc|fonts|img|js|vendor|favicon|index)\b.*)$  /<%=$moniker%>/domove/%2/public/$1 [L]
+
+  #слово.бг/ѿносно.bg-bg.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteRule ^([^/]*\.html)$  /<%=$moniker%>/domove/%2/public/cached/$1 [L]
+
 #  # If your site is running in a VirtualDocumentRoot at http://example.com/,
 #  # use the following line:
 #  RewriteBase /
 #
 #  RewriteCond %{REQUEST_FILENAME} !-f
 #  RewriteCond %{REQUEST_FILENAME} !-d
-#  RewriteRule (.*) /<%=$moniker%><%=$cgi_script%>/$1 [L]
-#
-#</IfModule>
+#  RewriteRule (.*) /<%=$moniker%>/<%=$cgi_script%>/$1 [L]
+
+</IfModule>
 
