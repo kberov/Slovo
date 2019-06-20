@@ -46,13 +46,14 @@ sub run ($self, @args) {
     say "Owner is '$owner'.";
   }
 
+  my $default_aliases = join(',', map {"$_.$name"} qw(www dev qa));
   unless ($aliases) {
-    $aliases = join ',', map {"$_.$name"} (qw(www dev qa));
+    $aliases = $default_aliases;
     say 'Assuming domain aliases: ' . $aliases;
   }
   else {
     $aliases =~ s/\s+//g;
-    $aliases = join(', ', split /\,/, $aliases);
+    $aliases = join(', ', split(/\,/, $aliases), $default_aliases);
     say 'Domain aliases: ' . $aliases;
   }
 
