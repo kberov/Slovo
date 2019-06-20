@@ -10,7 +10,8 @@ has description => 'Generate a .htaccess file for running Slovo under Apache 2/C
 has usage       => sub { shift->extract_usage };
 
 sub run ($self, @args) {
-    #TODO: Add option for common aliases to be taken into account when writing
+
+  #TODO: Add option for common aliases to be taken into account when writing
   getopt \@args,
 
     'r|docroot=s'    => \(my $docroot    = ''),
@@ -34,7 +35,8 @@ sub run ($self, @args) {
   my $cgi_file;
   unless ($cgi_script) {
     $cgi_script = $app->moniker . '\.cgi';
-    $cgi_file   = $home->list_tree({max_depth => 1})->first(qr/$cgi_script$/)||$cgi_script;
+    $cgi_file
+      = $home->list_tree({max_depth => 1})->first(qr/$cgi_script$/) || $cgi_script;
     say 'Assuming CGI script: ' . $cgi_file;
   }
   else { $cgi_file = $cgi_script; }
@@ -130,8 +132,8 @@ __DATA__
 # make sure to test locally first.
 
 
-# Uncomment the following line when going live or modify the generated
-# slovo.cgi to set $ENV{MOJO_MODE}.
+# Uncomment the following line when going live or regenerate slovo.cgi:
+# slovo generate cgi_script -f slovo.cgi -m production
 # SetEnv HTTP_MOJO_MODE production
 
 # use utf-8 encoding for anything served text/plain or text/html
@@ -175,38 +177,41 @@ Options -Indexes +FollowSymLinks +ExecCGI
 # Some more security. Redefine the mime type for the most common types of scripts
 AddType text/plain .shtml .php .php3 .phtml .phtm .pl .py
 
-#<IfModule mod_rewrite.c>
-#  RewriteEngine on
-#  RewriteBase /
-#
-#  # Do not apply rules when requesting "favicon.ico"
-#  RewriteCond %{REQUEST_FILENAME} favicon.ico [NC]
-#  RewriteRule .* - [S=14]
-#<% if ($app->mode =~/^prod/) { %>
-#  # ONLY on production: To redirect all users to access the site WITHOUT the
-#  # '(www|qa|dev).' prefix and switch ON SSL (http://www.example.com/... will
-#  # be redirected to http://example.com/...) uncomment the following:
-#  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
-#  RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [NE,L,R=301]
-#<% } %>
-#
-#  # Redirect all requests for Slovo static files to respective domain's public/ directory.
-#  # /css/fonts.css -> /domove/t.com/public/css/fonts.css
-#  RewriteCond %{REQUEST_FILENAME} !-f
-#  RewriteCond %{REQUEST_FILENAME} !-d
-#  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
-#  RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%2/public/$1 [NE,END]
-#
-#  #t.com/about-en-us.html -> t.com/domove/t.com/public/cached/about-en-us.html
-#  RewriteCond %{REQUEST_FILENAME} !-f
-#  RewriteCond %{REQUEST_FILENAME} !-d
-#  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
-#  RewriteRule ^(.+(?!\.cgi).+\.html)$  /<%=$moniker%>/domove/%2/public/cached/$1 [NS,NE,END]
-#
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteBase /
+
+  # Do not apply rules when requesting "favicon.ico"
+  RewriteCond %{REQUEST_FILENAME} favicon.ico [NC]
+  RewriteRule .* - [L,NE]
+  # Do not apply rules when requesting "<%=$cgi_script%>"
+  RewriteCond %{SCRIPT_FILENAME} <%=$cgi_script%> [NC]
+  RewriteRule .* - [L,NE]
+<% if ($app->mode =~/^prod/) { %>
+  # ONLY on production: To redirect all users to access the site WITHOUT the
+  # '(www|qa|dev).' prefix and switch ON SSL (http://www.example.com/... will
+  # be redirected to http://example.com/...) uncomment the following:
+  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [NE,L,R=301]
+<% } %>
+
+  # Redirect all requests for Slovo static files to respective domain's public/ directory.
+  # /css/fonts.css -> /domove/t.com/public/css/fonts.css
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%2/public/$1 [NE,END]
+
+  #t.com/about-en-us.html -> t.com/domove/t.com/public/cached/about-en-us.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteRule ^(.+(?!\.cgi).+\.html)$  /<%=$moniker%>/domove/%2/public/cached/$1 [NS,NE,END]
+
 #  RewriteCond %{REQUEST_FILENAME} !-f
 #  RewriteCond %{REQUEST_FILENAME} !-d
 #  RewriteRule (.+(?!\.cgi).+) /<%=$moniker%>/<%=$cgi_script%>/$1 [L,NE]
-#</IfModule>
+</IfModule>
 #
 # Make Slovo handle any 404 errors.
 ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>%{REQUEST_URI}

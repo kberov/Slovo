@@ -53,7 +53,7 @@ sub startup($app) {
 }
 
 sub _before_dispatch($c) {
-  state $u           = $c->users->find_by_login_name('guest');
+  state $guest       = $c->users->find_by_login_name('guest');
   state $auth_config = c(@{$c->config('plugins')})->first(sub {
     ref $_ eq 'HASH' and exists $_->{Authentication};
   });
@@ -62,10 +62,40 @@ sub _before_dispatch($c) {
   unless ($c->session->{$session_key}) {
 
     #set the guest user as default to always have a user
-    $c->$current_user_fn($u);
+    $c->$current_user_fn($guest);
   }
+  state $CGI_MODE = $ENV{GATEWAY_INTERFACE} = ~/^CGI/;
+  if ($CGI_MODE) {
+    my $path = $c->req->url->path;
+    if ($path->contains('.html')) {
+      $c->debug(
+        'decoded once url.path:' . Mojo::Util::decode('UTF-8', $c->req->url->path));
+    }
+  }
+  _handle_cgi_before_dispatch($c);
   return;
 }
+
+# Apache seems to encode urls conatining azbouka before url ecaping them
+# which is unexpected for Mojo
+sub _handle_cgi_before_dispatch;
+if ($ENV{GATEWAY_INTERFACE} // '' =~ /^CGI/) {
+
+  sub _handle_cgi_before_dispatch ($c) {
+    my $path = $c->req->url->path->to_string // '';
+    if ($path =~ m'%') {
+      $path = Mojo::Util::decode 'UTF-8', Mojo::Util::decode 'UTF-8',
+        Mojo::Util::url_unescape $path;
+      $c->req->url->path(Mojo::Path->new($path));
+      $c->debug('$path: ' => $path);
+    }
+    my $moniker = $c->app->moniker;
+    my $base    = $c->req->url->base =~ s|$moniker/$moniker.cgi||r;
+    $c->req->url->base(Mojo::URL->new($base));
+    return;
+  }
+}
+
 
 # This code is executed on every request, so we try to save as much as possible
 # method calls.
