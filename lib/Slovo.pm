@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.06.09';
+our $VERSION   = '2019.06.23';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -64,38 +64,8 @@ sub _before_dispatch($c) {
     #set the guest user as default to always have a user
     $c->$current_user_fn($guest);
   }
-  state $CGI_MODE = $ENV{GATEWAY_INTERFACE} = ~/^CGI/;
-  if ($CGI_MODE) {
-    my $path = $c->req->url->path;
-    if ($path->contains('.html')) {
-      $c->debug(
-        'decoded once url.path:' . Mojo::Util::decode('UTF-8', $c->req->url->path));
-    }
-  }
-  _handle_cgi_before_dispatch($c);
   return;
 }
-
-# Apache seems to encode urls conatining azbouka before url ecaping them
-# which is unexpected for Mojo
-sub _handle_cgi_before_dispatch;
-if ($ENV{GATEWAY_INTERFACE} // '' =~ /^CGI/) {
-
-  sub _handle_cgi_before_dispatch ($c) {
-    my $path = $c->req->url->path->to_string // '';
-    if ($path =~ m'%') {
-      $path = Mojo::Util::decode 'UTF-8', Mojo::Util::decode 'UTF-8',
-        Mojo::Util::url_unescape $path;
-      $c->req->url->path(Mojo::Path->new($path));
-      $c->debug('$path: ' => $path);
-    }
-    my $moniker = $c->app->moniker;
-    my $base    = $c->req->url->base =~ s|$moniker/$moniker.cgi||r;
-    $c->req->url->base(Mojo::URL->new($base));
-    return;
-  }
-}
-
 
 # This code is executed on every request, so we try to save as much as possible
 # method calls.
@@ -109,8 +79,8 @@ sub _around_dispatch ($next, $c) {
   eval { $dom = $c->domove->find_by_host($c->host_only) }
     || die 'No such Host ('
     . $c->host_only
-    . ')! Looks like a Proxy Server misconfiguration'
-    . " or a missing domain alias in table domove.\n";
+    . ')! Looks like a Proxy Server misconfiguration, readonly'
+    . " database file or a missing domain alias in table domove.\n";
 
   # Use domain specific public and templates' paths with priority.
   unshift @{$s_paths}, "$droot/$dom->{domain}/public";
@@ -263,7 +233,7 @@ with nice core features like:
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
-cheap shared hosting and blogging – WIP
+cheap shared hosting and blogging – BETA
 
 =item Multi-domain support - DONE;
 

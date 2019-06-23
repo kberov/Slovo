@@ -29,7 +29,7 @@ with nice core features like:
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
-cheap shared hosting and blogging – WIP
+cheap shared hosting and blogging – BETA
 
 =item Multi-domain support - DONE;
 

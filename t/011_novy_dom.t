@@ -8,7 +8,7 @@ use Mojo::Util qw(decode);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # from => to
- "$Bin/.." => '/home/berov/opt/t.com/slovo',
+# "$Bin/.." => '/home/berov/opt/t.com/slovo',
 # 0777
 )->new('Slovo');
 my $app     = $t->app;
@@ -41,7 +41,7 @@ subtest 'Default values' => sub {
 
 # Custom values
 subtest 'Domain name' => sub {
-$buffer = '';
+  $buffer = '';
   {
     open my $handle, '>', \$buffer;
     local *STDOUT = $handle;

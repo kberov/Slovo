@@ -27,6 +27,7 @@ lib/Slovo/Model/Domove.pm
 lib/Slovo/Model/Groups.pm
 lib/Slovo/Model/Stranici.pm
 lib/Slovo/Model/Users.pm
+lib/Slovo/Plugin/CGI.pm
 lib/Slovo/Plugin/DefaultHelpers.pm
 lib/Slovo/Plugin/MojoDBx.pm
 lib/Slovo/Plugin/TagHelpers.pm
@@ -143,6 +144,7 @@ t/008_first_login.t
 t/009_cgi_script.t
 t/010_a2htaccess.t
 t/011_novy_dom.t
+t/012_cgi_hosting.t
 t/data/images/node.png
 t/data/images/perl.gif
 t/data/images/perl6.jpeg

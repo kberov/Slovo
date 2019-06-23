@@ -177,42 +177,48 @@ Options -Indexes +FollowSymLinks +ExecCGI
 # Some more security. Redefine the mime type for the most common types of scripts
 AddType text/plain .shtml .php .php3 .phtml .phtm .pl .py
 
+# Make Slovo serve as DirectoryIndex and handle any 404 errors.
+DirectoryIndex /<%=$moniker%>/<%=$cgi_script%>
+ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
+
 <IfModule mod_rewrite.c>
   RewriteEngine on
   RewriteBase /
 
   # Do not apply rules when requesting "favicon.ico"
   RewriteCond %{REQUEST_FILENAME} favicon.ico [NC]
-  RewriteRule .* - [L,NE]
+  RewriteRule .* - [END]
+
   # Do not apply rules when requesting "<%=$cgi_script%>"
   RewriteCond %{SCRIPT_FILENAME} <%=$cgi_script%> [NC]
-  RewriteRule .* - [L,NE]
+  RewriteRule .* - [NE,END]
+
+  # Redirect all requests for Slovo static files to respective domain's public/ directory.
+  # /css/fonts.css becomes /domove/t.com/public/css/fonts.css
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # Match xn--b1arjbl.xn--90ae out of www.xn--b1arjbl.xn--90ae
+  RewriteCond %{HTTP_HOST} ([\w\-]+.[\w\-]+)$
+  RewriteCond %{DOCUMENT_ROOT}/<%=$moniker%>/domove/%1/public/$1 -f
+  RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%1/public/$1 [NE,END]
+
+  # t.com/about-en-us.html becomes t.com/domove/t.com/public/cached/about-en-us.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_HOST} ([\w\-]+.[\w\-]+)$
+  RewriteCond %{DOCUMENT_ROOT}/<%=$moniker%>/domove/%1/public/cached/$1 -f
+  RewriteRule ^(.+(?!\.cgi).+\.html)$  /<%=$moniker%>/domove/%1/public/cached/$1 [NE,END]
+
 <% if ($app->mode =~/^prod/) { %>
   # ONLY on production: To redirect all users to access the site WITHOUT the
   # '(www|qa|dev).' prefix and switch ON SSL (http://www.example.com/... will
   # be redirected to http://example.com/...) uncomment the following:
-  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
+  RewriteCond %{HTTP_HOST} ^(.+)$ [NC]
   RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [NE,L,R=301]
 <% } %>
 
-  # Redirect all requests for Slovo static files to respective domain's public/ directory.
-  # /css/fonts.css -> /domove/t.com/public/css/fonts.css
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
-  RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%2/public/$1 [NE,END]
-
-  #t.com/about-en-us.html -> t.com/domove/t.com/public/cached/about-en-us.html
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{HTTP_HOST} ^(www|qa|dev)\.(.+)$ [NC]
-  RewriteRule ^(.+(?!\.cgi).+\.html)$  /<%=$moniker%>/domove/%2/public/cached/$1 [NS,NE,END]
-
-#  RewriteCond %{REQUEST_FILENAME} !-f
-#  RewriteCond %{REQUEST_FILENAME} !-d
-#  RewriteRule (.+(?!\.cgi).+) /<%=$moniker%>/<%=$cgi_script%>/$1 [L,NE]
+  RewriteRule ^((?!\.cgi).+(?!\.html))$  /<%=$moniker%>/<%=$cgi_script%>/$1 [QSA,NE,END]
 </IfModule>
-#
-# Make Slovo handle any 404 errors.
-ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>%{REQUEST_URI}
-DirectoryIndex /<%=$moniker%>/<%=$cgi_script%>
+
