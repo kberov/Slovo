@@ -96,13 +96,19 @@ sub _go_to_new_page_url ($c, $page, $l) {
 my $cached    = 'cached';
 my $cacheable = qr/\.html$/;
 
+sub _path_to_file ($c, $url_path) {
+  return path($c->app->static->paths->[0], "$cached/$url_path")
+    if $ENV{GATEWAY_INTERFACE};
+  return path($c->app->static->paths->[0],
+    $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
+}
+
 sub _render_cached_page($c) {
   state $cache_control = $c->app->config('cache_control');
   $c->res->headers->cache_control($cache_control);
-  my $url_path = $c->req->url->path->canonicalize->to_route =~ s/^\///r;
+  my $url_path = $c->req->url->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
-  my $file = path($c->app->static->paths->[0],
-    $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
+  my $file = $c->_path_to_file($url_path);
   return $c->reply->file($file) if -f $file;
   return;
 }
@@ -110,12 +116,10 @@ sub _render_cached_page($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s/^\///r;
+  my $url_path = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
-  my $file = path($c->app->static->paths->[0],
-    $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
+  my $file = $c->_path_to_file($url_path);
   $file->dirname->make_path({mode => oct(700)});
-
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
 }
 

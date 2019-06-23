@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.06.09';
+our $VERSION   = '2019.06.23';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -53,7 +53,7 @@ sub startup($app) {
 }
 
 sub _before_dispatch($c) {
-  state $u           = $c->users->find_by_login_name('guest');
+  state $guest       = $c->users->find_by_login_name('guest');
   state $auth_config = c(@{$c->config('plugins')})->first(sub {
     ref $_ eq 'HASH' and exists $_->{Authentication};
   });
@@ -62,7 +62,7 @@ sub _before_dispatch($c) {
   unless ($c->session->{$session_key}) {
 
     #set the guest user as default to always have a user
-    $c->$current_user_fn($u);
+    $c->$current_user_fn($guest);
   }
   return;
 }
@@ -79,8 +79,8 @@ sub _around_dispatch ($next, $c) {
   eval { $dom = $c->domove->find_by_host($c->host_only) }
     || die 'No such Host ('
     . $c->host_only
-    . ')! Looks like a Proxy Server misconfiguration'
-    . " or a missing domain alias in table domove.\n";
+    . ')! Looks like a Proxy Server misconfiguration, readonly'
+    . " database file or a missing domain alias in table domove.\n";
 
   # Use domain specific public and templates' paths with priority.
   unshift @{$s_paths}, "$droot/$dom->{domain}/public";
@@ -233,7 +233,7 @@ with nice core features like:
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
-cheap shared hosting and blogging – WIP
+cheap shared hosting and blogging – BETA
 
 =item Multi-domain support - DONE;
 

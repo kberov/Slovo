@@ -1,7 +1,10 @@
 Revision history for Mojolicious application Slovo
 
-2019.06.09
+2019.06.23
+    * Working .htacces file for Apache/CGI
+    * End to end Author tests - 012_cgi_hosting.t
 
+2019.06.09
     - Changes
         * Changed CODENAME to U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)
           This is a major release.

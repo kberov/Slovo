@@ -40,8 +40,8 @@ subtest 'Default values' => sub {
 };
 
 # Custom values
-$buffer = '';
-subtest 'Custom values' => sub {
+subtest 'Domain name' => sub {
+  $buffer = '';
   {
     open my $handle, '>', \$buffer;
     local *STDOUT = $handle;
@@ -50,6 +50,7 @@ subtest 'Custom values' => sub {
     Slovo::Command::Author::generate::cgi_script->new(app => $app)->run;
     require Slovo::Command::Author::generate::a2htaccess;
     Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
+    close $handle;
   }
   note $buffer;
   like $buffer => qr/mkdir.+\/t\.com$/mx                => 'domain folder created';
@@ -58,8 +59,26 @@ subtest 'Custom values' => sub {
   like $buffer => qr/write.+\/t\.com\/.+\/_form\.html/x => 'templates copied';
   like $buffer => qr/write.+\/t\.com\/.+\/fonts.css/x   => 'static files copied';
   like $buffer => qr/"site_name" => "T.COM"/            => 'new domain record';
+  like $buffer => qr/Assuming\sdomain\sal.+dev.t.com/x  => 'default domain prefixes';
   ok($db_file->stat->size > 1, 'database is created on the next run again');
+  is((unlink "$db_file"), 1, 'database removed ');
 };
 
+# Domain Aliases
+#subtest 'Custom aliases' => sub {
+#  $buffer = '';
+#  {
+#    open my $handle, '>', \$buffer;
+#    local *STDOUT = $handle;
+#    $command->run('--name' => 't.com', '--aliases' => 't2.com,t3.com');
+#    require Slovo::Command::Author::generate::cgi_script;
+#    Slovo::Command::Author::generate::cgi_script->new(app => $app)->run;
+#    require Slovo::Command::Author::generate::a2htaccess;
+#    Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
+#  }
+#
+#  like $buffer => qr/mkdir.+\/t\.com$/mx                => 'domain folder created';
+#  like $buffer => qr/Domain\salia.+t2.com.+dev.t.com/x  => 'custom aliases';
+#};
 done_testing;
 

@@ -60,16 +60,17 @@ sub _copy_to ($f, $i, $dir_mode) {
 }
 
 # use this method for the side effect of having a logged in user
-sub login_ok ($t, $login_name = '', $login_password = '') {
+sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
   subtest login_ok => sub {
     my $login_url = $t->app->url_for('sign_in');
 
-    $t->get_ok('/Ꙋправленѥ')->status_is(302)
+    $t->get_ok($host . '/Ꙋправленѥ')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /входъ');
-    $t->get_ok('/входъ')->status_is(200)->text_is('head title' => 'Входъ');
+    $t->get_ok($host . '/входъ')->status_is(200)->text_is('head title' => 'Входъ');
 
-    my $form = $t->fill_in_login_form($login_name, $login_password);
-    my $body = $t->post_ok($login_url, {} => form => $form)->status_is(302)->header_is(
+    my $form = $t->fill_in_login_form($login_name, $login_password, $host);
+    my $body
+      = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)->header_is(
       Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
       'Location: /Ꙋправленѥ'
     )->content_is('', 'empty content')->tx->res->body;
@@ -78,10 +79,10 @@ sub login_ok ($t, $login_name = '', $login_password = '') {
   return $t;
 }
 
-sub fill_in_login_form ($t, $login_name = '', $login_password = '') {
+sub fill_in_login_form ($t, $login_name = '', $login_password = '', $host = '') {
   $login_name     ||= $t->login_name;
   $login_password ||= $t->login_password;
-  my $csrf_token = $t->ua->get($t->app->url_for('sign_in'))
+  my $csrf_token = $t->ua->get($host . $t->app->url_for('sign_in'))
     ->res->dom->at('#sign_in [name="csrf_token"]')->{value};
 
   return {
