@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2019.07.07
+    * Fixed wrong url in sidedrawer menu.
+    * Fixed bug in language menu.
+    * Slightly improved .htacces.
+    * More logging for successful and unsuccesful authentication.
+    * Less debug messages.
+
 2019.06.23
     * Working .htacces file for Apache/CGI
     * End to end Author tests - 012_cgi_hosting.t

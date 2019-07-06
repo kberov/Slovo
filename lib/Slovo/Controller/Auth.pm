@@ -131,7 +131,8 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
   state $log = $app->log;
   my $u = $c->users->find_by_login_name($login_name);
   if (!$u) {
-    $log->error("Error signing in user [$login_name]: No such user!");
+    $log->error("Error signing in user [$login_name]: "
+        . "No such user or user disabled, or stop_date < now!");
     return;
   }
   my $csrf_token = $c->csrf_token;
@@ -156,8 +157,9 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
       $c->stash(passw_login => 1);
       return $u->{id};
     }
-    $log->error(
-      "Error signing in user [$u->{login_name}]: unless ($checksum eq $csrf_digest)");
+    $log->error("Error signing in user [$u->{login_name}]:"
+        . "\$csrf_token:$csrf_token|\$checksum:$checksum \$csrf_digest:$csrf_digest)");
+    $log->error('$checksum:sha1_sum($csrf_token . $u->{login_password}) ne $csrf_digest');
     return;
   }
   $log->info('$user ' . $u->{login_name} . ' logged in!');

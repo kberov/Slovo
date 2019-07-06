@@ -1,9 +1,10 @@
 <%
-#List of titles in other languages for the current page.
-my $langs = $c->stranici->languages($page->{alias}, $user, $preview)
+# List of languages for the current page content.
+my $langs = $c->stranici->languages($page, $user, $preview)
   ->sort(sub { ($a->{language} eq $ѩꙁыкъ) <=> ($b->{language} eq $ѩꙁыкъ) });
 return if @$langs == 1;
-#get the current language
+
+# get the current language
 my $current = pop @$langs;
 %>
 

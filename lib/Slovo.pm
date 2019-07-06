@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.06.23';
+our $VERSION   = '2019.07.07';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -136,8 +136,8 @@ sub _load_pugins($app) {
   push @$plugins, qw(DefaultHelpers TagHelpers);
   foreach my $plugin (@$plugins) {
     my $name = (ref $plugin ? (keys %$plugin)[0] : $plugin);
-    $app->log->debug('Loading Plugin ' . $name);
 
+    # $app->log->debug('Loading Plugin ' . $name);
     # some plugins return $self and we are going to abuse this.
     my $plug;
     if (ref $plugin eq 'HASH') {
@@ -194,7 +194,8 @@ sub _add_media_types($app) {
 
 sub load_class ($app, $class) {
   state $log = $app->log;
-  $log->debug("Loading $class");
+
+  # $log->debug("Loading $class");
   if (my $e = Mojo::Loader::load_class $class) {
     Carp::croak ref $e ? "Exception: $e" : "$class - Not found!";
   }

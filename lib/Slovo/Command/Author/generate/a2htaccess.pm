@@ -190,7 +190,7 @@ ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
   RewriteRule .* - [END]
 
   # Do not apply rules when requesting "<%=$cgi_script%>"
-  RewriteCond %{SCRIPT_FILENAME} <%=$cgi_script%> [NC]
+  RewriteCond %{SCRIPT_NAME} /<%=$moniker%>/<%=$cgi_script%> [NC]
   RewriteRule .* - [NE,END]
 
   # Redirect all requests for Slovo static files to respective domain's public/ directory.

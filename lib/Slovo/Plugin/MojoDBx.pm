@@ -11,7 +11,8 @@ sub register ($self, $app, $conf) {
     '"adaptor" is a mandatory option! ' . 'Please use one of "SQLite", "Pg" or "mysql"!');
   my $adaptor_class = "Mojo::$conf->{adaptor}";
   my $log           = $app->log;
-  $log->debug("Loading $adaptor_class");
+
+  #$log->debug("Loading $adaptor_class");
   $app->load_class("Mojo::$conf->{adaptor}");    # or Mojo::Pg, or Mojo::Mysql
       # This should not be an option. Must be always 'dbx'.
   my $helper = $conf->{helper} // 'dbx';
@@ -103,7 +104,7 @@ Slovo::Plugin::MojoDBx - switch between Mojo::Pg/mysql/SQLite
       # Which helpers for Models to load:
       # Slovo::Model::Users,Slovo::Model::Groups... etc.
       tables => ['users', 'groups', 'domove', 'stranici', 'celini'],
-               }
+    }
    },
   #... Other plugins
   ],
