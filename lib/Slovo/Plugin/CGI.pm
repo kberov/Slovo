@@ -22,10 +22,12 @@ sub _handle_cgi ($c) {
 
   #no path merging
   $url->path($path =~ m'^/' ? $path : "/$path");
-  $c->debug('$path: ' => $path);
+
+  #$c->debug('$path: ' => $path);
   my $base = $url->base =~ s|$ENV{SCRIPT_NAME}||r;
   $url->base(Mojo::URL->new($base));
-  $c->debug("\$base: $base");
+
+  #$c->debug("\$base: $base");
   return;
 }
 

@@ -12,7 +12,7 @@ $list->map(sub {
   if ($_->{is_dir}) {
     $expander_link = link_to
       '☰' =>
-      url_for('api_list_stranici')->query(pid => $_->{id}, 'ѩꙁыкъ' => $_->{language}),
+      url_for('/api/страници')->query(pid => $_->{id}, 'ѩꙁыкъ' => $_->{language}),
       (class => 'folder-expander mui--pull-right');
     return t li => sub {
       t strong => sub { $link . ' ' . $expander_link }

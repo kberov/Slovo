@@ -308,12 +308,12 @@ SQL
 
 # Returns list of languages for this page in which we have readable by the
 # current user content.
-# Arguments: Current page alias, user, preview mode or not.
-sub languages ($m, $alias, $u, $prv) {
-  my $db = $m->dbx->db;
-
+# Arguments: Current page, user, preview mode or not.
+sub languages ($m, $p, $u, $prv) {
+  my $db    = $m->dbx->db;
   my $where = {
-    page_id   => \["=(SELECT id FROM $table WHERE alias=?)", $alias],
+    page_id =>
+      \["=(SELECT id FROM $table WHERE alias=? AND dom_id=?)", $p->{alias}, $p->{dom_id}],
     data_type => 'заглавѥ',
     box       => ['main', 'главна'],
 
@@ -326,5 +326,5 @@ sub languages ($m, $alias, $u, $prv) {
     $where, {-asc => [qw(sorting id)]})->hashes;
 }
 
-
 1;
+
