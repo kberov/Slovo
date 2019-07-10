@@ -1,5 +1,8 @@
 Revision history for Mojolicious application Slovo
 
+2019.07.10
+    * Added new options --skip and --refresh to command novy_dom.
+
 2019.07.07
     * Fixed wrong url in sidedrawer menu.
     * Fixed bug in language menu.

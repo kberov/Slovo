@@ -52,7 +52,8 @@ subtest 'Domain name' => sub {
     Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
     close $handle;
   }
-  note $buffer;
+
+  # note $buffer;
   like $buffer => qr/mkdir.+\/t\.com$/mx                => 'domain folder created';
   like $buffer => qr/mkdir.+\/t\.com\/public/x          => 'public folder created';
   like $buffer => qr/mkdir.+\/t\.com\/templates/x       => 'templates folder created';
@@ -65,20 +66,48 @@ subtest 'Domain name' => sub {
 };
 
 # Domain Aliases
-#subtest 'Custom aliases' => sub {
-#  $buffer = '';
-#  {
-#    open my $handle, '>', \$buffer;
-#    local *STDOUT = $handle;
-#    $command->run('--name' => 't.com', '--aliases' => 't2.com,t3.com');
-#    require Slovo::Command::Author::generate::cgi_script;
-#    Slovo::Command::Author::generate::cgi_script->new(app => $app)->run;
-#    require Slovo::Command::Author::generate::a2htaccess;
-#    Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
-#  }
-#
-#  like $buffer => qr/mkdir.+\/t\.com$/mx                => 'domain folder created';
-#  like $buffer => qr/Domain\salia.+t2.com.+dev.t.com/x  => 'custom aliases';
-#};
+subtest 'Custom aliases' => sub {
+  $buffer = '';
+  {
+    open my $handle, '>', \$buffer;
+    local *STDOUT = $handle;
+    $command->run(
+      '--name'    => 't.com',
+      '--aliases' => 't2.com,t3.com',
+      '--skip'    => '\.css$'
+    );
+    require Slovo::Command::Author::generate::cgi_script;
+    Slovo::Command::Author::generate::cgi_script->new(app => $app)->run;
+    require Slovo::Command::Author::generate::a2htaccess;
+    Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
+  }
+
+  like $buffer   => qr/(?:mkdir|exist).+\/t\.com$/mx     => 'domain folder created';
+  like $buffer   => qr/Domain\salia.+t2.com.+dev.t.com/x => 'custom aliases';
+  unlike $buffer => qr/\.css$/ms                         => 'skip ' . $command->skip_qr;
+};
+
+subtest 'Skip and refresh files' => sub {
+
+  $buffer = '';
+  my $command;
+  {
+    open my $handle, '>', \$buffer;
+    local *STDOUT = $handle;
+    $command = $app->commands->run(
+      generate    => 'novy_dom',
+      '--name'    => 't.com',
+      '--skip'    => '\.css$',
+      '--refresh' => 'partials/.+\.ep$'
+    );
+  }
+  like $buffer => qr/unlink.+_beleyazhka\.html\.ep/ => 'unlink ' . $command->refresh_qr;
+  like $buffer => qr/\[write\].+_beleyazhka\.html\.ep/ => 'refresh '
+    . $command->refresh_qr;
+  unlike $buffer => qr/\.css$/ms => 'skip ' . $command->skip_qr;
+
+  # note $buffer;
+  # note '---------------------------';
+};
 done_testing;
 

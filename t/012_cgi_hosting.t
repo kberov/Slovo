@@ -8,13 +8,23 @@ use Mojo::Util qw(decode punycode_decode punycode_encode);
 
 unless ($ENV{SLOVO_DOCUMENT_ROOT} && $ENV{TEST_AUTHOR}) {
   plan(
-    skip_all => '
-Author end to end test. Set $ENV{SLOVO_DOCUMENT_ROOT}, $ENV{SLOVO_DOM},
+    skip_all => qq'
+Author end to end test.
+Set \$ENV{TEST_AUTHOR}, \$ENV{SLOVO_DOCUMENT_ROOT}, \$ENV{SLOVO_DOM}.
+For example:
+    export TEST_AUTHOR=1
     export SLOVO_DOM="xn--b1arjbl.xn--90ae"
-    export SLOVO_DOCUMENT_ROOT="$HOME/opt/$SLOVO_DOM"
-add a record to you /etc/hosts file,
-configure a virtual host in Apache2 with this document root and run this test.
-See example domain configuration at the end of this file.
+    export SLOVO_DOCUMENT_ROOT="\$HOME/opt/\$SLOVO_DOM"
+
+Add a record to your /etc/hosts file, for example:
+127.0.1.1	dev.xn--b1arjbl.xn--90ae www.xn--b1arjbl.xn--90ae qa.xn--b1arjbl.xn--90ae
+
+Configure a virtual host in Apache2 with document root \$SLOVO_DOCUMENT_ROOT
+and run this test.
+NOTE: You may need to use `sudo` to delete existng files created by Apache.
+
+See example domain configuration at the end of this test file:
+${\ __FILE__}.
 '
   );
 }
@@ -45,6 +55,9 @@ my $Deploy = sub {
       '--name'  => $ENV{SLOVO_DOM},
       '--chmod' => 0777
     );
+    $app->commands->run(generate => 'cgi_script');
+    $app->commands->run(generate => 'a2htaccess');
+    note $buffer;
 
     # Only for the purpose of this test! Not in production! Use mod_suexec there.
     # Make sure database file is writable by Apache
@@ -66,7 +79,8 @@ my $Deploy = sub {
   my ($cgi_file) = $buffer =~ m|write.+($install_dir/slovo\.cgi)|;
   ok -f $cgi_file => "$cgi_file exists";
   like $buffer => qr/(?:write|exist).+\/.htaccess/ => '.htaccess created';
-  my ($hta_file) = $buffer =~ /write.+($ENV{SLOVO_DOCUMENT_ROOT}\/.htaccess)/;
+  my ($hta_file)
+    = $buffer =~ m"(?:write|exists)\]\s+($ENV{SLOVO_DOCUMENT_ROOT}/.htaccess)";
   path($hta_file)->chmod(0644);
   ok -f $hta_file => "$hta_file exists";
 };
