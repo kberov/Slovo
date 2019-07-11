@@ -266,7 +266,7 @@ and pages for a new domain
     -c, --chmod   Octal number used as permissions for folders.
                   Defaults to 0700.
     -s, --skip    A regex. The files matching this regex will not be copied
-                  to the doamin folder.
+                  to the domain folder.
     -r, --refresh A regex. Danger! The files matching this regex will be
                   removed, thus allowing files from upgraded Slovo to be copied
                   to the domain folders. This pattern is used after --skip
@@ -295,13 +295,14 @@ security reasons. Set it's stop_date to 0 to prevent this. All
 domain owners become admins. Please keep the number of admins low.
 
 Sometimes you do not want all files to be copied and just use the common files
-provided by Slovo. In this case you can use the C<--skip> option.
+provided by Slovo or you want to make your own layouts, styles etc. In these
+cases you can use the C<--skip> option.
 
 Sometimes after upgrading Slovo to a new version you may want or need to update
 the copied to your domain folder files. In this case you can use the
 C<--refresh> option. Beware that C<novy_dom> will delete all the files matching
-the provided pattern. It is recommended to use some version control system like
-Git for you folder C<domove>.
+the provided pattern. I<It is recommended to use some version control system
+like Git for you folder C<domove> to avoid resetting your files by mistake.>
 
 =head1 ATTRIBUTES
 
