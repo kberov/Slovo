@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2019.07.11
+    * Added new options --skip and --refresh to command novy_dom to easily
+      update domain specific templates after upgrading Slovo.
+    * Improved command a2htaccess and Slovo::Plugin::CGI by adding environment
+      variable REWRITE_ENGINE_ON so the url_base is changed accordingly to
+      .htaccess file.
+
 2019.07.07
     * Fixed wrong url in sidedrawer menu.
     * Fixed bug in language menu.

@@ -6,6 +6,8 @@ no warnings "experimental::lexical_subs";
 use Mojo::Util qw(punycode_decode);
 
 sub register ($self, $app, $config) {
+
+  # Check again if we need this hook at all
   return $self unless $ENV{GATEWAY_INTERFACE};
   $app->hook(before_dispatch => \&_handle_cgi);
   return $self;
@@ -20,14 +22,15 @@ sub _handle_cgi ($c) {
     $path = Mojo::Util::decode 'UTF-8', $path;
   }
 
-  #no path merging
+  # no path merging
   $url->path($path =~ m'^/' ? $path : "/$path");
 
-  #$c->debug('$path: ' => $path);
-  my $base = $url->base =~ s|$ENV{SCRIPT_NAME}||r;
-  $url->base(Mojo::URL->new($base));
+  # no /slovo/slovo.cgi in generated links in the page
+  if ($ENV{REWRITE_ENGINE_ON}) {
+    my $base = $url->base =~ s|$ENV{SCRIPT_NAME}||r;
+    $url->base(Mojo::URL->new($base));
+  }
 
-  #$c->debug("\$base: $base");
   return;
 }
 

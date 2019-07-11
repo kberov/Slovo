@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.07.07';
+our $VERSION   = '2019.07.11';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -46,8 +46,8 @@ sub startup($app) {
   $app->commands->namespaces(
     ['Slovo::Command::Author', 'Slovo::Command', 'Mojolicious::Command']);
   ## no critic qw(Subroutines::ProtectPrivateSubs)
-  $app->hook(before_dispatch => \&_before_dispatch);
   $app->hook(around_dispatch => \&_around_dispatch);
+  $app->hook(before_dispatch => \&_before_dispatch);
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
   return $app;
 }

@@ -37,7 +37,8 @@ available by default in Mojolicious.
 =head1 ATTRIBUTES
 
 L<Slovo::Command::Author::generate> inherits all attributes from
-L<Mojolicious::Commands> and implements the following new ones.
+L<Mojolicious::Command::Author::generate> and implements the following new
+ones.
 
 =head2 description
 
