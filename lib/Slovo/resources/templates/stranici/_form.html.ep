@@ -166,7 +166,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
                 %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
-              %= select_box language => [map {[$_=>$_]} @$languages] => (label =>'Ѩꙁыкъ')
+              %= select_box language => $languages->map(sub {[$_=>$_]}) => (label =>'Ѩꙁыкъ')
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
                 <%=

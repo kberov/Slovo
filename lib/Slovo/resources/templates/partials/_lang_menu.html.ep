@@ -1,7 +1,8 @@
 <%
 # List of languages for the current page content.
+my $l = language;
 my $langs = $c->stranici->languages($page, $user, $preview)
-  ->sort(sub { ($a->{language} eq $ѩꙁыкъ) <=> ($b->{language} eq $ѩꙁыкъ) });
+  ->sort(sub { ($a->{language} eq $l) <=> ($b->{language} eq $l) });
 return if @$langs == 1;
 
 # get the current language

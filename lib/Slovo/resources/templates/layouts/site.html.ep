@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-%= t html => (lang => $ѩꙁыкъ) => begin
+%= t html => (lang => language) => begin
     %= include 'partials/_head'
     %= t body => (class => 'hide-sidedrawer') => begin
     %= include 'partials/_header'

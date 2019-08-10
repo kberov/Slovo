@@ -24,13 +24,13 @@ layout 'site',
 my $opts = {
   stranici_opts => {columns => $list_columns, pid => $page->{id},},
   celini_opts => {order_by => {-desc => [qw(featured created_at)]}, limit => 6}};
-my $pages = stranici->all_for_home($user, $domain, $preview, $ѩꙁыкъ, $opts);
+my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 
 %>
 <% for my $p (@$pages) { %>
 <section class="множество" id="страница-<%= $p->{id} %>">
     <h1 class="mui--text-dark">
-%= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ѩꙁыкъ => $ѩꙁыкъ}
+%= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ѩꙁыкъ => language}
     </h1>
     % for my $писанѥ (@{$p->{articles}}) {
     %= include 'partials/_pisanie_otkysy' => (p=>$p,писанѥ => $писанѥ);

@@ -374,7 +374,7 @@ addition has to find the specific celina to render.
 
 To the wrapped methods are passed the parameters C<$page, $user, $language,
 $preview>.  C<$page> is the current page with the заглавѥ celina in the current
-$ѩꙁыкъ.  C<$user> is the current user. C<$language> is the current C<$ѩꙁыкъ>.
+language.  C<$user> is the current user. C<$language> is C<$c->language>.
 C<$preview>  is a boolean value - true if the current request is just a preview.
 In preview mode C<permissions> and C<published> columns of the records in the
 database are not respected.

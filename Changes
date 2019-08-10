@@ -1,5 +1,13 @@
 Revision history for Mojolicious application Slovo
 
+2019.08.18
+    * Updated Trumbowyg to version 2.18.
+    * Fixed a bug in helper 'language'. It was returning an arbitrary language
+      abbreviation.
+    * Added helper 'languages'.
+    * Added a 'cach all route', displaying 'Page Not Found!'.
+
+
 2019.07.11
     * Added new options --skip and --refresh to command novy_dom to easily
       update domain specific templates after upgrading Slovo.

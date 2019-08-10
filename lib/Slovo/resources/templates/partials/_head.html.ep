@@ -1,6 +1,6 @@
 <%
 Mojo::Util->import(qw(decode url_unescape));
-my $url = url_for({ѩꙁыкъ => $ѩꙁыкъ});
+my $url = url_for({ѩꙁыкъ => language});
 my $cn_href
   = ($url->scheme // '') . '//'
   . ihost_only

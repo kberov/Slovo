@@ -60,7 +60,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 sub create($c) {
   state $types       = $c->openapi_spec('/parameters/data_type/enum');
   state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $languages   = $c->languages;
   state $permissions = $c->openapi_spec('/parameters/permissions/enum');
 
   my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
@@ -120,7 +120,7 @@ sub store($c) {
 sub edit($c) {
   state $types       = $c->openapi_spec('/parameters/data_type/enum');
   state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $languages   = $c->languages;
   state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $row = $c->celini->find($c->param('id'));
 

@@ -64,7 +64,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'заглавѥ' ? $
               %= t 'div' => (class => 'mui-col-md-4') => begin
               <%=
               select_box
-                language => [map {[$_=>$_]} @$languages],
+                language => $languages->map(sub {[$_=>$_]}),
                 label => 'Ѩꙁыкъ'
               %>
               % end

@@ -28,7 +28,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 sub create($c) {
 
   state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $languages   = $c->languages;
   state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $str    = $c->stranici;
   my $l      = $c->language;
@@ -84,7 +84,7 @@ sub store($c) {
 sub edit($c) {
 
   state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->openapi_spec('/parameters/language/enum');
+  state $languages   = $c->languages;
   state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $str = $c->stranici;
   my $l   = $c->language;
@@ -252,7 +252,7 @@ sub _validation($c) {
   $v->optional('title_id', 'trim')->like(qr/^\d+$/);
 
   state $formats   = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages = $c->openapi_spec('/parameters/language/enum');
+  state $languages = $c->languages;
   $v->required('language',    'trim')->in(@$languages);
   $v->required('data_format', 'trim')->in(@$formats);
   $c->b64_images_to_files('body');

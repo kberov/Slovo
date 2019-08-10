@@ -8,10 +8,10 @@
     %= stylesheet '/minion/fontawesome/fontawesome.css'
     %= javascript '/mojo/jquery/jquery.js'
     %= javascript '/js/mui.min.js'
-    %= javascript '/js/trumbowyg-2.10/trumbowyg.min.js'
-    %= javascript '/js/trumbowyg-2.10/plugins/base64/trumbowyg.base64.min.js'
-    %= javascript '/js/trumbowyg-2.10/langs/bg.min.js'
-    %= stylesheet '/js/trumbowyg-2.10/ui/trumbowyg.min.css'
+    %= javascript '/js/trumbowyg-2.18/trumbowyg.min.js'
+    %= javascript '/js/trumbowyg-2.18/plugins/base64/trumbowyg.base64.min.js'
+    %= javascript '/js/trumbowyg-2.18/langs/bg.min.js'
+    %= stylesheet '/js/trumbowyg-2.18/ui/trumbowyg.min.css'
   % end
   %= t body => begin
     <header class="mui-appbar mui--z1">

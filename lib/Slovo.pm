@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.07.11';
+our $VERSION   = '2019.08.18';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -26,7 +26,8 @@ has resources => sub {
 };
 has validator => sub { Slovo::Validator->new };
 
-# We prefer $MOJO_HOME to be the folder where bin or script resides.
+# We prefer $MOJO_HOME to be the folder where the folders bin or script
+# reside.
 has home => sub {
   if ($ENV{MOJO_HOME}) { return Mojo::Home->new($ENV{MOJO_HOME}); }
   my $r = Mojo::Home->new($INC{class_to_path $CLASS})->dirname->to_abs;
@@ -156,6 +157,7 @@ sub _load_pugins($app) {
         });
     }
   }
+  $app->routes->any('/*страница')->to('stranici#execute')->name('cach_all');
 
   return $app;
 }

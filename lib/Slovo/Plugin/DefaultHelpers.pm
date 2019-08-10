@@ -4,6 +4,7 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 use Mojo::Util qw(punycode_decode);
+use Mojo::Collection 'c';
 
 our $DEV_MODE = ($ENV{MOJO_MODE} || '' =~ /dev/);
 
@@ -26,12 +27,28 @@ sub register ($self, $app, $config) {
     });
 
   # replace is_user_authenticated from M::P::Authentication
+  $app->helper(is_user_authenticated =>
+      sub { !!($_[0]->user && $_[0]->user->{login_name} ne 'guest') });
   $app->helper(
-    is_user_authenticated => sub { $_[0]->user && $_[0]->user->{login_name} ne 'guest' });
+    languages => sub {
+      c(@{$_[0]->openapi_spec('/parameters/language/enum')});
+    });
+  $app->helper(
+    language => sub ($c, $l = '') {
+      if ($l) {
+        $l = $c->languages->first(qr/^$l$/) // $c->languages->first;
+        $c->stash('ѩꙁыкъ', $l);
+        return $c;
+      }
 
-  $app->helper(
-    language => sub {
-      $_[1] ? $_[0]->stash('ѩꙁыкъ' => $_[1]) : $_[0]->stash('ѩꙁыкъ');
+      # language param
+      $l = $c->stash('ѩꙁыкъ');
+
+      #existing language
+      return $l if ($l = $c->languages->first(qr/^$l$/));
+
+      # default language
+      return $c->languages->first;
     });
   $app->helper(debug => \&_debug);
   return $self;
@@ -149,11 +166,18 @@ otherwise.
 
 =head2 language
 
-Wrapper for C<$c-E<gt>stash('ѩꙁыкъ')>, which is set in C<$app-E<gt>defaults>
-in C<slovo.conf>.
+Wrapper for C<$c-E<gt>stash('ѩꙁыкъ')>, which is set in C<$app-E<gt>defaults> in
+C<slovo.conf>. The requested language is also checked if it exists in
+C<$c-E<gt>openapi_spec('/parameters/language/enum')>. The first element from
+this list is returned if the requested language is not found in it. Using
+C<$ѩꙁыкъ>, found in the stash in templates is strongly discouraged.
 
     <%= language eq $ѩꙁыкъ %> <!-- renders 1 -->
     $c->language
+
+=head2 languages
+
+Returns C<$c-E<gt>openapi_spec('/parameters/language/enum')>.
 
 =head1 METHODS
 

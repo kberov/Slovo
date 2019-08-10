@@ -20,7 +20,7 @@
  %# TODO: Add limit and pagination
     <%
     my $celini = celini->all_for_display_in_stranica(
-      $page, $user, $ѩꙁыкъ, $preview,
+      $page, $user, language, $preview,
       {
         where => {
 
