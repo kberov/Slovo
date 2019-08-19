@@ -6,6 +6,9 @@ Revision history for Mojolicious application Slovo
       abbreviation.
     * Added helper 'languages'.
     * Added a 'cach all route', displaying 'Page Not Found!'.
+    * Upgraded to Mojolicious 8.23, Mojo::SQLite 3.002,
+      Minion::Backend::SQLite 4.005, Cpanel::JSON::XS 4.12, Role::Tiny 2.000008,
+      Mojolicious::Plugin::OpenAPI 2.16.
 
 
 2019.07.11

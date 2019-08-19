@@ -10,18 +10,18 @@ my $module_file = 'lib/Slovo.pm';
 my $git_url     = 'https://github.com/kberov/Slovo';
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
-  'Class::Method::Modifiers'            => '2.12',
-  'Cpanel::JSON::XS'                    => '4.09',
-  'Minion::Backend::SQLite'             => '4.002',
-  'Mojo::SQLite'                        => '3.001',
-  'Mojolicious'                         => '8.12',
+  'Class::Method::Modifiers'            => '2.13',
+  'Cpanel::JSON::XS'                    => '4.12',
+  'Minion::Backend::SQLite'             => '4.005',
+  'Mojo::SQLite'                        => '3.002',
+  'Mojolicious'                         => '8.23',
   'Mojolicious::Plugin::PODViewer'      => '0.004',
   'Mojolicious::Plugin::Authentication' => '1.32',
-  'Mojolicious::Plugin::OpenAPI'        => '2.12',
+  'Mojolicious::Plugin::OpenAPI'        => '2.16',
   'Mojolicious::Plugin::RoutesConfig'   => '0.05',
   'Net::SMTP'                           => '3.11',
-  'Role::Tiny'                          => '2.000006',
-  'EV'                                  => '4.25'
+  'Role::Tiny'                          => '2.000008',
+  'EV'                                  => '4.27'
 };
 
 if ($ENV{TEST_AUTHOR}) {

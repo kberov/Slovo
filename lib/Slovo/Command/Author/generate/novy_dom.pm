@@ -217,7 +217,7 @@ sub _update_admin($self) {
   $o->{login_password} = c(
     split('', time),
     split('', '$[]{}_-%№€'),
-    split('', 'абвгдежзийклмнопрстуфхцчшщьюяѥыѣѫѧѭѩѯꙃꙁѿ'))->shuffle->slice(0 .. 15)->join;
+    split('', 'абвгдежзийклмнопрстуфхцчшщьюяѥыѣѫѧѭѩѯꙃꙁѿ'))->shuffle->head(15)->join;
 
   my $stop_date = time + 3600;
   $self->app->users->save(

@@ -199,7 +199,7 @@ my $home_page = sub {
 sub _category_page {
   my ($p, $pages) = @_;
   my $body = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
-    ->shuffle->slice(0 .. 50)->join(' ');
+    ->shuffle->head(50)->join(' ');
   $pages->{$p}{id} = $app->stranici->add({
     title       => ucfirst($p),
     language    => 'bg',
