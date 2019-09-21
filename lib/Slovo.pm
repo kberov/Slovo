@@ -17,7 +17,7 @@ use Slovo::Controller;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.08.18';
+our $VERSION   = '2019.09.19';
 our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
 my $CLASS = __PACKAGE__;
 
@@ -268,7 +268,11 @@ DONE;
 
 =item OpenAPI 2.0 (Swagger) REST API - BASIC;
 
-=item Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>.
+=item Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>;
+
+=item Editor.md - L<The open source embeddable online markdown editor
+(component), based on CodeMirror & jQuery &
+Marked|http://editor.md.ipandao.com/>;
 
 =item Example startup scripts for slovo and slovo_minion services
 for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
@@ -505,17 +509,11 @@ respective authors.
 
 =head1 TODO
 
-Considerably improve the Adminiastration UI - now it is quite simplistic and
-lacks essential features.
+Considerably improve the Adminiastration UI - now it is quite simplistic.
 
-Add simplemde-markdown-editor to the distro and use it to prepare markdown as
-html in the browser.
-  (https://github.com/sparksuite/simplemde-markdown-editor)
-  (https://github.com/Inscryb/inscryb-markdown-editor)
-
-Consider using Mithril or Dojo or something light as frontend framework for
-building UI. We already use jQuery from Mojolicious.
-  (https://github.com/MithrilJS/mithril.js), (https://dojo.io/)
+Consider using L<Mithril|https://github.com/MithrilJS/mithril.js> or
+L<Dojo|https://dojo.io/> or something light as frontend framework for building
+UI. We already use jQuery from Mojolicious.
 
 Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
 administrative panel.

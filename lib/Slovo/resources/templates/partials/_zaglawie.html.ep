@@ -1,7 +1,7 @@
 <!-- _заглавѥ -->
-% my $множество = ($controller eq 'stranici' && $заглавѥ->{permissions} =~ /^d/);
-<section class="заглавѥ<%= $множество ? ' множество' : '' %>">
-    %= t 'h' . $level => $заглавѥ->{title} =~ s/<[^>]+>?//gr;
+% my $collection = ($controller eq 'stranici' && $celina->{permissions} =~ /^d/);
+<section class="заглавѥ<%= $collection ? ' множество' : '' %>">
+    %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 <%
 # The content element can be displayed in two contexts.
 # 1. Страница a.k.a. List context:
@@ -15,8 +15,8 @@
 # simply shows it's body or does something intended for this context.
 %>
 
-% if ($множество) { #List
- %== $заглавѥ->{body}
+% if ($collection) { #List
+ %== format_body($celina)
  %# TODO: Add limit and pagination
     <%
     my $celini = celini->all_for_display_in_stranica(
@@ -25,18 +25,18 @@
         where => {
 
           # avoid recursion
-          'celini.pid'       => {'='  => $заглавѥ->{id}, '!=' => {-ident => 'celini.id'}},
+          'celini.pid'       => {'='  => $celina->{id}, '!=' => {-ident => 'celini.id'}},
           'celini.data_type' => {'!=' => 'заглавѥ'},
           'celini.box'       => {-in  => [qw(главна main)]}}});
     %>
     <%==
     $celini->map(sub {
       my $row = shift;
-      return include("partials/_pisanie_otkysy", писанѥ => $row, p => $page);
+      return include("partials/_pisanie_otkysy", celina => $row, p => $page);
     })->join($/);
     %>
 % } else {
-    %== $заглавѥ->{body}
+    %== format_body($celina)
 % }
 </section>
 

@@ -1,7 +1,7 @@
 <!-- _писанѥ -->
 <section class="писанѥ">
-    %= t 'h' . $level => $писанѥ->{title} =~ s/<[^>]+>?//gr;
-%== $писанѥ->{body}
+    %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
+%==format_body($celina)
 </section>
 <!-- end _писанѥ -->
 

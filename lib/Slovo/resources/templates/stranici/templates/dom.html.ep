@@ -1,7 +1,7 @@
 <!-- stranici/templates/dom -->
 <%
 # Template for the home page of a domain
-my $заглавѥто = shift @$celini;
+my $the_title = shift @$celini;
 my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
 my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
 my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
@@ -11,12 +11,12 @@ my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 # * 1:always.
 my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
-  title      => $заглавѥто->{title},
+  title      => $the_title->{title},
   left       => $left,
   right      => $дѣсна,
   sidedrawer => $sidedrawer;
 %>
-%= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
+%= include 'partials/_zaglawie' => (celina => $the_title, level => 1)
 <%
 # Get all pages under current (home) page which are directories and have
 # заглавѥ which is directory (i.e. contains articles) and get 6 articles for
@@ -33,7 +33,7 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 %= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ѩꙁыкъ => language}
     </h1>
     % for my $писанѥ (@{$p->{articles}}) {
-    %= include 'partials/_pisanie_otkysy' => (p=>$p,писанѥ => $писанѥ);
+    %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $писанѥ);
     % }
 </section>
 % if($p->{id} != $pages->[-1]->{id}) {

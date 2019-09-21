@@ -22,7 +22,7 @@
 
 
 
-% my @columns = qw(page_id id pid title language alias box); #table columns to show
+% my @columns = qw(page_id id pid title language alias box data_format); #table columns to show
 
 <div class="mui-container">
     <div class="mui-panel">

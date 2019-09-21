@@ -12,6 +12,9 @@
     %= javascript '/js/trumbowyg-2.18/plugins/base64/trumbowyg.base64.min.js'
     %= javascript '/js/trumbowyg-2.18/langs/bg.min.js'
     %= stylesheet '/js/trumbowyg-2.18/ui/trumbowyg.min.css'
+    %= javascript '/js/editormd/editormd.min.js'
+    %= javascript '/js/editormd/languages/en.js'
+    %= stylesheet '/js/editormd/css/editormd.min.css'
   % end
   %= t body => begin
     <header class="mui-appbar mui--z1">

@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2019.09.19
+    A very late release!
+
+    * Now using markdown editor Editor.md v1.5.0
+      (https://github.com/pandao/editor.md) and Marked v0.3.3 (https://marked.js.org/)
+    * Replaced most of cyrillic variable names in templates with latin variable names.
+
 2019.08.18
     * Updated Trumbowyg to version 2.18.
     * Fixed a bug in helper 'language'. It was returning an arbitrary language

@@ -1,7 +1,7 @@
 <!-- stranici/execute -->
 <%
 state $main_box = join '|', @{stranici->main_boxes};
-my $заглавѥто = shift @$celini;
+my $the_title = shift @$celini;
 my $main  = $celini->grep(sub { $_->{box} =~ /$main_box/ });
 my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
 my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
@@ -11,16 +11,16 @@ my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 # * 1:always. # @$left || $page->{is_dir};
 my $sidedrawer = 1;
 layout 'site',
-  title      => $заглавѥто->{title},
+  title      => $the_title->{title},
   left       => $left,
   right      => $дѣсна,
   sidedrawer => $sidedrawer;
 %>
-%= include 'partials/_zaglawie' => (заглавѥ => $заглавѥто, level => 1)
+%= include 'partials/_zaglawie' => (celina => $the_title, level => 1)
 <%==
 $main->map(sub {
   my $row = shift;
-  return include("partials/$d2t->{$row->{data_type}}", $row->{data_type} => $row,
+  return include("partials/$d2t->{$row->{data_type}}", celina => $row,
     level => 1)
     || include("partials/_data_type" => row => $row, level => 1);
 })->join($/);

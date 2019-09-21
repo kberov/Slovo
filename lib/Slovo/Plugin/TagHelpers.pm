@@ -64,12 +64,32 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   })->join('');
 };
 
+my sub _format_body ($c, $celina) {
+  my $id = 'цѣлина_body_' . $celina->{data_format} . $celina->{id};
+  if ($celina->{data_format} eq 'markdown') {
+    my $body = $celina->{body} =~ s/\`/\\`/gr;
+    return
+        tag_to_html(div => (id => $id), sub { $celina->{body} })
+      . $/
+      . $c->javascript('/js/editormd/lib/marked.min.js')
+      . $/
+      . tag_to_html(
+      script => sub {
+        <<"JS";
+document.getElementById('$id').innerHTML = marked(`$body`);
+JS
+      });
+  }
+  return tag_to_html(div => (id => $id), sub { $celina->{body} });
+};
+
 sub register ($self, $app, $config) {
   $self->SUPER::register($app) unless exists $app->renderer->helpers->{t};
 
   $app->helper(checkboxes  => \&_checkboxes);
   $app->helper(select_box  => \&_select_box);
   $app->helper(html_substr => \&_html_substr);
+  $app->helper(format_body => \&_format_body);
   return $self;
 }
 

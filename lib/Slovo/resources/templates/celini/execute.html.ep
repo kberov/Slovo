@@ -16,7 +16,7 @@ layout 'site',
 %>
 <%=
     include(
-      "partials/$d2t->{$celina->{data_type}}", $celina->{data_type} => $celina,
+      "partials/$d2t->{$celina->{data_type}}", celina => $celina,
       level => 1)
       || include("partials/_data_type" => row => $celina, level => 1)
 %>

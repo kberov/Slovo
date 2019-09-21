@@ -1,5 +1,5 @@
 <!-- _книга -->
 <section class="книга">
-     %= t 'h' . $level => $книга->{title}
-%== $книга->{body}
+     %= t 'h' . $level => $celina->{title}
+%== format_body($celina)
 </section>

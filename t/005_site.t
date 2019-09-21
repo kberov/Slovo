@@ -49,8 +49,8 @@ my $breadcrumb = sub {
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
   $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
-    ->element_exists('main section.заглавѥ article.писанѥ:nth-child(2) h2:nth-child(1)')
-    ->text_is('section.заглавѥ.множество article.писанѥ:nth-child(3)'
+    ->element_exists('main section.заглавѥ article.писанѥ:nth-of-type(2)>h2:nth-child(1)')
+    ->text_is('section.заглавѥ.множество article.писанѥ:nth-of-type(2)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
@@ -321,11 +321,12 @@ subtest breadcrumb        => $breadcrumb;
 
 # Disabled until proper test cases are prepared
 # subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages    => $cached_pages;
-subtest 'Browser cache' => $browser_cache;
+subtest cached_pages => $cached_pages;
 
-subtest home_page => $home_page;
-subtest aliases   => $aliases;
+#subtest 'Browser cache' => $browser_cache;
+
+#subtest home_page => $home_page;
+#subtest aliases   => $aliases;
 done_testing;
 
 package Slovo::Test::Text;
