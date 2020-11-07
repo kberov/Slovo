@@ -37,7 +37,7 @@ has home => sub {
       return $r;
     }
   }
-  return shift->SUPER::home;
+  return $_[0]->SUPER::home;
 };
 
 # This method will run once at server start

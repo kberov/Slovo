@@ -1,9 +1,9 @@
 # -*- perl -*-
 
 # t/001_load.t - check module loading
-
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use Test::More tests => 1;
-
-BEGIN { use_ok('Slovo'); }
+use_ok('Slovo');
 
 

@@ -1,5 +1,11 @@
 Revision history for Mojolicious application Slovo
 
+2020.11.11
+    * Changed double quotes to single quotes for values
+      in lib/Slovo/resources/data/migrations.sql as "suddenly" they started to
+      be treated as columns. This happens as of DBD::SQLite 1.63_05 2019-07-12.
+    * Minor fixes in lib/Slovo/resources/api-v1.0.json.
+
 2019.09.19
     A very late release!
 

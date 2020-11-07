@@ -428,16 +428,14 @@ UPDATE stranici set published=1 WHERE alias='ѿносно';
 UPDATE celini SET published=1 where page_id=(SELECT id FROM stranici WHERE alias='ѿносно');
 
 -- 201807202200 up
-UPDATE "celini" SET
-    "alias" = "първа-лѣва-кутия", "data_type" = "цѣлина",
-    "body" = "Първа лѣва обнародвана кутийка с нѣкакъв текст в лѣвия панел.",
-    "published" = 2, "sorting" = 1, "title" = "Първа лѣва кутия "
-    WHERE ( "id" = 7 );
+UPDATE celini SET alias = 'първа-лѣва-кутия', data_type='цѣлина',body
+= 'Първа лѣва обнародвана кутийка с нѣкакъв текст в лѣвия панел.',
+published = 2, sorting = 1, title = 'Първа лѣва кутия' WHERE ( id = 7
+);
 
-UPDATE "stranici" SET
-    "permissions" = "drwxrwxr-x", "published" = 2
-    WHERE ( "id" IN (1,2) );
-UPDATE "celini" SET "published" = 2 WHERE (page_id IN (1,2) );
+UPDATE stranici SET permissions = 'drwxrwxr-x', published = 2 WHERE ( id IN (1,2) );
+
+UPDATE celini SET published = 2 WHERE (page_id IN (1,2) );
 -- 201807201100 down
 
 -- 201807281100 up
@@ -448,7 +446,7 @@ ALTER TABLE domove ADD COLUMN aliases VARCHAR(2000);
 
 -- 201808000000 up
 
--- for these aliase to work you need to add them to your /etc/hosts lke this
+-- for these aliases to work you need to add them to your /etc/hosts lke this
 -- for example:
 -- 127.0.0.1 localhost bg.localhost en.localhost
 UPDATE domove SET aliases='bg.localhost en.localhost' WHERE id=0;
@@ -459,34 +457,32 @@ WHERE id=0;
 
 -- 201808080000 up
 --Add some Вести
-UPDATE celini SET permissions ="drwxrwxr-x" WHERE id=3;
-INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
-    "data_type", "user_id", "group_id", "language", "page_id", "permissions",
-    "pid", "published", "sorting", "title")
-VALUES ( "първа-вест",
-    "Първа вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
+UPDATE celini SET permissions ='drwxrwxr-x' WHERE id=3;
+INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format", "data_type", "user_id", "group_id", "language", "page_id", "permissions", "pid", "published", "sorting", "title")
+VALUES ( 'първа-вест',
+    'Първа вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
     писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
-Още една целина за разкошъ.", "главна",
-"1533474911", "text", "писанѥ",
-5, 5, "bg-bg", 2, "-rwxr-xr-x", 3, 1, 3, "Първа вест" );
+Още една целина за разкошъ.', 'главна',
+'1533474911', 'text', 'писанѥ',
+5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 3, 'Първа вест' );
 
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
     "data_type", "user_id", "group_id", "language", "page_id", "permissions",
     "pid", "published", "sorting", "title")
-VALUES ( "вътора-вест",
-    "Вътора вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
+VALUES ( 'вътора-вест',
+    'Вътора вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
     писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
 Още една целина за разкошъ. Вътората вест е нужна за проверка на показването на
-списъка с вести", "главна",
-"1533474911", "text", "писанѥ",
-5, 5, "bg-bg", 2, "-rwxr-xr-x", 3, 1, 4, "Вътора вест" );
+списъка с вести', 'главна',
+'1533474911', 'text', 'писанѥ',
+5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 4, 'Вътора вест' );
 
 -- 201808080000 down
-UPDATE celini SET permissions ="-rwxrwxr-x" WHERE id=3;
+UPDATE celini SET permissions ='-rwxrwxr-x' WHERE id=3;
 DELETE FROM celini WHERE alias IN ('вътора-вест', 'първа-вест');
 
 

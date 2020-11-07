@@ -43,7 +43,7 @@
       "StraniciItem" : {
          "properties" : {
             "page_type" : {
-               "maxLength" : "32",
+               "maxLength" : 32,
                "type" : "string"
             },
             "pid" : {
@@ -51,7 +51,7 @@
             },
             "alias" : {
                "type" : "string",
-               "maxLength" : "32"
+               "maxLength" : 32
             },
             "sorting" : {
                "type" : "integer"
