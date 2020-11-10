@@ -8,11 +8,11 @@ my $list = $c->stranici->all_for_list($user, $domain, $preview, language, $opts)
 $list->map(sub {
   my $expander_link = '';
   my $link          = link_to $_->{title} => страница_с_ѩꙁыкъ =>
-    {страница => $_->{alias}, ezik => $_->{language}};
+    {страница => $_->{alias}, lang => $_->{language}};
   if ($_->{is_dir}) {
     $expander_link = link_to
       '☰' =>
-      url_for('/api/страници')->query(pid => $_->{id}, 'ezik' => $_->{language}),
+      url_for('/api/страници')->query(pid => $_->{id}, 'lang' => $_->{language}),
       (class => 'folder-expander mui--pull-right');
     return t li => sub {
       t strong => sub { $link . ' ' . $expander_link }

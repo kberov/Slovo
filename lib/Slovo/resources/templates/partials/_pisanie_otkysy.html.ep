@@ -5,14 +5,14 @@
 % my $a_title = $celina->{title} =~ s/<[^>]+>?//gr;
 <%=
 link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
-  {страница => $p->{alias}, цѣлина => $celina->{alias}, ezik => $celina->{language}} =>
+  {страница => $p->{alias}, цѣлина => $celina->{alias}, lang => $celina->{language}} =>
   (title => $a_title)
 %>
         </h2>
 <%=
     link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
       {страница => $p->{alias}, цѣлина => $celina->{alias},
-      ezik => $celina->{language}} => (class => 'писанѥ', title => $a_title)
+      lang => $celina->{language}} => (class => 'писанѥ', title => $a_title)
 %>
         <div class="ѿкѫсъ">
         %= html_substr($celina->{teaser}//$celina->{body}, 'p,blockquote', 225);
