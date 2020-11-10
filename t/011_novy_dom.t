@@ -7,7 +7,7 @@ use Mojo::File qw(path);
 use Mojo::Util qw(decode);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-# from => to
+# from      => to
 # "$Bin/.." => '/home/berov/opt/t.com/slovo',
 # 0777
 )->new('Slovo');
@@ -23,7 +23,7 @@ isa_ok($command => 'Slovo::Command');
 
 # Default values
 my $buffer  = '';
-my $db_file = $app->home->child('lib/Slovo/resources/data/slovo.development.sqlite');
+my $db_file = $home->child("lib/Slovo/resources/data/$moniker.$mode.sqlite");
 subtest 'Default values' => sub {
   {
     open my $handle, '>', \$buffer;
@@ -35,7 +35,7 @@ subtest 'Default values' => sub {
   ok($db_file->stat, 'database is created on the first run');
   is((unlink "$db_file"), 1, 'database removed ');
 
-  # note $buffer;
+  note $buffer;
   note '---------------------------';
 };
 
