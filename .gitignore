@@ -35,7 +35,7 @@ Mojolicious-*.tar.gz
 *.iml
 .idea
 _Deparsed_XSubs.pm
-
+*.bak
 *.sublime-project
 *.sublime-workspace
 
