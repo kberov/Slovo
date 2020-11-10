@@ -90,7 +90,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
   return $c->redirect_to(
-    'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+    'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ezik' => $l});
 }
 
 my $cached    = 'cached';
@@ -116,7 +116,7 @@ sub _render_cached_page($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path = $c->url_for({'ѩꙁыкъ' => $l})->path->canonicalize->to_route =~ s|^/||r;
+  my $url_path = $c->url_for({'ezik' => $l})->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   $file->dirname->make_path({mode => oct(700)});

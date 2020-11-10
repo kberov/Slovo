@@ -100,7 +100,7 @@
          "minimum" : 1
       },
       "lang": {
-        "name": "ѩꙁыкъ",
+        "name": "ezik",
         "description": "In what language the title will be shown or content will be?",
         "type": "string",
         "in": "query",

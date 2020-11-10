@@ -12,7 +12,7 @@ my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
   return $c->redirect_to('цѣлина_с_ѩꙁыкъ' =>
-      {'цѣлина' => $celina->{alias}, 'страница' => $page->{alias}, 'ѩꙁыкъ' => $l});
+      {'цѣлина' => $celina->{alias}, 'страница' => $page->{alias}, 'ezik' => $l});
 };
 
 # Prepares collection of parent ids of celiny in which a celina can be put.
@@ -29,7 +29,7 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
   return $options;
 };
 
-# ANY /<страница:str>/<цѣлина:cel>.<ѩꙁыкъ:lng>.html
+# ANY /<страница:str>/<цѣлина:cel>.<ezik:lng>.html
 # ANY /<:страница:str>/<цѣлина:cel>.html
 # Display a content element in a page in the site.
 sub execute ($c, $page, $user, $l, $preview) {

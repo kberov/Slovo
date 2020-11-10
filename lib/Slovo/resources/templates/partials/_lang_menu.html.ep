@@ -19,7 +19,7 @@ my $current = pop @$langs;
 $langs->sort(sub { $a->{language} cmp $b->{language} })->map(sub {
   t 'li' => sub {
     link_to $_->{language} => 'страница_с_ѩꙁыкъ' =>
-      {страница => $page->{alias}, ѩꙁыкъ => $_->{language}} => (title => $_->{title});
+      {страница => $page->{alias}, ezik => $_->{language}} => (title => $_->{title});
   }
 })->join($/);
 %>
