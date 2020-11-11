@@ -1,5 +1,5 @@
-<!-- _въпросъ -->
-<section class="въпросъ">
+<!-- _question -->
+<section class="question">
     %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 %==format_body($celina)
 </section>

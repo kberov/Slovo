@@ -23,7 +23,7 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
       page_id => $page_id,
       $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
       language  => $celini->language_like($l),
-      data_type => {in => [qw(title book въпросъ)]}}};
+      data_type => {in => [qw(title book question)]}}};
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
