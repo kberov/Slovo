@@ -27,7 +27,7 @@ sub _around_execute ($execute, $c) {
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
-    if $page && $page->{alias} ne $alias && !$c->stash->{'цѣлина'};
+    if $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -55,8 +55,8 @@ sub _around_execute ($execute, $c) {
       'title' => '_zaglawie',
       'book'   => '_kniga',
       'writing'  => '_pisanie',
-      'цѣлина'  => '_ceyalina',
-      'ѿговоръ' => '_otgowory'
+      'paragraph'  => '_ceyalina',
+      'answer' => '_otgowory'
     },
   );
 

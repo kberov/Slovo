@@ -199,8 +199,8 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types: 'question', 'ѿговоръ', 'writing', 'note',
-  -- 'book', 'глава', 'title', 'цѣлина'…
+  -- Semantic content types: 'question', 'answer', 'writing', 'note',
+  -- 'book', 'глава', 'title', 'paragraph'…
   data_type VARCHAR(32) DEFAULT 'note',
   -- text, html, markdown, asc…
   data_format VARCHAR(32) DEFAULT 'text',
@@ -237,7 +237,7 @@ VALUES (
   start INTEGER DEFAULT 0,
   -- Date/Time till which the record will be accessible in the site.
   stop INTEGER DEFAULT 0,
-  -- Who modified this цѣлина the last time?
+  -- Who modified this record the last time?
   changed_by INTEFER REFERENCES users(id),
   FOREIGN KEY (pid)      REFERENCES celini(id)   ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (page_id)  REFERENCES stranici(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -299,8 +299,8 @@ delete from stranici where id >0;
 UPDATE stranici set group_id=5 where alias='коренъ';
 INSERT INTO "stranici" VALUES(4, 0, 0, 'не-е-намерена', 'обичайна', 'drwxr-xr-x', 1, NULL, 5, 5, 1527802409, 1527802409, 0, 1, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(5,'втора-цѣлина',0,0,0,5,5,1,'цѣлина', 'html', 1526844885, 0, 'Втора цѣлина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
-INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'цѣлина', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
+INSERT INTO "celini" VALUES(5,'втора-цѣлина',0,0,0,5,5,1,'paragraph', 'html', 1526844885, 0, 'Втора цѣлина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'paragraph', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
     за които твърди, че са отвлечени, предава AFP.</p>
 <p>Те са работели в държавен севернокорейски ресторант в Китай. Управителят на ресторанта казва, че ги излъгал и принудил да го  последват по нареждане на южнокорейските тайни служби.</p>
 <p>„Южнокорейските власти трябва незабавно да върнат нашите гражданки обратно при семействата им и това ще покаже воля за подобряване на двустранните отношения“, заявяват от Пхенян.</p>
@@ -428,7 +428,7 @@ UPDATE stranici set published=1 WHERE alias='ѿносно';
 UPDATE celini SET published=1 where page_id=(SELECT id FROM stranici WHERE alias='ѿносно');
 
 -- 201807202200 up
-UPDATE celini SET alias = 'първа-лѣва-кутия', data_type='цѣлина',body
+UPDATE celini SET alias = 'първа-лѣва-кутия', data_type='paragraph',body
 = 'Първа лѣва обнародвана кутийка с нѣкакъв текст в лѣвия панел.',
 published = 2, sorting = 1, title = 'Първа лѣва кутия' WHERE ( id = 7
 );

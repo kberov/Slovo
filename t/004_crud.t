@@ -170,7 +170,7 @@ my $cform = {
   title       => 'Цѣлина',
   body        => 'Нѣкаква цѣлина',
   language    => 'bg-bg',
-  data_type   => 'цѣлина',
+  data_type   => 'paragraph',
   data_format => 'html'
 };
 my $max_id = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id} + 2;

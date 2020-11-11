@@ -1,5 +1,5 @@
-<!-- _цѣлина -->
-<section class="цѣлина">
+<!-- _paragraph -->
+<section class="paragraph">
     %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 %== format_body($celina)
 </section>
