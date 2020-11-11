@@ -50,7 +50,7 @@ sub _around_execute ($execute, $c) {
 
     # data_type to template name
     d2t => {
-      'белѣжка' => '_beleyazhka',
+      'note' => '_beleyazhka',
       'въпросъ' => '_wyprosy',
       'title' => '_zaglawie',
       'книга'   => '_kniga',

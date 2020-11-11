@@ -199,9 +199,9 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'писанѥ', 'белѣжка',
+  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'писанѥ', 'note',
   -- 'книга', 'глава', 'title', 'цѣлина'…
-  data_type VARCHAR(32) DEFAULT 'белѣжка',
+  data_type VARCHAR(32) DEFAULT 'note',
   -- text, html, markdown, asc…
   data_format VARCHAR(32) DEFAULT 'text',
   -- When this content was inserted
