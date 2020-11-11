@@ -49,14 +49,14 @@ my $breadcrumb = sub {
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
   $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
-    ->element_exists('main section.заглавѥ article.писанѥ:nth-of-type(2)>h2:nth-child(1)')
-    ->text_is('section.заглавѥ.множество article.писанѥ:nth-of-type(2)'
+    ->element_exists('main section.title article.писанѥ:nth-of-type(2)>h2:nth-child(1)')
+    ->text_is('section.title.множество article.писанѥ:nth-of-type(2)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
 
   $t->get_ok('/вести/alabala.html')->status_is(404)
-    ->text_is('.заглавѥ > h1:nth-child(1)' => 'Страницата не е намерена')
+    ->text_is('.title > h1:nth-child(1)' => 'Страницата не е намерена')
     ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
 };
 
@@ -248,7 +248,7 @@ sub _pisania {
   my $in = {};
   @$in{qw(user_id group_id changed_by created_at)} = (5, 5, 5, time - 1);
   my $pid
-    = $app->celini->find_where({page_id => $pages->{$p}{id}, data_type => 'заглавѥ'})
+    = $app->celini->find_where({page_id => $pages->{$p}{id}, data_type => 'title'})
     ->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];

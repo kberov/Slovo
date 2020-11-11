@@ -19,7 +19,7 @@ layout 'site',
 %= include 'partials/_zaglawie' => (celina => $the_title, level => 1)
 <%
 # Get all pages under current (home) page which are directories and have
-# заглавѥ which is directory (i.e. contains articles) and get 6 articles for
+# title which is directory (i.e. contains articles) and get 6 articles for
 # each
 my $opts = {
   stranici_opts => {columns => $list_columns, pid => $page->{id},},

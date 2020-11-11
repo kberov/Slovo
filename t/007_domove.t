@@ -63,12 +63,12 @@ subtest visit_domains => sub {
       ['title',    'body'],
       {
         'dom_id'         => $d->{id},
-        'data_type'      => 'заглавѥ',
+        'data_type'      => 'title',
         'celini.page_id' => {-ident => 'stranici.id'}})->hashes->[0];
     for my $alias (@{c(@aliases)->uniq}) {
       my $url = $t->ua->server->nb_url->host($alias);
       $t->get_ok($url)->status_is(200)->text_is('head > title' => $page->{title})
-        ->text_like('body section.заглавѥ' => qr/$page->{body}/);
+        ->text_like('body section.title' => qr/$page->{body}/);
     }
   });
 };

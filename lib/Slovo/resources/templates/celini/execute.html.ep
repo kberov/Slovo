@@ -1,6 +1,6 @@
 <!-- celini/execute -->
 <%
-my $заглавѥто = shift @$celini;
+my $title_row = shift @$celini;
 my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ }) // '';
 my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
 
@@ -9,7 +9,7 @@ my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '
 # * 1:always.
 my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
-  title      => $заглавѥто->{title} . ' ⸙ ' . $celina->{title},
+  title      => $title_row->{title} . ' ⸙ ' . $celina->{title},
   left       => $left,
   right      => $дѣсна,
   sidedrawer => $sidedrawer;

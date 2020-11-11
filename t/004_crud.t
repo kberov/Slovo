@@ -107,7 +107,7 @@ my $create_stranici  = sub {
   )->content_is('', 'empty content');
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   my $title
-    = $app->celini->all({where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
+    = $app->celini->all({where => {page_id => $new_page_id, data_type => 'title'}});
   is(@$title, 1, 'only one title');
 
   # get some title properties to check in the next subtest

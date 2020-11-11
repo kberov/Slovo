@@ -52,7 +52,7 @@ sub _around_execute ($execute, $c) {
     d2t => {
       'белѣжка' => '_beleyazhka',
       'въпросъ' => '_wyprosy',
-      'заглавѥ' => '_zaglawie',
+      'title' => '_zaglawie',
       'книга'   => '_kniga',
       'писанѥ'  => '_pisanie',
       'цѣлина'  => '_ceyalina',
@@ -373,7 +373,7 @@ everything put by this wrapper into stash. L<Slovo::Controller::Celini> in
 addition has to find the specific celina to render.
 
 To the wrapped methods are passed the parameters C<$page, $user, $language,
-$preview>.  C<$page> is the current page with the заглавѥ celina in the current
+$preview>.  C<$page> is the current page with the title celina in the current
 language.  C<$user> is the current user. C<$language> is C<$c->language>.
 C<$preview>  is a boolean value - true if the current request is just a preview.
 In preview mode C<permissions> and C<published> columns of the records in the

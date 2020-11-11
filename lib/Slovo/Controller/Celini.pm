@@ -23,7 +23,7 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
       page_id => $page_id,
       $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
       language  => $celini->language_like($l),
-      data_type => {in => [qw(заглавѥ книга въпросъ)]}}};
+      data_type => {in => [qw(title книга въпросъ)]}}};
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
@@ -47,7 +47,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 
   unless ($celina) {
     $celina = $c->celini->find_where(
-      {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
+      {page_id => $c->not_found_id, language => $l, data_type => 'title'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
   return $c->is_fresh(last_modified => $celina->{tstamp})

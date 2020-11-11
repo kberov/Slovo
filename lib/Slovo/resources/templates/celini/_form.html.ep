@@ -8,7 +8,7 @@ my $body_title
   = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
 
 # If this celina is a title, the new celina will have this title id as a pid.
-my $new_pid_for_celina_in_this_page = param('data_type') eq 'заглавѥ' ? $in->{id} : $in->{pid};
+my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} : $in->{pid};
 %>
 
 <div class="mui-panel breadcrumb">

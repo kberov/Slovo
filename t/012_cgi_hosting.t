@@ -80,7 +80,7 @@ my $Deploy = sub {
   ok -f $cgi_file => "$cgi_file exists";
   like $buffer => qr/(?:write|exist).+\/.htaccess/ => '.htaccess created';
   my ($hta_file)
-    = $buffer =~ m"(?:write|exists)\]\s+($ENV{SLOVO_DOCUMENT_ROOT}/.htaccess)";
+    = $buffer =~ m"(?:write|exist|chmod)\]\s+($ENV{SLOVO_DOCUMENT_ROOT}/.htaccess)";
   path($hta_file)->chmod(0644);
   ok -f $hta_file => "$hta_file exists";
 };
