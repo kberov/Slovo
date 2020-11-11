@@ -53,7 +53,7 @@ sub _around_execute ($execute, $c) {
       'note' => '_beleyazhka',
       'въпросъ' => '_wyprosy',
       'title' => '_zaglawie',
-      'книга'   => '_kniga',
+      'book'   => '_kniga',
       'writing'  => '_pisanie',
       'цѣлина'  => '_ceyalina',
       'ѿговоръ' => '_otgowory'
