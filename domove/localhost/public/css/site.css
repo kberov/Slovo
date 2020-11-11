@@ -255,7 +255,7 @@ section.множество {
 
 }
 
-section.множество article.писанѥ h2 {
+section.множество article.writing h2 {
     height: 2rem;
     overflow: hidden;
     /* top | right | bottom | left */
@@ -265,7 +265,7 @@ section.множество article.писанѥ h2 {
     border-right: 0.5rem solid #607d8b;
 }
 
-section.множество article.писанѥ a.писанѥ {
+section.множество article.writing a.writing {
     /* top | right | bottom | left */
     padding: 0 .5rem     0    0;
     border-right: 0.5rem solid #607d8b;
@@ -275,7 +275,7 @@ section.множество article.писанѥ a.писанѥ {
     right: 0;
 }
 
-section.множество article.писанѥ {
+section.множество article.writing {
     display: inline-block;
     max-width: 30rem;
     min-width: 15rem;
@@ -285,7 +285,7 @@ section.множество article.писанѥ {
     background: white;
 }
 
-section.множество article.писанѥ div.ѿкѫсъ {
+section.множество article.writing div.ѿкѫсъ {
     overflow: hidden;
     height: 8rem;
     padding: .5rem;

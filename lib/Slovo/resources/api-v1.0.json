@@ -135,7 +135,7 @@
         "in": "formData",
         "required": false,
         "default": "html",
-        "enum":["title", "note", "писанѥ", "книга", "въпросъ", "ѿговоръ", "цѣлина"]
+        "enum":["title", "note", "writing", "книга", "въпросъ", "ѿговоръ", "цѣлина"]
       },
       "permissions":{
         "name":"permissions",

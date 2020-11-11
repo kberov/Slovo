@@ -49,8 +49,8 @@ my $breadcrumb = sub {
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
   $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
-    ->element_exists('main section.title article.писанѥ:nth-of-type(2)>h2:nth-child(1)')
-    ->text_is('section.title.множество article.писанѥ:nth-of-type(2)'
+    ->element_exists('main section.title article.writing:nth-of-type(2)>h2:nth-child(1)')
+    ->text_is('section.title.множество article.writing:nth-of-type(2)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
@@ -123,7 +123,7 @@ my $cached_pages = sub {
       ' /foo/bar.bg.html is not canonical and thus not cached');
   $t->login('краси', 'беров');
 
-  # Cache is cleared when editing or deleting a page or писанѥ
+  # Cache is cleared when editing or deleting a page or writing
   my $id
     = $app->dbx->db->query("SELECT id FROM celini WHERE alias='вътора-вест'")->hash->{id};
 
@@ -190,7 +190,7 @@ my $home_page = sub {
 
   for my $p (@cats) {
     my $id = 'section#страница-' . $pages->{$p}{id};
-    $t->element_exists($id)->element_count_is($id . ' article.писанѥ', 6);
+    $t->element_exists($id)->element_count_is($id . ' article.writing', 6);
     $t->element_exists($id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
       for @{$pages->{$p}{articles}}[0 .. 5];
   }
@@ -272,7 +272,7 @@ sub _pisania {
       page_id     => $pages->{$p}{id},
       pid         => $pid,
       data_format => 'html',
-      data_type   => 'писанѥ',
+      data_type   => 'writing',
       title       => ucfirst $title,
       alias       => slugify("$title $cel $p", 1),
       body        => $body,

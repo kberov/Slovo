@@ -199,7 +199,7 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'писанѥ', 'note',
+  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'writing', 'note',
   -- 'книга', 'глава', 'title', 'цѣлина'…
   data_type VARCHAR(32) DEFAULT 'note',
   -- text, html, markdown, asc…
@@ -461,11 +461,11 @@ UPDATE celini SET permissions ='drwxrwxr-x' WHERE id=3;
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format", "data_type", "user_id", "group_id", "language", "page_id", "permissions", "pid", "published", "sorting", "title")
 VALUES ( 'първа-вест',
     'Първа вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
-    писанѥ на title-то „Вести“. Има още много да се пише по въпросъ-а, но
+    writing на title-то „Вести“. Има още много да се пише по въпросъ-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
 Още една целина за разкошъ.', 'главна',
-'1533474911', 'text', 'писанѥ',
+'1533474911', 'text', 'writing',
 5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 3, 'Първа вест' );
 
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
@@ -473,12 +473,12 @@ INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
     "pid", "published", "sorting", "title")
 VALUES ( 'вътора-вест',
     'Вътора вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
-    писанѥ на title-то „Вести“. Има още много да се пише по въпросъ-а, но
+    writing на title-то „Вести“. Има още много да се пише по въпросъ-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
 Още една целина за разкошъ. Вътората вест е нужна за проверка на показването на
 списъка с вести', 'главна',
-'1533474911', 'text', 'писанѥ',
+'1533474911', 'text', 'writing',
 5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 4, 'Вътора вест' );
 
 -- 201808080000 down

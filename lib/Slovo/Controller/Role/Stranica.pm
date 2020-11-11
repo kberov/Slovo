@@ -54,7 +54,7 @@ sub _around_execute ($execute, $c) {
       'въпросъ' => '_wyprosy',
       'title' => '_zaglawie',
       'книга'   => '_kniga',
-      'писанѥ'  => '_pisanie',
+      'writing'  => '_pisanie',
       'цѣлина'  => '_ceyalina',
       'ѿговоръ' => '_otgowory'
     },

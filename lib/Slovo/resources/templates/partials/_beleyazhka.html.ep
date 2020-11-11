@@ -1,5 +1,5 @@
-<!-- _белѣжка -->
-<section class="белѣжка">
+<!-- _note -->
+<section class="note">
     %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 %== format_body($celina)
 </section>

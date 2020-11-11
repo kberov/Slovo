@@ -1,5 +1,5 @@
-<!-- _писанѥ_ѿкѫсъ -->
-    <article class="mui--z1 mui--bg-color-white писанѥ">
+<!-- _writing_ѿкѫсъ -->
+    <article class="mui--z1 mui--bg-color-white writing">
         <h2>
 % # greedily remove potential html
 % my $a_title = $celina->{title} =~ s/<[^>]+>?//gr;
@@ -12,7 +12,7 @@ link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
 <%=
     link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
       {страница => $p->{alias}, цѣлина => $celina->{alias},
-      lang => $celina->{language}} => (class => 'писанѥ', title => $a_title)
+      lang => $celina->{language}} => (class => 'writing', title => $a_title)
 %>
         <div class="ѿкѫсъ">
         %= html_substr($celina->{teaser}//$celina->{body}, 'p,blockquote', 225);

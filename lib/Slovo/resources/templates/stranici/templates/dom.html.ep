@@ -32,8 +32,8 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
     <h1 class="mui--text-dark">
 %= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,lang => language}
     </h1>
-    % for my $писанѥ (@{$p->{articles}}) {
-    %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $писанѥ);
+    % for my $writing (@{$p->{articles}}) {
+    %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $writing);
     % }
 </section>
 % if($p->{id} != $pages->[-1]->{id}) {

@@ -149,7 +149,7 @@ derived from the C<$name>. Suitable for fields with multiple values.
 
 =head2 html_substr
 
-   %= html_substr($писанѥ->{teaser}//$писанѥ->{body}, 'p,blockquote', 225);
+   %= html_substr($writing->{teaser}//$writing->{body}, 'p,blockquote', 225);
 
 Parameters: C<$c, $html, $selector, $chars>
 
