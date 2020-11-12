@@ -7,8 +7,8 @@ no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 
-# ANY /<страница:str>.<lang:lng>.html
-# ANY /<страница:str>.html
+# ANY /<page:str>.<lang:lng>.html
+# ANY /<page:str>.html
 # Display a page in the site
 sub execute ($c, $page, $user, $l, $preview) {
 

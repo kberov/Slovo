@@ -18,7 +18,7 @@ sub _around_execute ($execute, $c) {
 
   return 1 if $cache_pages && $is_guest && $c->_render_cached_page();
   my $preview = !$is_guest && $c->param('прегледъ');
-  my $alias   = $c->stash->{'страница'};
+  my $alias   = $c->stash->{page};
   my $l       = $c->language;
   my $user    = $c->user;
   my $str     = $c->stranici;
@@ -40,7 +40,7 @@ sub _around_execute ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    'страница'   => $page->{alias},
+    page   => $page->{alias},
     celini       => $celini,
     domain       => $domain,
     list_columns => $list_columns,
@@ -90,7 +90,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
   return $c->redirect_to(
-    'page_with_lang' => {'страница' => $page->{alias}, 'lang' => $l});
+    'page_with_lang' => {page => $page->{alias}, 'lang' => $l});
 }
 
 my $cached    = 'cached';

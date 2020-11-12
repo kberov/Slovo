@@ -158,7 +158,7 @@ sub _load_pugins($app) {
         });
     }
   }
-  $app->routes->any('/*страница')->to('stranici#execute')->name('cach_all');
+  $app->routes->any('/*page')->to('stranici#execute')->name('cach_all');
 
   return $app;
 }

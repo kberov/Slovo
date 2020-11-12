@@ -5,13 +5,13 @@
 % my $a_title = $celina->{title} =~ s/<[^>]+>?//gr;
 <%=
 link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
-  {страница => $p->{alias}, paragraph => $celina->{alias}, lang => $celina->{language}} =>
+  {page => $p->{alias}, paragraph => $celina->{alias}, lang => $celina->{language}} =>
   (title => $a_title)
 %>
         </h2>
 <%=
     link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
-      {страница => $p->{alias}, paragraph => $celina->{alias},
+      {page => $p->{alias}, paragraph => $celina->{alias},
       lang => $celina->{language}} => (class => 'writing', title => $a_title)
 %>
         <div class="ѿкѫсъ">

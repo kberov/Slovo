@@ -189,7 +189,7 @@ my $home_page = sub {
   $t->get_ok('/')->status_is(200);
 
   for my $p (@cats) {
-    my $id = 'section#страница-' . $pages->{$p}{id};
+    my $id = 'section#page-' . $pages->{$p}{id};
     $t->element_exists($id)->element_count_is($id . ' article.writing', 6);
     $t->element_exists($id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
       for @{$pages->{$p}{articles}}[0 .. 5];

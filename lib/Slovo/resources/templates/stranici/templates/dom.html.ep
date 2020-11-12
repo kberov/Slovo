@@ -28,9 +28,9 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 
 %>
 <% for my $p (@$pages) { %>
-<section class="множество" id="страница-<%= $p->{id} %>">
+<section class="множество" id="page-<%= $p->{id} %>">
     <h1 class="mui--text-dark">
-%= link_to $p->{title} => 'page_with_lang' => {страница =>$p->{alias} ,lang => language}
+%= link_to $p->{title} => 'page_with_lang' => {page =>$p->{alias} ,lang => language}
     </h1>
     % for my $writing (@{$p->{articles}}) {
     %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $writing);

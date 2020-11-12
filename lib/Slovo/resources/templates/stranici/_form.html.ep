@@ -10,7 +10,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
 %>
 
 <div class="mui-panel breadcrumb">
-    %= link_to url_with('create_stranici')->query(pid => $in->{pid}) =>(title=>'Нова страница') => begin
+    %= link_to url_with('create_stranici')->query(pid => $in->{pid}) => (title => 'Нова страница') => begin
     <i class="fas fa-plus-square"></i>
     <% end %>
     %= link_to '⸙' =>'home_stranici', title => "Страници"
