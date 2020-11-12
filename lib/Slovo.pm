@@ -14,6 +14,7 @@ use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
 use Mojo::Collection 'c';
 use Slovo::Controller;
+use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';

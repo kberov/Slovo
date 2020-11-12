@@ -11,17 +11,17 @@ my $git_url     = 'https://github.com/kberov/Slovo';
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
   'Class::Method::Modifiers'            => '2.13',
-  'Cpanel::JSON::XS'                    => '4.12',
-  'Minion::Backend::SQLite'             => '4.005',
-  'Mojo::SQLite'                        => '3.002',
-  'Mojolicious'                         => '8.23',
-  'Mojolicious::Plugin::PODViewer'      => '0.004',
+  'Cpanel::JSON::XS'                    => '4.25',
+  'Minion::Backend::SQLite'             => '5.0.3',
+  'Mojo::SQLite'                        => '3.004',
+  'Mojolicious'                         => '8.65',
+  'Mojolicious::Plugin::PODViewer'      => '0.006',
   'Mojolicious::Plugin::Authentication' => '1.32',
-  'Mojolicious::Plugin::OpenAPI'        => '2.16',
-  'Mojolicious::Plugin::RoutesConfig'   => '0.05',
+  'Mojolicious::Plugin::OpenAPI'        => '3.40',
+  'Mojolicious::Plugin::RoutesConfig'   => '0.06',
   'Net::SMTP'                           => '3.11',
-  'Role::Tiny'                          => '2.000008',
-  'EV'                                  => '4.27'
+  'Role::Tiny'                          => '2.001004',
+  'EV'                                  => '4.33'
 };
 
 if ($ENV{TEST_AUTHOR}) {

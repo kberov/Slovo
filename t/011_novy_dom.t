@@ -1,3 +1,4 @@
+use open qw(:std :utf8);
 use Mojo::Base -strict;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
