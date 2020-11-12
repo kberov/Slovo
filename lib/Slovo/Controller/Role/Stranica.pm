@@ -90,7 +90,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
   return $c->redirect_to(
-    'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'lang' => $l});
+    'page_with_lang' => {'страница' => $page->{alias}, 'lang' => $l});
 }
 
 my $cached    = 'cached';

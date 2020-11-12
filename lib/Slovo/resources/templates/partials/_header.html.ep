@@ -11,13 +11,13 @@
               %= (@$breadcrumb ? '⸙':'')
               <%=
               $breadcrumb->map(sub {
-                link_to $_->{title} => страница_с_ѩꙁыкъ =>
+                link_to $_->{title} => page_with_lang =>
                   {страница => $_->{alias}, lang => $_->{language}};
                 })->join(' ⸙ ') unless $page->{id} == $c->not_found_id
               %>
           </td>
           <td class="mui--text-right">
-              %= link_to Ѿносно => 'страница_с_ѩꙁыкъ' => {страница => 'ѿносно', lang => language}
+              %= link_to Ѿносно => 'page_with_lang' => {страница => 'ѿносно', lang => language}
               % if ($c->is_user_authenticated) {
               % my $name = $c->user->{first_name} . ' ' . $c->user->{last_name};
                   %= link_to '| Изходъ '.$name => 'sign_out'
