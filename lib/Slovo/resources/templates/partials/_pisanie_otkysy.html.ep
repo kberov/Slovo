@@ -4,13 +4,13 @@
 % # greedily remove potential html
 % my $a_title = $celina->{title} =~ s/<[^>]+>?//gr;
 <%=
-link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
+link_to $a_title => para_with_lang =>
   {page => $p->{alias}, paragraph => $celina->{alias}, lang => $celina->{language}} =>
   (title => $a_title)
 %>
         </h2>
 <%=
-    link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
+    link_to '…' => 'para_with_lang' =>
       {page => $p->{alias}, paragraph => $celina->{alias},
       lang => $celina->{language}} => (class => 'writing', title => $a_title)
 %>

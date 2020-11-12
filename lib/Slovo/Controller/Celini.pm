@@ -11,7 +11,7 @@ my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to('цѣлина_с_ѩꙁыкъ' =>
+  return $c->redirect_to(para_with_lang =>
       {'paragraph' => $celina->{alias}, page => $page->{alias}, 'lang' => $l});
 };
 
