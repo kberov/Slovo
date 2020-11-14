@@ -1,6 +1,6 @@
 <!-- _title -->
 % my $collection = ($controller eq 'stranici' && $celina->{permissions} =~ /^d/);
-<section class="title<%= $collection ? ' множество' : '' %>">
+<section class="title<%= $collection ? ' group' : '' %>">
     %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 <%
 # The content element can be displayed in two contexts.

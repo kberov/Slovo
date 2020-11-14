@@ -64,15 +64,15 @@ sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
   subtest login_ok => sub {
     my $login_url = $t->app->url_for('sign_in');
 
-    $t->get_ok($host . '/Ꙋправленѥ')->status_is(302)
+    $t->get_ok($host . '/manage')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /входъ');
     $t->get_ok($host . '/входъ')->status_is(200)->text_is('head title' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body
       = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)->header_is(
-      Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
-      'Location: /Ꙋправленѥ'
+      Location => '/' . b('manage')->encode->url_escape,
+      'Location: /manage'
     )->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };

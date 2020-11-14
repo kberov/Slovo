@@ -65,7 +65,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
 };
 
 my sub _format_body ($c, $celina) {
-  my $id = 'цѣлина_body_' . $celina->{data_format} . $celina->{id};
+  my $id = 'celina_body_' . $celina->{data_format} . $celina->{id};
   if ($celina->{data_format} eq 'markdown') {
     my $body = $celina->{body} =~ s/\`/\\`/gr;
     return

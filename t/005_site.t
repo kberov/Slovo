@@ -50,7 +50,7 @@ my $breadcrumb = sub {
     . b('първа-вест.bg-bg.html')->encode->url_escape;
   $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
     ->element_exists('main section.title article.writing:nth-of-type(2)>h2:nth-child(1)')
-    ->text_is('section.title.множество article.writing:nth-of-type(2)'
+    ->text_is('section.title.group article.writing:nth-of-type(2)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
@@ -127,7 +127,7 @@ my $cached_pages = sub {
   my $id
     = $app->dbx->db->query("SELECT id FROM celini WHERE alias='вътора-вест'")->hash->{id};
 
-  $t->delete_ok('/Ꙋправленѥ/celini/' . $id)->status_is(302);
+  $t->delete_ok('/manage/celini/' . $id)->status_is(302);
   ok(!-f $cache_dir->child('вести/вътора-вест.bg-bg.html'),
     '/foo/bar.bg.html IS NOT anymore on disk');
   ok(!-d $cache_dir->child('вести'), '/foo IS NOT anymore on disk');

@@ -1,6 +1,8 @@
 Revision history for Mojolicious application Slovo
 
 2020.11.11
+    Get back to Slovo after getting my master degree in programme "Medieval
+    Bulgarian Studies" – Sofia University "St. Kliment Ochridski".
     * Changed double quotes to single quotes for values
       in lib/Slovo/resources/data/migrations.sql as "suddenly" they started to
       be treated as columns. This happens as of DBD::SQLite 1.63_05 2019-07-12.
@@ -10,9 +12,12 @@ Revision history for Mojolicious application Slovo
       Bulgarian(Cyrillic) to English(Latin) to increase understanding by
       potential nonslavic contributors. Here they are: въпросъ => question;
       книга => book; писанѥ => writing; белѣжка => note; заглавѥ => title.
-      Upgraded to Mojolicious 8.65, Mojo::SQLite 3.004, Cpanel::JSON::XS 4.25
+    * Upgraded to Mojolicious 8.65, Mojo::SQLite 3.004, Cpanel::JSON::XS 4.25
       Minion::Backend::SQLite 5.0.3, Role::Tiny 2.001004, EV 4.33,
       Mojolicious::Plugin::OpenAPI 3.40, Mojolicious::Plugin::RoutesConfig 0.06
+    * Changed most css and route identifiers from Bulgarian(Cyrillic) to
+      English(Latin) too. "входъ" and  "изходъ" will stay.
+
 
 2019.09.19
     A very late release!

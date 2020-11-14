@@ -28,7 +28,7 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 
 %>
 <% for my $p (@$pages) { %>
-<section class="множество" id="page-<%= $p->{id} %>">
+<section class="group" id="page-<%= $p->{id} %>">
     <h1 class="mui--text-dark">
 %= link_to $p->{title} => 'page_with_lang' => {page =>$p->{alias} ,lang => language}
     </h1>

@@ -21,7 +21,7 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render();
 }
 
-# All the following routes are under /Ꙋправленѥ
+# All the following routes are under /manage
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.

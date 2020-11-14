@@ -13,7 +13,6 @@ isa_ok($t->app, 'Slovo');
 $t->login_ok('краси', 'беров');
 
 # TODO: Depending on the user and to where he headed redirect him after login
-# to eventually ->text_is('head title' => 'Ꙋправленѥ');
+# to eventually ->text_is('head title' => 'manage');
 
 done_testing;
-

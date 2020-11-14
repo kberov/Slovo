@@ -1,4 +1,4 @@
-<!-- _writing_ѿкѫсъ -->
+<!-- _writing_exerpt -->
     <article class="mui--z1 mui--bg-color-white writing">
         <h2>
 % # greedily remove potential html
@@ -14,8 +14,7 @@ link_to $a_title => para_with_lang =>
       {page => $p->{alias}, paragraph => $celina->{alias},
       lang => $celina->{language}} => (class => 'writing', title => $a_title)
 %>
-        <div class="ѿкѫсъ">
+        <div class="exerpt">
         %= html_substr($celina->{teaser}//$celina->{body}, 'p,blockquote', 225);
         </div>
     </article>
-

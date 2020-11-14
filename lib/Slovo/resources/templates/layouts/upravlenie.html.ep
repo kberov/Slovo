@@ -25,7 +25,7 @@
     |
     %= link_to 'perldoc' => 'perldoc' =>(target => '_blank')
     |
-    %= link_to '/Ꙋправленѥ' => 'under_management'
+    %= link_to '/manage' => 'under_management'
           </td>
           <td class="mui--text-right">
     % if ($c->is_user_authenticated) {
