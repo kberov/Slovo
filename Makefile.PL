@@ -48,9 +48,9 @@ WriteMakefile(
   MIN_PERL_VERSION => '5.020000',
   META_MERGE       => {
     dynamic_config => 0,
-    'meta-spec'    => {version => 2},
+    'meta-spec'    => {version   => 2},
     no_index       => {directory => ['t']},
-    prereqs        => {runtime => {requires => {perl => '5.020000'}}},
+    prereqs        => {runtime   => {requires => {perl => '5.020000'}}},
     resources      => {
       bugtracker => {web => "$git_url/issues"},
       homepage   => $git_url,

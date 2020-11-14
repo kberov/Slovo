@@ -231,7 +231,7 @@ sub _validation($c) {
   # current user.
   $v->optional('pid',    'trim')->like(qr/^\d+$/);
   $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
-  $v->required('alias', 'slugify')->size(0, 32);
+  $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like(qr/^\d+$/);
   $v->optional('template',    'trim')->size(0, 255);
@@ -242,9 +242,9 @@ sub _validation($c) {
   $v->optional('start',       'trim')->like(qr/^\d+$/);
   $v->optional('stop',        'trim')->like(qr/^\d+$/);
   $v->optional('published',   'trim')->in(2, 1, 0);
-  $v->optional('hidden',  'trim')->in(1, 0);
-  $v->optional('deleted', 'trim')->in(1, 0);
-  $v->optional('changed_by', 'trim')->like(qr/^\d+$/);
+  $v->optional('hidden',      'trim')->in(1, 0);
+  $v->optional('deleted',     'trim')->in(1, 0);
+  $v->optional('changed_by',  'trim')->like(qr/^\d+$/);
 
   # Page attributes
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);

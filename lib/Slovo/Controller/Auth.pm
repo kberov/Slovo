@@ -89,7 +89,7 @@ sub under_management($c) {
 
   # only admins and users with id=created_by can change another's user account
   my ($e_uid) = $path =~ m|/users/(\d+)|;    #Id of the user being edited
-  my $e_user = $e_uid ? $c->users->find_where({id => $e_uid}) : undef;
+  my $e_user  = $e_uid ? $c->users->find_where({id => $e_uid}) : undef;
   if ( $route =~ /^(show|edit|update|remove)_users$/x
     && $e_user
     && ($e_user->{created_by} != $uid && $e_user->{id} != $uid))
@@ -144,7 +144,7 @@ sub validate_user ($c, $login_name, $csrf_digest, $dat) {
     my $row = $c->dbx->db->select(
       passw_login => 'token',
       {start_date => {'<=' => $t}, to_uid => $u->{id}, stop_date => {'>' => $t}},
-      {-desc => ['id']})->hash;
+      {-desc      => ['id']})->hash;
     my $checksum2 = sha1_sum(
       $csrf_token . sha1_sum(encode('UTF-8' => $u->{login_name} . $row->{token})));
     if ($row && ($checksum2 eq $csrf_digest)) {

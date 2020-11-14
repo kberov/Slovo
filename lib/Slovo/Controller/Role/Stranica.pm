@@ -40,7 +40,7 @@ sub _around_execute ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    page   => $page->{alias},
+    page         => $page->{alias},
     celini       => $celini,
     domain       => $domain,
     list_columns => $list_columns,
@@ -50,13 +50,13 @@ sub _around_execute ($execute, $c) {
 
     # data_type to template name
     d2t => {
-      'note' => '_beleyazhka',
-      'question' => '_wyprosy',
-      'title' => '_zaglawie',
-      'book'   => '_kniga',
-      'writing'  => '_pisanie',
-      'paragraph'  => '_ceyalina',
-      'answer' => '_otgowory'
+      'note'      => '_beleyazhka',
+      'question'  => '_wyprosy',
+      'title'     => '_zaglawie',
+      'book'      => '_kniga',
+      'writing'   => '_pisanie',
+      'paragraph' => '_ceyalina',
+      'answer'    => '_otgowory'
     },
   );
 
@@ -89,8 +89,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to(
-    'page_with_lang' => {page => $page->{alias}, 'lang' => $l});
+  return $c->redirect_to('page_with_lang' => {page => $page->{alias}, 'lang' => $l});
 }
 
 my $cached    = 'cached';
@@ -177,7 +176,7 @@ sub b64_images_to_files ($c, $name) {
       my ($ext)  = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
       my $ipad   = $i < 10 ? "0$i" : $i;
-      my $src = path($paths->[0], 'img',
+      my $src    = path($paths->[0], 'img',
         sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 

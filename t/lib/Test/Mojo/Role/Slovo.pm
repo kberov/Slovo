@@ -70,10 +70,9 @@ sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
 
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body
-      = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)->header_is(
-      Location => '/' . b('manage')->encode->url_escape,
-      'Location: /manage'
-    )->content_is('', 'empty content')->tx->res->body;
+      = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)
+      ->header_is(Location => '/' . b('manage')->encode->url_escape, 'Location: /manage')
+      ->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };
   return $t;
@@ -88,7 +87,7 @@ sub fill_in_login_form ($t, $login_name = '', $login_password = '', $host = '') 
   return {
     login_name => $login_name,
     csrf_token => $csrf_token,
-    digest =>
+    digest     =>
       sha1_sum($csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))),
   };
 }

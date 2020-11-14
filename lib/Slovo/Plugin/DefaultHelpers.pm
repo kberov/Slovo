@@ -75,7 +75,7 @@ if ($DEV_MODE) {
         $msg .= Mojo::Util::dumper($p);
         chomp $msg if $p eq $params[-1];
       }
-      else { $msg .= $p//'undefined'; }
+      else { $msg .= $p // 'undefined'; }
     }
     $log->debug($msg . "\n at $filename:$line\n in " . (caller(2))[3]);
     return;

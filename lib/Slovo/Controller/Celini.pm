@@ -80,7 +80,7 @@ sub create($c) {
     u             => $u,
     in            => $row,
     parent_celini => _celini_options($c, 0, $row->{page_id}, $u, $l),
-    parent_pages =>
+    parent_pages  =>
       $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
   );
 }
@@ -141,7 +141,7 @@ sub edit($c) {
     u             => $u,
     in            => $row,
     parent_celini => _celini_options($c, $row->{id}, $row->{page_id}, $u, $l),
-    parent_pages =>
+    parent_pages  =>
       $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
   );
 }
@@ -264,7 +264,7 @@ sub _validation($c) {
 
   # For all but the last two types the following properties are required
   my $types_rx = join '|', @$types[0 .. @$types - 2];
-  my $dt       = $v->param('data_type') // '';
+  my $dt = $v->param('data_type') // '';
   if ($dt =~ /^($types_rx)$/x) {
     $title = $alias = 'required';
   }
@@ -290,15 +290,15 @@ sub _validation($c) {
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
     ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
-  $v->optional('language', 'trim')->size(0, 5);
+  $v->optional('language',    'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
-  $v->optional('featured', 'trim')->in(1, 0);
-  $v->optional('accepted', 'trim')->in(1, 0);
-  $v->optional('bad',      'trim')->like(qr/^\d+$/);
-  $v->optional('deleted',  'trim')->in(1, 0);
-  $v->optional('start',    'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('stop',     'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('published', 'trim')->in(2, 1, 0);
+  $v->optional('featured',    'trim')->in(1, 0);
+  $v->optional('accepted',    'trim')->in(1, 0);
+  $v->optional('bad',         'trim')->like(qr/^\d+$/);
+  $v->optional('deleted',     'trim')->in(1, 0);
+  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('published',   'trim')->in(2, 1, 0);
   $c->b64_images_to_files('body');
   return $v;
 }

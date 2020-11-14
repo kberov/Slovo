@@ -248,8 +248,7 @@ sub _pisania {
   my $in = {};
   @$in{qw(user_id group_id changed_by created_at)} = (5, 5, 5, time - 1);
   my $pid
-    = $app->celini->find_where({page_id => $pages->{$p}{id}, data_type => 'title'})
-    ->{id};
+    = $app->celini->find_where({page_id => $pages->{$p}{id}, data_type => 'title'})->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];
   my $data = lc data_section('Slovo::Test::Text', 'text.txt');

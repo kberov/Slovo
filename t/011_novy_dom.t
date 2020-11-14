@@ -32,7 +32,7 @@ subtest 'Default values' => sub {
     $command->run();
   }
   like $buffer => qr/Domain.+mandatory\sargument/x => 'domains folder is mandatory';
-  like $buffer => qr/Usage/x => 'help is displayed';
+  like $buffer => qr/Usage/x                       => 'help is displayed';
   ok($db_file->stat, 'database is created on the first run');
   is((unlink "$db_file"), 1, 'database removed ');
 

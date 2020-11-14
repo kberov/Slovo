@@ -78,8 +78,8 @@ my $update_user = sub {
 
 # Remove a user
 my $remove_user = sub {
-  $t->delete_ok($user6_url)
-    ->header_is(Location => $users_url, 'Location: /manage/users')->status_is(302);
+  $t->delete_ok($user6_url)->header_is(Location => $users_url, 'Location: /manage/users')
+    ->status_is(302);
   $t->get_ok($users_url)->status_is(200)->content_like(qr|manage/Потребители|);
 };
 
@@ -279,7 +279,7 @@ my $user_permissions = sub {
   my $sform = {%$sform};    #copy
   $sform->{alias} = $sform->{title} = 'blabla1';
   my $id        = 6;
-  my $e_str_url = $app->url_for('edit_stranici' => {id => $id});
+  my $e_str_url = $app->url_for('edit_stranici'   => {id => $id});
   my $u_str_url = $app->url_for('update_stranici' => {id => $id});
 
 # page redirects back to edit_stranici with flash message "Failed validation for: permissions,writable"

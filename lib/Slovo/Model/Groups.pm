@@ -31,7 +31,7 @@ COLS
 
   return $m->all({
     columns  => $columns,
-    where    => {id => {-not_in => [1, 2]},},
+    where    => {id    => {-not_in => [1, 2]},},
     order_by => {-desc => ['is_member', 'id']}});
 }
 
