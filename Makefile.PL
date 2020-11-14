@@ -126,7 +126,7 @@ Beautify your code
 
     make perltidy
 
-Re-generate README and README.POD
+Re-generate README and README.pod
 
     make readme
 
