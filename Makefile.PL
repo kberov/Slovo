@@ -11,17 +11,17 @@ my $git_url     = 'https://github.com/kberov/Slovo';
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
   'Class::Method::Modifiers'            => '2.13',
-  'Cpanel::JSON::XS'                    => '4.12',
-  'Minion::Backend::SQLite'             => '4.005',
-  'Mojo::SQLite'                        => '3.002',
-  'Mojolicious'                         => '8.23',
-  'Mojolicious::Plugin::PODViewer'      => '0.004',
+  'Cpanel::JSON::XS'                    => '4.25',
+  'Minion::Backend::SQLite'             => '5.0.3',
+  'Mojo::SQLite'                        => '3.004',
+  'Mojolicious'                         => '8.65',
+  'Mojolicious::Plugin::PODViewer'      => '0.006',
   'Mojolicious::Plugin::Authentication' => '1.32',
-  'Mojolicious::Plugin::OpenAPI'        => '2.16',
-  'Mojolicious::Plugin::RoutesConfig'   => '0.05',
+  'Mojolicious::Plugin::OpenAPI'        => '3.40',
+  'Mojolicious::Plugin::RoutesConfig'   => '0.06',
   'Net::SMTP'                           => '3.11',
-  'Role::Tiny'                          => '2.000008',
-  'EV'                                  => '4.27'
+  'Role::Tiny'                          => '2.001004',
+  'EV'                                  => '4.33'
 };
 
 if ($ENV{TEST_AUTHOR}) {
@@ -48,9 +48,9 @@ WriteMakefile(
   MIN_PERL_VERSION => '5.020000',
   META_MERGE       => {
     dynamic_config => 0,
-    'meta-spec'    => {version => 2},
+    'meta-spec'    => {version   => 2},
     no_index       => {directory => ['t']},
-    prereqs        => {runtime => {requires => {perl => '5.020000'}}},
+    prereqs        => {runtime   => {requires => {perl => '5.020000'}}},
     resources      => {
       bugtracker => {web => "$git_url/issues"},
       homepage   => $git_url,
@@ -71,14 +71,16 @@ sub MY::postamble {
     }
   };
   File::Find::find($options, 'lib', 't');
-
+  my $perltidy_files = join '\\' . $/ . "\t ", @perltidy_files;
   return <<"TARGETS";
 readme ::
 \t$preop
 dist : readme
 
 perltidy ::
-\tperltidy -pro=.perltidyrc @perltidy_files
+\tperltidy -pro=.perltidyrc \\
+\t$perltidy_files
+
 TARGETS
 }
 
@@ -92,21 +94,38 @@ Makefile.PL for the Slovo project
 
 =head1 SYNOPSIS
 
-Some commands;
+Some commands:
 
-Install
+Set C<INSTALL_BASE>, remove old Slovo installation, make, test, install, create
+data directory for sqlite database and run slovo to see available commands.
 
-    $ INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
+    INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
     perl Makefile.PL INSTALL_BASE=$INSTALL_BASE && make && make test && make install \
+    && $INSTALL_BASE/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
     && $INSTALL_BASE/bin/slovo
+
+Use cpanm to install or update into a custom location as self contained application and
+run slovo to see how it's going
+
+    # From metacpan. org
+    export PREFIX=~/opt/slovo;
+    cpanm -M https://cpan.metacpan.org -n --self-contained -l $PREFIX Slovo \
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
+    $PREFIX/bin/slovo
+
+    # From the directory where you unpacked Slovo
+    export PREFIX=~/opt/slovo;
+    cpanm . -n --self-contained -l $PREFIX Slovo
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});'
+    $PREFIX/bin/slovo
 
 Start the development server and open a browser
 
-    $ morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
+    morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
 
 Start the production server
 
-    $ hypnotoad script/slovo
+    hypnotoad script/slovo
     # you will see something like the following:
     [2019-02-24 19:38:08.69754] [13570] [info] Listening at "http://127.0.0.1:9090"
     Server available at http://127.0.0.1:9090
@@ -126,7 +145,7 @@ Beautify your code
 
     make perltidy
 
-Re-generate README and README.POD
+Re-generate README and README.pod
 
     make readme
 

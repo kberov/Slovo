@@ -231,7 +231,7 @@ footer {
 }
 
 
-#Ꙋправленѥ {
+#manage {
     font-size: x-small
 }
 
@@ -254,11 +254,11 @@ header .mui-dropdown .mui-dropdown__menu > li > a {
 }
 
 /* home page */
-section.множество {
+section.group {
 
 }
 
-section.множество article.писанѥ h2 {
+section.group article.writing h2 {
     height: 2rem;
     overflow: hidden;
     /* top | right | bottom | left */
@@ -268,7 +268,7 @@ section.множество article.писанѥ h2 {
     border-right: 0.5rem solid #607d8b;
 }
 
-section.множество article.писанѥ a.писанѥ {
+section.group article.writing a.writing {
     /* top | right | bottom | left */
     padding: 0 .5rem     0    0;
     border-right: 0.5rem solid #607d8b;
@@ -278,7 +278,7 @@ section.множество article.писанѥ a.писанѥ {
     right: 0;
 }
 
-section.множество article.писанѥ {
+section.group article.writing {
     display: inline-block;
     max-width: 100%;
     min-width: 15rem;
@@ -288,7 +288,7 @@ section.множество article.писанѥ {
     background: white;
 }
 
-section.множество article.писанѥ div.ѿкѫсъ {
+section.group article.writing div.exerpt {
     overflow: hidden;
     height: 8rem;
     padding: .5rem;
@@ -304,4 +304,3 @@ section p.drop-cap::first-letter {
   text-transform: uppercase;
   font-family: BukyvedeRegular;
 }
-

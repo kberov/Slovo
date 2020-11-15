@@ -10,7 +10,7 @@ my $celini_table = Slovo::Model::Celini->table;
 
 has not_found_id    => 4;
 has table           => $table;
-has title_data_type => 'заглавѥ';
+has title_data_type => 'title';
 has main_boxes      => sub { ['main', 'главна'] };
 has celini          => sub { $_[0]->c->celini };
 
@@ -33,7 +33,7 @@ WITH RECURSIVE pids(p)
   WHERE s.id IN pids
     AND c.page_id = s.id
     AND $LSQL
-    AND c.data_type = 'заглавѥ'
+    AND c.data_type = 'title'
     AND s.page_type !='коренъ';
 SQL
   my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
@@ -87,7 +87,7 @@ SQL
       {
         "$table.permissions" => {-like => '____r_x%'},
         "$table.published"   => $preview ? 1 : 2,
-        "$table.group_id" =>
+        "$table.group_id"    =>
           \["IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}],
       },
     ]};
@@ -278,7 +278,7 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
 }
 
 
-# Get all pages under current (home) page which have заглавѥ which is directory
+# Get all pages under current (home) page which have title which is directory
 # (i.e. contains articles) and get $opts->{celini_opts}{limit} articles for
 # each. $opts contains only two keys (stranici_opts, and celini_opts). They
 # will be passed respectively to all_for_list() and
@@ -290,7 +290,7 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   my $celini_opts = {
     columns => 'title, id, alias, substr(body,1,555) as teaser, language',
     limit   => 6,
-    where   => {"$celini_table.data_type" => {'!=' => 'заглавѥ'}},
+    where   => {"$celini_table.data_type" => {'!=' => 'title'}},
     %{delete $opts->{celini_opts}}};
 
   return $m->all_for_list($user, $domain, $preview, $l, $stranici_opts)->each(
@@ -300,7 +300,7 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
   WHERE pid=? AND page_id=? AND data_type=? limit 1)
 SQL
       my $opts = {%$celini_opts};    #copy
-      $opts->{where}{"$celini_table.pid"} = \[$SQL, 0, $p->{id}, 'заглавѥ'];
+      $opts->{where}{"$celini_table.pid"} = \[$SQL, 0, $p->{id}, 'title'];
       $p->{articles}
         = $m->celini->all_for_display_in_stranica($p, $user, $l, $preview, $opts);
     });
@@ -314,7 +314,7 @@ sub languages ($m, $p, $u, $prv) {
   my $where = {
     page_id =>
       \["=(SELECT id FROM $table WHERE alias=? AND dom_id=?)", $p->{alias}, $p->{dom_id}],
-    data_type => 'заглавѥ',
+    data_type => 'title',
     box       => ['main', 'главна'],
 
     # and those titles are readable by the current user

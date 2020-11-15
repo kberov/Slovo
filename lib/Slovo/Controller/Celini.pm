@@ -11,8 +11,8 @@ my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to('цѣлина_с_ѩꙁыкъ' =>
-      {'цѣлина' => $celina->{alias}, 'страница' => $page->{alias}, 'ezik' => $l});
+  return $c->redirect_to(para_with_lang =>
+      {'paragraph' => $celina->{alias}, page => $page->{alias}, 'lang' => $l});
 };
 
 # Prepares collection of parent ids of celiny in which a celina can be put.
@@ -23,21 +23,21 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
       page_id => $page_id,
       $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
       language  => $celini->language_like($l),
-      data_type => {in => [qw(заглавѥ книга въпросъ)]}}};
+      data_type => {in => [qw(title book question)]}}};
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
 };
 
-# ANY /<страница:str>/<цѣлина:cel>.<ezik:lng>.html
-# ANY /<:страница:str>/<цѣлина:cel>.html
+# ANY /<page:str>/<paragraph:cel>.<lang:lng>.html
+# ANY /<:page:str>/<paragraph:cel>.html
 # Display a content element in a page in the site.
 sub execute ($c, $page, $user, $l, $preview) {
 
   # TODO celina breadcrumb
-  #my $path = [split m|/|, $c->stash->{'цѣлина'}];
+  #my $path = [split m|/|, $c->stash->{'paragraph'}];
   #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
-  my $alias  = $c->stash->{'цѣлина'};
+  my $alias  = $c->stash->{'paragraph'};
   my $celina = $c->celini->find_for_display($alias, $user, $l, $preview,
     {pid => $c->stash->{celini}[0]{id}, page_id => $page->{id}});
 
@@ -47,12 +47,12 @@ sub execute ($c, $page, $user, $l, $preview) {
 
   unless ($celina) {
     $celina = $c->celini->find_where(
-      {page_id => $c->not_found_id, language => $l, data_type => 'заглавѥ'});
+      {page_id => $c->not_found_id, language => $l, data_type => 'title'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
   return $c->is_fresh(last_modified => $celina->{tstamp})
     ? $c->rendered(304)
-    : $c->render(celina => $celina, 'цѣлина' => $celina->{alias});
+    : $c->render(celina => $celina, 'paragraph' => $celina->{alias});
 }
 
 # GET /celini/create
@@ -80,7 +80,7 @@ sub create($c) {
     u             => $u,
     in            => $row,
     parent_celini => _celini_options($c, 0, $row->{page_id}, $u, $l),
-    parent_pages =>
+    parent_pages  =>
       $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
   );
 }
@@ -141,7 +141,7 @@ sub edit($c) {
     u             => $u,
     in            => $row,
     parent_celini => _celini_options($c, $row->{id}, $row->{page_id}, $u, $l),
-    parent_pages =>
+    parent_pages  =>
       $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
   );
 }
@@ -264,12 +264,12 @@ sub _validation($c) {
 
   # For all but the last two types the following properties are required
   my $types_rx = join '|', @$types[0 .. @$types - 2];
-  my $dt       = $v->param('data_type') // '';
+  my $dt = $v->param('data_type') // '';
   if ($dt =~ /^($types_rx)$/x) {
     $title = $alias = 'required';
   }
 
-  # for ѿговоръ pid is required
+  # for answer pid is required
   elsif ($dt =~ /^($types->[-2])$/x) {
     $pid = 'required';
   }
@@ -290,15 +290,15 @@ sub _validation($c) {
   $v->required('body', 'trim');
   $v->optional('box', 'trim')->size(0, 35)
     ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
-  $v->optional('language', 'trim')->size(0, 5);
+  $v->optional('language',    'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
-  $v->optional('featured', 'trim')->in(1, 0);
-  $v->optional('accepted', 'trim')->in(1, 0);
-  $v->optional('bad',      'trim')->like(qr/^\d+$/);
-  $v->optional('deleted',  'trim')->in(1, 0);
-  $v->optional('start',    'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('stop',     'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('published', 'trim')->in(2, 1, 0);
+  $v->optional('featured',    'trim')->in(1, 0);
+  $v->optional('accepted',    'trim')->in(1, 0);
+  $v->optional('bad',         'trim')->like(qr/^\d+$/);
+  $v->optional('deleted',     'trim')->in(1, 0);
+  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('published',   'trim')->in(2, 1, 0);
   $c->b64_images_to_files('body');
   return $v;
 }

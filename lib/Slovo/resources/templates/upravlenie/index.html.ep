@@ -1,4 +1,4 @@
-% my $title ='Ꙋправленѥ';
+% my $title ='manage';
 % layout 'upravlenie'; title $title;
 <h1><%== $title %></h1>
 <nav>

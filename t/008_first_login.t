@@ -41,11 +41,11 @@ my $create_user = sub {
 };
 
 my $first_login = sub {
-  $t->get_ok('/първи-входъ/' . $token_row->{token})->status_is(200)
+  $t->get_ok('/first_login/' . $token_row->{token})->status_is(200)
     ->element_exists('[name="first_name"]')->element_exists('[name="last_name"]');
   my $from_u = $app->users->find($user->{created_by});
   $t->post_ok(
-    '/първи-входъ/',
+    '/first_login/',
     form => {
       first_name => $from_u->{first_name},
       last_name  => $from_u->{last_name},
@@ -65,10 +65,10 @@ my $first_login = sub {
 my $passw_login = sub {
 
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
-  $t->post_ok('/входъ' => {}, form => {login_name => 'шестi', login_password => 'грешѧ'})
+  $t->post_ok('/in' => {}, form => {login_name => 'шестi', login_password => 'грешѧ'})
     ->element_exists('#passw_login');
-  $t->get_ok('/загубенъ-ключъ')->status_is(200)->element_exists('[name="email"]');
-  $t->post_ok('/загубенъ-ключъ' => {}, form => {email => $user_form->{email}})
+  $t->get_ok('/lost_password')->status_is(200)->element_exists('[name="email"]');
+  $t->post_ok('/lost_password' => {}, form => {email => $user_form->{email}})
     ->status_is(200);
   $app->minion->perform_jobs;
   my $jobs = $app->dbx->db->select('minion_jobs', '*')->hashes;
@@ -86,4 +86,3 @@ subtest create_user => $create_user;
 subtest first_login => $first_login;
 subtest passw_login => $passw_login;
 done_testing;
-

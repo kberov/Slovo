@@ -100,7 +100,7 @@
          "minimum" : 1
       },
       "lang": {
-        "name": "ezik",
+        "name": "lang",
         "description": "In what language the title will be shown or content will be?",
         "type": "string",
         "in": "query",
@@ -135,7 +135,7 @@
         "in": "formData",
         "required": false,
         "default": "html",
-        "enum":["заглавѥ", "белѣжка", "писанѥ", "книга", "въпросъ", "ѿговоръ", "цѣлина"]
+        "enum":["title", "note", "writing", "book", "question", "answer", "paragraph"]
       },
       "permissions":{
         "name":"permissions",
@@ -154,7 +154,7 @@
       "application/x-www-form-urlencoded"
    ],
    "paths" : {
-      "/страници" : {
+      "/stranici" : {
          "get" : {
             "parameters" : [
                {

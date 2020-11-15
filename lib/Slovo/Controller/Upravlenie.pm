@@ -4,7 +4,7 @@ use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
 no warnings "experimental::lexical_subs";
 
-# ANY /Ꙋправленѥ/
+# ANY /manage/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
   state $menu = [qw(minion groups users domove stranici celini)];
@@ -33,13 +33,13 @@ Slovo::Controller::Upravlenie inherits all methods from L<Slovo::Controller> and
 
 =head1 ACTIONS
 
-Slovo::Controller::Upravlenie implements the following actions C<under  => '/Ꙋправленѥ'>.
+Slovo::Controller::Upravlenie implements the following actions C<under  => '/manage'>.
 
 =head2 index
 
 Route: C<{any  => '/', to => 'upravlenie#index', name => 'home_upravlenie'}>
 
-Displays the main page C<under  => '/Ꙋправленѥ'>.
+Displays the main page C<under  => '/manage'>.
 
 
 =head1 SEE ALSO
@@ -47,5 +47,3 @@ Displays the main page C<under  => '/Ꙋправленѥ'>.
 L<Slovo::Controller>
 
 =cut
-
-

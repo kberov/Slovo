@@ -7,8 +7,8 @@ no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 
-# ANY /<страница:str>.<ezik:lng>.html
-# ANY /<страница:str>.html
+# ANY /<page:str>.<lang:lng>.html
+# ANY /<page:str>.html
 # Display a page in the site
 sub execute ($c, $page, $user, $l, $preview) {
 
@@ -21,7 +21,7 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render();
 }
 
-# All the following routes are under /Ꙋправленѥ
+# All the following routes are under /manage
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.
@@ -158,7 +158,7 @@ sub show($c) {
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
   my $str = $c->stranici;
-  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
   my $domain = $c->host_only;
   my $v      = $c->validation;
 
@@ -231,7 +231,7 @@ sub _validation($c) {
   # current user.
   $v->optional('pid',    'trim')->like(qr/^\d+$/);
   $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
-  $v->required('alias', 'slugify')->size(0, 32);
+  $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like(qr/^\d+$/);
   $v->optional('template',    'trim')->size(0, 255);
@@ -242,9 +242,9 @@ sub _validation($c) {
   $v->optional('start',       'trim')->like(qr/^\d+$/);
   $v->optional('stop',        'trim')->like(qr/^\d+$/);
   $v->optional('published',   'trim')->in(2, 1, 0);
-  $v->optional('hidden',  'trim')->in(1, 0);
-  $v->optional('deleted', 'trim')->in(1, 0);
-  $v->optional('changed_by', 'trim')->like(qr/^\d+$/);
+  $v->optional('hidden',      'trim')->in(1, 0);
+  $v->optional('deleted',     'trim')->in(1, 0);
+  $v->optional('changed_by',  'trim')->like(qr/^\d+$/);
 
   # Page attributes
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);
@@ -259,7 +259,7 @@ sub _validation($c) {
   return $v;
 }
 
-# GET/api/страници
+# GET/api/stranici
 # List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
 sub list($c) {

@@ -64,16 +64,15 @@ sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
   subtest login_ok => sub {
     my $login_url = $t->app->url_for('sign_in');
 
-    $t->get_ok($host . '/Ꙋправленѥ')->status_is(302)
-      ->header_is(Location => $login_url, 'Location is /входъ');
-    $t->get_ok($host . '/входъ')->status_is(200)->text_is('head title' => 'Входъ');
+    $t->get_ok($host . '/manage')->status_is(302)
+      ->header_is(Location => $login_url, 'Location is /in');
+    $t->get_ok($host . '/in')->status_is(200)->text_is('head title' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body
-      = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)->header_is(
-      Location => '/' . b('Ꙋправленѥ')->encode->url_escape,
-      'Location: /Ꙋправленѥ'
-    )->content_is('', 'empty content')->tx->res->body;
+      = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)
+      ->header_is(Location => '/' . b('manage')->encode->url_escape, 'Location: /manage')
+      ->content_is('', 'empty content')->tx->res->body;
     $t->authenticated($body eq '');
   };
   return $t;
@@ -88,7 +87,7 @@ sub fill_in_login_form ($t, $login_name = '', $login_password = '', $host = '') 
   return {
     login_name => $login_name,
     csrf_token => $csrf_token,
-    digest =>
+    digest     =>
       sha1_sum($csrf_token . sha1_sum(encode('utf8', "$login_name$login_password"))),
   };
 }

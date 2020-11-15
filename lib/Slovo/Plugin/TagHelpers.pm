@@ -65,7 +65,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
 };
 
 my sub _format_body ($c, $celina) {
-  my $id = 'цѣлина_body_' . $celina->{data_format} . $celina->{id};
+  my $id = 'celina_body_' . $celina->{data_format} . $celina->{id};
   if ($celina->{data_format} eq 'markdown') {
     my $body = $celina->{body} =~ s/\`/\\`/gr;
     return
@@ -149,7 +149,7 @@ derived from the C<$name>. Suitable for fields with multiple values.
 
 =head2 html_substr
 
-   %= html_substr($писанѥ->{teaser}//$писанѥ->{body}, 'p,blockquote', 225);
+   %= html_substr($writing->{teaser}//$writing->{body}, 'p,blockquote', 225);
 
 Parameters: C<$c, $html, $selector, $chars>
 

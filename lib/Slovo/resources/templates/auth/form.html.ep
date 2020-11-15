@@ -9,7 +9,7 @@
 % }
 %= form_for sign_in => (id => 'sign_in', class => 'mui-form') => begin
     <div class="mui-textfield">
-% my $name_title = 'Полето „Име за вход“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
+% my $name_title = 'Полето „Име за входъ“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
 %= label_for login_name => 'Име за входъ', title => $name_title
 <%=
 text_field 'login_name',

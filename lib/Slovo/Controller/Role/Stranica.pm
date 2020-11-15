@@ -11,14 +11,14 @@ around execute => \&_around_execute;
 
 sub _around_execute ($execute, $c) {
   state $cache_pages    = $c->config('cache_pages');
-  state $list_columns   = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns   = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
   my $is_guest = !$c->is_user_authenticated;
 
   return 1 if $cache_pages && $is_guest && $c->_render_cached_page();
   my $preview = !$is_guest && $c->param('прегледъ');
-  my $alias   = $c->stash->{'страница'};
+  my $alias   = $c->stash->{page};
   my $l       = $c->language;
   my $user    = $c->user;
   my $str     = $c->stranici;
@@ -27,7 +27,7 @@ sub _around_execute ($execute, $c) {
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
-    if $page && $page->{alias} ne $alias && !$c->stash->{'цѣлина'};
+    if $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -40,7 +40,7 @@ sub _around_execute ($execute, $c) {
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    'страница'   => $page->{alias},
+    page         => $page->{alias},
     celini       => $celini,
     domain       => $domain,
     list_columns => $list_columns,
@@ -50,13 +50,13 @@ sub _around_execute ($execute, $c) {
 
     # data_type to template name
     d2t => {
-      'белѣжка' => '_beleyazhka',
-      'въпросъ' => '_wyprosy',
-      'заглавѥ' => '_zaglawie',
-      'книга'   => '_kniga',
-      'писанѥ'  => '_pisanie',
-      'цѣлина'  => '_ceyalina',
-      'ѿговоръ' => '_otgowory'
+      'note'      => '_beleyazhka',
+      'question'  => '_wyprosy',
+      'title'     => '_zaglawie',
+      'book'      => '_kniga',
+      'writing'   => '_pisanie',
+      'paragraph' => '_ceyalina',
+      'answer'    => '_otgowory'
     },
   );
 
@@ -89,8 +89,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to(
-    'страница_с_ѩꙁыкъ' => {'страница' => $page->{alias}, 'ezik' => $l});
+  return $c->redirect_to('page_with_lang' => {page => $page->{alias}, 'lang' => $l});
 }
 
 my $cached    = 'cached';
@@ -116,7 +115,7 @@ sub _render_cached_page($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path = $c->url_for({'ezik' => $l})->path->canonicalize->to_route =~ s|^/||r;
+  my $url_path = $c->url_for({'lang' => $l})->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   $file->dirname->make_path({mode => oct(700)});
@@ -177,7 +176,7 @@ sub b64_images_to_files ($c, $name) {
       my ($ext)  = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
       my $ipad   = $i < 10 ? "0$i" : $i;
-      my $src = path($paths->[0], 'img',
+      my $src    = path($paths->[0], 'img',
         sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 
@@ -314,7 +313,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   state $root = $str->find_where(
     {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
   state $pt           = $str->table;
-  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
@@ -334,7 +333,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
 sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
   return unless $crow->{is_dir};
   return if ($crow->{id} == ($row->{id} // 0));
-  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
   my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
 
   my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);
@@ -373,7 +372,7 @@ everything put by this wrapper into stash. L<Slovo::Controller::Celini> in
 addition has to find the specific celina to render.
 
 To the wrapped methods are passed the parameters C<$page, $user, $language,
-$preview>.  C<$page> is the current page with the заглавѥ celina in the current
+$preview>.  C<$page> is the current page with the title celina in the current
 language.  C<$user> is the current user. C<$language> is C<$c->language>.
 C<$preview>  is a boolean value - true if the current request is just a preview.
 In preview mode C<permissions> and C<published> columns of the records in the
@@ -437,4 +436,3 @@ L<Slovo::Controller::Celini>, L<Slovo::Controller::Stranici>
 =cut
 
 1;
-

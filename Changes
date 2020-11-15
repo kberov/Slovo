@@ -1,10 +1,29 @@
 Revision history for Mojolicious application Slovo
 
 2020.11.11
+    Get back to Slovo after getting my master degree in programme "Medieval
+    Bulgarian Studies" – Sofia University "St. Kliment Ochridski".
+    * Switched to codename U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ). With
+      this we mark the renewal of the project.
     * Changed double quotes to single quotes for values
       in lib/Slovo/resources/data/migrations.sql as "suddenly" they started to
       be treated as columns. This happens as of DBD::SQLite 1.63_05 2019-07-12.
-    * Minor fixes in lib/Slovo/resources/api-v1.0.json.
+      Fixed #28.
+    * Minor fixes in lib/Slovo/resources/api-v1.0.json. "maxLength" value needs
+      to be an integer.
+    * Changed all identifiers for data types in table celini from
+      Bulgarian(Cyrillic) to English(Latin) to increase understanding by
+      potential nonslavic contributors. Here they are: въпросъ => question;
+      книга => book; писанѥ => writing; белѣжка => note; заглавѥ => title.
+    * Upgraded to Mojolicious 8.65, Mojo::SQLite 3.004, Cpanel::JSON::XS 4.25
+      Minion::Backend::SQLite 5.0.3, Role::Tiny 2.001004, EV 4.33,
+      Mojolicious::Plugin::OpenAPI 3.40, Mojolicious::Plugin::RoutesConfig 0.06
+      Test::PerlTidy 20200930, Perl::Critic 1.38.
+    * Changed most css and route identifiers from Bulgarian(Cyrillic) to
+      English(Latin) too. Fixed #16.
+    * Preferring data/slovo.$mode.sqlite if found upon startup over
+      lib/Slovo/resourcesdata/slovo.$mode.sqlite.
+
 
 2019.09.19
     A very late release!

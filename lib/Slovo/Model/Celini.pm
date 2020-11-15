@@ -57,7 +57,7 @@ sub where_with_permissions ($self, $user, $preview) {
       {
         "$table.permissions" => {-like => '____r_x%'},
         "$table.published"   => $preview ? 1 : 2,
-        "$table.group_id" =>
+        "$table.group_id"    =>
           \["IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}],
       },
     ]};

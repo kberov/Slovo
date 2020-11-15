@@ -1,4 +1,4 @@
-% my $title =  'Ꙋправленѥ/Множества';
+% my $title =  'manage/Множества';
 % layout 'upravlenie'; title $title;
 
 <h1><%== $title %></h1>
@@ -23,4 +23,3 @@
 % }
     </tbody>
 </table>
-

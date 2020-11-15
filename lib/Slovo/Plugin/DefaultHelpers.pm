@@ -37,12 +37,12 @@ sub register ($self, $app, $config) {
     language => sub ($c, $l = '') {
       if ($l) {
         $l = $c->languages->first(qr/^$l$/) // $c->languages->first;
-        $c->stash('ezik', $l);
+        $c->stash('lang', $l);
         return $c;
       }
 
       # language param
-      $l = $c->stash('ezik');
+      $l = $c->stash('lang');
 
       #existing language
       return $l if ($l = $c->languages->first(qr/^$l$/));
@@ -75,7 +75,7 @@ if ($DEV_MODE) {
         $msg .= Mojo::Util::dumper($p);
         chomp $msg if $p eq $params[-1];
       }
-      else { $msg .= $p//'undefined'; }
+      else { $msg .= $p // 'undefined'; }
     }
     $log->debug($msg . "\n at $filename:$line\n in " . (caller(2))[3]);
     return;
@@ -166,13 +166,13 @@ otherwise.
 
 =head2 language
 
-Wrapper for C<$c-E<gt>stash('ezik')>, which is set in C<$app-E<gt>defaults> in
+Wrapper for C<$c-E<gt>stash('lang')>, which is set in C<$app-E<gt>defaults> in
 C<slovo.conf>. The requested language is also checked if it exists in
 C<$c-E<gt>openapi_spec('/parameters/language/enum')>. The first element from
 this list is returned if the requested language is not found in it. Using
-C<$ezik>, found in the stash in templates is strongly discouraged.
+C<$lang>, found in the stash in templates is strongly discouraged.
 
-    <%= language eq $ezik %> <!-- renders 1 -->
+    <%= language eq $lang %> <!-- renders 1 -->
     $c->language
 
 =head2 languages

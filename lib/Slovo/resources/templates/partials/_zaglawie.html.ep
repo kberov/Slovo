@@ -1,11 +1,11 @@
-<!-- _заглавѥ -->
+<!-- _title -->
 % my $collection = ($controller eq 'stranici' && $celina->{permissions} =~ /^d/);
-<section class="заглавѥ<%= $collection ? ' множество' : '' %>">
+<section class="title<%= $collection ? ' group' : '' %>">
     %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
 <%
 # The content element can be displayed in two contexts.
 # 1. Страница a.k.a. List context:
-# if ($controller eq 'stranici' && $заглавѥ->{permissions} =~ /^d/)
+# if ($controller eq 'stranici' && $title->{permissions} =~ /^d/)
 # This is when it is displayed as part (title) of the page.
 # This context is when the url to the page only is accessed
 # (e.g. http://local.слово.бг:3000/вести.html). In this context the
@@ -26,7 +26,7 @@
 
           # avoid recursion
           'celini.pid'       => {'='  => $celina->{id}, '!=' => {-ident => 'celini.id'}},
-          'celini.data_type' => {'!=' => 'заглавѥ'},
+          'celini.data_type' => {'!=' => 'title'},
           'celini.box'       => {-in  => [qw(главна main)]}}});
     %>
     <%==

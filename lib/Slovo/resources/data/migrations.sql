@@ -199,9 +199,9 @@ VALUES (
   group_id INTEGER NOT NULL,
   -- For sorting chapters in a book, stranici in a menu etc.
   sorting int(10) DEFAULT 0,
-  -- Semantic content types: 'въпросъ', 'ѿговоръ', 'писанѥ', 'белѣжка',
-  -- 'книга', 'глава', 'заглавѥ', 'цѣлина'…
-  data_type VARCHAR(32) DEFAULT 'белѣжка',
+  -- Semantic content types: 'question', 'answer', 'writing', 'note',
+  -- 'book', 'глава', 'title', 'paragraph'…
+  data_type VARCHAR(32) DEFAULT 'note',
   -- text, html, markdown, asc…
   data_format VARCHAR(32) DEFAULT 'text',
   -- When this content was inserted
@@ -229,7 +229,7 @@ VALUES (
   featured int(1) DEFAULT 0,
   -- Answer accepted?
   accepted int(1) DEFAULT 0,
-  -- Reported as inapropriate offensive etc. higher values -very bad.
+  -- Reported as inapropriate offensive etc. Higher values mean "very bad".
   bad int(2) DEFAULT 0,
   -- When set to 1 the record is not visible anywhere.
   deleted int(1) DEFAULT 0,
@@ -237,7 +237,7 @@ VALUES (
   start INTEGER DEFAULT 0,
   -- Date/Time till which the record will be accessible in the site.
   stop INTEGER DEFAULT 0,
-  -- Who modified this цѣлина the last time?
+  -- Who modified this record the last time?
   changed_by INTEFER REFERENCES users(id),
   FOREIGN KEY (pid)      REFERENCES celini(id)   ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (page_id)  REFERENCES stranici(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -260,7 +260,7 @@ VALUES (
       id, alias, body, created_at, data_format, data_type, group_id,
       keywords, language, page_id, pid, tags, title, user_id)
   VALUES (
-      0, 'начало', '', 1523807733, 'text', 'заглавѥ', 0,
+      0, 'начало', '', 1523807733, 'text', 'title', 0,
       'Slovo, Слово', 'bg', 0, 0, 'начало, home', 'Слово', 0);
 
 
@@ -279,15 +279,15 @@ INSERT INTO stranici VALUES(3,0,0,'ѿносно','обичайна','-rwxr-xr-x'
 UPDATE "celini" SET "body" = 'Добре дошли на страниците на слово.бг!',
 "language" = 'bg-bg', "title" = 'Слово' WHERE ( "id" = 0 );
 INSERT INTO "celini"
-VALUES(1,'писания',0,0,1,5,5,0,'заглавѥ','text',1525178911,0,'Писания',
+VALUES(1,'писания',0,0,1,5,5,0,'title','text',1525178911,0,'Писания',
     '','','','Добре дошли на нашата страница за „Писания“! Опитайте и вие да
     напишете нещо, може да ви се удаде. Ура, записва!','main','bg-bg',
     '-rwxr-xr-x',0,0,0,0,0,0,5);
 INSERT INTO "celini"
-VALUES(3,'вести',0,0,2,5,5,0,'заглавѥ','text',1525191489,0,'Вести','',
+VALUES(3,'вести',0,0,2,5,5,0,'title','text',1525191489,0,'Вести','',
     '','','Новините са в този раздел.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
 INSERT INTO "celini"
-VALUES(4,'ѿносно',0,0,3,5,5,0,'заглавѥ','text',1525193683,0,'Ѿносно',
+VALUES(4,'ѿносно',0,0,3,5,5,0,'title','text',1525193683,0,'Ѿносно',
     '','','','Обяснения за сайта. Какъв е и за какво се говори в него. Каква е
     неговата цел.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
 
@@ -299,13 +299,13 @@ delete from stranici where id >0;
 UPDATE stranici set group_id=5 where alias='коренъ';
 INSERT INTO "stranici" VALUES(4, 0, 0, 'не-е-намерена', 'обичайна', 'drwxr-xr-x', 1, NULL, 5, 5, 1527802409, 1527802409, 0, 1, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(5,'втора-цѣлина',0,0,0,5,5,1,'цѣлина', 'html', 1526844885, 0, 'Втора цѣлина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
-INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'цѣлина', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
+INSERT INTO "celini" VALUES(5,'втора-цѣлина',0,0,0,5,5,1,'paragraph', 'html', 1526844885, 0, 'Втора цѣлина', '', '', '', 'нещо още в главната кутия на страницата','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
+INSERT INTO "celini" VALUES(6,'северна-и-южна-корея-в-спор-за-12-сервитьорки',0,0,0,5,5,2, 'paragraph', 'html' , 1526851706, 0,'Северна и Южна Корея в спор за 12 сервитьорки','','','','<p>Северна Корея настоя Южна Корея да върне обратно 12 сервитьорки,
     за които твърди, че са отвлечени, предава AFP.</p>
 <p>Те са работели в държавен севернокорейски ресторант в Китай. Управителят на ресторанта казва, че ги излъгал и принудил да го  последват по нареждане на южнокорейските тайни служби.</p>
 <p>„Южнокорейските власти трябва незабавно да върнат нашите гражданки обратно при семействата им и това ще покаже воля за подобряване на двустранните отношения“, заявяват от Пхенян.</p>
 <p>Сеул настоява, че те са избягали в страната преди около две години и са останали в нея по собствено желание.</p>','главна','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
-INSERT INTO "celini" VALUES(7,'меню-незадължително',0,0,0,5,5,0,'заглавѥ','text',1527027334,0,'меню незадължително','','','','<ul>
+INSERT INTO "celini" VALUES(7,'меню-незадължително',0,0,0,5,5,0,'title','text',1527027334,0,'меню незадължително','','','','<ul>
 <li>Първо</li><li>Второ</li>
 <li>Трето
   <ul><li>Първо</li><li>Второ</li></ul>
@@ -313,9 +313,9 @@ INSERT INTO "celini" VALUES(7,'меню-незадължително',0,0,0,5,5,
 <li>Четвърто</li>
 </ul>','лѣво','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,5);
 
-INSERT INTO "celini" VALUES(8,'реклама',0,0,0,5,5,0,'заглавѥ','text',1527027663,0,'Реклама','','','','<div style="height:12em;background:red"> text here</div>
+INSERT INTO "celini" VALUES(8,'реклама',0,0,0,5,5,0,'title','text',1527027663,0,'Реклама','','','','<div style="height:12em;background:red"> text here</div>
 <div style="height:12em;background:blue">image and text</div>','дѣсно','bg-bg','-rwxr-xr-x',0,0,0,0,3,1558563642,5);
-INSERT INTO "celini" VALUES(9,'страницата-не-е-намерена',0,0,4,5,5,0,'заглавѥ','text',1527802409,0,'Страницата не е намерена',
+INSERT INTO "celini" VALUES(9,'страницата-не-е-намерена',0,0,4,5,5,0,'title','text',1527802409,0,'Страницата не е намерена',
     '','','','Страницата, която търсите не бе намерена.','main','bg-bg','-rwxr-xr-x',0,0,0,0,0,0,NULL);
 
 -- add user краси to group test1 for testing page displaying
@@ -344,19 +344,19 @@ INSERT INTO "stranici" VALUES(7, 0, 0, 'изтекла', 'обичайна', 'dr
 INSERT INTO "stranici" VALUES(8, 0, 0, 'предстояща', 'обичайна', 'drwxr-xr-x',
     1, NULL, 5, 5, 1527965753, 5527963618, 0, 2, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(10, 'скрита', 0, 0, 5, 5, 5, 0, 'заглавѥ', 'text',
+INSERT INTO "celini" VALUES(10, 'скрита', 0, 0, 5, 5, 5, 0, 'title', 'text',
     1527963618, 0, 'Скрита страница', '', '', '', 'Една скрита страница.',
     'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(11, 'изтрита', 0, 0, 6, 5, 5, 0, 'заглавѥ', 'text',
+INSERT INTO "celini" VALUES(11, 'изтрита', 0, 0, 6, 5, 5, 0, 'title', 'text',
     1527964061, 0, 'Изтрита страница', '', '', '', 'Една изтрита страница.',
     'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(12, 'изтекла', 0, 0, 7, 5, 5, 0, 'заглавѥ', 'text',
+INSERT INTO "celini" VALUES(12, 'изтекла', 0, 0, 7, 5, 5, 0, 'title', 'text',
     1527964237, 0, 'Изтекла страница', '', '', '', 'Една изтекла страница.',
     'main', 'bg-bg', '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
 
-INSERT INTO "celini" VALUES(13, 'предстояща', 0, 0, 8, 5, 5, 0, 'заглавѥ',
+INSERT INTO "celini" VALUES(13, 'предстояща', 0, 0, 8, 5, 5, 0, 'title',
     'text', 1527965753, 0, 'Предстояща', '', '', '', 'Страница, която ще
     започне да се показва след определено време.', 'main', 'bg-bg',
     '-rwxr-xr-x', 0, 0, 0, 0, 0, 0, NULL);
@@ -428,7 +428,7 @@ UPDATE stranici set published=1 WHERE alias='ѿносно';
 UPDATE celini SET published=1 where page_id=(SELECT id FROM stranici WHERE alias='ѿносно');
 
 -- 201807202200 up
-UPDATE celini SET alias = 'първа-лѣва-кутия', data_type='цѣлина',body
+UPDATE celini SET alias = 'първа-лѣва-кутия', data_type='paragraph',body
 = 'Първа лѣва обнародвана кутийка с нѣкакъв текст в лѣвия панел.',
 published = 2, sorting = 1, title = 'Първа лѣва кутия' WHERE ( id = 7
 );
@@ -461,11 +461,11 @@ UPDATE celini SET permissions ='drwxrwxr-x' WHERE id=3;
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format", "data_type", "user_id", "group_id", "language", "page_id", "permissions", "pid", "published", "sorting", "title")
 VALUES ( 'първа-вест',
     'Първа вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
-    писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
+    writing на title-то „Вести“. Има още много да се пише по question-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
 Още една целина за разкошъ.', 'главна',
-'1533474911', 'text', 'писанѥ',
+'1533474911', 'text', 'writing',
 5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 3, 'Първа вест' );
 
 INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
@@ -473,12 +473,12 @@ INSERT INTO "celini" ( "alias", "body", "box", "created_at", "data_format",
     "pid", "published", "sorting", "title")
 VALUES ( 'вътора-вест',
     'Вътора вест в страница-та „Вести“. Сѫдържанѥ-то е добавено като дъщерно
-    писанѥ на заглавѥ-то „Вести“. Има още много да се пише по въпросъ-а, но
+    writing на title-то „Вести“. Има още много да се пише по question-а, но
     сега просто създаваме това, за да се уверимъ, че работи.
 
 Още една целина за разкошъ. Вътората вест е нужна за проверка на показването на
 списъка с вести', 'главна',
-'1533474911', 'text', 'писанѥ',
+'1533474911', 'text', 'writing',
 5, 5, 'bg-bg', 2, '-rwxr-xr-x', 3, 1, 4, 'Вътора вест' );
 
 -- 201808080000 down
@@ -488,15 +488,15 @@ DELETE FROM celini WHERE alias IN ('вътора-вест', 'първа-вест
 
 -- 201808122000 up
 INSERT INTO "celini"
-VALUES((SELECT max(id)+1 from celini),'word',0,0,0,5,5,1,'заглавѥ','text',
+VALUES((SELECT max(id)+1 from celini),'word',0,0,0,5,5,1,'title','text',
     1534081667,0,'Word','','','','Welcome
     to the pages of слово.бг!','главна','en','-rwxr-xr-x',0,0,0,0,0,0,5,2);
 INSERT INTO "celini"
-VALUES((SELECT max(id)+1 from celini),'слово',0,0,0,5,5,3,'заглавѥ','text',
+VALUES((SELECT max(id)+1 from celini),'слово',0,0,0,5,5,3,'title','text',
     1534081960,0,'Слово','','','','Добро пожаловать на страницах
     слово.бг!','главна','ru','-rwxr-xr-x',0,0,0,0,0,0,5,2);
 INSERT INTO "celini"
-VALUES((SELECT max(id)+1 from celini),'slovo',0,0,0,5,5,4,'заглавѥ','text',
+VALUES((SELECT max(id)+1 from celini),'slovo',0,0,0,5,5,4,'title','text',
     1534082153,0,'Slovo','','','','Vítejte
     na stránkách слово.бг!','главна','cz','-rwxr-xr-x',0,0,0,0,0,0,5,2);
 UPDATE celini SET language='bg' WHERE alias='начало' and page_id=0;

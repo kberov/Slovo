@@ -1,21 +1,20 @@
-<!-- _писанѥ_ѿкѫсъ -->
-    <article class="mui--z1 mui--bg-color-white писанѥ">
+<!-- _writing_exerpt -->
+    <article class="mui--z1 mui--bg-color-white writing">
         <h2>
 % # greedily remove potential html
 % my $a_title = $celina->{title} =~ s/<[^>]+>?//gr;
 <%=
-link_to $a_title => 'цѣлина_с_ѩꙁыкъ' =>
-  {страница => $p->{alias}, цѣлина => $celina->{alias}, ezik => $celina->{language}} =>
+link_to $a_title => para_with_lang =>
+  {page => $p->{alias}, paragraph => $celina->{alias}, lang => $celina->{language}} =>
   (title => $a_title)
 %>
         </h2>
 <%=
-    link_to '…' => 'цѣлина_с_ѩꙁыкъ' =>
-      {страница => $p->{alias}, цѣлина => $celina->{alias},
-      ezik => $celina->{language}} => (class => 'писанѥ', title => $a_title)
+    link_to '…' => 'para_with_lang' =>
+      {page => $p->{alias}, paragraph => $celina->{alias},
+      lang => $celina->{language}} => (class => 'writing', title => $a_title)
 %>
-        <div class="ѿкѫсъ">
+        <div class="exerpt">
         %= html_substr($celina->{teaser}//$celina->{body}, 'p,blockquote', 225);
         </div>
     </article>
-

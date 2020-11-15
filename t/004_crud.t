@@ -22,11 +22,11 @@ $t->get_ok("$users_url/5")->status_is(200)->text_is('#first_name' => 'first_name
 
 # no privileges to edit other users
 $t->get_ok("$users_url/2")->status_is(302)
-  ->header_is(Location => $app->url_for('home_upravlenie'), 'Location: /Ꙋправленѥ');
+  ->header_is(Location => $app->url_for('home_upravlenie'), 'Location: /manage');
 
 # no privileges to edit groups
 $t->get_ok("$groups_url/2")->status_is(302)
-  ->header_is(Location => $app->url_for('home_upravlenie'), 'Location: /Ꙋправленѥ');
+  ->header_is(Location => $app->url_for('home_upravlenie'), 'Location: /manage');
 
 # Add the logged in user краси to 'admin' group.
 $app->dbx->db->insert('user_group', {user_id => 5, group_id => 1});
@@ -46,7 +46,7 @@ my $create_user = sub {
   };
   $t->post_ok($users_url => form => $user_form)->status_is(302)->header_is(
     Location => $users_url . '/store_result/1',
-    'Location: /Ꙋправленѥ/users/store_result/1'
+    'Location: /manage/users/store_result/1'
   )->content_is('', 'empty content');
   my $user_show = $t->get_ok($user6_url)->status_is(200);
   my $user      = $app->users->find(6);
@@ -68,7 +68,7 @@ my $create_user = sub {
 my $update_user = sub {
   my $groups = [4, 5];
   $t->put_ok($user6_url => form => {last_name => 'Седмак', groups => $groups})
-    ->header_is(Location => $user6_url, 'Location: /Ꙋправленѥ/users/6')
+    ->header_is(Location => $user6_url, 'Location: /manage/users/6')
     ->content_is('', 'empty content')->status_is(302);
   $t->get_ok($edit_user6_url)->status_is(200);
   for (@$groups, 6) {
@@ -78,9 +78,9 @@ my $update_user = sub {
 
 # Remove a user
 my $remove_user = sub {
-  $t->delete_ok($user6_url)
-    ->header_is(Location => $users_url, 'Location: /Ꙋправленѥ/users')->status_is(302);
-  $t->get_ok($users_url)->status_is(200)->content_like(qr|Ꙋправленѥ/Потребители|);
+  $t->delete_ok($user6_url)->header_is(Location => $users_url, 'Location: /manage/users')
+    ->status_is(302);
+  $t->get_ok($users_url)->status_is(200)->content_like(qr|manage/Потребители|);
 };
 
 # Create stranici
@@ -103,11 +103,11 @@ my $create_stranici  = sub {
   $stranici_url_new .= $new_page_id;
   $t->header_is(
     Location => "$stranici_url_new/edit",
-    "Location: /Ꙋправленѥ/stranici/$new_page_id/edit"
+    "Location: /manage/stranici/$new_page_id/edit"
   )->content_is('', 'empty content');
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
   my $title
-    = $app->celini->all({where => {page_id => $new_page_id, data_type => 'заглавѥ'}});
+    = $app->celini->all({where => {page_id => $new_page_id, data_type => 'title'}});
   is(@$title, 1, 'only one title');
 
   # get some title properties to check in the next subtest
@@ -170,7 +170,7 @@ my $cform = {
   title       => 'Цѣлина',
   body        => 'Нѣкаква цѣлина',
   language    => 'bg-bg',
-  data_type   => 'цѣлина',
+  data_type   => 'paragraph',
   data_format => 'html'
 };
 my $max_id = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id} + 2;
@@ -279,7 +279,7 @@ my $user_permissions = sub {
   my $sform = {%$sform};    #copy
   $sform->{alias} = $sform->{title} = 'blabla1';
   my $id        = 6;
-  my $e_str_url = $app->url_for('edit_stranici' => {id => $id});
+  my $e_str_url = $app->url_for('edit_stranici'   => {id => $id});
   my $u_str_url = $app->url_for('update_stranici' => {id => $id});
 
 # page redirects back to edit_stranici with flash message "Failed validation for: permissions,writable"
@@ -295,14 +295,14 @@ my $user_permissions = sub {
   # Now user is able to udate the page
   $sform->{permissions} = $permissions;
 
-  $t->put_ok('/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+  $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
 
-  $t->get_ok('/Ꙋправленѥ/stranici/' . $id)->text_like(
+  $t->get_ok('/manage/stranici/' . $id)->text_like(
     '#permissions' => qr/\s$permissions$/,
     "writable permissions for others:'$permissions'"
   );
-  $t->get_ok('/Ꙋправленѥ/celini/19')
+  $t->get_ok('/manage/celini/19')
     ->text_like('#title' => qr/\s$sform->{title}$/, "title changed to '$sform->{title}'");
 
   #user is not able to change another's user permissions
@@ -321,24 +321,24 @@ my $user_permissions = sub {
   $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302);
 
   $sform->{permissions} = 'drwxr-xr-x';
-  $t->put_ok('/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+  $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
   $sform->{permissions} = 'dr-xrwxr-x';
-  $t->put_ok('/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+  $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
   $sform->{permissions} = 'dr-xr-xrwx';
-  $t->put_ok('/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+  $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
   $sform->{permissions} = 'd---------';
-  $t->put_ok('/Ꙋправленѥ/stranici/' . $id => {Accept => '*/*'} => form => $sform)
+  $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
     ->status_is(302);
 
-  #now page should not be listed in /Ꙋправленѥ/stranici for other users
+  #now page should not be listed in /manage/stranici for other users
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
 
   # Use another user
   $t->login('краси', 'беров');
-  $t->get_ok('/Ꙋправленѥ/stranici')->status_is(200)
+  $t->get_ok('/manage/stranici')->status_is(200)
     ->element_exists_not('html body table tbody tr.deleted', "page $id not listed");
   delete $sform->{title_id};
 
@@ -376,4 +376,3 @@ subtest crud_domain      => $crud_domain;
 subtest user_permissions => $user_permissions;
 
 done_testing;
-

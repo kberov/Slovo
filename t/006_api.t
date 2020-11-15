@@ -11,7 +11,7 @@ my $t = Test::Mojo->with_roles('+Slovo')->install(
 my $app = $t->app;
 
 subtest 'api/stranici' => sub {
-  $t->get_ok("/api/страници")->status_is(200)->json_is('/0/alias' => 'писания');
+  $t->get_ok("/api/stranici")->status_is(200)->json_is('/0/alias' => 'писания');
 
   #create several pages and then check the list again
   ok($t->login('краси', 'беров') => 'login ok');
@@ -39,10 +39,9 @@ subtest 'api/stranici' => sub {
     $t->get_ok("$stranici_url/$id/edit?language=bg-bg")->status_is(200)
       ->content_like(qr/$title/);
   }
-  $t->ua->get('/изходъ');    # logout
-  $t->get_ok("/api/страници?pid=$pid")->status_is(200)->json_is('/0/alias' => 'foo')
+  $t->ua->get('/out');    # logout
+  $t->get_ok("/api/stranici?pid=$pid")->status_is(200)->json_is('/0/alias' => 'foo')
     ->json_is('/2/alias' => 'baz');
 };
 
 done_testing;
-

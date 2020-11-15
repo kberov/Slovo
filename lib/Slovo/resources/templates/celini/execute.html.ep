@@ -1,17 +1,17 @@
 <!-- celini/execute -->
 <%
-my $заглавѥто = shift @$celini;
+my $title_row = shift @$celini;
 my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ }) // '';
-my $дѣсна     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
+my $right     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
 # * 1:always.
 my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
-  title      => $заглавѥто->{title} . ' ⸙ ' . $celina->{title},
+  title      => $title_row->{title} . ' ⸙ ' . $celina->{title},
   left       => $left,
-  right      => $дѣсна,
+  right      => $right,
   sidedrawer => $sidedrawer;
 %>
 <%=
@@ -21,4 +21,3 @@ layout 'site',
       || include("partials/_data_type" => row => $celina, level => 1)
 %>
 <!-- end celini/execute -->
-

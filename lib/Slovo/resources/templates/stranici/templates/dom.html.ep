@@ -4,7 +4,7 @@
 my $the_title = shift @$celini;
 my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
 my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+my $right = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
@@ -13,13 +13,13 @@ my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
   title      => $the_title->{title},
   left       => $left,
-  right      => $дѣсна,
+  right      => $right,
   sidedrawer => $sidedrawer;
 %>
 %= include 'partials/_zaglawie' => (celina => $the_title, level => 1)
 <%
 # Get all pages under current (home) page which are directories and have
-# заглавѥ which is directory (i.e. contains articles) and get 6 articles for
+# title which is directory (i.e. contains articles) and get 6 articles for
 # each
 my $opts = {
   stranici_opts => {columns => $list_columns, pid => $page->{id},},
@@ -28,12 +28,12 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 
 %>
 <% for my $p (@$pages) { %>
-<section class="множество" id="страница-<%= $p->{id} %>">
+<section class="group" id="page-<%= $p->{id} %>">
     <h1 class="mui--text-dark">
-%= link_to $p->{title} => 'страница_с_ѩꙁыкъ' => {страница =>$p->{alias} ,ezik => language}
+%= link_to $p->{title} => 'page_with_lang' => {page =>$p->{alias} ,lang => language}
     </h1>
-    % for my $писанѥ (@{$p->{articles}}) {
-    %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $писанѥ);
+    % for my $writing (@{$p->{articles}}) {
+    %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $writing);
     % }
 </section>
 % if($p->{id} != $pages->[-1]->{id}) {
@@ -41,4 +41,3 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 % }
 <% } %>
 <!-- end stranici/templates/dom -->
-
