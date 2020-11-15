@@ -158,7 +158,7 @@ sub show($c) {
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
   my $str = $c->stranici;
-  state $list_columns = $c->openapi_spec('/paths/~1страници/get/parameters/4/default');
+  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
   my $domain = $c->host_only;
   my $v      = $c->validation;
 
@@ -259,7 +259,7 @@ sub _validation($c) {
   return $v;
 }
 
-# GET/api/страници
+# GET/api/stranici
 # List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
 sub list($c) {

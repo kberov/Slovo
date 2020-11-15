@@ -154,7 +154,7 @@
       "application/x-www-form-urlencoded"
    ],
    "paths" : {
-      "/страници" : {
+      "/stranici" : {
          "get" : {
             "parameters" : [
                {

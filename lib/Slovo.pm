@@ -483,7 +483,7 @@ source of truth so here it is.
 
     #anywhere via $app or $c, even not via a REST call
     state $columns =
-        $c->openapi_spec('/paths/~1страници/get/parameters/3/default');
+        $c->openapi_spec('/paths/~1stranici/get/parameters/3/default');
     [
       "id",
       "pid",
@@ -548,5 +548,3 @@ L<Slovo::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>,
 L<Slovo::Validator>, L<Mojolicious>, L<Mojolicious::Guides>
 
 =cut
-
-
