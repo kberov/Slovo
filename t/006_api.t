@@ -39,10 +39,9 @@ subtest 'api/stranici' => sub {
     $t->get_ok("$stranici_url/$id/edit?language=bg-bg")->status_is(200)
       ->content_like(qr/$title/);
   }
-  $t->ua->get('/изходъ');    # logout
+  $t->ua->get('/out');    # logout
   $t->get_ok("/api/страници?pid=$pid")->status_is(200)->json_is('/0/alias' => 'foo')
     ->json_is('/2/alias' => 'baz');
 };
 
 done_testing;
-

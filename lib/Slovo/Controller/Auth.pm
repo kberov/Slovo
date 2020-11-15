@@ -59,7 +59,7 @@ sub sign_in($c) {
   return $c->render('auth/form');
 }
 
-# GET /изходъ
+# GET /out
 sub sign_out ($c) {
   my $login_name = $c->user->{login_name};
   $c->logout;
