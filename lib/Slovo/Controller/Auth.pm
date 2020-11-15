@@ -11,7 +11,7 @@ use Mojo::Util qw(encode sha1_sum);
 sub current_user_fn { return 'user' }
 
 # Display the form for signing in.
-# GET /входъ
+# GET /in
 sub form($c) {
 
   #TODO: remember where the user is comming from to redirect him back
@@ -22,7 +22,7 @@ sub form($c) {
 }
 
 # Sign in the user.
-# POST /входъ
+# POST /in
 sub sign_in($c) {
 
   #1. do basic validation first
@@ -292,7 +292,7 @@ checks. Signs in the user for the first time.
 
 =head2 form
 
-Route: C<{get =E<gt> '/входъ', to =E<gt> 'auth#form', name =E<gt> 'authform'}>.
+Route: C<{get =E<gt> '/in', to =E<gt> 'auth#form', name =E<gt> 'authform'}>.
 
 Renders a login form. The password is never transmitted in plain text. A digest
 is prepared in the browser using JavaScript (see
@@ -316,7 +316,7 @@ user with the given email is found in the database.
 
 =head2 sign_in
 
-Route: C<{post =E<gt> '/входъ', to =E<gt> 'auth#sign_in', name =E<gt> 'sign_in'}>.
+Route: C<{post =E<gt> '/in', to =E<gt> 'auth#sign_in', name =E<gt> 'sign_in'}>.
 
 Finds and logs in a user locally. On success redirects the user to
 L<home_upravlenie|Slovo::Cotroller::Upravlenie/index>. On failure redirects

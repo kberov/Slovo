@@ -65,8 +65,8 @@ sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
     my $login_url = $t->app->url_for('sign_in');
 
     $t->get_ok($host . '/manage')->status_is(302)
-      ->header_is(Location => $login_url, 'Location is /входъ');
-    $t->get_ok($host . '/входъ')->status_is(200)->text_is('head title' => 'Входъ');
+      ->header_is(Location => $login_url, 'Location is /in');
+    $t->get_ok($host . '/in')->status_is(200)->text_is('head title' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body

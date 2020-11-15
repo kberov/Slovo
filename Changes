@@ -19,7 +19,7 @@ Revision history for Mojolicious application Slovo
       Mojolicious::Plugin::OpenAPI 3.40, Mojolicious::Plugin::RoutesConfig 0.06
       Test::PerlTidy 20200930, Perl::Critic 1.38.
     * Changed most css and route identifiers from Bulgarian(Cyrillic) to
-      English(Latin) too. "входъ" and  "изходъ" will stay.
+      English(Latin) too.
     * Preferring data/slovo.$mode.sqlite if found upon startup over
       lib/Slovo/resourcesdata/slovo.$mode.sqlite.
 

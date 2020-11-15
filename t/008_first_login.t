@@ -65,7 +65,7 @@ my $first_login = sub {
 my $passw_login = sub {
 
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
-  $t->post_ok('/входъ' => {}, form => {login_name => 'шестi', login_password => 'грешѧ'})
+  $t->post_ok('/in' => {}, form => {login_name => 'шестi', login_password => 'грешѧ'})
     ->element_exists('#passw_login');
   $t->get_ok('/lost_password')->status_is(200)->element_exists('[name="email"]');
   $t->post_ok('/lost_password' => {}, form => {email => $user_form->{email}})
