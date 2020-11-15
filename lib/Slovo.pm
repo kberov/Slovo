@@ -18,8 +18,8 @@ use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2019.09.19';
-our $CODENAME  = 'U+2C13 GLAGOLITIC CAPITAL LETTER RITSI (Ⱃ)';
+our $VERSION   = '2020.11.11';
+our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
@@ -310,12 +310,35 @@ If you already downloaded it and you have L<cpanm>.
 
     $ cpanm -l ~/opt/slovo Slovo-XXXX.XX.XX.tar.gz
 
-Or even if you don't have C<cpanm>, but you need to install dependencies first.
+Or even if you don't have C<cpanm>. Note that you need to install dependencies first.
+Set C<INSTALL_BASE>, remove old Slovo installation, make, test, install, create
+data directory for sqlite database and run slovo to see available commands.
 
     tar zxf Slovo-XXXX.XX.XX.tar.gz
     cd  Slovo-XXXX.XX.XX
-    perl Makefile.PL INSTALL_BASE=~/opt/slovo && make && make test && make install
+    INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
+    perl Makefile.PL INSTALL_BASE=$INSTALL_BASE && make && make test && make install \
+    && $INSTALL_BASE/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
+    && $INSTALL_BASE/bin/slovo
 
+Use cpanm to install or update into a custom location as self contained application and
+run slovo to see how it's going
+
+    # From metacpan. org
+    export PREFIX=~/opt/slovo;
+    cpanm -M https://cpan.metacpan.org -n --self-contained -l $PREFIX Slovo \
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
+    $PREFIX/bin/slovo
+
+    # From the directory where you unpacked Slovo
+    export PREFIX=~/opt/slovo;
+    cpanm . -n --self-contained -l $PREFIX Slovo
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});'
+    $PREFIX/bin/slovo
+
+Start the development server and open a browser
+
+    morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
 =head1 USAGE
 
     cd /path/to/installed/slovo

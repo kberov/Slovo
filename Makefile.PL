@@ -71,14 +71,16 @@ sub MY::postamble {
     }
   };
   File::Find::find($options, 'lib', 't');
-
+  my $perltidy_files = join '\\' . $/ . "\t ", @perltidy_files;
   return <<"TARGETS";
 readme ::
 \t$preop
 dist : readme
 
 perltidy ::
-\tperltidy -pro=.perltidyrc @perltidy_files
+\tperltidy -pro=.perltidyrc \\
+\t$perltidy_files
+
 TARGETS
 }
 
@@ -92,21 +94,38 @@ Makefile.PL for the Slovo project
 
 =head1 SYNOPSIS
 
-Some commands;
+Some commands:
 
-Install
+Set C<INSTALL_BASE>, remove old Slovo installation, make, test, install, create
+data directory for sqlite database and run slovo to see available commands.
 
-    $ INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
+    INSTALL_BASE=~/opt/slovo && rm -rf $INSTALL_BASE && make distclean; \
     perl Makefile.PL INSTALL_BASE=$INSTALL_BASE && make && make test && make install \
+    && $INSTALL_BASE/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
     && $INSTALL_BASE/bin/slovo
+
+Use cpanm to install or update into a custom location as self contained application and
+run slovo to see how it's going
+
+    # From metacpan. org
+    export PREFIX=~/opt/slovo;
+    cpanm -M https://cpan.metacpan.org -n --self-contained -l $PREFIX Slovo \
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});' \
+    $PREFIX/bin/slovo
+
+    # From the directory where you unpacked Slovo
+    export PREFIX=~/opt/slovo;
+    cpanm . -n --self-contained -l $PREFIX Slovo
+    $PREFIX/bin/slovo eval 'app->home->child("data")->make_path({mode => 0700});'
+    $PREFIX/bin/slovo
 
 Start the development server and open a browser
 
-    $ morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
+    morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
 
 Start the production server
 
-    $ hypnotoad script/slovo
+    hypnotoad script/slovo
     # you will see something like the following:
     [2019-02-24 19:38:08.69754] [13570] [info] Listening at "http://127.0.0.1:9090"
     Server available at http://127.0.0.1:9090
