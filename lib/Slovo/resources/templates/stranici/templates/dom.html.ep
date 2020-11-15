@@ -4,7 +4,7 @@
 my $the_title = shift @$celini;
 my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
 my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $дѣсна = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+my $right = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
@@ -13,7 +13,7 @@ my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
   title      => $the_title->{title},
   left       => $left,
-  right      => $дѣсна,
+  right      => $right,
   sidedrawer => $sidedrawer;
 %>
 %= include 'partials/_zaglawie' => (celina => $the_title, level => 1)
@@ -41,4 +41,3 @@ my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
 % }
 <% } %>
 <!-- end stranici/templates/dom -->
-
