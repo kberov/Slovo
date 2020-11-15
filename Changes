@@ -15,6 +15,7 @@ Revision history for Mojolicious application Slovo
     * Upgraded to Mojolicious 8.65, Mojo::SQLite 3.004, Cpanel::JSON::XS 4.25
       Minion::Backend::SQLite 5.0.3, Role::Tiny 2.001004, EV 4.33,
       Mojolicious::Plugin::OpenAPI 3.40, Mojolicious::Plugin::RoutesConfig 0.06
+      Test::PerlTidy 20200930, Perl::Critic 1.38.
     * Changed most css and route identifiers from Bulgarian(Cyrillic) to
       English(Latin) too. "входъ" and  "изходъ" will stay.
 
