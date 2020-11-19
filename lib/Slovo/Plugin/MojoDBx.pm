@@ -12,15 +12,13 @@ sub register ($self, $app, $conf) {
   my $adaptor_class = "Mojo::$conf->{adaptor}";
   my $log           = $app->log;
 
-  #$log->debug("Loading $adaptor_class");
-  $app->load_class("Mojo::$conf->{adaptor}");    # or Mojo::Pg, or Mojo::Mysql
-      # This should not be an option. Must be always 'dbx'.
-  my $helper = $conf->{helper} // 'dbx';
-  deprecated('"helper" config option is DEPRECATED! We always use "dbx".')
-    if $conf->{helper};
+  # $log->debug("Loading $adaptor_class");
+  $app->load_class($adaptor_class);    # or Mojo::Pg, or Mojo::Mysql
+  my $dbx;
   $app->helper(
-    $helper => sub {
-      my $dbx = $adaptor_class->new($conf->{new});
+    dbx => sub {
+      return $dbx if $dbx;
+      $dbx = $adaptor_class->new($conf->{new});
       $dbx->on(
         connection => sub ($dbx, $dbh) {
           for my $sql_or_code (@{$conf->{on_connection} // []}) {
@@ -29,7 +27,7 @@ sub register ($self, $app, $conf) {
           }
         });
 
-      my $home = $app->home->realpath->to_string;
+      state $home = $app->home->realpath->to_string;
       if ($conf->{sql_debug}) {
         $dbx->db->dbh->{Callbacks} = {
           prepare => sub {

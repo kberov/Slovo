@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2020.11.20
+    * Fixed a bug - The adaptor class (Mojo::SQLite/mysql/Pg) reinstantiated
+      each time $app->dbx was invoked. Now this is done only on the first
+      invocation.
+    * Removed deprecation warning about MojoDBx 'helper' setting. Now the
+      helper is always "dbx".
+
 2020.11.11
     Get back to Slovo after getting my master degree in programme "Medieval
     Bulgarian Studies" – Sofia University "St. Kliment Ochridski".
