@@ -6,6 +6,9 @@ Revision history for Mojolicious application Slovo
       invocation.
     * Removed deprecation warning about MojoDBx 'helper' setting. Now the
       helper is always "dbx".
+    * Default configuration from slovo.conf was moved to MojoDBx. If you use
+      slovo.$mode.conf your instance should not be affected as your file
+      will be preferred.
 
 2020.11.11
     Get back to Slovo after getting my master degree in programme "Medieval
