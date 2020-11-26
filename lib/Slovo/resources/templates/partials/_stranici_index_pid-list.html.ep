@@ -16,20 +16,20 @@ for my $p (@$stranici) {
       if ((@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid}) || ($p->{id} == $param_pid))
       {
         $podstranici = stranici->all_for_edit($user, $domain, $l,
-          {pid => $p->{id}, columns => [@$columns]});
+          {pid => $p->{id}, columns => [@$stranici_columns]});
         shift @$breadcrumb if @$breadcrumb;
       }
       $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';
     }
     my $class = join ' ', map { $p->{$_} ? $_ : () } qw(hidden deleted);
-    $class .= $p->{stop} != 0  && $p->{stop} < $time  ? ' expired'  : '';
-    $class .= $p->{start} != 0 && $p->{start} > $time ? ' upcoming' : '';
+    $class .= ($p->{stop}//0) != 0  && ($p->{stop}//0) < $time  ? ' expired'  : '';
+    $class .= ($p->{start}//0) != 0 && ($p->{start}//0) > $time ? ' upcoming' : '';
         %>
         <li class="fa-li">
             <i class="fas <%== $fa_class %>"></i>
             <%=
     $p->{is_dir}
-      ? link_to $p->{alias} => url_for->query([pid => $p->{id}]),
+      ? link_to $p->{alias} => url_for->query(pid => $p->{id}),
       (class => $class . ($p->{id} == $param_pid ? ' mui--color-deep-orange' : 0))
       : $p->{alias}
                 %>
@@ -66,18 +66,18 @@ for my $p (@$stranici) {
                 <li>
     <%=
     link_to url_with('create_stranici')
-      ->query([pid => $p->{id}, dom_id => $p->{dom_id}]),
+      ->query(pid => $p->{id}, dom_id => $p->{dom_id}),
       (title => "$new_subpage_title на „$p->{alias}”") => begin %><i
           class="fas fa-plus-square"></i> <%= $new_subpage_title %><% end %>
                 </li>
                 <li>
-    <%= link_to url_with('create_celini')->query([page_id => $p->{id}, ]),
+    <%= link_to url_with('create_celini')->query(page_id => $p->{id}),
     (title => "$new_celina в „$p->{alias}”") => begin %><i
             class="fas fa-plus-square"></i><i
             class="fas fa-file"></i> <%= $new_celina %><% end %>
                 </li>
                 <li>
-    <%= link_to url_for('home_celini')->query([page_id => $p->{id}, ]),
+    <%= link_to url_for('home_celini')->query(page_id => $p->{id}),
         (title => "$list_page_content „$p->{alias}”") => begin %><i
             class="fas fa-bars"></i> <%= $list_page_content %><% end %>
                 </li>
