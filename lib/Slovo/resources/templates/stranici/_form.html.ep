@@ -1,8 +1,9 @@
 <%
+state $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
 my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class   = join ' ', 'fields', @classes;
-$in->{user_id}  //= $u->{id};
-$in->{group_id} //= $u->{group_id};
+$in->{user_id}  //= $user->{id};
+$in->{group_id} //= $user->{group_id};
 
 my $sorting = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
@@ -73,9 +74,9 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
                   %= label_for template => 'Образец'
                   <%= 
-                  text_field 'template',
+                  text_field template => undef,
                   title => 'Образец, намиращ се в папка templates/.',
-                  placeholder => "partials/template_for_page_id-$in->{id}.html.ep"
+                  placeholder => 'partials/template_for_some_page.html.ep'
                   %>
               % end
           % end
@@ -105,7 +106,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
 # TODO: Make these listings an Ajax request and implement Autocomplete making
 # requests each 500ms. like in jQ UI. This will be needed when we have many (more
 # than 100) users
-        state $users
+        state $select_users
           = users->all({where => {login_name => {'!=' => 'guest'}}})
           ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
         state $groups
@@ -117,15 +118,15 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               %= t 'div' => (class => 'mui-col-md-3') => begin
           <%
         if ($in->{user_id} != $c->user->{id}) {
-            my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
+            my $owner = $select_users->first(sub{ $_->[1] eq $in->{user_id}});
         %>
           <span style ="display: inline-block"> Собственик:
-              %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
+              %== $owner ? $owner->[0] : '<i>Недействащ потребител</i>'
           %= hidden_field(user_id => $in->{user_id})
           <% } else { %>
           <%=
           select_box(
-            user_id => [['Изберете нов собственик' => ''], @$users],
+            user_id => [['Изберете нов собственик' => ''], @$select_users],
             label   => 'Собственик')
           %>
           % }
@@ -171,7 +172,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               %= t 'div' => (class => 'mui-col-md-3') => begin
                 <%=
                 select_box
-                  data_format => [map { [$_ => $_] } @$formats],
+                  data_format => [map { [$_ => $_] } @$data_formats],
                   label       => 'Форматъ на съдържанѥто'
                 %>
               % end
