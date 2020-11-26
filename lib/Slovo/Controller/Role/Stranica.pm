@@ -173,10 +173,10 @@ sub b64_images_to_files ($c, $name) {
     sub ($img, $i) {
       my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
       return unless $b64;
-      my ($ext)  = $type =~ m|/(.+)$|;
+      my ($ext) = $type =~ m|/(.+)$|;
       my $stream = b($b64)->b64_decode;
-      my $ipad   = $i < 10 ? "0$i" : $i;
-      my $src    = path($paths->[0], 'img',
+      my $ipad = sprintf '%02d', $i;
+      my $src  = path($paths->[0], 'img',
         sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 

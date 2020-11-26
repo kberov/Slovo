@@ -11,7 +11,8 @@ my sub _select_box ($c, $name, $options, %attrs) {
   return $c->tag(
     div => class => "mui-select $name" => sub {
       my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);
-      $c->param($name => delete $attrs{value}) if exists $attrs{value};
+      $c->param($name => delete $attrs{value})
+        if exists $attrs{value} && !defined $c->param($name);
       return $label . ' ' . $c->select_field($name, $options, %attrs);
     });
 };
@@ -84,12 +85,15 @@ JS
 };
 
 sub register ($self, $app, $config) {
+
+  #initialise the base unless alredy initialised
   $self->SUPER::register($app) unless exists $app->renderer->helpers->{t};
 
   $app->helper(checkboxes  => \&_checkboxes);
   $app->helper(select_box  => \&_select_box);
   $app->helper(html_substr => \&_html_substr);
   $app->helper(format_body => \&_format_body);
+
   return $self;
 }
 
