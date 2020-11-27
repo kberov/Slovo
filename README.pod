@@ -251,6 +251,14 @@ paths, and returns the application instance.
 
 Slovo adds custom code to the following hooks.
 
+=head2 around_action
+
+On each request we set the following wariables in the stash so they are
+available in the respective templates. Here they are:
+
+    $stash->{l}         //= $c->language;     # current language of the text being edited
+    $stash->{user}      //= $c->user;         # current user
+
 =head2 around_dispatch
 
 On each request we determine the current host and modify the static and

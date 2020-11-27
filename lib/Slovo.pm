@@ -13,12 +13,11 @@ no warnings "experimental::lexical_subs";
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
 use Mojo::Collection 'c';
-use Slovo::Controller;
 use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2020.11.11';
+our $VERSION   = '2020.11.22';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -484,7 +483,7 @@ Slovo adds custom code to the following hooks.
 =head2 around_action
 
 On each request we set the following wariables in the stash so they are
-available in the sespective templates. Here they are:
+available in the respective templates. Here they are:
 
     $stash->{l}         //= $c->language;     # current language of the text being edited
     $stash->{user}      //= $c->user;         # current user
