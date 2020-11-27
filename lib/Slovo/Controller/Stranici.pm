@@ -208,13 +208,12 @@ sub _validation($c) {
   for (qw(hidden deleted)) {
     $c->req->param($_ => 0) unless $c->param($_);
   }
-  $c->debug('params:', $c->req->params->to_hash);
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database
   # If we edit an existing page, check if the page is writable by the
   # current user.
-  my $int = qr/^\d+$/;
+  my $int = qr/^\d{1,10}$/;
   $v->optional('pid',    'trim')->like($int);
   $v->optional('dom_id', 'trim')->like($int);
   $v->required('alias',     'slugify')->size(0, 32);

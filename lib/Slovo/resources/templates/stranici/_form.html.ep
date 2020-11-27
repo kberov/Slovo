@@ -31,6 +31,34 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
     <div class="mui-panel">
         %= form_for $target => (class=>'mui-form') => begin
         %= t legend => title
+        %=t fieldset => (id=>'title') => begin
+              %=t legend => 'Съдържанѥ на страницата'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= input_tag  'title_id' => (type =>'hidden')
+                %= label_for title => 'Заглавѥ'
+                %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+              %= select_box language => $languages->map(sub {[$_=>$_]}) => (label =>'Ѩꙁыкъ')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                <%=
+                select_box
+                  data_format => [map { [$_ => $_] } @$data_formats],
+                  label       => 'Форматъ на съдържанѥто'
+                %>
+              % end
+          % end; # mui-row
+          %= t div => (class => 'mui-row') => begin
+              %= t div => (class => 'mui-textfield mui-col-md-12') => begin
+              %= label_for body =>'Цѣлина', title => $body_title
+              %= t div => (id => '_body', class => 'mui-textfield', title => $body_title) => begin
+                  %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
+              % end
+              % end; # mui-textfield
+          % end; # mui-row
+        % end; # fieldset
         %= t fieldset => (id=>'page_attributes', class=>$class) => begin
           %= t legend =>'Свойства'
           %= t 'div' => (class => 'mui-row') => begin
@@ -158,62 +186,12 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
           % end; # mui-row
         % end; # fieldset
         % }
-        %=t fieldset => (id=>'title') => begin
-              %=t legend => 'Съдържанѥ на страницата'
-          %= t 'div' => (class => 'mui-row') => begin
-              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
-                %= input_tag  'title_id' => (type =>'hidden')
-                %= label_for title => 'Заглавѥ'
-                %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
-              % end
-              %= t 'div' => (class => 'mui-col-md-3') => begin
-              %= select_box language => $languages->map(sub {[$_=>$_]}) => (label =>'Ѩꙁыкъ')
-              % end
-              %= t 'div' => (class => 'mui-col-md-3') => begin
-                <%=
-                select_box
-                  data_format => [map { [$_ => $_] } @$data_formats],
-                  label       => 'Форматъ на съдържанѥто'
-                %>
-              % end
-          % end; # mui-row
-          %= t div => (class => 'mui-row') => begin
-              %= t div => (class => 'mui-textfield mui-col-md-12') => begin
-              %= label_for body =>'Цѣлина', title => $body_title
-              %= t div => (id => '_body', class => 'mui-textfield', title => $body_title) => begin
-                  %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
-              % end
-              % end; # mui-textfield
-          % end; # mui-row
-        % end; # fieldset
-          % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
-          %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
-          <%= $caption eq 'Create' ? '' :
-            t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
-              name => 'redirect', value => 'show_stranici') => '… и прегледъ' %>
+        % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+        %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
+        <%= $caption eq 'Create' ? '' :
+          t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
+            name => 'redirect', value => 'show_stranici') => '… и прегледъ' %>
         % end
     </div>
 </div>
 %=javascript '/js/editor.js'
-%=javascript begin
-
-$(".mui-form>fieldset>legend").click(function() {
-  let self = this;
-  let rows = $(".mui-row", this.parentNode);
-  if (rows.is(":visible")) {
-    rows.hide(600, function() {
-      let text = $(self).text();
-      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
-    });
-  } else {
-    rows.show(600, function() {
-      let text = $(self).text();
-      $(self).text(text.replace(/…/, ""));
-    });
-  }
-});
-
-// hide Properties and Permissions by default.
-$(".mui-form>fieldset:nth-of-type(1)>legend").click();
-$(".mui-form>fieldset:nth-of-type(2)>legend").click();
-% end

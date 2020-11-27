@@ -239,26 +239,3 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
 </div>
 
 %=javascript '/js/editor.js'
-%=javascript begin
-
-$(".mui-form>fieldset>legend").click(function() {
-  let self = this;
-  let rows = $(".mui-row", this.parentNode);
-  if (rows.is(":visible")) {
-    rows.hide(600, function() {
-      let text = $(self).text();
-      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
-    });
-  } else {
-    rows.show(600, function() {
-      let text = $(self).text();
-      $(self).text(text.replace(/…/, ""));
-    });
-  }
-});
-
-// hide Permissions and additional fields by default.
-$(".mui-form>fieldset:nth-of-type(2)>legend").click();
-$(".mui-form>fieldset:nth-of-type(3)>legend").click();
-
-% end

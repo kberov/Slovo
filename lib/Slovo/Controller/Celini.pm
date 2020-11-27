@@ -262,13 +262,14 @@ sub _validation($c) {
   elsif ($dt =~ /^($types->[-2])$/x) {
     $pid = 'required';
   }
+  my $int = qr/^\d{1,10}$/;
   $v->$alias('alias', 'slugify')->size(0, 255);
   $v->$title('title', 'xml_escape', 'trim')->size(0, 255);
-  $v->$pid('pid', 'trim')->like(qr/^\d+$/);
-  $v->optional('from_id', 'trim')->like(qr/^\d+$/);
-  $v->required('page_id', 'trim')->like(qr/^\d+$/);
-  $v->optional('user_id',  'trim')->like(qr/^\d+$/);
-  $v->optional('group_id', 'trim')->like(qr/^\d+$/);
+  $v->$pid('pid', 'trim')->like($int);
+  $v->optional('from_id', 'trim')->like($int);
+  $v->required('page_id', 'trim')->like($int);
+  $v->optional('user_id',  'trim')->like($int);
+  $v->optional('group_id', 'trim')->like($int);
   $v->optional('sorting',  'trim')->like(qr/^\d{1,3}$/);
 
   $v->required('data_format', 'trim')->in($c->stash->{data_formats}->@*);
@@ -282,10 +283,10 @@ sub _validation($c) {
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured',    'trim')->in(1, 0);
   $v->optional('accepted',    'trim')->in(1, 0);
-  $v->optional('bad',         'trim')->like(qr/^\d+$/);
+  $v->optional('bad',         'trim')->like($int);
   $v->optional('deleted',     'trim')->in(1, 0);
-  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('start',       'trim')->like($int);
+  $v->optional('stop',        'trim')->like($int);
   $v->optional('published',   'trim')->in(2, 1, 0);
   $c->b64_images_to_files('body');
   return $v;
