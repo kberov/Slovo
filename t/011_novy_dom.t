@@ -24,7 +24,7 @@ isa_ok($command => 'Slovo::Command');
 
 # Default values
 my $buffer  = '';
-my $db_file = $home->child("lib/Slovo/resources/data/$moniker.$mode.sqlite");
+my $db_file = $app->resources->child("data/$moniker.$mode.sqlite");
 subtest 'Default values' => sub {
   {
     open my $handle, '>', \$buffer;
@@ -34,14 +34,14 @@ subtest 'Default values' => sub {
   like $buffer => qr/Domain.+mandatory\sargument/x => 'domains folder is mandatory';
   like $buffer => qr/Usage/x                       => 'help is displayed';
   ok($db_file->stat, 'database is created on the first run');
-  is((unlink "$db_file"), 1, 'database removed ');
 
-  note $buffer;
+  # note $buffer;
   note '---------------------------';
 };
 
 # Custom values
 subtest 'Domain name' => sub {
+
   $buffer = '';
   {
     open my $handle, '>', \$buffer;
@@ -62,8 +62,6 @@ subtest 'Domain name' => sub {
   like $buffer => qr/write.+\/t\.com\/.+\/fonts.css/x   => 'static files copied';
   like $buffer => qr/"site_name" => "T.COM"/            => 'new domain record';
   like $buffer => qr/Assuming\sdomain\sal.+dev.t.com/x  => 'default domain prefixes';
-  ok($db_file->stat->size > 1, 'database is created on the next run again');
-  is((unlink "$db_file"), 1, 'database removed ');
 };
 
 # Domain Aliases
@@ -73,7 +71,7 @@ subtest 'Custom aliases' => sub {
     open my $handle, '>', \$buffer;
     local *STDOUT = $handle;
     $command->run(
-      '--name'    => 't.com',
+      '--name'    => 't1.com',
       '--aliases' => 't2.com,t3.com',
       '--skip'    => '\.css$'
     );
@@ -83,9 +81,9 @@ subtest 'Custom aliases' => sub {
     Slovo::Command::Author::generate::a2htaccess->new(app => $app)->run;
   }
 
-  like $buffer   => qr/(?:mkdir|exist).+\/t\.com$/mx     => 'domain folder created';
-  like $buffer   => qr/Domain\salia.+t2.com.+dev.t.com/x => 'custom aliases';
-  unlike $buffer => qr/\.css$/ms                         => 'skip ' . $command->skip_qr;
+  like $buffer   => qr/(?:mkdir|exist).+\/t1\.com$/mx     => 'domain folder created';
+  like $buffer   => qr/Domain\salia.+t2.com.+dev.t1.com/x => 'custom aliases';
+  unlike $buffer => qr/\.css$/ms                          => 'skip ' . $command->skip_qr;
 };
 
 subtest 'Skip and refresh files' => sub {

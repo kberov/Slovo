@@ -7,7 +7,10 @@ no warnings "experimental::lexical_subs";
 
 has 'dbx';
 has c => sub { Slovo::Controller->new() };
-sub table { Carp::croak 'Method not implemented' }
+
+sub table {
+  Carp::croak "Method not implemented. Please implement it in ${\ ref($_[0])}.";
+}
 
 sub all ($self, $opts = {}) {
   $opts->{limit} //= 100;

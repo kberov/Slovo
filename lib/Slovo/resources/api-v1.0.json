@@ -177,9 +177,9 @@
                   "type":"array",
                   "in":"query",
                   "collectionFormat": "csv",
-                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language"],
+                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language", "user_id", "group_id", "permissions"],
                   "items": {"type":"string",
-                      "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language"]},
+                      "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language", "user_id", "group_id", "permissions"]},
                   "description": "Which properties of the object to be returned only?"
                }
             ],

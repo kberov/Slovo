@@ -1,12 +1,12 @@
 <%
-$in->{user_id}  //= $u->{id};
-$in->{group_id} //= $u->{group_id};
+$in->{user_id}  //= $user->{id};
+$in->{group_id} //= $user->{group_id};
 my $sorting       = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
 my $sorting_label = 'Мѣсто в подредбата';
 my $body_title
   = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
-
+my $breadcrumb_path = '';
 # If this celina is a title, the new celina will have this title id as a pid.
 my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} : $in->{pid};
 %>
@@ -20,12 +20,13 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
     <% end %>
     %= link_to '⸙' =>'home_celini', title => "Цѣлини"
 % if(@$breadcrumb) {
-  <%=
-  $breadcrumb->map(sub {
+  <%
+  $breadcrumb_path = $breadcrumb->map(sub {
     link_to $_->{alias} => url_for('home_celini')->query(page_id => $_->{id}),
       title             => "Цѣлини въ страница „$_->{alias}\"";
-  })->join(' ⸙ ')
+  })->join(' ⸙ ');
   %>
+  <%=$breadcrumb_path%>
 % }
 </div>
 
@@ -50,14 +51,14 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
               %= t 'div' => (class => 'mui-col-md-4') => begin
               <%=
               select_box
-                data_type => [map {[$_=>$_]} @$types],
+                data_type => [map {[$_=>$_]} @$data_types],
                 label => 'Видъ съдържанѥ'
               %>
               % end
               %= t 'div' => (class => 'mui-col-md-4') => begin
               <%=
               select_box
-                data_format => [map {[$_=>$_]} @$formats],
+                data_format => [map {[$_=>$_]} @$data_formats],
                 label => 'Форматъ на съдържанѥто'
               %>
               % end
@@ -88,7 +89,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
 # TODO: Make these listings an Ajax request and implement Autocomplete making
 # requests each 500ms. like in jQ UI
 # This will be needed when we have many (more than 100) users
-        state $users
+        state $select_users
           = users->all({where => {login_name => {'!=' => 'guest'}}})
           ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] }) || c();
           state $groups
@@ -98,16 +99,16 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
 
               %= t 'div' => (class => 'mui-col-md-3') => begin
                   <%
-                if ($in->{user_id} != $c->user->{id}) {
-                    my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
+                if ($in->{user_id} != $user->{id}) {
+                    my $owner = $select_users->first(sub{ $_->[1] eq $in->{user_id}});
                 %>
                   <span style ="display: inline-block"> Собственик:
-                      %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
+                      %== $owner ? $owner->[0] : '<i>Недействащ потребител</i>'
                   %= hidden_field(user_id => $in->{user_id})
                   <% } else { %>
                   <%=
                   select_box(
-                    user_id => [['Изберете нов собственик' => ''], @$users],
+                    user_id => [['Изберете нов собственик' => ''], @$select_users],
                     label   => 'Собственик')
                   %>
                   % }
@@ -142,14 +143,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
         %= t fieldset => (id=>'additional_properties') => begin
           %= t legend => 'Допълнителни свойства'
           %= t 'div' => (class => 'mui-row') => begin
-              %= t 'div' => (class => 'mui-col-md-3', title=>'Въ страница') => begin
-                  <%=
-                  select_box
-                    page_id   => $parent_pages,
-                    required => 1,
-                    label    => 'Въ страница'
-                  %>
-              % end
+              %= input_tag page_id => (type=>'hidden')
               %= t 'div' => (class => 'mui-col-md-3', title=>'Въ цѣлина') => begin
                   <%=
                   select_box
@@ -159,7 +153,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
                   %>
               % end
               <%= t 'div' => (class => 'mui-col-md-3',
-              title => 'Въ коя частъ на страницата се намира') => begin %>
+              title => 'Въ коя кутийка на страницата се намира') => begin %>
                   <%=
                   select_box
                     box => [
@@ -174,7 +168,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
               % end
               %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
                 %= label_for from_id => 'Превѣдено отъ №'
-                %= number_field 'from_id', readonly => ''
+                %= number_field from_id => 0
               % end
           % end; # mui-row
 
@@ -225,12 +219,12 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
               <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
                 title=> 'Начало на обнародването (в секунди от 1970) (има да се направи по-добре с избор от калѧдар)') => begin %>
                   %= label_for start => 'Начало'
-                  %= number_field 'start'
+                  %= number_field start =>0
               % end
               <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
                 title=> 'Край на обнародването (в секунди от 1970)') => begin %>
                   %= label_for stop => 'Край'
-                  %= number_field 'stop'
+                  %= number_field stop => 0
               % end
           % end; # mui-row
         % end ;# fieldset
@@ -245,26 +239,3 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
 </div>
 
 %=javascript '/js/editor.js'
-%=javascript begin
-
-$(".mui-form>fieldset>legend").click(function() {
-  let self = this;
-  let rows = $(".mui-row", this.parentNode);
-  if (rows.is(":visible")) {
-    rows.hide(600, function() {
-      let text = $(self).text();
-      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
-    });
-  } else {
-    rows.show(600, function() {
-      let text = $(self).text();
-      $(self).text(text.replace(/…/, ""));
-    });
-  }
-});
-
-// hide Permissions and additional fields by default.
-$(".mui-form>fieldset:nth-of-type(2)>legend").click();
-$(".mui-form>fieldset:nth-of-type(3)>legend").click();
-
-% end

@@ -13,12 +13,11 @@ no warnings "experimental::lexical_subs";
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
 use Mojo::Collection 'c';
-use Slovo::Controller;
 use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2020.11.11';
+our $VERSION   = '2020.11.22';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -48,9 +47,20 @@ sub startup($app) {
   $app->commands->namespaces(
     ['Slovo::Command::Author', 'Slovo::Command', 'Mojolicious::Command']);
   ## no critic qw(Subroutines::ProtectPrivateSubs)
+  $app->hook(around_action   => \&_around_action);
   $app->hook(around_dispatch => \&_around_dispatch);
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
+  $app->defaults(
+
+    # layout => 'default'
+    lang             => 'bg-bg',
+    languages        => $app->languages,    # /parameters/language/enum
+    data_types       => $app->openapi_spec('/parameters/data_type/enum'),
+    data_formats     => $app->openapi_spec('/parameters/data_format/enum'),
+    permissions      => $app->openapi_spec('/parameters/permissions/enum'),
+    stranici_columns => $app->openapi_spec('/paths/~1stranici/get/parameters/4/default'),
+  );
   return $app;
 }
 
@@ -67,6 +77,17 @@ sub _before_dispatch($c) {
     $c->$current_user_fn($guest);
   }
   return;
+}
+
+# Make some variables available to the templates being rendered, so
+# these do not need to be set in the actions.
+sub _around_action ($next, $c, $action, $last) {
+  if ($last && $c->current_route !~ /^api\./) {
+    my $stash = $c->stash;
+    $stash->{l}    //= $c->language;    # current language of the text being edited
+    $stash->{user} //= $c->user;        # current user
+  }
+  return $next->();
 }
 
 # This code is executed on every request, so we try to save as much as possible
@@ -458,6 +479,14 @@ paths, and returns the application instance.
 =head1 HOOKS
 
 Slovo adds custom code to the following hooks.
+
+=head2 around_action
+
+On each request we set the following wariables in the stash so they are
+available in the respective templates. Here they are:
+
+    $stash->{l}         //= $c->language;     # current language of the text being edited
+    $stash->{user}      //= $c->user;         # current user
 
 =head2 around_dispatch
 

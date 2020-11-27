@@ -26,27 +26,18 @@ sub execute ($c, $page, $user, $l, $preview) {
 # GET /stranici/create
 # Display form for creating resource in table stranici.
 sub create($c) {
-
-  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->languages;
-  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $str    = $c->stranici;
   my $l      = $c->language;
-  my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
-  my $pid    = $c->param('pid') // 0;
-  my $bread  = $str->breadcrumb($pid, $l);
-  my $u      = $c->user;
   my $domain = $c->host_only;
+  my $user   = $c->user;
+  my $pid    = $c->param('pid')
+    // $str->all_for_edit($user, $domain, $l,
+    {limit => 1, columns => [@{$c->stash->{stranici_columns}}]})->[0]{id};
+  my $bread = $str->breadcrumb($pid, $l);
   return $c->render(
-    in          => {},
-    domove      => $domove,
-    l           => $l,
-    formats     => $formats,
-    languages   => $languages,
-    permissions => $permissions,
-    u           => $u,
-    breadcrumb  => $bread,
-    parents     => $c->page_id_options($bread, {pid => $pid}, $u, $domain, $l),
+    in         => {},
+    breadcrumb => $bread,
+    parents    => $c->page_id_options($bread, {pid => $pid}, $user, $domain, $l),
   );
 }
 
@@ -66,10 +57,20 @@ sub store($c) {
 
   # 1. Validate input
   my $v = $c->_validation;
-  return $c->render(action => 'create', in => {}) if $v->has_error;
+  $in = {%$in, %{$v->output}};
+  if ($v->has_error) {
+    my $l     = $c->language;
+    my $bread = $c->stranici->breadcrumb($in->{pid}, $l);
+    return $c->render(
+      action     => 'create',
+      in         => $in,
+      breadcrumb => $bread,
+      parents    =>
+        $c->page_id_options($bread, {pid => $in->{pid}}, $c->user, $c->host_only, $l),
+    );
+  }
 
   # 2. Insert it into the database
-  $in = {%$in, %{$v->output}};
   my $id = $c->stranici->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
@@ -83,12 +84,8 @@ sub store($c) {
 # Display form for edititing resource in table stranici.
 sub edit($c) {
 
-  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->languages;
-  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $str = $c->stranici;
   my $l   = $c->language;
-  my $u   = $c->user;
   my $row = $str->find_for_edit($c->stash('id'), $l);
 
   my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
@@ -98,15 +95,11 @@ sub edit($c) {
   #TODO: implement language switching based on Ado::L18n
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
   return $c->render(
-    domove      => $domove,
-    l           => $l,
-    in          => $row,
-    formats     => $formats,
-    languages   => $languages,
-    permissions => $permissions,
-    u           => $u,
-    breadcrumb  => $bread,
-    parents     => $c->page_id_options($bread, $row, $u, $domain, $l),
+    domove     => $domove,
+    l          => $l,
+    in         => $row,
+    breadcrumb => $bread,
+    parents    => $c->page_id_options($bread, $row, $c->user, $domain, $l),
   );
 }
 
@@ -157,17 +150,13 @@ sub show($c) {
 # List resources from table stranici.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
-  my $str = $c->stranici;
-  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  my $str    = $c->stranici;
   my $domain = $c->host_only;
   my $v      = $c->validation;
 
   $v->optional(pid => 'trim')->like(qr/^\d+$/);
-  my $in   = $v->output;
-  my $l    = $c->language;
-  my $user = $c->user;
-  my $columns
-    = [@$list_columns, qw(start stop user_id group_id permissions deleted hidden dom_id)];
+  my $in = $v->output;
+  my $l  = $c->language;
 
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
@@ -178,13 +167,7 @@ sub index($c) {
     return $c->render(openapi => $str->all($in));
   }
 
-  return $c->render(
-    user       => $user,
-    domain     => $domain,
-    columns    => $columns,
-    l          => $l,
-    breadcrumb => $str->breadcrumb($in->{pid}, $l),
-  );
+  return $c->render(domain => $domain, breadcrumb => $str->breadcrumb($in->{pid}, $l),);
 }
 
 # DELETE /stranici/:id
@@ -220,7 +203,8 @@ sub remove($c) {
 
 # Validation for actions that store or update
 sub _validation($c) {
-  $c->req->param(alias => $c->param('title')) unless $c->param('alias');
+  $c->req->param(alias => lc substr(($c->param('title') =~ s/\W//gr), 0, 32))
+    unless $c->param('alias');
   for (qw(hidden deleted)) {
     $c->req->param($_ => 0) unless $c->param($_);
   }
@@ -229,32 +213,32 @@ sub _validation($c) {
   # Add validation rules for the record to be stored in the database
   # If we edit an existing page, check if the page is writable by the
   # current user.
-  $v->optional('pid',    'trim')->like(qr/^\d+$/);
-  $v->optional('dom_id', 'trim')->like(qr/^\d+$/);
+  my $int = qr/^\d{1,10}$/;
+  $v->optional('pid',    'trim')->like($int);
+  $v->optional('dom_id', 'trim')->like($int);
   $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
-  $v->optional('sorting',     'trim')->like(qr/^\d+$/);
-  $v->optional('template',    'trim')->size(0, 255);
-  $v->optional('user_id',     'trim')->like(qr/^\d+$/);
-  $v->optional('group_id',    'trim')->like(qr/^\d+$/);
+  $v->optional('sorting',     'trim')->like($int);
+  $v->optional('template',    'not_empty')->size(0, 255);
+  $v->optional('user_id',     'trim')->like($int);
+  $v->optional('group_id',    'trim')->like($int);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
-  $v->optional('tstamp',      'trim')->like(qr/^\d+$/);
-  $v->optional('start',       'trim')->like(qr/^\d+$/);
-  $v->optional('stop',        'trim')->like(qr/^\d+$/);
+  $v->optional('tstamp',      'trim')->like($int);
+  $v->optional('start',       'not_empty')->like($int);
+  $v->optional('stop',        'not_empty')->like($int);
   $v->optional('published',   'trim')->in(2, 1, 0);
   $v->optional('hidden',      'trim')->in(1, 0);
   $v->optional('deleted',     'trim')->in(1, 0);
-  $v->optional('changed_by',  'trim')->like(qr/^\d+$/);
+  $v->optional('changed_by',  'trim')->like($int);
 
   # Page attributes
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);
   $v->optional('body',     'trim');
-  $v->optional('title_id', 'trim')->like(qr/^\d+$/);
+  $v->optional('title_id', 'not_empty')->like($int);
 
-  state $formats   = $c->openapi_spec('/parameters/data_format/enum');
   state $languages = $c->languages;
   $v->required('language',    'trim')->in(@$languages);
-  $v->required('data_format', 'trim')->in(@$formats);
+  $v->required('data_format', 'trim')->in(@{$c->stash->{data_formats}});
   $c->b64_images_to_files('body');
   return $v;
 }

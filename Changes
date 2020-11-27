@@ -1,5 +1,32 @@
 Revision history for Mojolicious application Slovo
 
+2020.11.22
+    * Fixed a bug - The adaptor class (Mojo::SQLite/mysql/Pg) reinstantiated
+      each time $app->dbx was invoked. Now this is done only on the first
+      invocation.
+    * Removed deprecation warning about MojoDBx 'helper' setting. Now the
+      helper is always "dbx".
+    * Default configuration from slovo.conf was moved to MojoDBx. If you use
+      slovo.$mode.conf your instance should not be affected as your file
+      will be preferred.
+    * Now more properties(columns) of the $stranici object are fetched from the
+      database. See '/paths/~1stranici/get/parameters/4/default' in
+      lib/Slovo/resources/api-v1.0.json
+    * Implemented new hook "around_action", where we set some common
+      variables, used in templates ($l - current language and $user - current user).
+    * Fixed bugs:
+      - page_id was not properly set in the $celina object, which is used for
+      title of the page.
+      - Stash variables for use in templates were not properly set when there
+      was a validation error.
+      - Moving a $celina to another page is disabled (until we  implement proper
+      select field).
+      - Some fields required validation filter "not_empty" - otherwise they were
+      validated as "required".
+    * Setting stash defaults now happens only in lib/Slovo.pm
+    * Now fieldsets are collapsed only if there are no validation errors.
+    * Moved fieldset "Съдържанѥ на страницата" to the top of the page form.
+
 2020.11.11
     Get back to Slovo after getting my master degree in programme "Medieval
     Bulgarian Studies" – Sofia University "St. Kliment Ochridski".

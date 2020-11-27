@@ -58,30 +58,15 @@ sub execute ($c, $page, $user, $l, $preview) {
 # GET /celini/create
 # Display form for creating resource in table celini.
 sub create($c) {
-  state $types       = $c->openapi_spec('/parameters/data_type/enum');
-  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->languages;
-  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
-
   my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
-  $c->req->param(data_type => $types->[1]);
-  my $str      = $c->stranici;
-  my $l        = $c->language;
-  my $u        = $c->user;
-  my $bread    = $str->breadcrumb($row->{page_id}, $l);
-  my $page_row = $str->find_for_edit($row->{page_id}, $l);
-  my $domain   = $c->host_only;
+  $c->req->param(data_type => $c->stash->{data_types}->[1]);
+  my $str   = $c->stranici;
+  my $l     = $c->language;
+  my $bread = $str->breadcrumb($row->{page_id}, $l);
   return $c->render(
     breadcrumb    => $bread,
-    formats       => $formats,
-    languages     => $languages,
-    permissions   => $permissions,
-    types         => $types,
-    u             => $u,
     in            => $row,
-    parent_celini => _celini_options($c, 0, $row->{page_id}, $u, $l),
-    parent_pages  =>
-      $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
+    parent_celini => _celini_options($c, 0, $row->{page_id}, $c->user, $l),
   );
 }
 
@@ -104,7 +89,15 @@ sub store($c) {
   # 1. Validate input
   my $v = $c->_validation;
   $in = {%{$v->output}, %$in};
-  return $c->render(action => 'create', celini => {}, in => $in) if $v->has_error;
+  if ($v->has_error) {
+    my $l = $c->language;
+    return $c->render(
+      action        => 'create',
+      in            => $in,
+      breadcrumb    => $c->stranici->breadcrumb($in->{page_id}, $l),
+      parent_celini => _celini_options($c, 0, $in->{page_id}, $user, $l),
+    );
+  }
 
   # 2. Insert it into the database
   $in = {%{$v->output}, %$in};
@@ -118,31 +111,17 @@ sub store($c) {
 # GET /celini/:id/edit
 # Display form for edititing resource in table celini.
 sub edit($c) {
-  state $types       = $c->openapi_spec('/parameters/data_type/enum');
-  state $formats     = $c->openapi_spec('/parameters/data_format/enum');
-  state $languages   = $c->languages;
-  state $permissions = $c->openapi_spec('/parameters/permissions/enum');
   my $row = $c->celini->find($c->param('id'));
 
-# prefill form fields.
+  # prefill form fields.
   $c->req->param($_ => $row->{$_}) for keys %$row;
-  my $str      = $c->stranici;
-  my $l        = $c->language;
-  my $u        = $c->user;
-  my $bread    = $str->breadcrumb($row->{page_id}, $l);
-  my $page_row = $str->find_for_edit($row->{page_id}, $l);
-  my $domain   = $c->host_only;
+  my $str   = $c->stranici;
+  my $l     = $c->language;
+  my $bread = $str->breadcrumb($row->{page_id}, $l);
   return $c->render(
     breadcrumb    => $bread,
-    formats       => $formats,
-    languages     => $languages,
-    permissions   => $permissions,
-    types         => $types,
-    u             => $u,
     in            => $row,
-    parent_celini => _celini_options($c, $row->{id}, $row->{page_id}, $u, $l),
-    parent_pages  =>
-      $c->page_id_options($bread, {pid => $row->{page_id}}, $u, $domain, $l),
+    parent_celini => _celini_options($c, $row->{id}, $row->{page_id}, $c->user, $l),
   );
 }
 
@@ -153,7 +132,17 @@ sub update($c) {
   # Validate input
   my $v  = $c->_validation;
   my $in = $v->output;
-  return $c->render(action => 'edit', in => $in) if $v->has_error;
+
+  if ($v->has_error) {
+    my $l    = $c->language;
+    my $user = $c->user;
+    return $c->render(
+      action        => 'edit',
+      in            => $in,
+      breadcrumb    => $c->stranici->breadcrumb($in->{page_id}, $l),
+      parent_celini => _celini_options($c, 0, $in->{page_id}, $user, $l),
+    );
+  }
 
   # Update the record
   my $id = $c->stash('id');
@@ -273,17 +262,17 @@ sub _validation($c) {
   elsif ($dt =~ /^($types->[-2])$/x) {
     $pid = 'required';
   }
+  my $int = qr/^\d{1,10}$/;
   $v->$alias('alias', 'slugify')->size(0, 255);
   $v->$title('title', 'xml_escape', 'trim')->size(0, 255);
-  $v->$pid('pid', 'trim')->like(qr/^\d+$/);
-  $v->optional('from_id', 'trim')->like(qr/^\d+$/);
-  $v->required('page_id', 'trim')->like(qr/^\d+$/);
-  $v->optional('user_id',  'trim')->like(qr/^\d+$/);
-  $v->optional('group_id', 'trim')->like(qr/^\d+$/);
+  $v->$pid('pid', 'trim')->like($int);
+  $v->optional('from_id', 'trim')->like($int);
+  $v->required('page_id', 'trim')->like($int);
+  $v->optional('user_id',  'trim')->like($int);
+  $v->optional('group_id', 'trim')->like($int);
   $v->optional('sorting',  'trim')->like(qr/^\d{1,3}$/);
 
-  state $formats = $c->openapi_spec('/parameters/data_format/enum');
-  $v->required('data_format', 'trim')->in(@$formats);
+  $v->required('data_format', 'trim')->in($c->stash->{data_formats}->@*);
   $v->optional('description', 'trim')->size(0, 255);
   $v->optional('keywords',    'trim')->size(0, 255);
   $v->optional('tags',        'trim')->size(0, 100);
@@ -294,10 +283,10 @@ sub _validation($c) {
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured',    'trim')->in(1, 0);
   $v->optional('accepted',    'trim')->in(1, 0);
-  $v->optional('bad',         'trim')->like(qr/^\d+$/);
+  $v->optional('bad',         'trim')->like($int);
   $v->optional('deleted',     'trim')->in(1, 0);
-  $v->optional('start',       'trim')->like(qr/^\d{1,10}$/);
-  $v->optional('stop',        'trim')->like(qr/^\d{1,10}$/);
+  $v->optional('start',       'trim')->like($int);
+  $v->optional('stop',        'trim')->like($int);
   $v->optional('published',   'trim')->in(2, 1, 0);
   $c->b64_images_to_files('body');
   return $v;

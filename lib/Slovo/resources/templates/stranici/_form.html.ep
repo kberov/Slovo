@@ -1,8 +1,9 @@
 <%
+state $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
 my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class   = join ' ', 'fields', @classes;
-$in->{user_id}  //= $u->{id};
-$in->{group_id} //= $u->{group_id};
+$in->{user_id}  //= $user->{id};
+$in->{group_id} //= $user->{group_id};
 
 my $sorting = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
@@ -30,6 +31,34 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
     <div class="mui-panel">
         %= form_for $target => (class=>'mui-form') => begin
         %= t legend => title
+        %=t fieldset => (id=>'title') => begin
+              %=t legend => 'Съдържанѥ на страницата'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= input_tag  'title_id' => (type =>'hidden')
+                %= label_for title => 'Заглавѥ'
+                %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+              %= select_box language => $languages->map(sub {[$_=>$_]}) => (label =>'Ѩꙁыкъ')
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                <%=
+                select_box
+                  data_format => [map { [$_ => $_] } @$data_formats],
+                  label       => 'Форматъ на съдържанѥто'
+                %>
+              % end
+          % end; # mui-row
+          %= t div => (class => 'mui-row') => begin
+              %= t div => (class => 'mui-textfield mui-col-md-12') => begin
+              %= label_for body =>'Цѣлина', title => $body_title
+              %= t div => (id => '_body', class => 'mui-textfield', title => $body_title) => begin
+                  %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
+              % end
+              % end; # mui-textfield
+          % end; # mui-row
+        % end; # fieldset
         %= t fieldset => (id=>'page_attributes', class=>$class) => begin
           %= t legend =>'Свойства'
           %= t 'div' => (class => 'mui-row') => begin
@@ -73,9 +102,9 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
                   %= label_for template => 'Образец'
                   <%= 
-                  text_field 'template',
+                  text_field template => undef,
                   title => 'Образец, намиращ се в папка templates/.',
-                  placeholder => "partials/template_for_page_id-$in->{id}.html.ep"
+                  placeholder => 'partials/template_for_some_page.html.ep'
                   %>
               % end
           % end
@@ -105,7 +134,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
 # TODO: Make these listings an Ajax request and implement Autocomplete making
 # requests each 500ms. like in jQ UI. This will be needed when we have many (more
 # than 100) users
-        state $users
+        state $select_users
           = users->all({where => {login_name => {'!=' => 'guest'}}})
           ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] });
         state $groups
@@ -117,15 +146,15 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               %= t 'div' => (class => 'mui-col-md-3') => begin
           <%
         if ($in->{user_id} != $c->user->{id}) {
-            my $u = $users->first(sub{ $_->[1] eq $in->{user_id}});
+            my $owner = $select_users->first(sub{ $_->[1] eq $in->{user_id}});
         %>
           <span style ="display: inline-block"> Собственик:
-              %== $u ? $u->[0] : '<i>Недействащ потребител</i>'
+              %== $owner ? $owner->[0] : '<i>Недействащ потребител</i>'
           %= hidden_field(user_id => $in->{user_id})
           <% } else { %>
           <%=
           select_box(
-            user_id => [['Изберете нов собственик' => ''], @$users],
+            user_id => [['Изберете нов собственик' => ''], @$select_users],
             label   => 'Собственик')
           %>
           % }
@@ -157,62 +186,12 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
           % end; # mui-row
         % end; # fieldset
         % }
-        %=t fieldset => (id=>'title') => begin
-              %=t legend => 'Съдържанѥ на страницата'
-          %= t 'div' => (class => 'mui-row') => begin
-              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
-                %= input_tag  'title_id' => (type =>'hidden')
-                %= label_for title => 'Заглавѥ'
-                %= text_field title => (required => 1 , placeholder =>'Заглавие на страницата')
-              % end
-              %= t 'div' => (class => 'mui-col-md-3') => begin
-              %= select_box language => $languages->map(sub {[$_=>$_]}) => (label =>'Ѩꙁыкъ')
-              % end
-              %= t 'div' => (class => 'mui-col-md-3') => begin
-                <%=
-                select_box
-                  data_format => [map { [$_ => $_] } @$formats],
-                  label       => 'Форматъ на съдържанѥто'
-                %>
-              % end
-          % end; # mui-row
-          %= t div => (class => 'mui-row') => begin
-              %= t div => (class => 'mui-textfield mui-col-md-12') => begin
-              %= label_for body =>'Цѣлина', title => $body_title
-              %= t div => (id => '_body', class => 'mui-textfield', title => $body_title) => begin
-                  %= text_area body  => ($in->{body} || 'Задайте основен текст за страницата.'),(style=>'width:100%;height:15em')
-              % end
-              % end; # mui-textfield
-          % end; # mui-row
-        % end; # fieldset
-          % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
-          %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
-          <%= $caption eq 'Create' ? '' :
-            t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
-              name => 'redirect', value => 'show_stranici') => '… и прегледъ' %>
+        % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+        %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
+        <%= $caption eq 'Create' ? '' :
+          t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
+            name => 'redirect', value => 'show_stranici') => '… и прегледъ' %>
         % end
     </div>
 </div>
 %=javascript '/js/editor.js'
-%=javascript begin
-
-$(".mui-form>fieldset>legend").click(function() {
-  let self = this;
-  let rows = $(".mui-row", this.parentNode);
-  if (rows.is(":visible")) {
-    rows.hide(600, function() {
-      let text = $(self).text();
-      if (!text.match(/…$/)) $(self).text($(self).text() + "…");
-    });
-  } else {
-    rows.show(600, function() {
-      let text = $(self).text();
-      $(self).text(text.replace(/…/, ""));
-    });
-  }
-});
-
-// hide Properties and Permissions by default.
-$(".mui-form>fieldset:nth-of-type(1)>legend").click();
-$(".mui-form>fieldset:nth-of-type(2)>legend").click();
-% end
