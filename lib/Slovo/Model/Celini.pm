@@ -5,6 +5,10 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 
 my $table = 'celini';
+has stranici   => sub { $_[0]->c->stranici };
+has main_boxes => sub {
+  [$_[0]->c->stash->{boxes}[0]];    # main
+};
 
 # Structure for matching a language parameter.
 sub language_like ($m, $l) {
@@ -17,7 +21,7 @@ sub table { return $table }
 
 sub breadcrumb ($m, $p_alias, $path, $l, $user, $preview) {
   state $abstr       = $m->dbx->abstract;
-  state $s_table     = $m->c->stranici->table;
+  state $s_table     = $m->stranici->table;
   state $page_id_SQL = "= (SELECT id FROM $s_table WHERE alias=?)";
   my (@SQL, @BINDS);
   for my $cel (@$path) {
@@ -97,14 +101,14 @@ SQL
   my $_where = {
     alias    => [$alias, \[$old_alias_SQL => $alias, $alias, $alias]],
     language => $m->language_like($l),
-    box      => {-in => [qw(главна main)]},
+    box      => $m->main_boxes,
     %{$m->where_with_permissions($user, $preview)}, %$where
   };
   return $m->dbx->db->select($table, undef, $_where)->hash;
 }
 
 sub save ($m, $id, $row) {
-  state $stranici_table = $m->c->stranici->table;
+  state $stranici_table = $m->stranici->table;
 
   # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   $row->{tstamp} = time - 1;

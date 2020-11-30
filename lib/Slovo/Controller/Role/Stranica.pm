@@ -11,7 +11,7 @@ around execute => \&_around_execute;
 
 sub _around_execute ($execute, $c) {
   state $cache_pages    = $c->config('cache_pages');
-  state $list_columns   = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns   = $c->app->defaults('stranici_columns');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
   my $is_guest = !$c->is_user_authenticated;
@@ -310,10 +310,11 @@ sub is_item_editable ($c, $e) {
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
-  state $root = $str->find_where(
-    {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
+  state $root = $str->find_where({
+    page_type => $c->app->defaults('page_types')->[0],
+    dom_id    => $c->app->defaults('domain')->{id}});
   state $pt           = $str->table;
-  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns = $c->app->defaults('stranici_columns');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
@@ -333,7 +334,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
 sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
   return unless $crow->{is_dir};
   return if ($crow->{id} == ($row->{id} // 0));
-  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns = $c->app->defaults('stranici_columns');
   my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
 
   my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);

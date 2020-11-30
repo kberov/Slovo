@@ -17,7 +17,7 @@ use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2020.11.22';
+our $VERSION   = '2020.12.01';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -54,10 +54,12 @@ sub startup($app) {
   $app->defaults(
 
     # layout => 'default'
+    boxes            => $app->openapi_spec('/parameters/box/enum'),
+    data_formats     => $app->openapi_spec('/parameters/data_format/enum'),
+    data_types       => $app->openapi_spec('/parameters/data_type/enum'),
     lang             => 'bg-bg',
     languages        => $app->languages,    # /parameters/language/enum
-    data_types       => $app->openapi_spec('/parameters/data_type/enum'),
-    data_formats     => $app->openapi_spec('/parameters/data_format/enum'),
+    page_types       => $app->openapi_spec('/parameters/page_type/enum'),
     permissions      => $app->openapi_spec('/parameters/permissions/enum'),
     stranici_columns => $app->openapi_spec('/paths/~1stranici/get/parameters/4/default'),
   );
@@ -495,11 +497,11 @@ renderer paths accordingly. This is how the multi-domain support works.
 
 =head2 before_dispatch
 
-On each request we check if we have logged in user and set the current user to
-C<guest> if we don't. This way every part of the application (including newly
-developed plugins) can count on having a current user. It is used for
-determining the permissions for any resource in the application. The user is
-available as C<$c-E<gt>user>.
+On each request we check if we have a logged in user and set the current user
+to C<guest> if we don't. This way every part of the application (including
+newly developed plugins) can count on having a current user. The user is needed
+to determine the permissions for any table that has column C<permissions>. The
+current user is available as C<$c-E<gt>user>.
 
 =head1 HELPERS
 
@@ -510,7 +512,7 @@ Slovo implements the following helpers.
 We need to have our openapi API specification always at hand as a unified
 source of truth so here it is.
 
-    #anywhere via $app or $c, even not via a REST call
+    # anywhere via $app or $c, even not via a REST call
     state $columns =
         $c->openapi_spec('/paths/~1stranici/get/parameters/3/default');
     [
@@ -521,12 +523,13 @@ source of truth so here it is.
       "is_dir"
     ]
 
-=head1 BUGS, SUPPORT, COMMIT, DISCUSS
+=head1 BUGS, SUPPORT, CONTRIBUTING, DISCUSS
 
 =for html <a href="https://travis-ci.org/kberov/Slovo"><img src="https://travis-ci.org/kberov/Slovo.svg?branch=master"></a>
 
-Please use issues at L<GitHub|https://github.com/kberov/Slovo/issues>, fork the
-project and make pull requests.
+To report a bug, please create issues at
+L<GitHub|https://github.com/kberov/Slovo/issues>, fork the project and make
+pull requests.
 
 
 =head1 AUTHOR

@@ -16,7 +16,7 @@ subtest 'api/stranici' => sub {
   #create several pages and then check the list again
   ok($t->login('краси', 'беров') => 'login ok');
   my $sform = {
-    page_type   => 'обичайна',
+    page_type   => 'regular',
     permissions => 'drwxr-xr-x',
     published   => 2,
     title       => 'Събития',

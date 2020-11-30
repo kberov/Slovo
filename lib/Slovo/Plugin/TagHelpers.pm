@@ -110,7 +110,7 @@ Slovo::Plugin::TagHelpers - additional and advanced tag helpers
 
   <%=
   select_box
-    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+    page_type => [map {[$_=>$_]}], @$page_types]
     required => 1, label => 'Page type'
   %>
 

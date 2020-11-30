@@ -93,10 +93,17 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
                   %>
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
+          <%
+          # We do not allow any more a page with page_type 'root' to be
+          # created. Every domain has only one root page and it is created
+          # during domain creation using the Slovo command 'generate novy-dom'
+          $c->debug($page_types);
+          %>
                   <%=
                   select_box
-                    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
-                    required => 1, label => 'Вид страница'
+                    page_type => [[$page_types->[1] => $page_types->[1]]],
+                    required  => 1,
+                    label     => 'Вид страница'
                   %>
               % end
               %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin

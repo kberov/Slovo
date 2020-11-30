@@ -8,11 +8,11 @@ use Slovo::Model::Celini;
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 
+has celini          => sub { $_[0]->c->celini };
 has not_found_id    => 4;
+has root_page_type  => sub { $_[0]->c->stash->{page_types}[0] };
 has table           => $table;
 has title_data_type => 'title';
-has main_boxes      => sub { ['main', 'главна'] };
-has celini          => sub { $_[0]->c->celini };
 
 # Returns a list of page aliases and titles in the current language for
 # displaying as breadcrumb. No permission filters are applied because if the
@@ -33,8 +33,10 @@ WITH RECURSIVE pids(p)
   WHERE s.id IN pids
     AND c.page_id = s.id
     AND $LSQL
-    AND c.data_type = 'title'
-    AND s.page_type !='коренъ';
+    -- title
+    AND c.data_type = '${\ $m->c->stash->{data_types}->[0] }'
+    -- root
+    AND s.page_type !='${\ $m->c->stash->{page_types}->[0] }';
 SQL
   my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
 
@@ -170,7 +172,7 @@ sub find_for_edit ($m, $id, $l) {
       language  => $m->celini->language_like($l),
       data_type => $m->title_data_type,
       sorting   => 0,
-      box       => $m->main_boxes,
+      box       => $m->celini->main_boxes,
     },
     {-asc => ['sorting', 'id']})->hash // {};
   return {%$p, %$title};
@@ -245,7 +247,7 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    "$celini_table.box"       => [$self->celini->main_boxes, {'=' => undef}],
     %{$self->_where_with_permissions($user, $domain, $preview)},
     %{$self->celini->where_with_permissions($user, $preview)}, %{$opts->{where} // {}}};
 
@@ -253,7 +255,7 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
   return $self->all($opts);
 }
 
-# Returns all pages for listing under 'home_stranici' or via Swagger API.
+# Returns all pages for listing under 'home_stranici' or via Swagger API for which the user has read permissions.
 # Beware not to mention one column twice as a key in the WHERE clause, because
 # only the second mention will remain for generating the SQL.
 sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
@@ -264,16 +266,16 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
   $opts->{where} = {
     defined $pid
     ? ("$table.pid" => $pid, "$table.id" => {'!=' => $pid})
-    : ("$table.page_type" => 'коренъ'),
+    : ("$table.page_type" => $self->root_page_type),
 
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
+    "$celini_table.box"       => [{-in => $self->celini->main_boxes}, {'=' => undef}],
     $self->where_domain_is($domain), %{$self->readable_by($user)}, %{$opts->{where} // {}}
   };
 
-  # local $db->dbh->{TraceLevel} = "3|SQL";
+  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
 }
 
@@ -314,8 +316,8 @@ sub languages ($m, $p, $u, $prv) {
   my $where = {
     page_id =>
       \["=(SELECT id FROM $table WHERE alias=? AND dom_id=?)", $p->{alias}, $p->{dom_id}],
-    data_type => 'title',
-    box       => ['main', 'главна'],
+    data_type => $m->title_data_type,
+    box       => $m->celini->main_boxes,
 
     # and those titles are readable by the current user
     %{$m->celini->where_with_permissions($u, $prv)},

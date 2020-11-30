@@ -27,7 +27,7 @@
           # avoid recursion
           'celini.pid'       => {'='  => $celina->{id}, '!=' => {-ident => 'celini.id'}},
           'celini.data_type' => {'!=' => 'title'},
-          'celini.box'       => {-in  => [qw(главна main)]}}});
+          'celini.box'       => $boxes->[0]}});
     %>
     <%==
     $celini->map(sub {

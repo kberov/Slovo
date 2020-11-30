@@ -10,12 +10,13 @@ with 'Slovo::Controller::Role::Stranica';
 # ANY /<page:str>.<lang:lng>.html
 # ANY /<page:str>.html
 # Display a page in the site
+# See the wrapper method 'around execute' in Slovo::Controller::Role::Stranica.
 sub execute ($c, $page, $user, $l, $preview) {
 
   # Make the root page looks like just updated when max_age elapsed and the
   # browser makes a request again, because it is very rarely directly
   # updated.
-  my $refresh_root = $page->{page_type} eq 'коренъ';
+  my $refresh_root = $page->{page_type} eq $c->app->defaults('page_types')->[0];    # root
   return $c->is_fresh(last_modified => $refresh_root ? time : $page->{tstamp})
     ? $c->rendered(304)
     : $c->render();

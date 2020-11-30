@@ -185,7 +185,7 @@ sub _create_pages ($self) {
       # this is the root page
       alias     => 'коренъ',
       title     => 'Добре дошли!',
-      page_type => 'коренъ',
+      page_type => $self->app->defaults('page_types')->[0],           # root
       body      => "<p>Добре сте ни дошли у $dom->{site_name}.</p>"
         . '<p>Променете съдържанието по ваше усмотрение.</p>',
       permissions => 'drwxr-xr-x',

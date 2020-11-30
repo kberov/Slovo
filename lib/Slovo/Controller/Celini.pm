@@ -277,8 +277,7 @@ sub _validation($c) {
   $v->optional('keywords',    'trim')->size(0, 255);
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
-  $v->optional('box', 'trim')->size(0, 35)
-    ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
+  $v->optional('box',         'trim')->size(0, 35)->in(@{$c->stash->{boxes}});
   $v->optional('language',    'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured',    'trim')->in(1, 0);

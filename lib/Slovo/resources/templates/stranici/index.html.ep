@@ -11,7 +11,7 @@ my $stranici
 % if(@$breadcrumb) {
   <%=
   $breadcrumb->map(sub {
-    link_to $_->{alias} => url_for()->query([pid => $_->{id}]);
+    link_to $_->{alias} => url_for()->query(pid => $_->{id});
   })->join(' ⸙ ')
   %>
 % }

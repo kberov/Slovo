@@ -156,13 +156,7 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
               title => 'Въ коя кутийка на страницата се намира') => begin %>
                   <%=
                   select_box
-                    box => [
-                            ['main'   => 'главна'],
-                            ['top'    => 'горѣ'],
-                            ['left'   => 'лѣво'],
-                            ['right'  => 'дѣсно'],
-                            ['bottom' => 'долу']
-                           ],
+                  box => [map {[$_ => $_]} @$boxes],
                     label => 'Въ кутия'
                   %>
               % end

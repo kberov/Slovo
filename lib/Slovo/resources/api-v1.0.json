@@ -134,8 +134,8 @@
         "type": "string",
         "in": "formData",
         "required": false,
-        "default": "html",
-        "enum":["title", "note", "writing", "book", "question", "answer", "paragraph"]
+        "default": "note",
+        "enum":["title", "note", "writing", "book", "chapter", "question", "answer", "paragraph"]
       },
       "permissions":{
         "name":"permissions",
@@ -146,6 +146,24 @@
         "default": "-rwxr-xr-x",
         "enum":["drwxr-xr-x", "drwxrwxr-x", "-rwxr-xr-x", "-rwxrwxr-x",
                 "lrwxr-xr-x", "-rwxr--r-x", "-rwx------", "drwx------","-r-x------", "dr-x------"]
+      },
+      "box":{
+        "name":"box",
+        "description": "Range of possible values for boxes in celini?",
+        "type": "string",
+        "in": "formData",
+        "required": false,
+        "default": "main",
+        "enum":["main", "left", "right", "header", "footer"]
+      },
+      "page_type":{
+        "name":"page_type",
+        "description": "Range of possible values for page_type in stranici?",
+        "type": "string",
+        "in": "formData",
+        "required": false,
+        "default": "regular",
+        "enum":["root", "regular"]
       }
    },
    "consumes" : [
