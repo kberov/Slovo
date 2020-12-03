@@ -17,6 +17,7 @@ Revision history for Mojolicious application Slovo
       generate novy-dom'.
     * We do not list page titles with the rest of celini records. They can be
       edited as part of a page.
+    * Now using Veleka2 font.
 
 2020.11.22
     * Fixed a bug - The adaptor class (Mojo::SQLite/mysql/Pg) reinstantiated

@@ -1,9 +1,9 @@
 @charset "utf-8";
 
-/* Veleka (Serif) */
+/* Veleka2 (Serif) */
 @font-face {
 	font-family: 'Veleka';
-	src: url('/fonts/veleka-regular-webfont.woff2') format('woff2');
+	src: url('/fonts/veleka2-regular-01.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 }

@@ -4,7 +4,6 @@ my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class   = join ' ', 'fields', @classes;
 $in->{user_id}  //= $user->{id};
 $in->{group_id} //= $user->{group_id};
-$c->debug('$c->domove->all=',$c->domove->all);
 my $sorting = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
 my $body_title = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';

@@ -72,7 +72,7 @@ my $update_user = sub {
     ->content_is('', 'empty content')->status_is(302);
   $t->get_ok($edit_user6_url)->status_is(200);
   for (@$groups, 6) {
-    $t->element_exists(qq|input[name="groups"][checked,value="$_"]|);
+    $t->element_exists(qq|input[name="groups"][checked][value="$_"]|);
   }
 };
 
