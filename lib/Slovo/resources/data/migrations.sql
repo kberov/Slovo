@@ -575,4 +575,57 @@ DROP INDEX IF EXISTS passw_login_to_uid;
 DROP TABLE IF EXISTS passw_login;
 
 
+-- 202012010000 up
+-- Note!!! We will not recreate the table just for a check constraint. We
+-- will define the new possible values in lib/Slovo/resources/api-v1.0.json 
+-- Only the RENAME TABLE, ADD COLUMN, and RENAME COLUMN variants of the ALTER
+-- TABLE command are supported. Other kinds of ALTER TABLE operations such as
+-- DROP COLUMN, ALTER COLUMN, ADD CONSTRAINT, and so forth are omitted. 
+-- See https://www.sqlite.org/omitted.html
+-- 1. Set all existing celini.data_type values to the new values.
+UPDATE celini SET data_type='title' WHERE data_type='заглавѥ';
+UPDATE celini SET data_type='note' WHERE data_type='белѣжка';
+UPDATE celini SET data_type='writing' WHERE data_type='писанѥ';
+UPDATE celini SET data_type='book' WHERE data_type='книга';
+UPDATE celini SET data_type='chapter' WHERE data_type='глава';
+UPDATE celini SET data_type='question' WHERE data_type='въпросъ';
+UPDATE celini SET data_type='answer' WHERE data_type='ѿговоръ';
+UPDATE celini SET data_type='paragraph' WHERE data_type='цѣлина';
+
+UPDATE celini SET box='main' WHERE box='главна';
+UPDATE celini SET box='left' WHERE box='лѣва';
+UPDATE celini SET box='right' WHERE box='дѣсна';
+UPDATE celini SET box='header' WHERE box='глава';
+UPDATE celini SET box='footer' WHERE box='дъно';
+UPDATE celini SET box='footer' WHERE box='bottom';
+UPDATE celini SET box='footer' WHERE box='долу';
+
+
+-- 2. Set all existing stranici.page_type values to the new values.
+UPDATE stranici SET page_type='root' WHERE page_type='коренъ';
+UPDATE stranici SET page_type='regular' WHERE page_type='обичайна';
+
+
+-- 202012010000 down
+-- 1. Set all existing celini.data_type values to the old values.
+UPDATE celini SET data_type='заглавѥ' WHERE data_type='title';
+UPDATE celini SET data_type='белѣжка' WHERE data_type='note';
+UPDATE celini SET data_type='писанѥ' WHERE data_type='writing';
+UPDATE celini SET data_type='цѣлина' WHERE data_type='paragraph';
+UPDATE celini SET data_type='въпросъ' WHERE data_type='question';
+UPDATE celini SET data_type='ѿговоръ' WHERE data_type='answer';
+UPDATE celini SET data_type='глава' WHERE data_type='chapter';
+UPDATE celini SET data_type='книга' WHERE data_type='book';
+
+UPDATE celini SET box='главна' WHERE box='main';
+UPDATE celini SET box='лѣва' WHERE box='left';
+UPDATE celini SET box='дѣсна' WHERE box='right';
+UPDATE celini SET box='глава' WHERE box='header';
+UPDATE celini SET box='дъно' WHERE box='footer';
+UPDATE celini SET box='bottom' WHERE box='footer';
+UPDATE celini SET box='долу' WHERE box='footer';
+
+-- 2. Set all existing stranici.page_type values to the old values.
+UPDATE stranici SET page_type='коренъ' WHERE page_type='root';
+UPDATE stranici SET page_type='обичайна' WHERE page_type='regular';
 

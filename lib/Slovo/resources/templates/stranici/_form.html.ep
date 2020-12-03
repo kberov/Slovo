@@ -4,7 +4,6 @@ my @classes = map { $in->{$_} ? $_ : '' } (qw(hidden deleted));
 my $class   = join ' ', 'fields', @classes;
 $in->{user_id}  //= $user->{id};
 $in->{group_id} //= $user->{group_id};
-
 my $sorting = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
 my $body_title = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
@@ -71,12 +70,12 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
                   %>
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
-                  <%=
-                  select_box
-                    dom_id   => $domove,
-                    required => 1,
-                    label    => 'Дом',
-                    title => 'В кой сайт се намира страницата.'
+                  %# We do not allow any more pages to be moved across domains.
+                  <%= 
+                  t label => sub {
+                  "Дом<br/><b>$domain->{domain}</b>"
+                    . input_tag('dom_id' => (type => 'hidden', value => $domain->{id}));
+                  };
                   %>
               % end
               %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
@@ -93,11 +92,19 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
                   %>
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
-                  <%=
-                  select_box
-                    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
-                    required => 1, label => 'Вид страница'
-                  %>
+          <%
+          # We do not allow any more a page with page_type 'root' to be
+          # created. Every domain has only one root page and it is created
+          # during domain creation using the Slovo command 'generate novy-dom'
+          %>
+
+          <%= 
+          t label => sub {
+            "Вид страница:"
+              . ($in->{page_type} // $page_types->[1])
+              . input_tag('page_type' => (type => 'hidden', value => $page_types->[1]));
+          };
+          %>
               % end
               %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
                   %= label_for template => 'Образец'

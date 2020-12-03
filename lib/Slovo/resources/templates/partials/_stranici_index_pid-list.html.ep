@@ -15,15 +15,15 @@ for my $p (@$stranici) {
     if ($p->{is_dir}) {
       if ((@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid}) || ($p->{id} == $param_pid))
       {
-        $podstranici = stranici->all_for_edit($user, $domain, $l,
+        $podstranici = stranici->all_for_edit($user, $domain->{domain}, $l,
           {pid => $p->{id}, columns => [@$stranici_columns]});
         shift @$breadcrumb if @$breadcrumb;
       }
       $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';
     }
     my $class = join ' ', map { $p->{$_} ? $_ : () } qw(hidden deleted);
-    $class .= ($p->{stop}//0) != 0  && ($p->{stop}//0) < $time  ? ' expired'  : '';
-    $class .= ($p->{start}//0) != 0 && ($p->{start}//0) > $time ? ' upcoming' : '';
+    $class .= ($p->{stop}  // 0) != 0 && ($p->{stop}  // 0) < $time ? ' expired'  : '';
+    $class .= ($p->{start} // 0) != 0 && ($p->{start} // 0) > $time ? ' upcoming' : '';
         %>
         <li class="fa-li">
             <i class="fas <%== $fa_class %>"></i>
@@ -43,7 +43,7 @@ for my $p (@$stranici) {
                 <li>
                     <%= link_to
                     url_for(edit_stranici => {id => $p->{id}})
-                    ->query([language=>$p->{language}]) => (title => 'Промѣна') =>
+                    ->query(language=>$p->{language}) => (title => 'Промѣна') =>
                     begin %><i class="fas fa-edit"></i> Промѣна<% end %>
                 </li>
 % }
@@ -64,12 +64,13 @@ for my $p (@$stranici) {
                 </li>
 % if(!$p->{deleted} && !$p->{hidden}) {
                 <li>
-    <%=
-    link_to url_with('create_stranici')
+    <% if($p->{is_dir}){ %>
+    <%= link_to url_with('create_stranici')
       ->query(pid => $p->{id}, dom_id => $p->{dom_id}),
       (title => "$new_subpage_title на „$p->{alias}”") => begin %><i
           class="fas fa-plus-square"></i> <%= $new_subpage_title %><% end %>
                 </li>
+    <% } %>
                 <li>
     <%= link_to url_with('create_celini')->query(page_id => $p->{id}),
     (title => "$new_celina в „$p->{alias}”") => begin %><i
@@ -93,4 +94,5 @@ $podstranici ? include 'partials/_stranici_index_pid-list' => (stranici => $pods
 %>
     </ul>
 
+<!-- end _stranici_index_pid-list -->
 

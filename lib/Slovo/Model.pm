@@ -19,7 +19,6 @@ sub all ($self, $opts = {}) {
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
   $opts->{where}    //= {};
   $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
-
   state $abstr = $self->dbx->abstract;
   my ($sql, @bind) = $abstr->select($opts->{table} // $self->table,
     $opts->{columns}, $opts->{where}, $opts->{order_by});

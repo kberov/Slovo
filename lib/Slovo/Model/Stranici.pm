@@ -8,11 +8,11 @@ use Slovo::Model::Celini;
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 
-has not_found_id    => 4;
-has table           => $table;
-has title_data_type => 'title';
-has main_boxes      => sub { ['main', 'главна'] };
 has celini          => sub { $_[0]->c->celini };
+has not_found_id    => 4;
+has root_page_type  => sub { $_[0]->c->stash->{page_types}[0] };
+has table           => $table;
+has title_data_type => sub { $_[0]->c->stash->{data_types}[0] };
 
 # Returns a list of page aliases and titles in the current language for
 # displaying as breadcrumb. No permission filters are applied because if the
@@ -33,8 +33,10 @@ WITH RECURSIVE pids(p)
   WHERE s.id IN pids
     AND c.page_id = s.id
     AND $LSQL
-    AND c.data_type = 'title'
-    AND s.page_type !='коренъ';
+    -- title
+    AND c.data_type = '${\ $m->c->stash->{data_types}->[0] }'
+    -- root
+    AND s.page_type !='${\ $m->c->stash->{page_types}->[0] }';
 SQL
   my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
 
@@ -43,7 +45,7 @@ SQL
 
 # Returns a structure for a 'where' clause to be shared among select methods
 # for pages to be displayed in the site.
-sub _where_with_permissions ($m, $user, $domain, $preview) {
+sub _where_with_permissions ($m, $user, $domain_name, $preview) {
 
   my $now = time;
 
@@ -52,7 +54,7 @@ sub _where_with_permissions ($m, $user, $domain, $preview) {
   # request URL does not start with an IP. In case the request URL starts with
   # an IP (e.g. http://127.0.0.1/some/route) the first domain record with that
   # IP will take the request.
-  state $domain_sql = <<"SQL";
+  state $domain_name_sql = <<"SQL";
 = (SELECT id FROM domove
     WHERE (? LIKE '%' || domain OR aliases LIKE ? OR ips LIKE ?) AND published = ? LIMIT 1)
 SQL
@@ -66,7 +68,7 @@ SQL
     $preview ? () : ("$table.stop"  => [{'=' => 0}, {'>' => $now}]),
 
     # the page must be published and belong to the current domain
-    $m->where_domain_is($domain),
+    $m->where_domain_is($domain_name),
 
     # TODO: May be drop this column as 'hidden' can be
     # implemented by putting '.' as first character for the alias.
@@ -93,25 +95,26 @@ SQL
     ]};
 }
 
-# Returns part of the where clause for $domain($c->host_only) as a HASH pair.
-sub where_domain_is ($m, $domain) {
+# Returns part of the where clause for $domain_name($c->host_only) as a HASH pair.
+sub where_domain_is ($m, $domain_name) {
 
   # Match by domain or one of the domain aliases or IPs - in that order. This
   # is to give chance to all domains and their aliases to match in case the
   # request URL does not start with an IP. In case the request URL starts with
   # an IP (e.g. http://127.0.0.1/some/route) the first domain record with that
   # IP will take the request.
-  state $domain_sql = <<"SQL";
+  state $domain_name_sql = <<"SQL";
 = (SELECT id FROM domove
     WHERE (? LIKE '%' || domain OR aliases LIKE ? OR ips LIKE ?) AND published=2 LIMIT 1)
 SQL
 
   # the page must belong to the current domain
-  return ("$table.dom_id" => \[$domain_sql, => ($domain, "%$domain%", "%$domain%")]);
+  return ("$table.dom_id" =>
+      \[$domain_name_sql, => ($domain_name, "%$domain_name%", "%$domain_name%")]);
 }
 
 # Find a page by $alias which can be seen by the current user
-sub find_for_display ($m, $alias, $user, $domain, $preview) {
+sub find_for_display ($m, $alias, $user, $domain_name, $preview) {
 
   # 0. WHERE alias = $alias failed to match
   # 1. Suppose the user stumbled on a link with the old most recent alias.
@@ -132,7 +135,7 @@ SQL
     $table, undef,
     {
       alias => [$alias, \[$old_alias_SQL => $alias, $alias, $alias]],
-      %{$m->_where_with_permissions($user, $domain, $preview)}})->hash;
+      %{$m->_where_with_permissions($user, $domain_name, $preview)}})->hash;
 }
 
 
@@ -170,7 +173,7 @@ sub find_for_edit ($m, $id, $l) {
       language  => $m->celini->language_like($l),
       data_type => $m->title_data_type,
       sorting   => 0,
-      box       => $m->main_boxes,
+      box       => $m->celini->main_boxes,
     },
     {-asc => ['sorting', 'id']})->hash // {};
   return {%$p, %$title};
@@ -210,7 +213,7 @@ sub remove ($m, $id) {
 
 # Transforms a column accordingly as passed from $opts->{columns} and returns
 # the transformed column.
-my sub _transform_columns($col) {
+my sub _transform_columns ($col) {
   if ($col eq 'title' or $col eq 'language') {
     return "$/$celini_table.$col AS $col";
   }
@@ -230,7 +233,7 @@ my sub _transform_columns($col) {
 # Returns all pages for listing in a sidebar or via Swagger API. Beware not to
 # mention one column twice as a key in the WHERE clause, because only the
 # second mention will remain for generating the SQL.
-sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
+sub all_for_list ($self, $user, $domain_name, $preview, $l, $opts = {}) {
   $opts->{table} = [$table, $celini_table];
   my @columns = map { _transform_columns($_) } @{$opts->{columns}};
   $opts->{columns} = join ",", @columns;
@@ -245,18 +248,18 @@ sub all_for_list ($self, $user, $domain, $preview, $l, $opts = {}) {
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
-    %{$self->_where_with_permissions($user, $domain, $preview)},
+    "$celini_table.box"       => [$self->celini->main_boxes, {'=' => undef}],
+    %{$self->_where_with_permissions($user, $domain_name, $preview)},
     %{$self->celini->where_with_permissions($user, $preview)}, %{$opts->{where} // {}}};
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
 }
 
-# Returns all pages for listing under 'home_stranici' or via Swagger API.
+# Returns all pages for listing under 'home_stranici' or via Swagger API for which the user has read permissions.
 # Beware not to mention one column twice as a key in the WHERE clause, because
 # only the second mention will remain for generating the SQL.
-sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
+sub all_for_edit ($self, $user, $domain_name, $l, $opts = {}) {
   $opts->{table} = [$table, $celini_table];
   my @columns = map { _transform_columns($_) } @{$opts->{columns}};
   $opts->{columns} = join ",", @columns;
@@ -264,16 +267,16 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
   $opts->{where} = {
     defined $pid
     ? ("$table.pid" => $pid, "$table.id" => {'!=' => $pid})
-    : ("$table.page_type" => 'коренъ'),
+    : ("$table.page_type" => $self->root_page_type),
 
     "$celini_table.page_id"   => {-ident => "$table.id"},
     "$celini_table.data_type" => $self->title_data_type,
     "$celini_table.language"  => $self->celini->language_like($l),
-    "$celini_table.box"       => [{-in => ['main', 'главна', '']}, {'=' => undef}],
-    $self->where_domain_is($domain), %{$self->readable_by($user)}, %{$opts->{where} // {}}
-  };
+    "$celini_table.box"       => [{-in => $self->celini->main_boxes}, {'=' => undef}],
+    $self->where_domain_is($domain_name), %{$self->readable_by($user)},
+    %{$opts->{where} // {}}};
 
-  # local $db->dbh->{TraceLevel} = "3|SQL";
+  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $self->all($opts);
 }
 
@@ -283,7 +286,7 @@ sub all_for_edit ($self, $user, $domain, $l, $opts = {}) {
 # each. $opts contains only two keys (stranici_opts, and celini_opts). They
 # will be passed respectively to all_for_list() and
 # all_for_display_in_stranica().
-sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
+sub all_for_home ($m, $user, $domain_name, $preview, $l, $opts = {}) {
   my $stranici_opts = {
     where => {"$celini_table.permissions" => {-like => 'd%'}},
     %{delete $opts->{stranici_opts}}};
@@ -293,7 +296,7 @@ sub all_for_home ($m, $user, $domain, $preview, $l, $opts = {}) {
     where   => {"$celini_table.data_type" => {'!=' => 'title'}},
     %{delete $opts->{celini_opts}}};
 
-  return $m->all_for_list($user, $domain, $preview, $l, $stranici_opts)->each(
+  return $m->all_for_list($user, $domain_name, $preview, $l, $stranici_opts)->each(
     sub ($p, $i) {
       state $SQL = <<"SQL";
 =(SELECT id FROM $celini_table
@@ -314,8 +317,8 @@ sub languages ($m, $p, $u, $prv) {
   my $where = {
     page_id =>
       \["=(SELECT id FROM $table WHERE alias=? AND dom_id=?)", $p->{alias}, $p->{dom_id}],
-    data_type => 'title',
-    box       => ['main', 'главна'],
+    data_type => $m->title_data_type,
+    box       => $m->celini->main_boxes,
 
     # and those titles are readable by the current user
     %{$m->celini->where_with_permissions($u, $prv)},

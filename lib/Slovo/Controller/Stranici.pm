@@ -10,12 +10,13 @@ with 'Slovo::Controller::Role::Stranica';
 # ANY /<page:str>.<lang:lng>.html
 # ANY /<page:str>.html
 # Display a page in the site
+# See the wrapper method 'around execute' in Slovo::Controller::Role::Stranica.
 sub execute ($c, $page, $user, $l, $preview) {
 
   # Make the root page looks like just updated when max_age elapsed and the
   # browser makes a request again, because it is very rarely directly
   # updated.
-  my $refresh_root = $page->{page_type} eq 'коренъ';
+  my $refresh_root = $page->{page_type} eq $c->app->defaults('page_types')->[0];    # root
   return $c->is_fresh(last_modified => $refresh_root ? time : $page->{tstamp})
     ? $c->rendered(304)
     : $c->render();
@@ -25,25 +26,25 @@ sub execute ($c, $page, $user, $l, $preview) {
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.
-sub create($c) {
-  my $str    = $c->stranici;
-  my $l      = $c->language;
-  my $domain = $c->host_only;
-  my $user   = $c->user;
-  my $pid    = $c->param('pid')
-    // $str->all_for_edit($user, $domain, $l,
+sub create ($c) {
+  my $str  = $c->stranici;
+  my $l    = $c->language;
+  my $host = $c->host_only;
+  my $user = $c->user;
+  my $pid  = $c->param('pid')
+    // $str->all_for_edit($user, $host, $l,
     {limit => 1, columns => [@{$c->stash->{stranici_columns}}]})->[0]{id};
   my $bread = $str->breadcrumb($pid, $l);
   return $c->render(
     in         => {},
     breadcrumb => $bread,
-    parents    => $c->page_id_options($bread, {pid => $pid}, $user, $domain, $l),
+    parents    => $c->page_id_options($bread, {pid => $pid}, $user, $host, $l),
   );
 }
 
 # POST /stranici
 # Add a new record to table stranici.
-sub store($c) {
+sub store ($c) {
   my $user = $c->user;
   my $in   = {};
   @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
@@ -82,7 +83,7 @@ sub store($c) {
 
 # GET /stranici/:id/edit
 # Display form for edititing resource in table stranici.
-sub edit($c) {
+sub edit ($c) {
 
   my $str = $c->stranici;
   my $l   = $c->language;
@@ -90,7 +91,7 @@ sub edit($c) {
 
   my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
   my $bread  = $str->breadcrumb($row->{id}, $l);
-  my $domain = $c->host_only;
+  my $host   = $c->host_only;
 
   #TODO: implement language switching based on Ado::L18n
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
@@ -99,13 +100,13 @@ sub edit($c) {
     l          => $l,
     in         => $row,
     breadcrumb => $bread,
-    parents    => $c->page_id_options($bread, $row, $c->user, $domain, $l),
+    parents    => $c->page_id_options($bread, $row, $c->user, $host, $l),
   );
 }
 
 # PUT /stranici/:id
 # Update the record in table stranici
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $v  = $c->_validation;
@@ -132,7 +133,7 @@ sub update($c) {
 
 # GET /stranici/:id
 # Display a record from table stranici.
-sub show($c) {
+sub show ($c) {
   my $row = $c->stranici->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
@@ -149,10 +150,10 @@ sub show($c) {
 # GET /stranici
 # List resources from table stranici.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
-  my $str    = $c->stranici;
-  my $domain = $c->host_only;
-  my $v      = $c->validation;
+sub index ($c) {
+  my $str  = $c->stranici;
+  my $host = $c->host_only;
+  my $v    = $c->validation;
 
   $v->optional(pid => 'trim')->like(qr/^\d+$/);
   my $in = $v->output;
@@ -167,11 +168,11 @@ sub index($c) {
     return $c->render(openapi => $str->all($in));
   }
 
-  return $c->render(domain => $domain, breadcrumb => $str->breadcrumb($in->{pid}, $l),);
+  return $c->render(host => $host, breadcrumb => $str->breadcrumb($in->{pid}, $l),);
 }
 
 # DELETE /stranici/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -202,7 +203,7 @@ sub remove($c) {
 }
 
 # Validation for actions that store or update
-sub _validation($c) {
+sub _validation ($c) {
   $c->req->param(alias => lc substr(($c->param('title') =~ s/\W//gr), 0, 32))
     unless $c->param('alias');
   for (qw(hidden deleted)) {
@@ -215,7 +216,7 @@ sub _validation($c) {
   # current user.
   my $int = qr/^\d{1,10}$/;
   $v->optional('pid',    'trim')->like($int);
-  $v->optional('dom_id', 'trim')->like($int);
+  $v->optional('dom_id', 'trim')->equals($c->stash('domain')->{id});
   $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like($int);
@@ -246,7 +247,7 @@ sub _validation($c) {
 # GET/api/stranici
 # List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
-sub list($c) {
+sub list ($c) {
 
   $c->openapi->valid_input or return;
   my $in      = $c->validation->output;

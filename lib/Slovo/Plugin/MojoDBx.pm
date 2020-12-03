@@ -55,7 +55,7 @@ sub register ($self, $app, $conf = {}) {
     my $class = "Slovo::Model::$T";
     $app->load_class($class);
     $app->helper(
-      $t => sub($c) {
+      $t => sub ($c) {
         my $m = $class->new(dbx => $c->dbx, c => $c);
         Scalar::Util::weaken $m->{c};
         return $m;

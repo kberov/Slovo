@@ -35,10 +35,10 @@ my sub _checkboxes ($c, $name, $options, %attrs) {
 
 my sub _html_substr ($c, $html, $selector, $chars) {
   my $length = 0;
-  state $dom = Mojo::DOM->new;
+  state $html_dom = Mojo::DOM->new;
   my $first_tag = 1;
   my $last_tag  = 0;
-  return c(split m|$/$/|, $html)->head(5)->map(sub($txt) {
+  return c(split m|$/$/|, $html)->head(5)->map(sub ($txt) {
     return '' if $last_tag;
     $length += length($txt);
     if ($length >= $chars) {
@@ -49,8 +49,8 @@ my sub _html_substr ($c, $html, $selector, $chars) {
     return '<p>' . $txt . '</p>' . $/;
   })->join('') unless $html =~ /<\w/;
 
-  my $elems = $dom->parse($html)->find($selector);
-  return $dom->parse($html)->find($selector)->head(5)->map(sub($el) {
+  my $elems = $html_dom->parse($html)->find($selector);
+  return $html_dom->parse($html)->find($selector)->head(5)->map(sub ($el) {
     return '' unless $el;
     return '' if $last_tag;
     my $txt = $el->all_text;
@@ -110,7 +110,7 @@ Slovo::Plugin::TagHelpers - additional and advanced tag helpers
 
   <%=
   select_box
-    page_type => [['Regular' => 'обичайна'], ['Root page' => 'коренъ',]],
+    page_type => [map {[$_=>$_]}], @$page_types]
     required => 1, label => 'Page type'
   %>
 

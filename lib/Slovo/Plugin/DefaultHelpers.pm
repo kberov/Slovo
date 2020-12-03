@@ -150,8 +150,8 @@ We replaced the implementation of this helper, provided otherwise by
 L<Mojolicious::Plugin::Authentication/is_user_authenticated>. Now we check if
 the user is not C<guest> instead of checking if we have a loaded user all over
 the place. This was needed because we wanted to always have a default user. See
-L</before_dispatch>. Now we have default user properties even if there is not
-a logged in user. This will be the C<guest> user.
+L<Slovo/before_dispatch> for details. Now we have default user properties even
+if there is not a logged in user. This will be the C<guest> user.
 
 Once again: Now this helper returns true if the current user is not Guest, false
 otherwise.

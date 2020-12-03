@@ -17,7 +17,7 @@ use Slovo::Controller::Auth;
 use Slovo::Validator;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2020.11.22';
+our $VERSION   = '2020.12.01';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -41,7 +41,7 @@ has home => sub {
 };
 
 # This method will run once at server start
-sub startup($app) {
+sub startup ($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
   $app->controller_class('Slovo::Controller');
   $app->commands->namespaces(
@@ -54,17 +54,19 @@ sub startup($app) {
   $app->defaults(
 
     # layout => 'default'
+    boxes            => $app->openapi_spec('/parameters/box/enum'),
+    data_formats     => $app->openapi_spec('/parameters/data_format/enum'),
+    data_types       => $app->openapi_spec('/parameters/data_type/enum'),
     lang             => 'bg-bg',
     languages        => $app->languages,    # /parameters/language/enum
-    data_types       => $app->openapi_spec('/parameters/data_type/enum'),
-    data_formats     => $app->openapi_spec('/parameters/data_format/enum'),
+    page_types       => $app->openapi_spec('/parameters/page_type/enum'),
     permissions      => $app->openapi_spec('/parameters/permissions/enum'),
     stranici_columns => $app->openapi_spec('/paths/~1stranici/get/parameters/4/default'),
   );
   return $app;
 }
 
-sub _before_dispatch($c) {
+sub _before_dispatch ($c) {
   state $guest       = $c->users->find_by_login_name('guest');
   state $auth_config = c(@{$c->config('plugins')})->first(sub {
     ref $_ eq 'HASH' and exists $_->{Authentication};
@@ -108,14 +110,14 @@ sub _around_dispatch ($next, $c) {
   # Use domain specific public and templates' paths with priority.
   unshift @{$s_paths}, "$droot/$dom->{domain}/public";
   unshift @{$r_paths}, "$droot/$dom->{domain}/templates";
-  $app->defaults(domain => $dom);
+  $c->stash(domain => $dom);
   $next->();
   shift @{$s_paths};
   shift @{$r_paths};
   return;
 }
 
-sub _load_config($app) {
+sub _load_config ($app) {
   my $etc     = $app->resources->child('etc');
   my $moniker = $app->moniker;
   my $mode    = $app->mode;
@@ -149,7 +151,7 @@ sub _load_config($app) {
   return $app;
 }
 
-sub _load_pugins($app) {
+sub _load_pugins ($app) {
 
   # Namespaces to load plugins from
   # See /perldoc/Mojolicious#plugins
@@ -184,7 +186,7 @@ sub _load_pugins($app) {
   return $app;
 }
 
-sub _default_paths($app) {
+sub _default_paths ($app) {
 
   # Fallback "public" directory
   my $public = $app->resources->child('public')->to_string;
@@ -210,7 +212,7 @@ sub _set_routes_attrs ($app) {
 }
 
 # Add more media types
-sub _add_media_types($app) {
+sub _add_media_types ($app) {
   $app->types->type(woff  => ['application/font-woff',  'font/woff']);
   $app->types->type(woff2 => ['application/font-woff2', 'font/woff2']);
   return $app;
@@ -237,10 +239,8 @@ Slovo - Искони бѣ Слово
 
 Install Slovo locally with all dependencies in less than two minutes
 
-    date
-    curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -q -n -l \
-    ~/opt/slovo Slovo
-    date
+    time curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org \
+    -q -n -l ~/opt/slovo Slovo
 
 Run slovo for the first time in debug mode
 
@@ -493,13 +493,32 @@ available in the respective templates. Here they are:
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
 
+In addition the current domain row from table C<domove> becomes available in
+the stash as C<$domain>.
+
+  # In a controller or model
+  $c->stash('domain')->{id};
+  $m->c->stash('domain')->{aliases};
+
+  # In a template like
+  # lib/Slovo/resources/templates/stranici/_form.html.ep
+  <%=
+  select_box
+    dom_id   => $domove,
+    required => 1,
+    label    => 'Дом',
+    title    => 'В кой сайт се намира страницата.',
+    readonly => undef,
+    value    => $domain->{id} #default value
+  %>
+
 =head2 before_dispatch
 
-On each request we check if we have logged in user and set the current user to
-C<guest> if we don't. This way every part of the application (including newly
-developed plugins) can count on having a current user. It is used for
-determining the permissions for any resource in the application. The user is
-available as C<$c-E<gt>user>.
+On each request we check if we have a logged in user and set the current user
+to C<guest> if we don't. This way every part of the application (including
+newly developed plugins) can count on having a current user. The user is needed
+to determine the permissions for any table that has column C<permissions>. The
+current user is available as C<$c-E<gt>user>.
 
 =head1 HELPERS
 
@@ -510,7 +529,7 @@ Slovo implements the following helpers.
 We need to have our openapi API specification always at hand as a unified
 source of truth so here it is.
 
-    #anywhere via $app or $c, even not via a REST call
+    # anywhere via $app or $c, even not via a REST call
     state $columns =
         $c->openapi_spec('/paths/~1stranici/get/parameters/3/default');
     [
@@ -521,12 +540,13 @@ source of truth so here it is.
       "is_dir"
     ]
 
-=head1 BUGS, SUPPORT, COMMIT, DISCUSS
+=head1 BUGS, SUPPORT, CONTRIBUTING, DISCUSS
 
 =for html <a href="https://travis-ci.org/kberov/Slovo"><img src="https://travis-ci.org/kberov/Slovo.svg?branch=master"></a>
 
-Please use issues at L<GitHub|https://github.com/kberov/Slovo/issues>, fork the
-project and make pull requests.
+To report a bug, please create issues at
+L<GitHub|https://github.com/kberov/Slovo/issues>, fork the project and make
+pull requests.
 
 
 =head1 AUTHOR

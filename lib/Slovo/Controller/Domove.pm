@@ -7,13 +7,13 @@ no warnings "experimental::lexical_subs";
 
 # GET /domove/create
 # Display form for creating resource in table domove.
-sub create($c) {
+sub create ($c) {
   return $c->render(in => {});
 }
 
 # POST /domove
 # Add a new record to table domove.
-sub store($c) {
+sub store ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
@@ -36,7 +36,7 @@ sub store($c) {
 
 # GET /domove/:id/edit
 # Display form for edititing resource in table domove.
-sub edit($c) {
+sub edit ($c) {
   my $row = $c->domove->find($c->param('id'));
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
   return $c->render(in => $row);
@@ -44,7 +44,7 @@ sub edit($c) {
 
 # PUT /domove/:id
 # Update the record in table domove
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $v = $c->_validation;
@@ -61,7 +61,7 @@ sub update($c) {
 
 # GET /domove/:id
 # Display a record from table domove.
-sub show($c) {
+sub show ($c) {
   my $id  = $c->param('id');
   my $row = $c->domove->find($id);
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
@@ -78,7 +78,7 @@ sub show($c) {
 # GET /domove
 # List resources from table domove.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -88,7 +88,7 @@ sub index($c) {
 }
 
 # DELETE /domove/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -108,7 +108,7 @@ sub remove($c) {
 
 
 # Validation for actions that store or update
-sub _validation($c) {
+sub _validation ($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database

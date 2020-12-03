@@ -87,7 +87,7 @@ sub save ($m, $id, $row) {
   }
   my $db = $m->dbx->db;
 
-  state $gid_SQL= "(SELECT group_id FROM $table WHERE id=?)";
+  state $gid_SQL = "(SELECT group_id FROM $table WHERE id=?)";
   eval {
     my $tx = $db->begin;
     $db->update($table, $row, {id => $id});

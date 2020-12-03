@@ -11,7 +11,7 @@ around execute => \&_around_execute;
 
 sub _around_execute ($execute, $c) {
   state $cache_pages    = $c->config('cache_pages');
-  state $list_columns   = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns   = $c->app->defaults('stranici_columns');
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
   my $is_guest = !$c->is_user_authenticated;
@@ -22,8 +22,8 @@ sub _around_execute ($execute, $c) {
   my $l       = $c->language;
   my $user    = $c->user;
   my $str     = $c->stranici;
-  my $domain  = $c->host_only;
-  my $page    = $str->find_for_display($alias, $user, $domain, $preview);
+  my $host    = $c->host_only;
+  my $page    = $str->find_for_display($alias, $user, $host, $preview);
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
@@ -42,7 +42,7 @@ sub _around_execute ($execute, $c) {
   $c->stash(
     page         => $page->{alias},
     celini       => $celini,
-    domain       => $domain,
+    host         => $host,
     list_columns => $list_columns,
     page         => $page,
     preview      => $preview,
@@ -102,7 +102,7 @@ sub _path_to_file ($c, $url_path) {
     $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
 }
 
-sub _render_cached_page($c) {
+sub _render_cached_page ($c) {
   state $cache_control = $c->app->config('cache_control');
   $c->res->headers->cache_control($cache_control);
   my $url_path = $c->req->url->path->canonicalize->to_route =~ s|^/||r;
@@ -130,29 +130,11 @@ my $clear_cache = sub ($action, $c) {
 
   state $app   = $c->app;
   state $droot = $app->config('domove_root');
-  my $id = $c->param('id');
-  return $action->($c) unless $id;    # something is wrong
-  my $cll       = $c->stash('controller');
-  my $domain    = '';
-  my $cache_dir = '';
-
-  #it is a page
-  if ($cll =~ /stranici$/i) {
-    my $dom_id = $c->stranici->find($id)->{dom_id};
-    $domain = $c->domove->find($dom_id)->{domain};
-  }
-
-  # it is a celina
-  elsif ($cll =~ /celini$/i) {
-    my $page_id = $c->celini->find($id)->{page_id};
-    my $dom_id  = $c->stranici->find($page_id)->{dom_id};
-    $domain = $c->domove->find($dom_id)->{domain};
-  }
 
   my $ok = $action->($c);
   return unless $ok;
 
-  $cache_dir = path $droot, $domain, 'public', $cached;
+  my $cache_dir = path $droot, $c->stash('domain')->{domain}, 'public', $cached;
 
   $c->debug('REMOVING ' . $cache_dir);
   $cache_dir->remove_tree;
@@ -169,21 +151,21 @@ sub b64_images_to_files ($c, $name) {
   my $dom    = Mojo::DOM->new($v->{$name});
   my $images = $dom->find('img[src^="data:image/"]');
   state $paths = $c->app->static->paths;
-  $images->each(
-    sub ($img, $i) {
-      my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
-      return unless $b64;
-      my ($ext) = $type =~ m|/(.+)$|;
-      my $stream = b($b64)->b64_decode;
-      my $ipad = sprintf '%02d', $i;
-      my $src  = path($paths->[0], 'img',
-        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
-      ($img->{src}) = $src =~ m|public(/.+)$|;
+  $images->each(sub ($img, $i) {
+    my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+    return unless $b64;
+    my ($ext)  = $type =~ m|/(.+)$|;
+    my $stream = b($b64)->b64_decode;
+    my $ipad   = sprintf '%02d', $i;
+    my $src
+      = path($paths->[0], 'img', sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")
+      ->spurt($stream);
+    ($img->{src}) = $src =~ m|public(/.+)$|;
 
-      # TODO: resize the image on disc according to 'with' and 'height'
-      # attributes if available and keep resolution 96dpi. Save original image
-      # as well as resized image. Use resized image in src attribute.
-    });
+    # TODO: resize the image on disc according to 'with' and 'height'
+    # attributes if available and keep resolution 96dpi. Save original image
+    # as well as resized image. Use resized image in src attribute.
+  });
   $v->{$name} = $dom->to_string;
   return;
 }
@@ -280,11 +262,9 @@ sub writable ($v, $name, $value, $c) {
 sub is_item_editable ($c, $e) {
   my $u = $c->user;
   if ($u->{id} == $e->{user_id}) {
-    $c->debug($e->{id} . ' is_item_editable? - $u->{id} == $e->{user_id}');
     return 1;
   }
   if ($u->{group_id} == $e->{group_id}) {
-    $c->debug($e->{id} . ' is_item_editable? - $u->{group_id} == $e->{group_id}');
     return 1;
   }
   my $groups = $c->stash->{user_groups}
@@ -295,12 +275,12 @@ sub is_item_editable ($c, $e) {
   if ( $groups->first(sub { $_->{group_id} == $e->{group_id} })
     && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
   {
-    $c->debug($e->{id} . ' is_item_editable? - group with "rw" priviledges');
+    $c->debug($e->{id} . ' is_item_editable? - yes: group with "rw" priviledges');
     return 1;
   }
 
   if ($e->{permissions} =~ /^[ld\-]$rwx${rwx}rw/x) {
-    $c->debug($e->{id} . ' is_item_editable? - others with "rw" priviledges');
+    $c->debug($e->{id} . ' is_item_editable? - yes: others with "rw" priviledges');
     return 1;
   }
   $c->debug($e->{id} . ' is_item_editable? - NO.');
@@ -310,10 +290,11 @@ sub is_item_editable ($c, $e) {
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
-  state $root = $str->find_where(
-    {page_type => 'коренъ', dom_id => $c->app->defaults('domain')->{id}});
+  state $root = $str->find_where({
+    page_type => $c->app->defaults('page_types')->[0],
+    dom_id    => $c->stash('domain')->{id}});
   state $pt           = $str->table;
-  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns = $c->app->defaults('stranici_columns');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
@@ -333,7 +314,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
 sub _options ($c, $crow, $row, $indent, $u, $d, $l) {
   return unless $crow->{is_dir};
   return if ($crow->{id} == ($row->{id} // 0));
-  state $list_columns = $c->openapi_spec('/paths/~1stranici/get/parameters/4/default');
+  state $list_columns = $c->app->defaults('stranici_columns');
   my $opts = {pid => $crow->{id}, order_by => ['sorting'], columns => $list_columns,};
 
   my $stranici = $c->stranici->all_for_edit($u, $d, $l, $opts);

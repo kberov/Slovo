@@ -2,9 +2,9 @@
 <%
 # Template for the home page of a domain
 my $the_title = shift @$celini;
-my $main  = $celini->grep(sub { $_->{box} =~ /(main|главна)/ });
-my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $right = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+my $main  = $celini->grep(sub { $_->{box} eq $boxes->[0] });
+my $left  = $celini->grep(sub { $_->{box} eq $boxes->[1] });
+my $right = $celini->grep(sub { $_->{box} eq $boxes->[2] });
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
@@ -22,9 +22,9 @@ layout 'site',
 # title which is directory (i.e. contains articles) and get 6 articles for
 # each
 my $opts = {
-  stranici_opts => {columns => $list_columns, pid => $page->{id},},
-  celini_opts => {order_by => {-desc => [qw(featured created_at)]}, limit => 6}};
-my $pages = stranici->all_for_home($user, $domain, $preview, language, $opts);
+  stranici_opts => {columns  => $list_columns, pid => $page->{id},},
+  celini_opts   => {order_by => {-desc => [qw(featured created_at)]}, limit => 6}};
+my $pages = stranici->all_for_home($user, $domain->{domain}, $preview, language, $opts);
 
 %>
 <% for my $p (@$pages) { %>

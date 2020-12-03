@@ -1,10 +1,9 @@
 <!-- stranici/execute -->
 <%
-state $main_box = join '|', @{stranici->main_boxes};
 my $the_title = shift @$celini;
-my $main  = $celini->grep(sub { $_->{box} =~ /$main_box/ });
-my $left  = $celini->grep(sub { $_->{box} =~ /left|лѣво/ });
-my $right = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ });
+my $main  = $celini->grep(sub { $_->{box} eq $boxes->[0] });
+my $left  = $celini->grep(sub { $_->{box} eq $boxes->[1] });
+my $right = $celini->grep(sub { $_->{box} eq $boxes->[2] });
 
 # Left pane may be shown:
 # * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;

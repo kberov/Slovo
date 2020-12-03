@@ -1,5 +1,24 @@
 Revision history for Mojolicious application Slovo
 
+2020.12.01
+    * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in
+      database were not changed while translating identifiers. Now this is
+      done. See migrations.sql
+    * Translated the above mentioned remaining values from Bulgarian(Cyrillic)
+      to English(Latin).
+    * Added parameters descriptions for 'box'and 'page_type' in api-v1.0.json.
+    * Added possible value for data_type - 'chapter' in api-v1.0.json.
+    * Added 'boxes','data_formats' and 'page_types' to $app->defaults and used
+      them accross the application as "single source of truth".
+    * Slightly improved documentation.
+    * We do not allow any more pages to be moved across domains.
+    * We do not allow any more a page with page_type 'root' to be created.
+      Every domain has only one such page and it is created with command 'slovo
+      generate novy-dom'.
+    * We do not list page titles with the rest of celini records. They can be
+      edited as part of a page.
+    * Now using Veleka2 font.
+
 2020.11.22
     * Fixed a bug - The adaptor class (Mojo::SQLite/mysql/Pg) reinstantiated
       each time $app->dbx was invoked. Now this is done only on the first

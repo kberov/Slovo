@@ -57,7 +57,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 
 # GET /celini/create
 # Display form for creating resource in table celini.
-sub create($c) {
+sub create ($c) {
   my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
   $c->req->param(data_type => $c->stash->{data_types}->[1]);
   my $str   = $c->stranici;
@@ -72,7 +72,7 @@ sub create($c) {
 
 # POST /celini
 # Add a new record to table celini.
-sub store($c) {
+sub store ($c) {
   my $user = $c->user;
   my $in   = {};
   @$in{qw(user_id group_id changed_by created_at)}
@@ -110,7 +110,7 @@ sub store($c) {
 
 # GET /celini/:id/edit
 # Display form for edititing resource in table celini.
-sub edit($c) {
+sub edit ($c) {
   my $row = $c->celini->find($c->param('id'));
 
   # prefill form fields.
@@ -127,7 +127,7 @@ sub edit($c) {
 
 # PUT /celini/:id
 # Update the record in table celini
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $v  = $c->_validation;
@@ -157,7 +157,7 @@ sub update($c) {
 
 # GET /celini/:id
 # Display a record from table celini.
-sub show($c) {
+sub show ($c) {
   my $row = $c->celini->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
@@ -174,13 +174,12 @@ sub show($c) {
 # GET /celini
 # List resources from table celini in the current domain.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
 
   # restrict to the current domain root page
   my $str = $c->stranici;
   my $l   = $c->language;
-
-  my $in = $str->all({columns => 'id', where => {$str->where_domain_is($c->host_only)}})
+  my $in  = $str->all({columns => 'id', where => {dom_id => $c->stash('domain')->{id}}})
     ->map(sub { $_->{id} })->to_array;
 
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
@@ -192,7 +191,13 @@ sub index($c) {
   $v->optional('page_id', 'trim')->in(@$in);
   my $o      = $v->output;
   my $celini = $c->celini;
-  my $opts   = {where => {%{$celini->readable_by($c->user)}}};
+  my $opts   = {
+    where => {
+
+      # do not list titles of pages
+      pid       => {'!=' => 0},
+      data_type => {'!=' => $str->title_data_type},
+      %{$celini->readable_by($c->user)}}};
 
   if (defined $o->{page_id}) {
     $opts->{where}{page_id} = $o->{page_id};
@@ -206,7 +211,7 @@ sub index($c) {
 }
 
 # DELETE /celini/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -238,7 +243,7 @@ sub remove($c) {
 
 # Validation for actions that store or update
 # Validation rules for the record to be stored in the database
-sub _validation($c) {
+sub _validation ($c) {
   $c->req->param(alias => $c->param('title')) unless $c->param('alias');
   for (qw(featured accepted bad deleted)) {
     $c->req->param($_ => 0) unless $c->param($_);
@@ -272,13 +277,12 @@ sub _validation($c) {
   $v->optional('group_id', 'trim')->like($int);
   $v->optional('sorting',  'trim')->like(qr/^\d{1,3}$/);
 
-  $v->required('data_format', 'trim')->in($c->stash->{data_formats}->@*);
+  $v->required('data_format', 'trim')->in(@{$c->stash->{data_formats}});
   $v->optional('description', 'trim')->size(0, 255);
   $v->optional('keywords',    'trim')->size(0, 255);
   $v->optional('tags',        'trim')->size(0, 100);
   $v->required('body', 'trim');
-  $v->optional('box', 'trim')->size(0, 35)
-    ->in(qw(main главна top горѣ left лѣво right дѣсно bottom долу));
+  $v->optional('box',         'trim')->size(0, 35)->in(@{$c->stash->{boxes}});
   $v->optional('language',    'trim')->size(0, 5);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
   $v->optional('featured',    'trim')->in(1, 0);
