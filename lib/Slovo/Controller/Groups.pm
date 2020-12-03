@@ -7,13 +7,13 @@ no warnings "experimental::lexical_subs";
 
 # GET /groups/create
 # Display form for creating resource in table groups.
-sub create($c) {
+sub create ($c) {
   return $c->render(groups => {});
 }
 
 # POST /groups
 # Add a new record to table groups.
-sub store($c) {
+sub store ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $in = $c->validation->output;
@@ -36,13 +36,13 @@ sub store($c) {
 
 # GET /groups/:id/edit
 # Display form for edititing resource in table groups.
-sub edit($c) {
+sub edit ($c) {
   return $c->render(groups => $c->groups->find($c->param('id')));
 }
 
 # PUT /groups/:id
 # Update the record in table groups
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $validation = $c->_validation;
@@ -59,7 +59,7 @@ sub update($c) {
 
 # GET /groups/:id
 # Display a record from table groups.
-sub show($c) {
+sub show ($c) {
   my $row = $c->groups->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
@@ -76,7 +76,7 @@ sub show($c) {
 # GET /groups
 # List resources from table groups.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -86,7 +86,7 @@ sub index($c) {
 }
 
 # DELETE /groups/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -106,7 +106,7 @@ sub remove($c) {
 
 
 # Validation for actions that store or update
-sub _validation($c) {
+sub _validation ($c) {
   my $v = $c->validation;
 
   # Add validation rules for the record to be stored in the database

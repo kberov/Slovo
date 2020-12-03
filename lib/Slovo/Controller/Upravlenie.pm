@@ -6,7 +6,7 @@ no warnings "experimental::lexical_subs";
 
 # ANY /manage/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
   state $menu = [qw(minion groups users domove stranici celini)];
   return $c->render(
     menu => [

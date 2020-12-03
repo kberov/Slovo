@@ -12,7 +12,7 @@ sub current_user_fn { return 'user' }
 
 # Display the form for signing in.
 # GET /in
-sub form($c) {
+sub form ($c) {
 
   #TODO: remember where the user is comming from to redirect him back
   #afterwards if the place he is comming from in the siame domain. If not,
@@ -23,7 +23,7 @@ sub form($c) {
 
 # Sign in the user.
 # POST /in
-sub sign_in($c) {
+sub sign_in ($c) {
 
   #1. do basic validation first
   my $v = $c->validation;
@@ -67,7 +67,7 @@ sub sign_out ($c) {
   return $c->redirect_to('authform');
 }
 
-sub under_management($c) {
+sub under_management ($c) {
   unless ($c->is_user_authenticated) {
     $c->redirect_to('authform');
     return 0;
@@ -104,7 +104,7 @@ sub under_management($c) {
 
 # secure route /manage/minion.
 # Allow access to only authenticated members of the admin group.
-sub under_minion($c) {
+sub under_minion ($c) {
 
   # TODO: make the group configurable
   unless ($c->groups->is_admin($c->user->{id})) {
@@ -189,7 +189,7 @@ sub first_login_form ($c) {
 }
 
 # POST /first_login
-sub first_login($c) {
+sub first_login ($c) {
   state $app = $c->app;
   my $token = $c->param('token');
   my $t     = time;

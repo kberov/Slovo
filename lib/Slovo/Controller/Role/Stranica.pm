@@ -102,7 +102,7 @@ sub _path_to_file ($c, $url_path) {
     $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
 }
 
-sub _render_cached_page($c) {
+sub _render_cached_page ($c) {
   state $cache_control = $c->app->config('cache_control');
   $c->res->headers->cache_control($cache_control);
   my $url_path = $c->req->url->path->canonicalize->to_route =~ s|^/||r;
@@ -151,21 +151,21 @@ sub b64_images_to_files ($c, $name) {
   my $dom    = Mojo::DOM->new($v->{$name});
   my $images = $dom->find('img[src^="data:image/"]');
   state $paths = $c->app->static->paths;
-  $images->each(
-    sub ($img, $i) {
-      my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
-      return unless $b64;
-      my ($ext) = $type =~ m|/(.+)$|;
-      my $stream = b($b64)->b64_decode;
-      my $ipad = sprintf '%02d', $i;
-      my $src  = path($paths->[0], 'img',
-        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
-      ($img->{src}) = $src =~ m|public(/.+)$|;
+  $images->each(sub ($img, $i) {
+    my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+    return unless $b64;
+    my ($ext)  = $type =~ m|/(.+)$|;
+    my $stream = b($b64)->b64_decode;
+    my $ipad   = sprintf '%02d', $i;
+    my $src
+      = path($paths->[0], 'img', sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")
+      ->spurt($stream);
+    ($img->{src}) = $src =~ m|public(/.+)$|;
 
-      # TODO: resize the image on disc according to 'with' and 'height'
-      # attributes if available and keep resolution 96dpi. Save original image
-      # as well as resized image. Use resized image in src attribute.
-    });
+    # TODO: resize the image on disc according to 'with' and 'height'
+    # attributes if available and keep resolution 96dpi. Save original image
+    # as well as resized image. Use resized image in src attribute.
+  });
   $v->{$name} = $dom->to_string;
   return;
 }
@@ -262,11 +262,9 @@ sub writable ($v, $name, $value, $c) {
 sub is_item_editable ($c, $e) {
   my $u = $c->user;
   if ($u->{id} == $e->{user_id}) {
-    $c->debug($e->{id} . ' is_item_editable? - $u->{id} == $e->{user_id}');
     return 1;
   }
   if ($u->{group_id} == $e->{group_id}) {
-    $c->debug($e->{id} . ' is_item_editable? - $u->{group_id} == $e->{group_id}');
     return 1;
   }
   my $groups = $c->stash->{user_groups}
@@ -277,12 +275,12 @@ sub is_item_editable ($c, $e) {
   if ( $groups->first(sub { $_->{group_id} == $e->{group_id} })
     && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
   {
-    $c->debug($e->{id} . ' is_item_editable? - group with "rw" priviledges');
+    $c->debug($e->{id} . ' is_item_editable? - yes: group with "rw" priviledges');
     return 1;
   }
 
   if ($e->{permissions} =~ /^[ld\-]$rwx${rwx}rw/x) {
-    $c->debug($e->{id} . ' is_item_editable? - others with "rw" priviledges');
+    $c->debug($e->{id} . ' is_item_editable? - yes: others with "rw" priviledges');
     return 1;
   }
   $c->debug($e->{id} . ' is_item_editable? - NO.');

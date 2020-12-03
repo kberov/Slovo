@@ -38,7 +38,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   state $html_dom = Mojo::DOM->new;
   my $first_tag = 1;
   my $last_tag  = 0;
-  return c(split m|$/$/|, $html)->head(5)->map(sub($txt) {
+  return c(split m|$/$/|, $html)->head(5)->map(sub ($txt) {
     return '' if $last_tag;
     $length += length($txt);
     if ($length >= $chars) {
@@ -50,7 +50,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   })->join('') unless $html =~ /<\w/;
 
   my $elems = $html_dom->parse($html)->find($selector);
-  return $html_dom->parse($html)->find($selector)->head(5)->map(sub($el) {
+  return $html_dom->parse($html)->find($selector)->head(5)->map(sub ($el) {
     return '' unless $el;
     return '' if $last_tag;
     my $txt = $el->all_text;

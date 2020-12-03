@@ -213,7 +213,7 @@ sub remove ($m, $id) {
 
 # Transforms a column accordingly as passed from $opts->{columns} and returns
 # the transformed column.
-my sub _transform_columns($col) {
+my sub _transform_columns ($col) {
   if ($col eq 'title' or $col eq 'language') {
     return "$/$celini_table.$col AS $col";
   }

@@ -26,7 +26,7 @@ sub execute ($c, $page, $user, $l, $preview) {
 
 # GET /stranici/create
 # Display form for creating resource in table stranici.
-sub create($c) {
+sub create ($c) {
   my $str  = $c->stranici;
   my $l    = $c->language;
   my $host = $c->host_only;
@@ -44,7 +44,7 @@ sub create($c) {
 
 # POST /stranici
 # Add a new record to table stranici.
-sub store($c) {
+sub store ($c) {
   my $user = $c->user;
   my $in   = {};
   @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
@@ -83,7 +83,7 @@ sub store($c) {
 
 # GET /stranici/:id/edit
 # Display form for edititing resource in table stranici.
-sub edit($c) {
+sub edit ($c) {
 
   my $str = $c->stranici;
   my $l   = $c->language;
@@ -106,7 +106,7 @@ sub edit($c) {
 
 # PUT /stranici/:id
 # Update the record in table stranici
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $v  = $c->_validation;
@@ -133,7 +133,7 @@ sub update($c) {
 
 # GET /stranici/:id
 # Display a record from table stranici.
-sub show($c) {
+sub show ($c) {
   my $row = $c->stranici->find($c->param('id'));
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
@@ -150,7 +150,7 @@ sub show($c) {
 # GET /stranici
 # List resources from table stranici.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
   my $str  = $c->stranici;
   my $host = $c->host_only;
   my $v    = $c->validation;
@@ -172,7 +172,7 @@ sub index($c) {
 }
 
 # DELETE /stranici/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -203,7 +203,7 @@ sub remove($c) {
 }
 
 # Validation for actions that store or update
-sub _validation($c) {
+sub _validation ($c) {
   $c->req->param(alias => lc substr(($c->param('title') =~ s/\W//gr), 0, 32))
     unless $c->param('alias');
   for (qw(hidden deleted)) {
@@ -247,7 +247,7 @@ sub _validation($c) {
 # GET/api/stranici
 # List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
-sub list($c) {
+sub list ($c) {
 
   $c->openapi->valid_input or return;
   my $in      = $c->validation->output;

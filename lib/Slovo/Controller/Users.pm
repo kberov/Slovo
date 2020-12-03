@@ -6,13 +6,13 @@ no warnings "experimental::lexical_subs";
 
 # GET /users/create
 # Display form for creating resource in table users.
-sub create($c) {
+sub create ($c) {
   return $c->render(users => {}, user => $c->user);
 }
 
 # POST /users
 # Add a new record to table users.
-sub store($c) {
+sub store ($c) {
   my $users = $c->users;
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
@@ -74,7 +74,7 @@ sub store_result ($c) {
 
 # GET /users/:id/edit
 # Display form for edititing resource in table users.
-sub edit($c) {
+sub edit ($c) {
   my $row = $c->users->find_where({id => $c->param('id')});
   for (keys %$row) {
     $c->req->param($_ => $row->{$_});    # prefill form fields.
@@ -84,7 +84,7 @@ sub edit($c) {
 
 # PUT /users/:id
 # Update the record in table users
-sub update($c) {
+sub update ($c) {
 
   # Validate input
   my $v  = $c->_validation;
@@ -109,7 +109,7 @@ sub update($c) {
 
 # GET /users/:id
 # Display a record from table users.
-sub show($c) {
+sub show ($c) {
   my $row = $c->users->find_where({id => $c->param('id')});
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
@@ -125,7 +125,7 @@ sub show($c) {
 # GET /users
 # List resources from table users.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
-sub index($c) {
+sub index ($c) {
   my $stashkey = 'users';
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
@@ -137,7 +137,7 @@ sub index($c) {
 }
 
 # DELETE /users/:id
-sub remove($c) {
+sub remove ($c) {
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
@@ -157,7 +157,7 @@ sub remove($c) {
 
 
 # Validation for actions that store or update
-sub _validation($c) {
+sub _validation ($c) {
   my $v       = $c->validation;
   my $mail_rx = qr/^[\w\-\+\.]{1,154}\@[\w\-\+\.]{1,100}$/x;
 

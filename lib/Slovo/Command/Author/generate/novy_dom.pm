@@ -131,7 +131,7 @@ sub _copy_to ($self, $from, $f, $i, $to, $chmod) {
   return;
 }
 
-sub _handle_remove_err($err) {
+sub _handle_remove_err ($err) {
   if ($err && @$err) {
     for my $diag (@$err) {
       my ($file, $message) = %$diag;
@@ -212,7 +212,7 @@ sub _create_pages ($self) {
   return $self;
 }
 
-sub _update_admin($self) {
+sub _update_admin ($self) {
   my $o = $self->owner;
   $o->{login_password} = c(
     split('', time),

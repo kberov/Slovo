@@ -41,7 +41,7 @@ has home => sub {
 };
 
 # This method will run once at server start
-sub startup($app) {
+sub startup ($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
   $app->controller_class('Slovo::Controller');
   $app->commands->namespaces(
@@ -66,7 +66,7 @@ sub startup($app) {
   return $app;
 }
 
-sub _before_dispatch($c) {
+sub _before_dispatch ($c) {
   state $guest       = $c->users->find_by_login_name('guest');
   state $auth_config = c(@{$c->config('plugins')})->first(sub {
     ref $_ eq 'HASH' and exists $_->{Authentication};
@@ -117,7 +117,7 @@ sub _around_dispatch ($next, $c) {
   return;
 }
 
-sub _load_config($app) {
+sub _load_config ($app) {
   my $etc     = $app->resources->child('etc');
   my $moniker = $app->moniker;
   my $mode    = $app->mode;
@@ -151,7 +151,7 @@ sub _load_config($app) {
   return $app;
 }
 
-sub _load_pugins($app) {
+sub _load_pugins ($app) {
 
   # Namespaces to load plugins from
   # See /perldoc/Mojolicious#plugins
@@ -186,7 +186,7 @@ sub _load_pugins($app) {
   return $app;
 }
 
-sub _default_paths($app) {
+sub _default_paths ($app) {
 
   # Fallback "public" directory
   my $public = $app->resources->child('public')->to_string;
@@ -212,7 +212,7 @@ sub _set_routes_attrs ($app) {
 }
 
 # Add more media types
-sub _add_media_types($app) {
+sub _add_media_types ($app) {
   $app->types->type(woff  => ['application/font-woff',  'font/woff']);
   $app->types->type(woff2 => ['application/font-woff2', 'font/woff2']);
   return $app;
@@ -239,10 +239,8 @@ Slovo - Искони бѣ Слово
 
 Install Slovo locally with all dependencies in less than two minutes
 
-    date
-    curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -q -n -l \
-    ~/opt/slovo Slovo
-    date
+    time curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org \
+    -q -n -l ~/opt/slovo Slovo
 
 Run slovo for the first time in debug mode
 
