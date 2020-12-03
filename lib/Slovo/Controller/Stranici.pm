@@ -27,18 +27,18 @@ sub execute ($c, $page, $user, $l, $preview) {
 # GET /stranici/create
 # Display form for creating resource in table stranici.
 sub create($c) {
-  my $str    = $c->stranici;
-  my $l      = $c->language;
-  my $domain = $c->host_only;
-  my $user   = $c->user;
-  my $pid    = $c->param('pid')
-    // $str->all_for_edit($user, $domain, $l,
+  my $str  = $c->stranici;
+  my $l    = $c->language;
+  my $host = $c->host_only;
+  my $user = $c->user;
+  my $pid  = $c->param('pid')
+    // $str->all_for_edit($user, $host, $l,
     {limit => 1, columns => [@{$c->stash->{stranici_columns}}]})->[0]{id};
   my $bread = $str->breadcrumb($pid, $l);
   return $c->render(
     in         => {},
     breadcrumb => $bread,
-    parents    => $c->page_id_options($bread, {pid => $pid}, $user, $domain, $l),
+    parents    => $c->page_id_options($bread, {pid => $pid}, $user, $host, $l),
   );
 }
 
@@ -91,7 +91,7 @@ sub edit($c) {
 
   my $domove = $c->domove->all->map(sub { [$_->{site_name} => $_->{id}] });
   my $bread  = $str->breadcrumb($row->{id}, $l);
-  my $domain = $c->host_only;
+  my $host   = $c->host_only;
 
   #TODO: implement language switching based on Ado::L18n
   $c->req->param($_ => $row->{$_}) for keys %$row;    # prefill form fields.
@@ -100,7 +100,7 @@ sub edit($c) {
     l          => $l,
     in         => $row,
     breadcrumb => $bread,
-    parents    => $c->page_id_options($bread, $row, $c->user, $domain, $l),
+    parents    => $c->page_id_options($bread, $row, $c->user, $host, $l),
   );
 }
 
@@ -151,9 +151,9 @@ sub show($c) {
 # List resources from table stranici.
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index($c) {
-  my $str    = $c->stranici;
-  my $domain = $c->host_only;
-  my $v      = $c->validation;
+  my $str  = $c->stranici;
+  my $host = $c->host_only;
+  my $v    = $c->validation;
 
   $v->optional(pid => 'trim')->like(qr/^\d+$/);
   my $in = $v->output;
@@ -168,7 +168,7 @@ sub index($c) {
     return $c->render(openapi => $str->all($in));
   }
 
-  return $c->render(domain => $domain, breadcrumb => $str->breadcrumb($in->{pid}, $l),);
+  return $c->render(host => $host, breadcrumb => $str->breadcrumb($in->{pid}, $l),);
 }
 
 # DELETE /stranici/:id
@@ -216,7 +216,7 @@ sub _validation($c) {
   # current user.
   my $int = qr/^\d{1,10}$/;
   $v->optional('pid',    'trim')->like($int);
-  $v->optional('dom_id', 'trim')->like($int);
+  $v->optional('dom_id', 'trim')->equals($c->stash('domain')->{id});
   $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like($int);

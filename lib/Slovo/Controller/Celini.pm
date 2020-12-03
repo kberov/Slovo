@@ -179,8 +179,7 @@ sub index($c) {
   # restrict to the current domain root page
   my $str = $c->stranici;
   my $l   = $c->language;
-
-  my $in = $str->all({columns => 'id', where => {$str->where_domain_is($c->host_only)}})
+  my $in  = $str->all({columns => 'id', where => {dom_id => $c->stash('domain')->{id}}})
     ->map(sub { $_->{id} })->to_array;
 
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
@@ -192,7 +191,13 @@ sub index($c) {
   $v->optional('page_id', 'trim')->in(@$in);
   my $o      = $v->output;
   my $celini = $c->celini;
-  my $opts   = {where => {%{$celini->readable_by($c->user)}}};
+  my $opts   = {
+    where => {
+
+      # do not list titles of pages
+      pid       => {'!=' => 0},
+      data_type => {'!=' => $str->title_data_type},
+      %{$celini->readable_by($c->user)}}};
 
   if (defined $o->{page_id}) {
     $opts->{where}{page_id} = $o->{page_id};

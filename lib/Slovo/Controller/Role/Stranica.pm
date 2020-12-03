@@ -22,8 +22,8 @@ sub _around_execute ($execute, $c) {
   my $l       = $c->language;
   my $user    = $c->user;
   my $str     = $c->stranici;
-  my $domain  = $c->host_only;
-  my $page    = $str->find_for_display($alias, $user, $domain, $preview);
+  my $host    = $c->host_only;
+  my $page    = $str->find_for_display($alias, $user, $host, $preview);
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
@@ -42,7 +42,7 @@ sub _around_execute ($execute, $c) {
   $c->stash(
     page         => $page->{alias},
     celini       => $celini,
-    domain       => $domain,
+    host         => $host,
     list_columns => $list_columns,
     page         => $page,
     preview      => $preview,
@@ -130,29 +130,11 @@ my $clear_cache = sub ($action, $c) {
 
   state $app   = $c->app;
   state $droot = $app->config('domove_root');
-  my $id = $c->param('id');
-  return $action->($c) unless $id;    # something is wrong
-  my $cll       = $c->stash('controller');
-  my $domain    = '';
-  my $cache_dir = '';
-
-  #it is a page
-  if ($cll =~ /stranici$/i) {
-    my $dom_id = $c->stranici->find($id)->{dom_id};
-    $domain = $c->domove->find($dom_id)->{domain};
-  }
-
-  # it is a celina
-  elsif ($cll =~ /celini$/i) {
-    my $page_id = $c->celini->find($id)->{page_id};
-    my $dom_id  = $c->stranici->find($page_id)->{dom_id};
-    $domain = $c->domove->find($dom_id)->{domain};
-  }
 
   my $ok = $action->($c);
   return unless $ok;
 
-  $cache_dir = path $droot, $domain, 'public', $cached;
+  my $cache_dir = path $droot, $c->stash('domain')->{domain}, 'public', $cached;
 
   $c->debug('REMOVING ' . $cache_dir);
   $cache_dir->remove_tree;
@@ -312,7 +294,7 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
   state $root = $str->find_where({
     page_type => $c->app->defaults('page_types')->[0],
-    dom_id    => $c->app->defaults('domain')->{id}});
+    dom_id    => $c->stash('domain')->{id}});
   state $pt           = $str->table;
   state $list_columns = $c->app->defaults('stranici_columns');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};

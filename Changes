@@ -11,6 +11,12 @@ Revision history for Mojolicious application Slovo
     * Added 'boxes','data_formats' and 'page_types' to $app->defaults and used
       them accross the application as "single source of truth".
     * Slightly improved documentation.
+    * We do not allow any more pages to be moved across domains.
+    * We do not allow any more a page with page_type 'root' to be created.
+      Every domain has only one such page and it is created with command 'slovo
+      generate novy-dom'.
+    * We do not list page titles with the rest of celini records. They can be
+      edited as part of a page.
 
 2020.11.22
     * Fixed a bug - The adaptor class (Mojo::SQLite/mysql/Pg) reinstantiated

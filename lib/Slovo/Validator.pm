@@ -18,6 +18,13 @@ sub new {
 
   # new checks
   $self->add_check(is => \&_can);
+  $self->add_check(
+    equals => sub ($v, $name, $value, $eq) {
+      unless ($value eq $eq) {
+        return 1;
+      }
+      return;
+    });
   return $self;
 }
 

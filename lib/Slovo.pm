@@ -110,7 +110,7 @@ sub _around_dispatch ($next, $c) {
   # Use domain specific public and templates' paths with priority.
   unshift @{$s_paths}, "$droot/$dom->{domain}/public";
   unshift @{$r_paths}, "$droot/$dom->{domain}/templates";
-  $app->defaults(domain => $dom);
+  $c->stash(domain => $dom);
   $next->();
   shift @{$s_paths};
   shift @{$r_paths};
@@ -494,6 +494,25 @@ available in the respective templates. Here they are:
 
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
+
+In addition the current domain row from table C<domove> becomes available in
+the stash as C<$domain>.
+
+  # In a controller or model
+  $c->stash('domain')->{id};
+  $m->c->stash('domain')->{aliases};
+
+  # In a template like
+  # lib/Slovo/resources/templates/stranici/_form.html.ep
+  <%=
+  select_box
+    dom_id   => $domove,
+    required => 1,
+    label    => 'Дом',
+    title    => 'В кой сайт се намира страницата.',
+    readonly => undef,
+    value    => $domain->{id} #default value
+  %>
 
 =head2 before_dispatch
 

@@ -15,15 +15,15 @@ for my $p (@$stranici) {
     if ($p->{is_dir}) {
       if ((@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid}) || ($p->{id} == $param_pid))
       {
-        $podstranici = stranici->all_for_edit($user, $domain, $l,
+        $podstranici = stranici->all_for_edit($user, $domain->{domain}, $l,
           {pid => $p->{id}, columns => [@$stranici_columns]});
         shift @$breadcrumb if @$breadcrumb;
       }
       $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';
     }
     my $class = join ' ', map { $p->{$_} ? $_ : () } qw(hidden deleted);
-    $class .= ($p->{stop}//0) != 0  && ($p->{stop}//0) < $time  ? ' expired'  : '';
-    $class .= ($p->{start}//0) != 0 && ($p->{start}//0) > $time ? ' upcoming' : '';
+    $class .= ($p->{stop}  // 0) != 0 && ($p->{stop}  // 0) < $time ? ' expired'  : '';
+    $class .= ($p->{start} // 0) != 0 && ($p->{start} // 0) > $time ? ' upcoming' : '';
         %>
         <li class="fa-li">
             <i class="fas <%== $fa_class %>"></i>
