@@ -196,8 +196,6 @@ DirectoryIndex /<%=$moniker%>/<%=$cgi_script%>
 ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
 
 <IfModule mod_rewrite.c>
-  # Tell <%=$cgi_script%> to remove SCRIPT_NAME from $c->req->url->base.
-  SetEnv REWRITE_ENGINE_ON 1
   RewriteEngine on
   RewriteBase /
 

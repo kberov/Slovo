@@ -6,6 +6,10 @@ Revision history for Mojolicious application Slovo
       allows Apache to read static files.
     * Page-form now shows site_name for hidden field 'dom_id' - better for
       sites with unicode names.
+    * We do not use any more environment variable REWRITE_ENGINE_ON from
+      .htaccess to tell slovo.cgi to remove SCRIPT_NAME from URL. This is done
+      via config option for Slovo plugin CGI 'mod_rewrite', which defaults to
+      1 meaning enabled.
 
 2020.12.01
     * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in

@@ -118,7 +118,7 @@ sub _cache_page ($c, $l) {
   my $url_path = $c->url_for({'lang' => $l})->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
-  $file->dirname->make_path({mode => oct(700)});
+  $file->dirname->make_path({mode => oct(755)});
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
 }
 
