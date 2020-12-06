@@ -151,21 +151,21 @@ sub b64_images_to_files ($c, $name) {
   my $dom    = Mojo::DOM->new($v->{$name});
   my $images = $dom->find('img[src^="data:image/"]');
   state $paths = $c->app->static->paths;
-  $images->each(sub ($img, $i) {
-    my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
-    return unless $b64;
-    my ($ext)  = $type =~ m|/(.+)$|;
-    my $stream = b($b64)->b64_decode;
-    my $ipad   = sprintf '%02d', $i;
-    my $src
-      = path($paths->[0], 'img', sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")
-      ->spurt($stream);
-    ($img->{src}) = $src =~ m|public(/.+)$|;
+  $images->each(
+    sub ($img, $i) {
+      my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+      return unless $b64;
+      my ($ext) = $type =~ m|/(.+)$|;
+      my $stream = b($b64)->b64_decode;
+      my $ipad = sprintf '%02d', $i;
+      my $src  = path($paths->[0], 'img',
+        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
+      ($img->{src}) = $src =~ m|public(/.+)$|;
 
-    # TODO: resize the image on disc according to 'with' and 'height'
-    # attributes if available and keep resolution 96dpi. Save original image
-    # as well as resized image. Use resized image in src attribute.
-  });
+      # TODO: resize the image on disc according to 'with' and 'height'
+      # attributes if available and keep resolution 96dpi. Save original image
+      # as well as resized image. Use resized image in src attribute.
+    });
   $v->{$name} = $dom->to_string;
   return;
 }
