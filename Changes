@@ -1,5 +1,12 @@
 Revision history for Mojolicious application Slovo
 
+2020.12.12
+    * Improved messages and documentation of commands a2htaccess and novy_dom.
+    * Now default permissions for folders created by novy_dom are 0755. This
+      allows Apache to read static files.
+    * Page-form now shows site_name for hidden field 'dom_id' - better for
+      sites with unicode names.
+
 2020.12.01
     * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in
       database were not changed while translating identifiers. Now this is

@@ -73,7 +73,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
                   %# We do not allow any more pages to be moved across domains.
                   <%= 
                   t label => sub {
-                  "Дом<br/><b>$domain->{domain}</b>"
+                  "Дом<br/><b>$domain->{site_name}</b>"
                     . input_tag('dom_id' => (type => 'hidden', value => $domain->{id}));
                   };
                   %>

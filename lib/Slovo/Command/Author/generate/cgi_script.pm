@@ -7,7 +7,7 @@ use Mojo::File 'path';
 use Mojo::Util 'getopt';
 use Config;
 
-has description => 'Generate a CGI script for running Slovo under Apache/CGI';
+has description => 'Generate a CGI script for running Slovo under Apache 2/CGI';
 has usage       => sub { shift->extract_usage };
 has exe         => sub {
   my $app = shift->app;
@@ -46,7 +46,8 @@ sub run ($self, @args) {
 
 =head1 NAME
 
-Slovo::Command::Author::generate::cgi_script - Generate a CGI script for running Slovo under Apache/CGI
+Slovo::Command::Author::generate::cgi_script - Generate a CGI script for
+running Slovo under Apache 2/CGI
 
 =head1 SYNOPSIS
 
@@ -57,18 +58,28 @@ Slovo::Command::Author::generate::cgi_script - Generate a CGI script for running
     slovo generate cgi_script -f slovo.cgi -m production
 
   Options:
-    -h, --help      Show this summary of available options
-    -f, --filename  Defaults to $app->moniker.cgi
-    -c, --cgi_mode  Defaults to current $app->mode
+    -h, --help            Show this summary of available options
+    -f, --filename <name> Defaults to $app->moniker.cgi
+    -c, --cgi_mode <name> Defaults to current $app->mode
+    -m, --mode     <name> Operating mode for your application, defaults to the
+                          value of MOJO_MODE/PLACK_ENV or "development". Will
+                          be used for --cgi_mode.
 
 =head1 DESCRIPTION
 
+After running this command it is expected usually to run also
+L<Slovo::Command::Author::generate::a2htaccess> to generate the C<.htaccess>
+file for the set of domains which you will be running on this virtual host.
+
 L<Slovo::Command::Author::generate::cgi_scrip> will generate a CGI script for
-running Slovo under Apache/CGI. Although Slovo performs best as a daemon run by
-hypnotoad, it can as well be used on a cheap shared hosting. When the script
-C<slovo.cgi> is run it will dump a static page which later will be loaded by
-apache. This way Slovo can be used as a static site generator. This is
-completely enough for bloggers.
+running Slovo under Apache2/CGI. Although Slovo performs best as a daemon, run
+by hypnotoad, it can as well be used on a cheap shared hosting. When the
+produced CGI script (e.g. C<slovo.cgi>) is run on a page from the site, it
+will dump the produced on-the-fly HTML to a static html-file. Later, upon
+another HTTP request, the produced html-file will be just spit out by Apache
+without invoking slovo.cgi again. This way Slovo acts as a static site
+generator. This is completely enough for bloggers. Serving static pages is
+faster than anything else.
 
 =head1 ATTRIBUTES
 
@@ -102,6 +113,7 @@ Run this command.
 
 =head1 SEE ALSO
 
+L<Slovo::Command::Author::generate::a2htaccess>,
 L<Slovo>,L<Mojolicious::Command>
 L<Mojolicious::Guides::Cookbook/Adding-commands-to-Mojolicious>,
 L<Mojolicious::Guides>, L<https://слово.бг>.
