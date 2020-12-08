@@ -22,8 +22,8 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
     where => {
       page_id => $page_id,
       $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
-      language  => $celini->language_like($l),
-      data_type => {in => [qw(title book question)]}}};
+      language    => $celini->language_like($l),
+      permissions => {-like => 'd%'}}};
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
@@ -55,18 +55,70 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render(celina => $celina, 'paragraph' => $celina->{alias});
 }
 
+# Check for pid and page_id parameters and edirect to pages' index page if
+# needed, so the user can choose in which page to create the new writing.
+my sub _validate_create ($c, $u, $l, $str) {
+  my $int = qr/^\d{1,10}$/;
+  my $v   = $c->validation;
+  $v->optional(page_id => 'trim')->like($int);
+  $v->optional(pid     => 'trim')->like($int);
+  my $in         = $v->output;
+  my $celini     = $c->celini;
+  my $data_types = $c->stash('data_types');
+  my $root       = $str->find_where(
+    {dom_id => $c->stash('domain')->{id}, page_type => $str->root_page_type});
+
+  if (!$in->{pid} && !$in->{page_id}) {
+    $c->flash(message => 'Няма подаден номер на страница! '
+        . 'Изберете страница, в която да създадете новото писанѥ!');
+    $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+    return;
+  }
+  elsif ($in->{pid} && !$in->{page_id}) {
+    my $cel = $celini->find_where({
+      pid      => $in->{pid},
+      language => $celini->language_like($l),
+      %{$celini->writable_by($u)}});
+    unless ($cel) {
+      $c->flash(message => 'Нямате права да пишете в раздел с номер '
+          . $in->{pid}
+          . '. Изберете страница, в която да създадете новото писанѥ!');
+      $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+      return;
+    }
+    $in->{page_id} = $cel->{page_id};
+  }
+  elsif (!$in->{pid} && $in->{page_id}) {
+    my $cel = $celini->find_where({
+      page_id   => $in->{page_id},
+      data_type => $data_types->[0],
+      language  => $celini->language_like($l),
+      %{$celini->writable_by($u)}});
+    unless ($cel) {
+      $c->flash(message => 'Нямате права да пишете в страница с номер '
+          . $in->{page_id}
+          . '. Изберете страница, в която да създадете новото писанѥ!');
+      $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+      return;
+    }
+    $in->{pid} = $cel->{pid};
+  }
+  return $in;
+};
+
 # GET /celini/create
 # Display form for creating resource in table celini.
 sub create ($c) {
-  my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
-  $c->req->param(data_type => $c->stash->{data_types}->[1]);
-  my $str   = $c->stranici;
-  my $l     = $c->language;
-  my $bread = $str->breadcrumb($row->{page_id}, $l);
+  my $str = $c->stranici;
+  my $l   = $c->language;
+  my $u   = $c->user;
+
+  my $in    = _validate_create($c, $u, $l, $str) // return;
+  my $bread = $str->breadcrumb($in->{page_id}, $l);
   return $c->render(
     breadcrumb    => $bread,
-    in            => $row,
-    parent_celini => _celini_options($c, 0, $row->{page_id}, $c->user, $l),
+    in            => $in,
+    parent_celini => _celini_options($c, 0, $in->{page_id}, $u, $l),
   );
 }
 
@@ -248,9 +300,8 @@ sub _validation ($c) {
   for (qw(featured accepted bad deleted)) {
     $c->req->param($_ => 0) unless $c->param($_);
   }
-  my $v = $c->validation;
-
-  state $types = $c->openapi_spec('/parameters/data_type/enum');
+  my $v     = $c->validation;
+  my $types = $c->stash('data_types');
   $v->required('data_type', 'trim')->in(@$types);
   my $alias = 'optional';
   my $title = $alias;

@@ -10,6 +10,8 @@ Revision history for Mojolicious application Slovo
       .htaccess to tell slovo.cgi to remove SCRIPT_NAME from URL. This is done
       via config option for Slovo plugin CGI 'mod_rewrite', which defaults to
       1 meaning enabled.
+    * Improved /celini/create functionality - better handling of missing
+      parameters.
 
 2020.12.01
     * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in
