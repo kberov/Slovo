@@ -8,14 +8,14 @@ no warnings "experimental::lexical_subs";
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)
 sub index ($c) {
   state $menu = [qw(minion groups users domove stranici celini)];
-  return $c->render(
-    menu => [
-      map {
-        $_ =~ m'groups|minion|domove' && !$c->groups->is_admin($c->user->{id})
-          ? ()
-          : $_
-      } @$menu
-    ]);
+  $c->stash->{menu} = [
+    map {
+      $_ =~ m'groups|minion|domove' && !$c->groups->is_admin($c->user->{id})
+        ? ()
+        : $_
+    } @$menu
+  ];
+  return $c->render();
 }
 
 1;

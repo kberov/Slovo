@@ -138,30 +138,30 @@ my $update_stranica = sub {
     $dom->at('input[name="title_id"]')->{value} => $sform->{title_id},
     'proper hidden title_id'
   );
-
-  is($dom->at('input[name="title"]')->{value} => $sform->{title}, 'proper title');
-  $sform->{body} = $dom->at('textarea[name="body"]')->text;
-
-  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)->status_is(204)
-    ->content_is('');
-  $sform->{redirect} = 'show_stranici';
-  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)->status_is(302)
-    ->header_is(Location => $app->url_for('show_stranici' => {id => $new_page_id}));
-  my $aliases
-    = $app->dbx->db->select('aliases', '*', {new_alias => $sform->{alias}})->hash;
-  is_deeply(
-    $aliases => {
-      id          => 1,
-      new_alias   => $sform->{alias},
-      old_alias   => 'събития',
-      alias_table => 'stranici',
-      alias_id    => $new_page_id
-    },
-    'created proper new/old alias relation for stranici'
-  );
-  $t->get_ok($stranici_url_new)->text_is('#alias' => 'alias: ' . $sform->{alias});
-  is(@{$app->celini->all({where => {alias => 'събитияsss'}})},
-    1, 'alias for title changed too');
+#
+#  is($dom->at('input[name="title"]')->{value} => $sform->{title}, 'proper title');
+#  $sform->{body} = $dom->at('textarea[name="body"]')->text;
+#
+#  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)->status_is(204)
+#    ->content_is('');
+#  $sform->{redirect} = 'show_stranici';
+#  $t->put_ok($stranici_url_new => {Accept => '*/*'} => form => $sform)->status_is(302)
+#    ->header_is(Location => $app->url_for('show_stranici' => {id => $new_page_id}));
+#  my $aliases
+#    = $app->dbx->db->select('aliases', '*', {new_alias => $sform->{alias}})->hash;
+#  is_deeply(
+#    $aliases => {
+#      id          => 1,
+#      new_alias   => $sform->{alias},
+#      old_alias   => 'събития',
+#      alias_table => 'stranici',
+#      alias_id    => $new_page_id
+#    },
+#    'created proper new/old alias relation for stranici'
+#  );
+#  $t->get_ok($stranici_url_new)->text_is('#alias' => 'alias: ' . $sform->{alias});
+#  is(@{$app->celini->all({where => {alias => 'събитияsss'}})},
+#    1, 'alias for title changed too');
 };
 
 # Create celini
@@ -218,10 +218,10 @@ my $update_celini = sub {
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
   my $new_alias = Mojo::Util::slugify($cform->{title}, 1);
   $t->get_ok($sh_up_url)->text_is('#alias' => 'alias: ' . $new_alias);
-  my $aliases = $app->dbx->db->select('aliases', '*', {new_alias => $new_alias})->hash;
+  my $new_row = $app->dbx->db->select('aliases', '*', {new_alias => $new_alias})->hash;
   is_deeply(
-    $aliases => {
-      id          => 3,
+    $new_row => {
+      id          => $new_row->{id},
       new_alias   => $new_alias,
       old_alias   => Mojo::Util::slugify($old_title, 1),
       alias_table => 'celini',
@@ -250,7 +250,8 @@ my $update_celini = sub {
 
 # Remove Celini
 my $remove_celini = sub {
-  my $celini_url = $app->url_for('home_celini')->to_string;
+  my $page_id    = $app->celini->find($max_id)->{page_id};
+  my $celini_url = $app->url_for(celini_in_stranica => page_id => $page_id)->to_string;
   $t->delete_ok($sh_up_url)->header_is(Location => $celini_url)->status_is(302);
 
   $t->get_ok($celini_url)->status_is(200)
@@ -296,7 +297,7 @@ my $user_permissions = sub {
   $sform->{permissions} = $permissions;
 
   $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204);
 
   $t->get_ok('/manage/stranici/' . $id)->text_like(
     '#permissions' => qr/\s$permissions$/,
@@ -320,18 +321,22 @@ my $user_permissions = sub {
   $sform->{permissions} = 'drwxrRxrwx';
   $t->put_ok($u_str_url => {Accept => '*/*'} => form => $sform)->status_is(302);
 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204
+  # The common use case is to return 204 as a result of a PUT request, updating
+  # a resource, without changing the current content of the page displayed to
+  # the user.
   $sform->{permissions} = 'drwxr-xr-x';
   $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204);
   $sform->{permissions} = 'dr-xrwxr-x';
   $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204);
   $sform->{permissions} = 'dr-xr-xrwx';
   $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204);
   $sform->{permissions} = 'd---------';
   $t->put_ok('/manage/stranici/' . $id => {Accept => '*/*'} => form => $sform)
-    ->status_is(302);
+    ->status_is(204);
 
   #now page should not be listed in /manage/stranici for other users
   $t->get_ok($app->url_for('sign_out'))->status_is(302);
@@ -349,11 +354,11 @@ my $user_permissions = sub {
   $t->post_ok($stranici_url => {} => form => $sform)->status_is(302);
   $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
   my $stranica_url = $app->url_for('update_stranici', id => $new_page_id);
-  $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)->status_is(302);
+  $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)->status_is(204);
 
   # change ownership.
   $sform->{user_id} = 4;
-  $t->put_ok($stranica_url => {} => form => $sform)->status_is(302);
+  $t->put_ok($stranica_url => {} => form => $sform)->status_is(204);
   $t->get_ok($app->url_for('edit_stranici', id => $new_page_id))->status_is(200)
     ->text_like('#permissions > .mui-row > .mui-col-md-3 > span' => qr'Test 2')
     ->text_is('select[name="group_id"]>option[selected]'    => 'краси')

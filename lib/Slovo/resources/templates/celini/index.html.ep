@@ -1,25 +1,21 @@
-% layout 'upravlenie', title => 'Blog/Celini';
-% my $page_id = $c->param('page_id')//0;
+% layout 'upravlenie', title => 'Site/Celini';
 <div class="mui-panel breadcrumb">
     %= link_to url_with('create_celini')->query(page_id => $page_id) =>(title=>'Нова цѣлина') => begin
     <i class="fas fa-plus-square"></i>
     <% end %>
     <%= link_to
-        url_with('home_stranici')->query(pid => $page_id)
+        url_for(celini_in_stranica => page_id => $page_id)
         => (title => 'Към списъка съ страници', style => 'float:right') => begin %>
         <i class="fas fa-file"></i>&nbsp;
     <% end %>
-%= link_to  url_with('home_celini')->query(page_id => 0) => sub{'⸙'}
-% if(@$breadcrumb) {
-  <%=
+% my $root_page_id = @$breadcrumb ? $breadcrumb->[0]->{pid} : $page_id;
+%= link_to '⸙' => url_for(celini_in_stranica => page_id =>$root_page_id), title => "Цѣлини"
+<%=
   $breadcrumb->map(sub {
-    link_to $_->{alias} => url_for()->query(page_id => $_->{id});
+    link_to $_->{alias} => url_for(celini_in_stranica => page_id => $_->{id});
   })->join(' ⸙ ')
-  %>
-% }
+%>
 </div>
-
-
 
 
 % my @columns = qw(page_id id pid title language alias box data_format); #table columns to show
@@ -49,7 +45,7 @@
         % if(not defined $page_id) {
         <%=
         link_to '☰' =>
-          url_with('home_celini')->query(page_id => $item->{page_id}) =>
+        url_with(celini_in_stranica => page_id => $item->{page_id}) =>
           (title => 'list siblings')
         %>
         % }

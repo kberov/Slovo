@@ -78,7 +78,7 @@ for my $p (@$stranici) {
             class="fas fa-file"></i> <%= $new_celina %><% end %>
                 </li>
                 <li>
-    <%= link_to url_for('home_celini')->query(page_id => $p->{id}),
+                <%= link_to url_for(celini_in_stranica => page_id => $p->{id}),
         (title => "$list_page_content „$p->{alias}”") => begin %><i
             class="fas fa-bars"></i> <%= $list_page_content %><% end %>
                 </li>

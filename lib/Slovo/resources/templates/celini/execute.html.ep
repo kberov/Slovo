@@ -9,7 +9,9 @@ my $right     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
 # * 1:always.
 my $sidedrawer = 1;    # @$left || $page->{is_dir};
 layout 'site',
-  title      => $title_row->{title} . ' ⸙ ' . $celina->{title},
+  title => $title_row->{id} == $celina->{id}
+  ? $title_row->{title}
+  : $title_row->{title} . ' ⸙ ' . $celina->{title},
   left       => $left,
   right      => $right,
   sidedrawer => $sidedrawer;

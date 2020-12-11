@@ -12,6 +12,7 @@ Revision history for Mojolicious application Slovo
       1 meaning enabled.
     * Improved /celini/create functionality - better handling of missing
       parameters.
+    * Deprecated route /manage/celini in favour of /manage/stranici/:page_id/celini.
 
 2020.12.01
     * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in

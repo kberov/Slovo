@@ -5,6 +5,7 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
+use Mojo::Collection 'c';
 
 my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
 
@@ -91,7 +92,7 @@ my sub _validate_create ($c, $u, $l, $str) {
   elsif (!$in->{pid} && $in->{page_id}) {
     my $cel = $celini->find_where({
       page_id   => $in->{page_id},
-      data_type => $data_types->[0],
+      data_type => $data_types->[0],             # note
       language  => $celini->language_like($l),
       %{$celini->writable_by($u)}});
     unless ($cel) {
@@ -101,7 +102,8 @@ my sub _validate_create ($c, $u, $l, $str) {
       $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
       return;
     }
-    $in->{pid} = $cel->{pid};
+    $in->{pid} = $cel->{id};
+
   }
   return $in;
 };
@@ -231,17 +233,24 @@ sub index ($c) {
   # restrict to the current domain root page
   my $str = $c->stranici;
   my $l   = $c->language;
-  my $in  = $str->all({columns => 'id', where => {dom_id => $c->stash('domain')->{id}}})
-    ->map(sub { $_->{id} })->to_array;
 
+  # check if such page id exists.
+  my $page_ids = $str->all({
+    columns => 'id',
+    where   => {dom_id => $c->stash('domain')->{id}, %{$str->readable_by($c->user)}}
+  })->map(sub { $_->{id} })->to_array;
+  my $param_page_id = $c->param('page_id');
+  my $page_id
+    = $param_page_id
+    ? c(@$page_ids)->first(sub { $_ eq $param_page_id })
+    : $page_ids->[0];
+
+  # TODO
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
   }
-  my $v = $c->validation;
-  $v->optional('page_id', 'trim')->in(@$in);
-  my $o      = $v->output;
   my $celini = $c->celini;
   my $opts   = {
     where => {
@@ -249,17 +258,15 @@ sub index ($c) {
       # do not list titles of pages
       pid       => {'!=' => 0},
       data_type => {'!=' => $str->title_data_type},
-      %{$celini->readable_by($c->user)}}};
+      page_id   => $page_id,
+      %{$celini->readable_by($c->user)}
+    },
+    order_by => {-asc => [qw(page_id pid sorting id)]}};
 
-  if (defined $o->{page_id}) {
-    $opts->{where}{page_id} = $o->{page_id};
-  }
-  else {
-    $opts->{where}{page_id} = {-in => $in};
-  }
-  $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
-  my $bread = $str->breadcrumb($o->{page_id}, $l);
-  return $c->render(celini => $celini->all($opts), breadcrumb => $bread,);
+  return $c->render(
+    celini     => $celini->all($opts),
+    page_id    => $page_id,
+    breadcrumb => $str->breadcrumb($page_id, $l));
 }
 
 # DELETE /celini/:id
@@ -277,19 +284,15 @@ sub remove ($c) {
     $c->celini->remove($input->{id});
     return $c->render(openapi => '', status => 204);
   }
-  my $id = $c->param('id');
-  my $v  = $c->validation->input({id => $id});
-  $v->required('id');
-  $v->error('id' => ['not_writable'])
-    unless $c->celini->find_where({'id' => $id, %{$c->celini->writable_by($c->user)}});
-  my $in = $v->output;
-  if ($in->{id}) {
-    $c->celini->remove($in->{id});
+  my $id  = $c->stash('id');
+  my $cel = $c->celini->find_where({'id' => $id, %{$c->celini->writable_by($c->user)}});
+  if ($id) {
+    $c->celini->remove($id);
   }
   else {
     return !$c->redirect_to(edit_celini => {id => $c->param('id')});
   }
-  return $c->redirect_to('home_celini');
+  return $c->redirect_to(celini_in_stranica => page_id => $cel->{page_id});
 }
 
 

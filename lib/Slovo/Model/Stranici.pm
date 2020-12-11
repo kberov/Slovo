@@ -34,9 +34,9 @@ WITH RECURSIVE pids(p)
     AND c.page_id = s.id
     AND $LSQL
     -- title
-    AND c.data_type = '${\ $m->c->stash->{data_types}->[0] }'
+    AND c.data_type = '${\ $m->title_data_type }'
     -- root
-    AND s.page_type !='${\ $m->c->stash->{page_types}->[0] }';
+    AND s.page_type !='${\ $m->root_page_type }';
 SQL
   my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
 

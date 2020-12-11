@@ -2,13 +2,12 @@
 % my $title = $ce->{title}||$ce->{alias}||$ce->{id};
 % layout 'upravlenie', title => 'Record from table celini: ' . $title;
 <h2><%= title %></h2>
-%= link_to 'Цѣлини' => 'home_celini'
 <%= link_to 'Списък съ съсѣдни цѣлини' =>
-  url_with('home_celini')->query([page_id => $ce->{page_id}, ]),
+  url_with(celini_in_stranica => page_id => $ce->{page_id}),
   (title => '.. въ сѫщата страница')
     %>
 <%= link_to 'Добавяне на съдържанѥ въ сѫщата страница' =>
-  url_with('create_celini')->query([page_id => $ce->{'page_id'}, ]),
+  url_with('create_celini')->query(page_id => $ce->{'page_id'}),
   (title => 'Добавѭне на съдържанѥ въ сѫщата страница с ꙋказателъ '. $ce->{page_id}) %>
   <%= link_to 'Промѣна на страница' => 'edit_stranici' => {id => $ce->{page_id}}%>
 %= link_to '📝 Промѣна' => edit_celini => {id => $ce->{id}}

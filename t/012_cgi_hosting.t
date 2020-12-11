@@ -35,8 +35,11 @@ my $t           = Test::Mojo->with_roles('+Slovo')->install(
 # from => to
   "$Bin/.." => $install_dir,
 
-# Directories permissions
-  0777
+  # Directories permissions - you need to have enabled mod_suexec and the
+  # $install dir to be under the mentioned on the first line directory (e.g.
+  # /home/berov/www) in the suexec configuration file (e.g
+  # /etc/apache/suexec/www-data)
+  0755
 )->new('Slovo');
 my $app     = $t->app;
 my $moniker = $app->moniker;
@@ -50,28 +53,11 @@ my $Deploy = sub {
     open my $handle, '>', \$buffer;
     local *STDOUT = $handle;
 
-    $app->commands->run(
-      generate  => 'novy_dom',
-      '--name'  => $ENV{SLOVO_DOM},
-      '--chmod' => 0777
-    );
+    $app->commands->run(generate => 'novy_dom', '--name' => $ENV{SLOVO_DOM},);
     $app->commands->run(generate => 'cgi_script');
     $app->commands->run(generate => 'a2htaccess');
     note $buffer;
 
-    # Only for the purpose of this test! Not in production! Use mod_suexec there.
-    # Make sure database file is writable by Apache
-    my $db = $app->resources->child("data/$moniker.$mode.sqlite")->chmod(0646);
-    ok((($db->stat->mode & 006) == 006) => "$db is writable by apache");
-    my $dir = $db->dirname;
-    $dir->chmod(0777);
-    ok((($dir->stat->mode & 006) == 006) => "$dir is writable by apache");
-
-    # Make sure public dir is writable by Apache
-    my $public = $home->child("domove/$ENV{SLOVO_DOM}/public")->chmod(0777);
-    ok((($public->stat->mode & 006) == 006) => "$public is writable by apache");
-    $app->commands->run(generate => 'cgi_script');
-    $app->commands->run(generate => 'a2htaccess');
   }
   cmp_ok($home, 'eq', $install_dir, 'proper installation directory');
   like $buffer => qr/mkdir.+\/$ENV{SLOVO_DOM}/mx => 'domain folder created';
@@ -81,7 +67,6 @@ my $Deploy = sub {
   like $buffer    => qr/(?:write|exist).+\/.htaccess/ => '.htaccess created';
   my ($hta_file)
     = $buffer =~ m"(?:write|exist|chmod)\]\s+($ENV{SLOVO_DOCUMENT_ROOT}/.htaccess)";
-  path($hta_file)->chmod(0644);
   ok -f $hta_file => "$hta_file exists";
 };
 
@@ -89,6 +74,9 @@ my $dev_dom = "http://dev."
   . (join '.', map { punycode_decode $_= s/xn--//r } split m'\.', $ENV{SLOVO_DOM});
 note $dev_dom;
 my $htaccess_default = sub {
+
+  # Very first call may fail
+  $t->get_ok("$dev_dom");
 
   # DirectoryIndex
   $t->get_ok("$dev_dom")->status_is(200)

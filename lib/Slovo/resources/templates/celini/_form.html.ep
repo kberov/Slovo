@@ -14,16 +14,14 @@ my $breadcrumb_path = '';
       (title => 'Нова цѣлина в сѫщата страница') => begin %>
     <i class="fas fa-plus-square"></i>
     <% end %>
-    %= link_to '⸙' =>'home_celini', title => "Цѣлини"
-% if(@$breadcrumb) {
-  <%
-  $breadcrumb_path = $breadcrumb->map(sub {
-    link_to $_->{alias} => url_for('home_celini')->query(page_id => $_->{id}),
+% my $root_page_id = @$breadcrumb ? $breadcrumb->[0]->{pid} : $in->{page_id};
+%= link_to '⸙' => url_for(celini_in_stranica => page_id =>$root_page_id), title => "Цѣлини"
+  <%= 
+  $breadcrumb->map(sub {
+  link_to $_->{alias} => url_for(celini_in_stranica => page_id => $_->{id}),
       title             => "Цѣлини въ страница „$_->{alias}\"";
   })->join(' ⸙ ');
   %>
-  <%=$breadcrumb_path%>
-% }
 </div>
 
 

@@ -27,7 +27,7 @@ sub _around_execute ($execute, $c) {
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
-    if $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
+    if ref $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -61,9 +61,8 @@ sub _around_execute ($execute, $c) {
   );
 
   if ($page->{id} == $not_found_id) {
-    $c->stash(breadcrumb => []);
-    $c->stash(status     => $not_found_code);
-    return $c->render();
+    return $c->render(breadcrumb => [], celina => $celini->[0],
+      status => $not_found_code);
   }
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l));
   my $ok = $execute->($c, $page, $user, $l, $preview);
