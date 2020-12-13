@@ -1,5 +1,19 @@
 Revision history for Mojolicious application Slovo
 
+2020.12.12
+    * Improved messages and documentation of commands a2htaccess and novy_dom.
+    * Now default permissions for folders created by novy_dom are 0755. This
+      allows Apache to read static files.
+    * Page-form now shows site_name for hidden field 'dom_id' - better for
+      sites with unicode names.
+    * We do not use any more environment variable REWRITE_ENGINE_ON from
+      .htaccess to tell slovo.cgi to remove SCRIPT_NAME from URL. This is done
+      via config option for Slovo plugin CGI 'mod_rewrite', which defaults to
+      1 meaning enabled.
+    * Improved /celini/create functionality - better handling of missing
+      parameters.
+    * Deprecated route /manage/celini in favour of /manage/stranici/:page_id/celini.
+
 2020.12.01
     * Fixed bug - 'page_type', 'box' and 'data_type' columns' values in
       database were not changed while translating identifiers. Now this is

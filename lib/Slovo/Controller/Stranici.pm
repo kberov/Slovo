@@ -29,11 +29,10 @@ sub execute ($c, $page, $user, $l, $preview) {
 sub create ($c) {
   my $str  = $c->stranici;
   my $l    = $c->language;
-  my $host = $c->host_only;
+  my $host = $c->stash('domain')->{domain};
   my $user = $c->user;
   my $pid  = $c->param('pid')
-    // $str->all_for_edit($user, $host, $l,
-    {limit => 1, columns => [@{$c->stash->{stranici_columns}}]})->[0]{id};
+    // $str->all_for_edit($user, $host, $l, {limit => 1, columns => ['id']})->[0]{id};
   my $bread = $str->breadcrumb($pid, $l);
   return $c->render(
     in         => {},

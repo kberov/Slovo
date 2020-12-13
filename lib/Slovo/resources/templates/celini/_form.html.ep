@@ -4,30 +4,24 @@ $in->{group_id} //= $user->{group_id};
 my $sorting       = [map $_, (0 .. 15)];
 my $sorting_title = 'Мѣсто в подредбата';
 my $sorting_label = 'Мѣсто в подредбата';
-my $body_title
-  = 'Нѣколко думи, свързани смислово заедно – тѣло на страницата, съдържанѥто ѝ.';
 my $breadcrumb_path = '';
-# If this celina is a title, the new celina will have this title id as a pid.
-my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} : $in->{pid};
 %>
 
 <div class="mui-panel breadcrumb">
     <%=
     link_to url_with('create_celini')
-      ->query(pid => $new_pid_for_celina_in_this_page, page_id => $in->{page_id}) =>
+      ->query(pid => $in->{pid}, page_id => $in->{page_id}) =>
       (title => 'Нова цѣлина в сѫщата страница') => begin %>
     <i class="fas fa-plus-square"></i>
     <% end %>
-    %= link_to '⸙' =>'home_celini', title => "Цѣлини"
-% if(@$breadcrumb) {
-  <%
-  $breadcrumb_path = $breadcrumb->map(sub {
-    link_to $_->{alias} => url_for('home_celini')->query(page_id => $_->{id}),
+% my $root_page_id = @$breadcrumb ? $breadcrumb->[0]->{pid} : $in->{page_id};
+%= link_to '⸙' => url_for(celini_in_stranica => page_id =>$root_page_id), title => "Цѣлини"
+  <%= 
+  $breadcrumb->map(sub {
+  link_to $_->{alias} => url_for(celini_in_stranica => page_id => $_->{id}),
       title             => "Цѣлини въ страница „$_->{alias}\"";
   })->join(' ⸙ ');
   %>
-  <%=$breadcrumb_path%>
-% }
 </div>
 
 
@@ -52,7 +46,8 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
               <%=
               select_box
                 data_type => [map {[$_=>$_]} @$data_types],
-                label => 'Видъ съдържанѥ'
+                label => 'Видъ съдържанѥ',
+                value => $data_types->[1]
               %>
               % end
               %= t 'div' => (class => 'mui-col-md-4') => begin
@@ -149,7 +144,8 @@ my $new_pid_for_celina_in_this_page = param('data_type') eq 'title' ? $in->{id} 
                   select_box
                     pid      => $parent_celini,
                     label    => 'Въ цѣлина',
-                    required => 1
+                    required => 1,
+                    value    => $in->{pid}
                   %>
               % end
               <%= t 'div' => (class => 'mui-col-md-3',

@@ -60,7 +60,7 @@ subtest 'Domain name' => sub {
   like $buffer => qr/mkdir.+\/t\.com\/templates/x       => 'templates folder created';
   like $buffer => qr/write.+\/t\.com\/.+\/_form\.html/x => 'templates copied';
   like $buffer => qr/write.+\/t\.com\/.+\/fonts.css/x   => 'static files copied';
-  like $buffer => qr/"site_name" => "T.COM"/            => 'new domain record';
+  like $buffer => qr/"site_name" => "t.com"/            => 'new domain record';
   like $buffer => qr/Assuming\sdomain\sal.+dev.t.com/x  => 'default domain prefixes';
 };
 

@@ -5,6 +5,7 @@ use feature qw(lexical_subs unicode_strings);
 no warnings "experimental::lexical_subs";
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
+use Mojo::Collection 'c';
 
 my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
 
@@ -22,8 +23,8 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
     where => {
       page_id => $page_id,
       $id ? (id => {'!=' => $id}) : (), %{$celini->writable_by($user)},
-      language  => $celini->language_like($l),
-      data_type => {in => [qw(title book question)]}}};
+      language    => $celini->language_like($l),
+      permissions => {-like => 'd%'}}};
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
@@ -55,18 +56,71 @@ sub execute ($c, $page, $user, $l, $preview) {
     : $c->render(celina => $celina, 'paragraph' => $celina->{alias});
 }
 
+# Check for pid and page_id parameters and edirect to pages' index page if
+# needed, so the user can choose in which page to create the new writing.
+my sub _validate_create ($c, $u, $l, $str) {
+  my $int = qr/^\d{1,10}$/;
+  my $v   = $c->validation;
+  $v->optional(page_id => 'trim')->like($int);
+  $v->optional(pid     => 'trim')->like($int);
+  my $in         = $v->output;
+  my $celini     = $c->celini;
+  my $data_types = $c->stash('data_types');
+  my $root       = $str->find_where(
+    {dom_id => $c->stash('domain')->{id}, page_type => $str->root_page_type});
+
+  if (!$in->{pid} && !$in->{page_id}) {
+    $c->flash(message => 'Няма подаден номер на страница! '
+        . 'Изберете страница, в която да създадете новото писанѥ!');
+    $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+    return;
+  }
+  elsif ($in->{pid} && !$in->{page_id}) {
+    my $cel = $celini->find_where({
+      pid      => $in->{pid},
+      language => $celini->language_like($l),
+      %{$celini->writable_by($u)}});
+    unless ($cel) {
+      $c->flash(message => 'Нямате права да пишете в раздел с номер '
+          . $in->{pid}
+          . '. Изберете страница, в която да създадете новото писанѥ!');
+      $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+      return;
+    }
+    $in->{page_id} = $cel->{page_id};
+  }
+  elsif (!$in->{pid} && $in->{page_id}) {
+    my $cel = $celini->find_where({
+      page_id   => $in->{page_id},
+      data_type => $data_types->[0],             # note
+      language  => $celini->language_like($l),
+      %{$celini->writable_by($u)}});
+    unless ($cel) {
+      $c->flash(message => 'Нямате права да пишете в страница с номер '
+          . $in->{page_id}
+          . '. Изберете страница, в която да създадете новото писанѥ!');
+      $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
+      return;
+    }
+    $in->{pid} = $cel->{id};
+
+  }
+  return $in;
+};
+
 # GET /celini/create
 # Display form for creating resource in table celini.
 sub create ($c) {
-  my $row = {page_id => $c->param('page_id') // 0, pid => $c->param('pid') // 0};
-  $c->req->param(data_type => $c->stash->{data_types}->[1]);
-  my $str   = $c->stranici;
-  my $l     = $c->language;
-  my $bread = $str->breadcrumb($row->{page_id}, $l);
+  my $str = $c->stranici;
+  my $l   = $c->language;
+  my $u   = $c->user;
+
+  my $in    = _validate_create($c, $u, $l, $str) // return;
+  my $bread = $str->breadcrumb($in->{page_id}, $l);
   return $c->render(
     breadcrumb    => $bread,
-    in            => $row,
-    parent_celini => _celini_options($c, 0, $row->{page_id}, $c->user, $l),
+    in            => $in,
+    parent_celini => _celini_options($c, 0, $in->{page_id}, $u, $l),
   );
 }
 
@@ -179,17 +233,24 @@ sub index ($c) {
   # restrict to the current domain root page
   my $str = $c->stranici;
   my $l   = $c->language;
-  my $in  = $str->all({columns => 'id', where => {dom_id => $c->stash('domain')->{id}}})
-    ->map(sub { $_->{id} })->to_array;
 
+  # check if such page id exists.
+  my $page_ids = $str->all({
+    columns => 'id',
+    where   => {dom_id => $c->stash('domain')->{id}, %{$str->readable_by($c->user)}}
+  })->map(sub { $_->{id} })->to_array;
+  my $param_page_id = $c->param('page_id');
+  my $page_id
+    = $param_page_id
+    ? c(@$page_ids)->first(sub { $_ eq $param_page_id })
+    : $page_ids->[0];
+
+  # TODO
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
   }
-  my $v = $c->validation;
-  $v->optional('page_id', 'trim')->in(@$in);
-  my $o      = $v->output;
   my $celini = $c->celini;
   my $opts   = {
     where => {
@@ -197,17 +258,15 @@ sub index ($c) {
       # do not list titles of pages
       pid       => {'!=' => 0},
       data_type => {'!=' => $str->title_data_type},
-      %{$celini->readable_by($c->user)}}};
+      page_id   => $page_id,
+      %{$celini->readable_by($c->user)}
+    },
+    order_by => {-asc => [qw(page_id pid sorting id)]}};
 
-  if (defined $o->{page_id}) {
-    $opts->{where}{page_id} = $o->{page_id};
-  }
-  else {
-    $opts->{where}{page_id} = {-in => $in};
-  }
-  $opts->{order_by} = {-asc => [qw(page_id pid sorting id)]};
-  my $bread = $str->breadcrumb($o->{page_id}, $l);
-  return $c->render(celini => $celini->all($opts), breadcrumb => $bread,);
+  return $c->render(
+    celini     => $celini->all($opts),
+    page_id    => $page_id,
+    breadcrumb => $str->breadcrumb($page_id, $l));
 }
 
 # DELETE /celini/:id
@@ -225,19 +284,15 @@ sub remove ($c) {
     $c->celini->remove($input->{id});
     return $c->render(openapi => '', status => 204);
   }
-  my $id = $c->param('id');
-  my $v  = $c->validation->input({id => $id});
-  $v->required('id');
-  $v->error('id' => ['not_writable'])
-    unless $c->celini->find_where({'id' => $id, %{$c->celini->writable_by($c->user)}});
-  my $in = $v->output;
-  if ($in->{id}) {
-    $c->celini->remove($in->{id});
+  my $id  = $c->stash('id');
+  my $cel = $c->celini->find_where({'id' => $id, %{$c->celini->writable_by($c->user)}});
+  if ($id) {
+    $c->celini->remove($id);
   }
   else {
     return !$c->redirect_to(edit_celini => {id => $c->param('id')});
   }
-  return $c->redirect_to('home_celini');
+  return $c->redirect_to(celini_in_stranica => page_id => $cel->{page_id});
 }
 
 
@@ -248,9 +303,8 @@ sub _validation ($c) {
   for (qw(featured accepted bad deleted)) {
     $c->req->param($_ => 0) unless $c->param($_);
   }
-  my $v = $c->validation;
-
-  state $types = $c->openapi_spec('/parameters/data_type/enum');
+  my $v     = $c->validation;
+  my $types = $c->stash('data_types');
   $v->required('data_type', 'trim')->in(@$types);
   my $alias = 'optional';
   my $title = $alias;

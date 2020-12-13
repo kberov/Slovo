@@ -27,7 +27,7 @@ sub _around_execute ($execute, $c) {
 
   # Page was found, but with a new alias.
   return $c->_go_to_new_page_url($page, $l)
-    if $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
+    if ref $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -61,9 +61,8 @@ sub _around_execute ($execute, $c) {
   );
 
   if ($page->{id} == $not_found_id) {
-    $c->stash(breadcrumb => []);
-    $c->stash(status     => $not_found_code);
-    return $c->render();
+    return $c->render(breadcrumb => [], celina => $celini->[0],
+      status => $not_found_code);
   }
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l));
   my $ok = $execute->($c, $page, $user, $l, $preview);
@@ -118,7 +117,7 @@ sub _cache_page ($c, $l) {
   my $url_path = $c->url_for({'lang' => $l})->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
-  $file->dirname->make_path({mode => oct(700)});
+  $file->dirname->make_path({mode => oct(755)});
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);
 }
 
@@ -151,21 +150,21 @@ sub b64_images_to_files ($c, $name) {
   my $dom    = Mojo::DOM->new($v->{$name});
   my $images = $dom->find('img[src^="data:image/"]');
   state $paths = $c->app->static->paths;
-  $images->each(sub ($img, $i) {
-    my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
-    return unless $b64;
-    my ($ext)  = $type =~ m|/(.+)$|;
-    my $stream = b($b64)->b64_decode;
-    my $ipad   = sprintf '%02d', $i;
-    my $src
-      = path($paths->[0], 'img', sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")
-      ->spurt($stream);
-    ($img->{src}) = $src =~ m|public(/.+)$|;
+  $images->each(
+    sub ($img, $i) {
+      my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+      return unless $b64;
+      my ($ext) = $type =~ m|/(.+)$|;
+      my $stream = b($b64)->b64_decode;
+      my $ipad = sprintf '%02d', $i;
+      my $src  = path($paths->[0], 'img',
+        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
+      ($img->{src}) = $src =~ m|public(/.+)$|;
 
-    # TODO: resize the image on disc according to 'with' and 'height'
-    # attributes if available and keep resolution 96dpi. Save original image
-    # as well as resized image. Use resized image in src attribute.
-  });
+      # TODO: resize the image on disc according to 'with' and 'height'
+      # attributes if available and keep resolution 96dpi. Save original image
+      # as well as resized image. Use resized image in src attribute.
+    });
   $v->{$name} = $dom->to_string;
   return;
 }

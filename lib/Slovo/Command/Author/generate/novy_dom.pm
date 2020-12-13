@@ -21,7 +21,7 @@ sub run ($self, @args) {
     'n|name=s'    => \(my $name),
     'o|owner=s'   => \(my $owner = $self->owner->{login_name}),
     'a|aliases=s' => \(my $aliases),
-    'c|chmod=s'   => \(my $chmod = oct(700)),
+    'c|chmod=s'   => \(my $chmod = oct(755)),
     's|skip=s'    => \(my $skip_qr),
     'r|refresh=s' => \(my $refresh_qr),
     ;
@@ -153,7 +153,7 @@ sub _create_domain ($self, $name, $aliases) {
   my $dom    = {
     domain      => $name,
     aliases     => $aliases,
-    site_name   => uc $name,
+    site_name   => lc $name,
     description => "Великият нов дом $name…",
     owner_id    => $self->owner->{id},
     group_id    => $self->owner->{group_id},
@@ -264,7 +264,7 @@ and pages for a new domain
     -o, --owner   Username of the owner of this domain in the database.
                   Defaults to "foo".
     -c, --chmod   Octal number used as permissions for folders.
-                  Defaults to 0700.
+                  Defaults to 0755.
     -s, --skip    A regex. The files matching this regex will not be copied
                   to the domain folder.
     -r, --refresh A regex. Danger! The files matching this regex will be

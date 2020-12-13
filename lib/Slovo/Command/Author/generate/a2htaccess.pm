@@ -8,6 +8,8 @@ use Mojo::Util 'getopt';
 
 has description => 'Generate a .htaccess file for running Slovo under Apache 2/CGI';
 has usage       => sub { shift->extract_usage };
+my $exiting    = ' Exiting without doing anything further.';
+my $continuing = ' Continuing...';
 
 sub run ($self, @args) {
 
@@ -22,13 +24,13 @@ sub run ($self, @args) {
   my $home = $app->home;
   unless ($docroot) {
     $docroot = $home->dirname;
-    say 'Assuming DocumentRoot: ' . $docroot;
+    say 'Assuming DocumentRoot: ' . $docroot . $continuing;
   }
   else {
     $docroot = path($docroot);
   }
   unless (-d $docroot) {
-    say 'There is no such DocumentRoot: ' . $docroot;
+    say 'There is no such DocumentRoot: ' . $docroot . $exiting;
     return;
   }
 
@@ -37,11 +39,16 @@ sub run ($self, @args) {
     $cgi_script = $app->moniker . '\.cgi';
     $cgi_file
       = $home->list_tree({max_depth => 1})->first(qr/$cgi_script$/) || $cgi_script;
-    say 'Assuming CGI script: ' . $cgi_file;
+    say 'Assuming CGI script: ' . $cgi_file . $continuing;
   }
   else { $cgi_file = $cgi_script; }
   unless (-f $cgi_file) {
-    say 'There is no such CGI script: ' . $cgi_file;
+    say 'There is no such CGI script: '
+      . $cgi_file
+      . '. Please run command `'
+      . $0
+      . ' generate cgi_script` first. '
+      . $exiting;
     return;
   }
   my $htaccess = path($docroot)->child('.htaccess');
@@ -58,7 +65,7 @@ sub run ($self, @args) {
 =head1 NAME
 
 Slovo::Command::Author::generate::a2htaccess - Generate a .htaccess for running
-Slovo under Apache/CGI
+Slovo under Apache 2/CGI
 
 =head1 SYNOPSIS
 
@@ -73,15 +80,22 @@ Slovo under Apache/CGI
     -r, --docroot    Defaults to $app->home/..
     -s, --cgi_script Defaults to $app->moniker.cgi
 
+
 =head1 DESCRIPTION
+
+This command expects that you have already run
+L<Slovo::Command::Author::generate::a2htaccess>.
 
 L<Slovo::Command::Author::generate::a2htaccess> will generate a .htaccess for
 running Slovo under Apache/CGI. Although Slovo performs best as a daemon run by
-hypnotoad, it can as well be used on a cheap shared hosting. When the script
-C<slovo.cgi> is run it will dump a static page which later will be loaded by
-apache. The .htaccess adds settings for Apache2 to handle all requests. This
-way Slovo can be used as a static site generator. This is completely enough for
-bloggers.
+hypnotoad, it can as well be used on a cheap shared hosting. The .htaccess adds
+settings for Apache2 to preprocess all requests via mod_rewrite. When the
+produced CGI script (e.g. C<slovo.cgi>) is run on a page from the site, it will
+dump the produced on-the-fly HTML to a static html-file. Later, upon another
+HTTP request, the produced html-file will be just spit out by Apache without
+invoking slovo.cgi again. This way Slovo acts as a static site generator. This
+is completely enough for blogs. Serving static pages is faster than anything
+else.
 
 =head1 ATTRIBUTES
 
@@ -182,8 +196,6 @@ DirectoryIndex /<%=$moniker%>/<%=$cgi_script%>
 ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
 
 <IfModule mod_rewrite.c>
-  # Tell <%=$cgi_script%> to remove SCRIPT_NAME from $c->req->url->base.
-  SetEnv REWRITE_ENGINE_ON 1
   RewriteEngine on
   RewriteBase /
 
@@ -199,12 +211,12 @@ ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
   # /css/fonts.css becomes /domove/t.com/public/css/fonts.css
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  # Match xn--b1arjbl.xn--90ae out of ((www|dev|qa).)?xn--b1arjbl.xn--90ae
+  # Match example.com out of ((www|dev|qa).)?example.com
   RewriteCond %{HTTP_HOST} ([\w\-]+.[\w\-]+)$
   RewriteCond %{DOCUMENT_ROOT}/<%=$moniker%>/domove/%1/public/$1 -f
   RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%1/public/$1 [NE,END]
 
-  # t.com/about-en-us.html becomes t.com/domove/t.com/public/cached/about-en-us.html
+  # example.com/about-en-us.html becomes example.com/domove/t.com/public/cached/about-en-us.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{HTTP_HOST} ([\w\-]+.[\w\-]+)$

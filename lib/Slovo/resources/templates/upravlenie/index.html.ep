@@ -1,8 +1,22 @@
-% my $title ='manage';
-% layout 'upravlenie'; title $title;
+<%
+my $title = 'manage';
+layout 'upravlenie';
+title $title;
+my $menu_links = [];
+my $root_page
+  = $c->stranici->find_where({page_type => $page_types->[0], dom_id => $domain->{id}});
+foreach my $el (@$menu) {
+  if ($el eq 'celini') {
+    push @$menu_links,
+      link_to url_for(celini_in_stranica => page_id => $root_page->{id}) =>
+      sub {'Цѣлини'};
+  }
+  else {
+    push @$menu_links, link_to $el => "home_$el";
+  }
+}
+%>
 <h1><%== $title %></h1>
 <nav>
-% foreach my $el (@$menu) {
-%= link_to $el => "home_$el";
-%}
+%==join ' | ',  @$menu_links
 </nav>

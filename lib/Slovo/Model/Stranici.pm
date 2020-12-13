@@ -34,9 +34,9 @@ WITH RECURSIVE pids(p)
     AND c.page_id = s.id
     AND $LSQL
     -- title
-    AND c.data_type = '${\ $m->c->stash->{data_types}->[0] }'
+    AND c.data_type = '${\ $m->title_data_type }'
     -- root
-    AND s.page_type !='${\ $m->c->stash->{page_types}->[0] }';
+    AND s.page_type !='${\ $m->root_page_type }';
 SQL
   my $rows = $m->dbx->db->query($SQL, $pid, @lang_like)->hashes;
 
@@ -138,7 +138,12 @@ SQL
       %{$m->_where_with_permissions($user, $domain_name, $preview)}})->hash;
 }
 
-
+# Inserts a new row in table stranici and title row in table celini for this
+# page.  Most columns in the title row are set to the values of the page row.
+# The title always serves as default container for other celini in the page -
+# in other words,its permissions start with 'd'.
+# Returns the id of the new page record or croaks with the eventual database
+# error.
 sub add ($m, $row) {
   $row->{tstamp} = time - 1;
   $row->{start} //= $row->{tstamp};
@@ -151,6 +156,10 @@ sub add ($m, $row) {
     $m->title_data_type,
     @$row{qw(tstamp user_id
     group_id changed_by alias permissions published)});
+
+  # The title always serves as default container for other celini in the
+  # page.
+  $title->{permissions} =~ s/^[\-l]/d/;
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
@@ -189,6 +198,10 @@ sub save ($m, $id, $row) {
     $id,
     delete @$row{qw(title body language title_id data_format)},
     @$row{qw(alias changed_by permissions published tstamp)});
+
+  # The title always serves as default container for other celini in the
+  # page.
+  $title->{permissions} =~ s/^[\-l]/d/;
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
