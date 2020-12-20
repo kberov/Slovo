@@ -30,14 +30,12 @@ my $previewed_pages = sub {
 my $site_layout = sub {
   $t->get_ok($app->url_for('sign_out'))->status_is(302)
     ->header_is('Location' => $app->url_for('authform'));
-  $t->get_ok("/коренъ.html")->status_is(200)->element_exists('body header.mui-appbar')
-    ->element_exists('aside#sidedrawer')->element_exists('main#content-wrapper')
-    ->element_exists('footer.mui-appbar');
+  $t->get_ok("/коренъ.html")->status_is(200)->element_exists('body > header nav')
+    ->element_exists('header>nav>a>#logo')->element_exists('main.container')
+    ->element_exists('footer');
   $t->get_ok('/ѿносно.html')->status_is(200)
 
-    #   ->element_exists_not('aside#sidedrawer');
-    # menu item in sidedrawer
-    ->element_exists('#sidedrawer ul li div');
+    ->element_exists('header>nav');
 
 };
 
@@ -48,7 +46,7 @@ my $breadcrumb = sub {
     = '/'
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
-  $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
+  $t->get_ok('/вести.html')->element_exists(qq|header > nav > a[href="/$alias"]|)
     ->element_exists('main section.title article.writing:nth-of-type(2)>h2:nth-child(1)')
     ->text_is('section.title.group article.writing:nth-of-type(2)'
       . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
@@ -56,8 +54,7 @@ my $breadcrumb = sub {
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
 
   $t->get_ok('/вести/alabala.html')->status_is(404)
-    ->text_is('.title > h1:nth-child(1)' => 'Страницата не е намерена')
-    ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
+    ->text_is('.title > h1:nth-child(1)' => 'Страницата не е намерена');
 };
 
 my $multi_language_pages = sub {
