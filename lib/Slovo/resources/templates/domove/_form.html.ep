@@ -25,6 +25,8 @@
   %= label_for published => 'Published'
   %= number_field published => (required => 1, size => 1)
 <br />
-
+  %= label_for templates =>'Тема'
+  %= text_field templates => (size => 50)
+<br />
   %= submit_button $caption
 % end

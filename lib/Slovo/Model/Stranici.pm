@@ -157,9 +157,6 @@ sub add ($m, $row) {
     @$row{qw(tstamp user_id
     group_id changed_by alias permissions published)});
 
-  # The title always serves as default container for other celini in the
-  # page.
-  $title->{permissions} =~ s/^[\-l]/d/;
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;

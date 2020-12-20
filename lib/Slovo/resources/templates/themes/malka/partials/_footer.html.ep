@@ -1,0 +1,10 @@
+
+<footer class="is-fixed bg-dark row">
+  <nav class="col text-left">
+    <%= link_to 'manage' => 'under_management' => (id=>'manage') if $c->is_user_authenticated %>
+    Направено съ ♥ и <a target="_blank" href="https://github.com/kberov/Slovo">Слово</a>.
+  </nav>
+  <nav class="col text-right">
+    %= include "partials/_footer_right"
+  </nav>
+</footer>

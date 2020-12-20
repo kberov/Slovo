@@ -16,7 +16,7 @@ sub find_by_host ($m, $h) {
 
   # If needed later, we may add more columns to this query.
   state $sql = <<"SQL";
-    SELECT id,domain FROM domove
+    SELECT * FROM domove
     WHERE (? LIKE '%' || domain OR aliases LIKE ? OR ips LIKE ?)
     AND published = ? LIMIT 1
 SQL

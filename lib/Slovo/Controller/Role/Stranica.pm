@@ -2,6 +2,7 @@ package Slovo::Controller::Role::Stranica;
 use Mojo::Base -role, -signatures;
 use Mojo::File 'path';
 use Mojo::ByteStream 'b';
+use Mojo::Collection 'c';
 use Mojo::Util qw(encode sha1_sum);
 use feature qw(lexical_subs unicode_strings);
 ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
@@ -61,10 +62,23 @@ sub _around_execute ($execute, $c) {
   );
 
   if ($page->{id} == $not_found_id) {
-    return $c->render(breadcrumb => [], celina => $celini->[0],
-      status => $not_found_code);
+    return $c->render(
+      breadcrumb => c(),
+      celina     => $celini->[0],
+      menu       => c(),
+      status     => $not_found_code
+    );
   }
-  $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l));
+
+  # If this is a root page, list pages under it, otherwise list siblings.
+  my $menu = $str->all_for_list(
+    $user, $host, $preview, $l,
+    {
+      columns  => $list_columns,
+      pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
+      order_by => 'sorting'
+    });
+  $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => c(@$menu));
   my $ok = $execute->($c, $page, $user, $l, $preview);
   if ($cache_pages && $c->res->is_success) {
     state $cache_control = $c->app->config('cache_control');
@@ -288,12 +302,12 @@ sub is_item_editable ($c, $e) {
 
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
-  my $str = $c->stranici;
-  state $root = $str->find_where({
+  my $str  = $c->stranici;
+  my $root = $str->find_where({
     page_type => $c->app->defaults('page_types')->[0],
     dom_id    => $c->stash('domain')->{id}});
   state $pt           = $str->table;
-  state $list_columns = $c->app->defaults('stranici_columns');
+  state $list_columns = $c->stash('stranici_columns');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
   my $parents_options = [
     [$root->{alias}, $root->{id}],

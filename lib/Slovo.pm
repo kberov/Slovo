@@ -15,6 +15,7 @@ use Mojo::File 'path';
 use Mojo::Collection 'c';
 use Slovo::Controller::Auth;
 use Slovo::Validator;
+use Slovo::Cache;
 
 our $AUTHORITY = 'cpan:BEROV';
 our $VERSION   = '2020.12.12';
@@ -40,6 +41,23 @@ has home => sub {
   return $_[0]->SUPER::home;
 };
 
+# Writes to $home/log/slovo.log if $home/log/ exists and is writable.
+has log => sub {
+  my $self = shift;
+
+  my $mode = $self->mode;
+  my $log  = Mojo::Log->new;
+
+  my $home = $self->home;
+  if (-d $home->child('log') && -w _) {
+    $log->path($home->child('log', $self->moniker . ".log"));
+  }
+
+  # Reduced log output outside of development mode
+  return $log->level($ENV{MOJO_LOG_LEVEL}) if $ENV{MOJO_LOG_LEVEL};
+  return $mode eq 'development' ? $log : $log->level('info');
+};
+
 # This method will run once at server start
 sub startup ($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
@@ -51,6 +69,9 @@ sub startup ($app) {
   $app->hook(around_dispatch => \&_around_dispatch);
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
+  my $cache = Slovo::Cache->new();
+  $app->renderer->cache($cache);
+  $app->routes->cache($cache);
   $app->defaults(
 
     # layout => 'default'
@@ -95,21 +116,44 @@ sub _around_action ($next, $c, $action, $last) {
 # This code is executed on every request, so we try to save as much as possible
 # method calls.
 sub _around_dispatch ($next, $c) {
-  state $app   = $c->app;
-  state $droot = $app->config('domove_root');
+  state $app  = $c->app;
+  state $root = $app->config('domove_root');
 
   state $s_paths = $app->static->paths;
   state $r_paths = $app->renderer->paths;
-  my $dom;
-  eval { $dom = $c->domove->find_by_host($c->host_only) }
+  state $cache   = $app->renderer->cache;
+  my $dom
+    = eval { $c->domove->find_by_host($c->host_only) }
     || die 'No such Host ('
     . $c->host_only
     . ')! Looks like a Proxy Server misconfiguration, readonly'
     . " database file or a missing domain alias in table domove.\n";
 
   # Use domain specific public and templates' paths with priority.
-  unshift @{$s_paths}, "$droot/$dom->{domain}/public";
-  unshift @{$r_paths}, "$droot/$dom->{domain}/templates";
+  unshift @{$s_paths}, "$root/$dom->{domain}/public";
+  if (my $tpls = $dom->{templates}) {
+
+    # absolute path
+    if ($tpls =~ m|^/|) {
+      unshift @{$r_paths}, $tpls;
+    }
+
+    # try to find the relative path to the theme in the list of paths
+    else {
+      for my $path (@{$r_paths}) {
+        if (-d "$path/$tpls") {
+          unshift @{$r_paths}, "$path/$tpls";
+          last;
+        }
+      }
+    }
+  }
+  else {
+    unshift @{$r_paths}, "$root/$dom->{domain}/templates";
+  }
+
+  # templates and routes are cached per domain
+  $cache->key_prefix($dom->{domain});
   $c->stash(domain => $dom);
   $next->();
   shift @{$s_paths};
@@ -127,9 +171,8 @@ sub _load_config ($app) {
   my $file      = $etc->child("$moniker.conf");
   my $mode_file = $etc->child("$moniker.$mode.conf");
   $ENV{MOJO_CONFIG}
-    //= (-e $app->home->child("$moniker.$mode.conf")
-      && $app->home->child("$moniker.$mode.conf"))
-    || (-e $app->home->child("$moniker.conf") && $app->home->child("$moniker.conf"))
+    //= (-e $home->child("$moniker.$mode.conf") && $home->child("$moniker.$mode.conf"))
+    || (-e $home->child("$moniker.conf") && $home->child("$moniker.conf"))
     || (-e $mode_file ? $mode_file : $file);
 
   my $config = $app->plugin('Config');
@@ -189,13 +232,13 @@ sub _load_pugins ($app) {
 sub _default_paths ($app) {
 
   # Fallback "public" directory
-  my $public = $app->resources->child('public')->to_string;
-  unshift @{$app->static->paths}, $public if -d $public;
+  push @{$app->static->paths}, $app->resources->child('public')->to_string;
 
   # Fallback templates directory
   # See /perldoc/Mojolicious/Renderer#paths
-  my $templates = $app->resources->child('templates')->to_string;
-  unshift @{$app->renderer->paths}, $templates if -d $templates;
+  push @{$app->renderer->paths}, $app->resources->child('templates')->to_string;
+
+  # Current heme
   return $app;
 }
 
@@ -219,8 +262,8 @@ sub _add_media_types ($app) {
 }
 
 sub load_class ($app, $class) {
-  state $log = $app->log;
 
+  # state $log = $app->log;
   # $log->debug("Loading $class");
   if (my $e = Mojo::Loader::load_class $class) {
     Carp::croak ref $e ? "Exception: $e" : "$class - Not found!";
@@ -253,22 +296,25 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
-with nice core features like:
+with nice core features, listed below.
+
+This is a usable release, yet full of creeping bugs and half-implemented
+pieces!
 
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
 cheap shared hosting and blogging – BETA
 
-=item Multi-domain support - DONE;
+=item Multi-domain support - WIP;
 
-=item Multi-language pages - DONE;
+=item Multi-language pages - WIP;
 
 =item Cached published pages and content - DONE;
 
 =item Multi-user support - DONE;
 
-=item User onboarding - BETA;
+=item User onboarding - WIP;
 
 =item User sign in - DONE;
 
@@ -303,8 +349,6 @@ for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 =item and more to come…
 
 =back
-
-This is a usable release!
 
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
@@ -432,11 +476,17 @@ Examples:
     berov@Skylake:t.com$ perl -Islovo/lib/perl5 -MSlovo -E 'say Slovo->new->home'
     /home/berov/opt/t.com/slovo
 
+=head2 log
+
+Overrides L<Mojolicious/log>. Logs to C<self-E<gt>home->child('log/slovo.log')>
+if C<$self-E<gt>home->child('log')> exists and is writable. Oderwise writes to
+STERR.  The log-level will default to either the C<MOJO_LOG_LEVEL> environment
+variable, C<debug> if the "mode" is C<development>, or C<info> otherwise.
+
 =head2 resources
 
   push @{$app->static->paths}, $app->resources->child('public');
 
-Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
 =head2 validator
@@ -492,6 +542,9 @@ available in the respective templates. Here they are:
 
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
+Also if the C<templates> property for the current domain is not empty, we
+determine from it the templates root to be used for this domain in this
+request. This is how the themes support work.
 
 In addition the current domain row from table C<domove> becomes available in
 the stash as C<$domain>.

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="<%= $l %>">
+  %= include 'partials/_head'
+  <body>
+    %= include 'partials/_header'
+    %#= include 'partials/_left'
+    %#TODO:= include 'partials/_right'
+    <main class="container"><%= content %></main>
+    %= include 'partials/_footer'    
+  </body>
+</html> 

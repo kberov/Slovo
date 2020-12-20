@@ -117,7 +117,8 @@ sub create_edit_domain_ok ($t) {
     description => 'Съвсем у дома',
     owner_id    => 5,
     group_id    => 5,
-    published   => 2
+    published   => 2,
+    templates   => 'themes/malka'
   };
   my $edit_url = $t->post_ok($store_url => form => $form)->status_is(302)
     ->tx->res->headers->location;
@@ -127,7 +128,8 @@ sub create_edit_domain_ok ($t) {
   $t->put_ok($edit_url => form => $form)->status_is(302)
     ->header_is(Location => $edit_url);
   my $body = $t->get_ok($edit_url)->tx->res->body;
-  like($body => qr/$form->{aliases}/, 'aliases changed');
+  like($body => qr/$form->{aliases}/,   'aliases changed');
+  like($body => qr|$form->{templates}|, 'templates changed');
   return $edit_url;
 }
 

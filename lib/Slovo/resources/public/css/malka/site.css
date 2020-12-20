@@ -1,0 +1,86 @@
+:root{
+  --color-success: #23FF04
+}
+
+header,
+footer {
+  --box-shadow: 0 0.1em 0.5em var(--color-darkGrey); 
+  z-index: 1;
+  margin: 0 !important;
+  /* offset-x | offset-y | blur-radius | color */
+  box-shadow: var(--box-shadow);
+}
+
+header {
+  top: 0
+}
+
+footer {
+  bottom: 0
+}
+
+#logo {
+  display: inline;
+  width: 1.5rem;
+  vertical-align: middle;
+}
+
+header,
+footer,
+header a,
+footer a {
+  color: white;
+}
+
+nav .tabs a {
+  padding: 0rem 1rem;
+}
+
+nav .tabs a.active {
+  color: var(--color-success) !important;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dropdown .menu {
+  position: absolute;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  display: none;
+  width: inherit;
+}
+
+.dropdown:hover .menu {
+  display: block;
+  box-shadow: var(--box-shadow);
+}
+
+.dropdown .menu a:hover {
+  text-decoration: underline;
+}
+
+
+header nav:last-child {
+/*  margin-right: 0;*/
+}
+
+header nav, footer nav {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.3rem !important;
+}
+
+main {
+  padding-top: 4rem !important;
+  padding-bottom: 4rem !important;
+}
+/* do not forget to change the top or margin-top and bottom of main ald left and right on breakdowns like in chota */
+@media (max-width: 599px) {
+  main {
+    padding-top: 6rem !important;
+    padding-bottom: 6rem !important;
+  }
+}

@@ -16,7 +16,7 @@ sub execute ($c, $page, $user, $l, $preview) {
   # Make the root page looks like just updated when max_age elapsed and the
   # browser makes a request again, because it is very rarely directly
   # updated.
-  my $refresh_root = $page->{page_type} eq $c->app->defaults('page_types')->[0];    # root
+  my $refresh_root = $page->{page_type} eq $c->stash('page_types')->[0];    # root
   return $c->is_fresh(last_modified => $refresh_root ? time : $page->{tstamp})
     ? $c->rendered(304)
     : $c->render();
@@ -252,8 +252,8 @@ sub list ($c) {
   my $in      = $c->validation->output;
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
-  my $list
-    = $c->stranici->all_for_list($user, $c->host_only, $preview, $c->language, $in);
+  my $list    = $c->stranici->all_for_list($user, $c->stash('domain')->{domain},
+    $preview, $c->language, $in);
   return $c->render(openapi => $list);
 }
 
