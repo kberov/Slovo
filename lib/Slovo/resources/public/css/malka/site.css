@@ -2,6 +2,11 @@
   --color-success: #23FF04
 }
 
+html{
+  font-size: 100%;
+  scrollbar-color: var(--color-lightGrey) var(--color-darkGrey);
+}
+
 header,
 footer {
   --box-shadow: 0 0.1em 0.5em var(--color-darkGrey); 
@@ -32,8 +37,10 @@ footer a {
   color: white;
 }
 
+
 nav .tabs a {
   padding: 0rem 1rem;
+  white-space: nowrap;
 }
 
 nav .tabs a.active {
@@ -54,11 +61,24 @@ nav .tabs a.active {
   width: inherit;
 }
 
-.dropdown:hover .menu {
-  display: block;
-  box-shadow: var(--box-shadow);
+.tabs > .dropdown {
+  /* padding: 1rem 2rem;*/
+  flex: 0 1 auto;
+  color: var(--color-darkGrey);
+  border-bottom: 2px solid var(--color-lightGrey);
+  text-align: center;
 }
 
+.dropdown:hover .menu
+, .dropdown:active .menu {
+  display: block;
+  box-shadow: var(--box-shadow);
+  z-index: 2;
+}
+
+.dropdown .menu a {
+  display: block;
+}
 .dropdown .menu a:hover {
   text-decoration: underline;
 }
@@ -77,10 +97,28 @@ main {
   padding-top: 4rem !important;
   padding-bottom: 4rem !important;
 }
-/* do not forget to change the top or margin-top and bottom of main ald left and right on breakdowns like in chota */
+
 @media (max-width: 599px) {
-  main {
-    padding-top: 6rem !important;
-    padding-bottom: 6rem !important;
+  header  nav .tabs {
+    overflow-y:scroll !important;
+    -overflow-scrolling:touch !important;
+    -webkit-overflow-scrolling:touch !important;
+  
   }
+
+  .dropdown .menu a {
+    display: inline;
+  }
+
+  main {
+    padding-top: 8.5rem !important;
+    padding-bottom: 8.5rem !important;
+  }
+
+  header nav.col-2 {
+    margin: 0 !important;
+    font-size:66%;
+  }
+  
 }
+

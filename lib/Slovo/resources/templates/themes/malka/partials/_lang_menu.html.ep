@@ -8,16 +8,12 @@ return if @$langs == 1;
 my $current = pop @$langs;
 %>
  <div class="dropdown" style="margin-left:1rem;">
-  <div>
     %= $current->{language}
-  </div>
   <div class="menu bg-dark" style="right: 0">
     <%=
     $langs->sort(sub { $a->{language} cmp $b->{language} })->map(sub {
-      t 'div' => sub {
         link_to $_->{language} => 'page_with_lang' =>
           {page => $page->{alias}, lang => $_->{language}} => (title => $_->{title});
-      }
     })->join($/);
     %>
   </div>
