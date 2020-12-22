@@ -238,15 +238,15 @@ sub index ($c) {
   my $page_ids = $str->all({
     columns => 'id',
     where   => {dom_id => $c->stash('domain')->{id}, %{$str->readable_by($c->user)}}
-  })->map(sub { $_->{id} })->to_array;
+  })->map(sub { $_->{id} });
   my $param_page_id = $c->param('page_id');
   my $page_id
-    = $param_page_id
-    ? c(@$page_ids)->first(sub { $_ eq $param_page_id })
+    = defined $param_page_id
+    ? $page_ids->first(sub { $_ eq $param_page_id })
     : $page_ids->[0];
 
-  # TODO
-  if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
+  # TODO - invoked via OpenAPI
+  if ($c->current_route =~ /^api\./) {
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
@@ -256,7 +256,6 @@ sub index ($c) {
     where => {
 
       # do not list titles of pages
-      pid       => {'!=' => 0},
       data_type => {'!=' => $str->title_data_type},
       page_id   => $page_id,
       %{$celini->readable_by($c->user)}

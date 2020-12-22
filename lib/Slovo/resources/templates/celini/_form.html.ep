@@ -81,9 +81,9 @@ my $breadcrumb_path = '';
           %= t legend => 'Разрешения и обнародване'
           %= t div => (class => 'mui-row') => begin
         <%
-# TODO: Make these listings an Ajax request and implement Autocomplete making
-# requests each 500ms. like in jQ UI
-# This will be needed when we have many (more than 100) users
+        # TODO: Make these listings an Ajax request and implement Autocomplete
+        # making requests each 500ms. like in jQ UI. This will be needed when
+        # we have many (more than 100) users.
         state $select_users
           = users->all({where => {login_name => {'!=' => 'guest'}}})
           ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] }) || c();
@@ -111,13 +111,13 @@ my $breadcrumb_path = '';
               %= t 'div' => (class => 'mui-col-md-3') => begin
                   <%=
                   select_box
-                    group_id => [['Изберете сътрудници' => ''], @$groups],
+                    group_id => [['Множество сътрудници' => ''], @$groups],
                     label    => 'Сътрудници'
                   %>
               % end
               %= t 'div' => (class => 'mui-col-md-3') => begin
-% # TODO: document and design the behavior for celini which are "d"
-% # (directories) and "l" (links)
+              % # TODO: document and design the behavior for celini which are "d"
+              % # (directories) and "l" (links)
                   <%=
                   select_box
                     permissions => [map { [$_ => $_] } @$permissions],
