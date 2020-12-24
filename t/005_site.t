@@ -46,10 +46,12 @@ my $breadcrumb = sub {
     = '/'
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
+
   $t->get_ok('/вести.html')->element_exists(qq|header > nav > a[href="/$alias"]|)
     ->element_exists('main section.title article.writing:nth-of-type(2)>h2:nth-child(1)')
-    ->text_is('section.title.group article.writing:nth-of-type(2)'
-      . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
+
+    #    ->text_is('section.title.group article.writing:nth-of-type(2)'
+    #  . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
 

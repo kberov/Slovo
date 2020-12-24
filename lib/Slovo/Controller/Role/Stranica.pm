@@ -26,14 +26,21 @@ sub _around_execute ($execute, $c) {
   my $host    = $c->host_only;
   my $page    = $str->find_for_display($alias, $user, $host, $preview);
 
-  # Page was found, but with a new alias.
+  # Page was found, but with a new alias, and we are not showing a celina
+  # (paragraph/content)
   return $c->_go_to_new_page_url($page, $l)
     if ref $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
+
+  # Now as we have a page to show, we continue as usual.
   $page->{is_dir} = $page->{permissions} =~ /^d/;
+
+  # User wants a specific template to be used to display this page
   $c->stash($page->{template} ? (template => $page->{template}) : ());
+
+  # Get the content with page_id = $page->{id}.
   my $celini = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
 
   # We were looking for content with 'en' but found en-US
@@ -70,7 +77,8 @@ sub _around_execute ($execute, $c) {
     );
   }
 
-  # If this is a root page, list pages under it, otherwise list siblings.
+  # If this is a root page, list in the menu pages under it, otherwise list
+  # siblings.
   my $menu = $str->all_for_list(
     $user, $host, $preview, $l,
     {
@@ -78,7 +86,7 @@ sub _around_execute ($execute, $c) {
       pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
       order_by => 'sorting'
     });
-  $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => c(@$menu));
+  $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
   my $ok = $execute->($c, $page, $user, $l, $preview);
   if ($cache_pages && $c->res->is_success) {
     state $cache_control = $c->app->config('cache_control');
@@ -96,7 +104,6 @@ sub _around_execute ($execute, $c) {
   return $ok;
 }
 
-
 sub _go_to_new_page_url ($c, $page, $l) {
 
   # https://tools.ietf.org/html/rfc7538#section-3
@@ -105,12 +112,16 @@ sub _go_to_new_page_url ($c, $page, $l) {
   return $c->redirect_to('page_with_lang' => {page => $page->{alias}, 'lang' => $l});
 }
 
-my $cached    = 'cached';
-my $cacheable = qr/\.html$/;
+my $cached    = 'cached';       # Directory name to save pages to
+my $cacheable = qr/\.html$/;    # File exptension for cacheable content
 
 sub _path_to_file ($c, $url_path) {
+
+  # Will be served by Apache next time.
   return path($c->app->static->paths->[0], "$cached/$url_path")
     if $ENV{GATEWAY_INTERFACE};
+
+  # Will be served by _render_cached_page.
   return path($c->app->static->paths->[0],
     $cached, sha1_sum(encode('UTF-8' => $url_path)) . '.html');
 }
@@ -302,10 +313,10 @@ sub is_item_editable ($c, $e) {
 
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
-  my $str  = $c->stranici;
-  my $root = $str->find_where({
-    page_type => $c->app->defaults('page_types')->[0],
-    dom_id    => $c->stash('domain')->{id}});
+  my $str = $c->stranici;
+  my $root
+    = $str->find_where({
+    page_type => $c->stash('page_types')->[0], dom_id => $c->stash('domain')->{id}});
   state $pt           = $str->table;
   state $list_columns = $c->stash('stranici_columns');
   my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};

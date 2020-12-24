@@ -28,6 +28,11 @@ sub all ($self, $opts = {}) {
   return $self->dbx->db->query($sql, @bind)->hashes;
 }
 
+# similar to all but retuns only one row
+sub one ($m, $o) {
+  return $m->dbx->db->select($m->table, $o->{columns}, $o->{where})->hash;
+}
+
 #update a record
 sub save ($self, $id, $row) {
 
@@ -46,9 +51,11 @@ sub find_where ($m, $where = {}) {
   return;
 }
 
+# Find by ID.
 sub find {
   return $_[0]->dbx->db->select($_[0]->table, undef, {id => $_[1]})->hash;
 }
+
 
 sub remove ($m, $id) {
   my $db    = $m->dbx->db;
@@ -84,7 +91,7 @@ sub readable_by ($self, $user) {
         # "$table.permissions" => {-like => '_r__%'}
       },
 
-      # a page, which can be read
+      # a page or content, which can be read
       # by one of the groups to which this user belongs.
       {
         "$t.permissions" => {-like => '____r__%'},

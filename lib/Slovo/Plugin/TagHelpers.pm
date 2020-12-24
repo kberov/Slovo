@@ -38,8 +38,14 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   state $html_dom = Mojo::DOM->new;
   my $first_tag = 1;
   my $last_tag  = 0;
+
+  # split on two subsequent new lines and get the first five paragraphs but
+  # only if the content is not HTML, (e. g. it is markdown).
   return c(split m|$/$/|, $html)->head(5)->map(sub ($txt) {
     return '' if $last_tag;
+
+    # strip potential inline markup
+    $txt =~ s/<[^>]+>?//g;
     $length += length($txt);
     if ($length >= $chars) {
       $last_tag = 1;
@@ -47,8 +53,10 @@ my sub _html_substr ($c, $html, $selector, $chars) {
     }
     $first_tag = 0;
     return '<p>' . $txt . '</p>' . $/;
-  })->join('') unless $html =~ /<\w/;
+  })->join('') unless $html =~ /^<\w/;
 
+  # gets the first 5 elements, matching $selector and prepares them for
+  # displaying as text, until the targeted number of characters is reached.
   my $elems = $html_dom->parse($html)->find($selector);
   return $html_dom->parse($html)->find($selector)->head(5)->map(sub ($el) {
     return '' unless $el;
