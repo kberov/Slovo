@@ -134,12 +134,13 @@ sub _around_dispatch ($next, $c) {
   if (my $tpls = $dom->{templates}) {
 
     # absolute path
-    if ($tpls =~ m|^/|) {
+    if ($tpls =~ m|^/| && -d $tpls) {
       unshift @{$r_paths}, $tpls;
     }
-
-    # try to find the relative path to the theme in the list of paths
     else {
+      unshift @{$r_paths}, "$root/$dom->{domain}/templates";
+
+      # try to find the relative path to the theme in the list of paths
       for my $path (@{$r_paths}) {
         if (-d "$path/$tpls") {
           unshift @{$r_paths}, "$path/$tpls";
@@ -152,7 +153,11 @@ sub _around_dispatch ($next, $c) {
     unshift @{$r_paths}, "$root/$dom->{domain}/templates";
   }
 
-  # templates and routes are cached per domain
+  # Templates and routes are cached per domain. By the 'key_prefix' trick we
+  # can provide different templates with the same name to the renderer. This is
+  # how a long running application can switch to different themes per domain
+  # and have different templates although looking like having "the same" path.
+  # This is transparent for the renderer.
   $cache->key_prefix($dom->{domain});
   $c->stash(domain => $dom);
   $next->();
@@ -542,9 +547,57 @@ available in the respective templates. Here they are:
 
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
-Also if the C<templates> property for the current domain is not empty, we
-determine from it the templates root to be used for this domain in this
-request. This is how the themes support work.
+
+Also if the C<templates> field for the current domain is not empty, we
+determine from it the templates root for the theme to be used for this domain
+during this request. This is how the themes support for multidomain L<Slovo>
+applications work.
+
+It is also important to note that in a long running application (not CGI) the
+templates are catched in memory and the relative path from the current
+templates root to each template is used as the key in L<Mojo::Cache> cache. We
+had to implement L<Slovo::Cache/key_prefix> to be able to differentiate between
+templates having the same names, but found in different paths. All this is
+possible thanks to L<Mojolicious>'s well decoupled components.
+
+Example: Let's suppose that the domain L<https://слово.бг> has the field
+'templates' value set to C<themes/malka> (малка==small f. in Bulgarian).
+
+Renderer paths before the check is performed:
+
+  [
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths before the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
+
+Renderer paths after the check is performed. The first path in the list will be
+used with priority:
+
+  [
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates/themes/malka", # if exists!
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/templates", # if exists!
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths after the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/public", # if exists!
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
 
 In addition the current domain row from table C<domove> becomes available in
 the stash as C<$domain>.
@@ -561,7 +614,7 @@ the stash as C<$domain>.
     required => 1,
     label    => 'Дом',
     title    => 'В кой сайт се намира страницата.',
-    readonly => undef,
+    readonly => '',
     value    => $domain->{id} #default value
   %>
 
