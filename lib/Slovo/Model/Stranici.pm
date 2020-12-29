@@ -145,8 +145,8 @@ SQL
 # Returns the id of the new page record or croaks with the eventual database
 # error.
 sub add ($m, $row) {
-  $row->{tstamp} = time - 1;
-  $row->{start} //= $row->{tstamp};
+  $row->{tstamp} //= time - 1;
+  $row->{start}  //= $row->{tstamp};
   my $title = {};
   @$title{qw(title language body data_format)}
     = delete @$row{qw(title language body data_format)};
@@ -190,21 +190,25 @@ sub save ($m, $id, $row) {
   $row->{tstamp} = time - 1;
 
   # Get the values for celini
-  @$title{qw(page_id title body language id data_format
-  alias changed_by permissions published tstamp)} = (
-    $id,
-    delete @$row{qw(title body language title_id data_format)},
-    @$row{qw(alias changed_by permissions published tstamp)});
-
-  # The title always serves as default container for other celini in the
-  # page.
-  $title->{permissions} =~ s/^[\-l]/d/;
+  if (defined $row->{title_id}) {
+    @$title{qw(page_id title body language id data_format
+    alias changed_by permissions published tstamp)} = (
+      $id,
+      delete @$row{qw(title body language title_id data_format)},
+      @$row{qw(alias changed_by permissions published tstamp)});
+  }
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
-    $m->upsert_aliases($db, $id, $row->{alias});
-    $db->update($table,        $row,   {id => $id});
-    $db->update($celini_table, $title, {id => $title->{id}});
+    $m->upsert_aliases($db, $id, $row->{alias}) if $row->{alias};
+    $db->update($table, $row, {id => $id});
+    if (defined $title->{id}) {
+
+      # The title always serves as default container for other celini in the
+      # page.
+      $title->{permissions} =~ s/^[\-l]/d/ if $title->{permissions};
+      $db->update($celini_table, $title, {id => $title->{id}});
+    }
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");
 

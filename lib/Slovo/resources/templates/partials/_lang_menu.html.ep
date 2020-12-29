@@ -19,7 +19,7 @@ my $current = pop @$langs;
 $langs->sort(sub { $a->{language} cmp $b->{language} })->map(sub {
   t 'li' => sub {
     link_to $_->{language} => 'page_with_lang' =>
-      {page => $page->{alias}, lang => $_->{language}} => (title => $_->{title});
+      {page_alias => $page->{alias}, lang => $_->{language}} => (title => $_->{title});
   }
 })->join($/);
 %>

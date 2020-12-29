@@ -13,12 +13,14 @@ sub new {
   return $self;
 }
 
+## no critic qw(RequireArgUnpacking RequireFinalReturn)
 sub get { $_[0]->{cache}{$_[0]->{key_prefix} . ($_[1] // '')} }
 
+## no critic qw(ProhibitAmbiguousNames)
 sub set {
   my ($self, $key, $value) = @_;
   $key = $_[0]->{key_prefix} . $key;
-  return $self unless (my $max = $self->max_keys) > 0;
+  return $self if not((my $max = $self->max_keys) > 0);
 
   my $cache = $self->{cache};
   my $queue = $self->{queue};

@@ -51,7 +51,9 @@ sub where_with_permissions ($self, $user, $preview) {
     -or => [
 
       # published and everybody can read and execute
-      {"$table.published" => 2, "$table.permissions" => {-like => '%r_x'}},
+      $preview
+      ? ()
+      : {"$table.published" => 2, "$table.permissions" => {-like => '%r_x'}},
 
       # preview of a page with elements, owned by this user
       {"$table.user_id" => $user->{id}, "$table.permissions" => {-like => '_r_x%'}},
@@ -60,8 +62,8 @@ sub where_with_permissions ($self, $user, $preview) {
       # by one of the groups to which this user belongs.
       {
         "$table.permissions" => {-like => '____r_x%'},
-        "$table.published"   => $preview ? 1 : 2,
-        "$table.group_id"    =>
+        $preview ? () : ("$table.published" => 2),
+        "$table.group_id" =>
           \["IN (SELECT group_id from user_group WHERE user_id=?)" => $user->{id}],
       },
     ]};
@@ -75,7 +77,7 @@ sub all_for_display_in_stranica ($self, $page, $user, $l, $preview, $opts = {}) 
       language     => $self->language_like($l),
       %{$self->where_with_permissions($user, $preview)}, %{delete $opts->{where} // {}}
     },
-    order_by => [{-desc => 'featured'}, {-asc => [qw(id sorting)]},],
+    order_by => [{-desc => [qw(featured id)]}, {-asc => [qw(sorting)]},],
     %$opts,
   });
 }

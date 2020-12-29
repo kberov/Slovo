@@ -1,0 +1,17 @@
+<%
+my $col_num = $num == 1 ? '-0' : '-6';
+$col_num = '-0' if ($num == $last) && !($last % 2);
+
+my $link    = link_to $celina->{title} => para_with_lang => {
+    page_alias      => $p->{alias},
+    paragraph_alias => $celina->{alias},
+    lang            => $celina->{language}
+} => (title => $celina->{title});
+my $html = html_substr($celina->{teaser} // $celina->{body},
+    'p,blockquote', $col_num eq '-0' ? 220 * 2 : 220);
+%>
+<!-- <%= $celina->{data_type} ." $num" %> exerpt -->
+    <div class="card col<%= $col_num %> <%= $celina->{data_type} %>">
+        <header><h4><%= $link %></h4></header>
+        %== $html
+    </div>

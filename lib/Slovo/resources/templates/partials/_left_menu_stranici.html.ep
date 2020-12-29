@@ -8,7 +8,7 @@ my $list = $c->stranici->all_for_list($user, $domain->{domain}, $preview, langua
 $list->map(sub {
   my $expander_link = '';
   my $link          = link_to $_->{title} => page_with_lang =>
-    {page => $_->{alias}, lang => $_->{language}};
+    {page_alias => $_->{alias}, lang => $_->{language}};
   if ($_->{is_dir}) {
     $expander_link = link_to
       '☰' =>

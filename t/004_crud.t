@@ -354,6 +354,7 @@ my $user_permissions = sub {
   $t->post_ok($stranici_url => {} => form => $sform)->status_is(302);
   $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
   my $stranica_url = $app->url_for('update_stranici', id => $new_page_id);
+  note explain $sform;
   $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)->status_is(204);
 
   # change ownership.

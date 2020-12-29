@@ -16,10 +16,11 @@ sub _around_execute ($execute, $c) {
   state $not_found_id   = $c->not_found_id;
   state $not_found_code = $c->not_found_code;
   my $is_guest = !$c->is_user_authenticated;
+  my $stash    = $c->stash;
 
   return 1 if $cache_pages && $is_guest && $c->_render_cached_page();
   my $preview = !$is_guest && $c->param('прегледъ');
-  my $alias   = $c->stash->{page};
+  my $alias   = $stash->{page_alias};
   my $l       = $c->language;
   my $user    = $c->user;
   my $str     = $c->stranici;
@@ -29,7 +30,7 @@ sub _around_execute ($execute, $c) {
   # Page was found, but with a new alias, and we are not showing a celina
   # (paragraph/content)
   return $c->_go_to_new_page_url($page, $l)
-    if ref $page && $page->{alias} ne $alias && !$c->stash->{'paragraph'};
+    if ref $page && $page->{alias} ne $alias && !$stash->{'paragraph'};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -43,16 +44,26 @@ sub _around_execute ($execute, $c) {
   # Get the content with page_id = $page->{id}.
   my $celini = $c->celini->all_for_display_in_stranica($page, $user, $l, $preview);
 
+  # The translation for this page was not found! Redirecting to the same page with
+  # the default language.
+  if (!$celini->size) {
+    $c->flash(message => "Преводът \"$l\" не бе открит!");
+    return $c->redirect_to(
+      page_with_lang => {page_alias => $page->{alias}, lang => $stash->{languages}[0]});
+  }
+  my $celina
+    = $celini->first(sub { title => $page->{title}, $_->{box} eq $stash->{boxes}[0] });
+
   # We were looking for content with 'en' but found en-US
-  $l = $c->language($celini->[0]{language})->language;
+  $l = $c->language($celina->{language})->language;
 
   #These are always used so we add them to the stash earlier.
   $c->stash(
-    page         => $page->{alias},
     celini       => $celini,
     host         => $host,
     list_columns => $list_columns,
     page         => $page,
+    page_alias   => $page->{alias},
     preview      => $preview,
     user         => $user,
 
@@ -70,10 +81,11 @@ sub _around_execute ($execute, $c) {
 
   if ($page->{id} == $not_found_id) {
     return $c->render(
-      breadcrumb => c(),
-      celina     => $celini->[0],
-      menu       => c(),
-      status     => $not_found_code
+      breadcrumb     => c(),
+      canonical_path => '',
+      celina         => $celina,
+      menu           => c(),
+      status         => $not_found_code
     );
   }
 
@@ -86,6 +98,9 @@ sub _around_execute ($execute, $c) {
       pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
       order_by => 'sorting'
     });
+  $stash->{canonical_path}
+    = $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
+      {lang => $celina->{language}})->to_abs->path->canonicalize->to_route =~ s|^/||r;
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
   my $ok = $execute->($c, $page, $user, $l, $preview);
   if ($cache_pages && $c->res->is_success) {
@@ -109,7 +124,7 @@ sub _go_to_new_page_url ($c, $page, $l) {
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to('page_with_lang' => {page => $page->{alias}, 'lang' => $l});
+  return $c->redirect_to(page_with_lang => {page_alias => $page->{alias}, lang => $l});
 }
 
 my $cached    = 'cached';       # Directory name to save pages to
@@ -117,7 +132,7 @@ my $cacheable = qr/\.html$/;    # File exptension for cacheable content
 
 sub _path_to_file ($c, $url_path) {
 
-  # Will be served by Apache next time.
+  # Will be served by Apache or _render_cached_page next time.
   return path($c->app->static->paths->[0], "$cached/$url_path")
     if $ENV{GATEWAY_INTERFACE};
 
@@ -129,7 +144,9 @@ sub _path_to_file ($c, $url_path) {
 sub _render_cached_page ($c) {
   state $cache_control = $c->app->config('cache_control');
   $c->res->headers->cache_control($cache_control);
-  my $url_path = $c->req->url->path->canonicalize->to_route =~ s|^/||r;
+  my $url_path
+    = $c->url_for(($c->stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
+      {lang => $c->language})->to_abs->path->canonicalize->to_route =~ s|^/||r;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   return $c->reply->file($file) if -f $file;
@@ -139,7 +156,7 @@ sub _render_cached_page ($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path = $c->url_for({'lang' => $l})->path->canonicalize->to_route =~ s|^/||r;
+  my $url_path = $c->stash('canonical_path');
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   $file->dirname->make_path({mode => oct(755)});

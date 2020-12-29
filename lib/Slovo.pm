@@ -248,7 +248,9 @@ sub _default_paths ($app) {
 }
 
 
-#Set Mojolicious::Routes object attributes and types
+# Set Mojolicious::Routes object attributes and types
+# See Mojolicious::Routes#base_classes
+# See Mojolicious::Guides::Routing#Placeholder-types
 sub _set_routes_attrs ($app) {
   my $r = $app->routes;
   push @{$r->base_classes}, $app->controller_class;
@@ -301,10 +303,10 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
-with nice core features, listed below.
+with nice core features, listed below. 
 
 This is a usable release, yet full of creeping bugs and half-implemented
-pieces!
+pieces! The project is in active development, so expect often breaking changes.
 
 =over
 

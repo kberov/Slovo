@@ -1,5 +1,5 @@
 :root {
-  --border-radius:  3%;
+  --border-radius:  10px;
   --color-success: #23FF04
 }
 html {
@@ -79,10 +79,30 @@ main {
   padding-bottom: 4rem !important;
 }
 
-.card{
-    border-radius: var(--border-radius);
+.card {
+  border-radius: var(--border-radius);
+  font-size: 80%;
 }
-
+.card p, .card h4 {
+  margin: 0;
+  line-height: 1.1;
+}
+p, h4 {
+  margin-bottom:0.7rem;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+}
+p.drop-cap::first-letter {
+  float: left;
+  font-size: 5rem;
+  line-height: .68;
+  font-weight: bold;
+  /* top | right | bottom | left */
+  margin: .05em .1em 0 0;
+  text-transform: uppercase;
+  font-family: BukyvedeRegular;
+}
 @media (max-width: 599px) {
     body>header  nav .tabs {
     overflow-y: scroll !important;

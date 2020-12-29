@@ -1,0 +1,20 @@
+<!-- celini/execute malka-->
+<%
+my $left      = $celini->grep(sub { $_->{box} =~ /left|лѣво/ }) // '';
+my $right     = $celini->grep(sub { $_->{box} =~ /right|дѣсно/ }) // '';
+my $the_title = shift @$celini;
+# Left pane may be shown:
+# * (@$left || $page->{is_dir}): if the page has content in the 'left' section or is a directory;
+# * 1:always.
+layout 'site',
+  title => $the_title->{title} . ' ⸙ ' . $celina->{title},
+  left  => $left,
+  right => $right;
+%>
+<%=
+    include(
+      "partials/$d2t->{$celina->{data_type}}", celina => $celina,
+      level => 1)
+      || include("partials/_data_type" => row => $celina, level => 1)
+%>
+<!-- end celini/execute -->

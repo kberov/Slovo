@@ -11,7 +11,7 @@ Revision history for Mojolicious application Slovo
       @{$app->static->paths} and lib/Slovo/resources/public come after
       $app->home/public in @{$app->renderer->paths}.
     * Added new column 'templates' to table 'domove'. This way every domain can
-      switch easily the theme without moving files around - just by pinting to
+      switch easily the theme without moving files around - just by pointing to
       the theme directory where the templates reside.
     * Implemented Slovo::Cache to support mutiple domains theming by storing
       compiled templates with different key prefix per domain.
@@ -19,6 +19,8 @@ Revision history for Mojolicious application Slovo
     * In the control panel the pages now are sorted only by 'sorting'.
     * Mojo deprecated the default behavior of writing to log/$mode.log and we
       implemented by default writing to log/$moniker.log if possible.
+    * Refactored and improved Slovo::Controller::Role::Stranica and the
+      corresponding classes, tests and templates.
 
 
 2020.12.12

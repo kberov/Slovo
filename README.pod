@@ -22,22 +22,25 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
-with nice core features like:
+with nice core features, listed below. 
+
+This is a usable release, yet full of creeping bugs and half-implemented
+pieces! The project is in active development, so expect often breaking changes.
 
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
 cheap shared hosting and blogging – BETA
 
-=item Multi-domain support - DONE;
+=item Multi-domain support - WIP;
 
-=item Multi-language pages - DONE;
+=item Multi-language pages - WIP;
 
 =item Cached published pages and content - DONE;
 
 =item Multi-user support - DONE;
 
-=item User onboarding - BETA;
+=item User onboarding - WIP;
 
 =item User sign in - DONE;
 
@@ -72,8 +75,6 @@ for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 =item and more to come…
 
 =back
-
-This is a usable release!
 
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
@@ -201,11 +202,17 @@ Examples:
     berov@Skylake:t.com$ perl -Islovo/lib/perl5 -MSlovo -E 'say Slovo->new->home'
     /home/berov/opt/t.com/slovo
 
+=head2 log
+
+Overrides L<Mojolicious/log>. Logs to C<self-E<gt>home->child('log/slovo.log')>
+if C<$self-E<gt>home->child('log')> exists and is writable. Oderwise writes to
+STERR.  The log-level will default to either the C<MOJO_LOG_LEVEL> environment
+variable, C<debug> if the "mode" is C<development>, or C<info> otherwise.
+
 =head2 resources
 
   push @{$app->static->paths}, $app->resources->child('public');
 
-Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
 =head2 validator
@@ -262,6 +269,57 @@ available in the respective templates. Here they are:
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
 
+Also if the C<templates> field for the current domain is not empty, we
+determine from it the templates root for the theme to be used for this domain
+during this request. This is how the themes support for multidomain L<Slovo>
+applications work.
+
+It is also important to note that in a long running application (not CGI) the
+templates are catched in memory and the relative path from the current
+templates root to each template is used as the key in L<Mojo::Cache> cache. We
+had to implement L<Slovo::Cache/key_prefix> to be able to differentiate between
+templates having the same names, but found in different paths. All this is
+possible thanks to L<Mojolicious>'s well decoupled components.
+
+Example: Let's suppose that the domain L<https://слово.бг> has the field
+'templates' value set to C<themes/malka> (малка==small f. in Bulgarian).
+
+Renderer paths before the check is performed:
+
+  [
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths before the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
+
+Renderer paths after the check is performed. The first path in the list will be
+used with priority:
+
+  [
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates/themes/malka", # if exists!
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/templates", # if exists!
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths after the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/public", # if exists!
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
+
 In addition the current domain row from table C<domove> becomes available in
 the stash as C<$domain>.
 
@@ -277,7 +335,7 @@ the stash as C<$domain>.
     required => 1,
     label    => 'Дом',
     title    => 'В кой сайт се намира страницата.',
-    readonly => undef,
+    readonly => '',
     value    => $domain->{id} #default value
   %>
 

@@ -30,7 +30,7 @@ my $pages = stranici->all_for_home($user, $domain->{domain}, $preview, language,
 <% for my $p (@$pages) { %>
 <section class="group" id="page-<%= $p->{id} %>">
     <h1 class="mui--text-dark">
-%= link_to $p->{title} => 'page_with_lang' => {page =>$p->{alias} ,lang => language}
+%= link_to $p->{title} => 'page_with_lang' => {page_alias =>$p->{alias} ,lang => language}
     </h1>
     % for my $writing (@{$p->{articles}}) {
     %= include 'partials/_pisanie_otkysy' => (p=>$p, celina => $writing);

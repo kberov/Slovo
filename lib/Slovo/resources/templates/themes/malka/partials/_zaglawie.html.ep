@@ -1,9 +1,6 @@
-<!-- _title -->
+<!-- _zaglawie -->
 % my $list_context = ($controller eq 'stranici' && $celina->{permissions} =~ /^d/);
-<section class="title">
-% # greedily remove potential html
-% # TODO: make a filter upon validation and do not remove htmpl here
-    %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
+    %= t 'h' . $level => $celina->{title};
 <%
 # The content element can be displayed in two contexts.
 # 1. Страница a.k.a. List context:
@@ -16,34 +13,35 @@
 # This is when it is displayed as the main content of the page. In this case it
 # simply shows it's body or does something intended for this context.
 %>
-
 % if ($list_context) { #List
  %== format_body($celina)
-   <div class="row">
- %# TODO: Add limit and pagination
+   <section class="row">
     <%
+    my $limit  = 9;
     my $celini = celini->all_for_display_in_stranica(
-      $page, $user, language, $preview,
+      $page, $user, $l, $preview,
       {
         where => {
 
           # avoid recursion
           'celini.pid'       => {'='  => $celina->{id}, '!=' => {-ident => 'celini.id'}},
           'celini.data_type' => {'!=' => 'title'},
-          'celini.box'       => $boxes->[0]}});
+          'celini.box'       => $boxes->[0]
+        },
+        limit => $limit
+      }
+    );
+    my $count = 1;
+    my $size  = $celini->size;
     %>
     <%==
     $celini->map(sub {
       my $row = shift;
-      return include("partials/_pisanie_otkysy", celina => $row, p => $page);
+      return include("partials/_pisanie_otkysy", num => $count++, last =>$size, celina => $row, p => $page);
     })->join($/);
     %>
-  </div>
+  </section>
 % } else {
     %== format_body($celina)
 % }
-</section>
-
-<%
-
-%>
+<!-- end _zaglawie -->

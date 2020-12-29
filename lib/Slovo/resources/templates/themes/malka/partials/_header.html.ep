@@ -1,16 +1,16 @@
 <!-- _header -->
     <header class="is-fixed bg-dark row">
       <nav class="col-2 nav-left">
-          <%=
+        <%=
           link_to sub {
             t(img => (id => 'logo', src => '/img/slovo-white.png'));
-            } => '/'
-          %>
+          } => url_for(коренъ => {lang => $l})
+        %>
         %= (@$breadcrumb ? '⸙':'')
         <%=
         $breadcrumb->map(sub {
-          link_to $_->{title}                             => page_with_lang =>
-            {page => $_->{alias}, lang => $_->{language}} => (
+          link_to $_->{title},
+            page_with_lang => {page_alias => $_->{alias}, lang => $_->{language}} => (
             class => ($page->{id} == $_->{id} ? 'active text-success' : 'text-white'),
             $page->{id} == $_->{id} ? ('aria-current' => 'page') : ());
         })->join('⸙')
@@ -20,7 +20,7 @@
             % if ($menu->size > 1) {
             <div class="tabs"><%=
             $menu->map(sub {
-              return () if $page->{id} == $_->{id};
+              return if $page->{id} == $_->{id};
               if ($_->{is_dir}) {
                 my $submenu
                   = $c->stranici->all_for_list($user, $domain->{domain}, $preview, $l,
@@ -29,14 +29,14 @@
                   $submenu = $submenu->map(sub {
                     my $s = shift;
                     link_to $s->{title} => page_with_lang =>
-                      {page => $s->{alias}, lang => $s->{language}} =>
+                      {page_alias => $s->{alias}, lang => $s->{language}} =>
                       (class => 'text-white');
                   })->join('');
 
                   #U+25BF WHITE DOWN-POINTING SMALL TRIANGLE
                   return '<div class="dropdown">'
                     . link_to("$_->{title} ▿" => page_with_lang =>
-                      {page => $_->{alias}, lang => $_->{language}} =>
+                      {page_alias => $_->{alias}, lang => $_->{language}} =>
                       (class => 'text-white'))
                     . '<div class="menu bg-dark text-left">'
                     . $submenu
@@ -44,7 +44,7 @@
                 }
               }
               return link_to $_->{title}                    => page_with_lang =>
-                {page => $_->{alias}, lang => $_->{language}} => (class => 'text-white');
+                {page_alias => $_->{alias}, lang => $_->{language}} => (class => 'text-white');
             })->join('')
             %></div>
             % }
