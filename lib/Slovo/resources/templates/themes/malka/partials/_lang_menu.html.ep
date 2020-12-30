@@ -1,0 +1,21 @@
+<%
+# List of languages for the current page content.
+my $langs = stranici->languages($page, $user, $preview)
+  ->sort(sub { ($a->{language} eq $l) <=> ($b->{language} eq $l) });
+return if @$langs == 1;
+
+# get the current language
+my $current = pop @$langs;
+%>
+ <div class="dropdown" style="margin-left:1rem;">
+    %= $current->{language}
+  <div class="menu bg-dark" style="right: 0">
+    <%=
+    $langs->sort(sub { $a->{language} cmp $b->{language} })->map(sub {
+        link_to $_->{language} => 'page_with_lang' =>
+          {page_alias => $page->{alias}, lang => $_->{language}} => (title => $_->{title});
+    })->join($/);
+    %>
+  </div>
+</div>
+

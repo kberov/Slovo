@@ -17,15 +17,22 @@ sub all ($self, $opts = {}) {
   $opts->{limit} = 100 unless $opts->{limit} =~ /^\d+$/;
   $opts->{offset} //= 0;
   $opts->{offset} = 0 unless $opts->{offset} =~ /^\d+$/;
-  $opts->{where}    //= {};
-  $opts->{order_by} //= {-asc => ['id', 'pid', 'sorting']};
+  $opts->{where} //= {};
+  my $table = $opts->{table} || $self->table;
   state $abstr = $self->dbx->abstract;
-  my ($sql, @bind) = $abstr->select($opts->{table} // $self->table,
-    $opts->{columns}, $opts->{where}, $opts->{order_by});
+  my ($sql, @bind)
+    = $abstr->select($table, $opts->{columns}, $opts->{where}, $opts->{order_by});
   $sql .= " LIMIT $opts->{limit}" . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
 
-  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
-  return $self->dbx->db->query($sql, @bind)->hashes;
+  #local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  return
+    eval { $self->dbx->db->query($sql, @bind)->hashes }
+    || Carp::croak("Wrong SQL:$sql\n or bind values: @bind\n$@");
+}
+
+# similar to all but retuns only one row
+sub one ($m, $o) {
+  return $m->dbx->db->select($m->table, $o->{columns}, $o->{where})->hash;
 }
 
 #update a record
@@ -46,9 +53,11 @@ sub find_where ($m, $where = {}) {
   return;
 }
 
+# Find by ID.
 sub find {
   return $_[0]->dbx->db->select($_[0]->table, undef, {id => $_[1]})->hash;
 }
+
 
 sub remove ($m, $id) {
   my $db    = $m->dbx->db;
@@ -84,7 +93,7 @@ sub readable_by ($self, $user) {
         # "$table.permissions" => {-like => '_r__%'}
       },
 
-      # a page, which can be read
+      # a page or content, which can be read
       # by one of the groups to which this user belongs.
       {
         "$t.permissions" => {-like => '____r__%'},

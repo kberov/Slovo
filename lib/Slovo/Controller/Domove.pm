@@ -119,6 +119,7 @@ sub _validation ($c) {
   $v->optional('owner_id',    'trim')->like(qr/^\d+$/a);
   $v->optional('group_id',    'trim')->like(qr/^\d+$/a);
   $v->optional('permissions', 'trim')->like(qr/^[dlrwx\-]{10}$/);
+  $v->optional('templates',   'trim',)->like(qr/^[\w\/]{0,255}$/);
   $v->required('published', 'trim')->like(qr/^[0-2]$/);
 
   return $v;

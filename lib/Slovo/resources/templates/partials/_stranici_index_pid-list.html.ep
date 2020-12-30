@@ -3,7 +3,7 @@
 my $new_subpage_title = 'Нова подстраница';
 my $new_celina = 'Ново писание';
 my $list_page_content = 'Писания в страница';
-my $param_pid = param('pid') // 0;
+my $param_pid = param('pid') // $stranici->[0]{pid};
 my $time = time;
 %>
 <!-- _stranici_index_pid-list -->
@@ -16,7 +16,7 @@ for my $p (@$stranici) {
       if ((@$breadcrumb && $p->{id} == $breadcrumb->[0]{pid}) || ($p->{id} == $param_pid))
       {
         $podstranici = stranici->all_for_edit($user, $domain->{domain}, $l,
-          {pid => $p->{id}, columns => [@$stranici_columns]});
+          {pid => $p->{id}, columns => [@$stranici_columns], order_by => 'sorting'});
         shift @$breadcrumb if @$breadcrumb;
       }
       $fa_class = @$podstranici ? 'fa-folder-open' : 'fa-folder';

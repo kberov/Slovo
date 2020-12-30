@@ -7,13 +7,16 @@ use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
 use Mojo::Collection 'c';
 
-my sub _redirect_to_new_celina_url ($c, $page, $celina, $l) {
+my sub _redirect_to_new_celina_url ($c, $page, $celina) {
 
   # https://tools.ietf.org/html/rfc7538#section-3
   my $status = $c->req->method =~ /GET|HEAD/i ? 301 : 308;
   $c->res->code($status);
-  return $c->redirect_to(para_with_lang =>
-      {'paragraph' => $celina->{alias}, page => $page->{alias}, 'lang' => $l});
+  return $c->redirect_to(
+    para_with_lang => {
+      paragraph_alias => $celina->{alias},
+      page_alias      => $page->{alias},
+      lang            => $celina->{language}});
 };
 
 # Prepares collection of parent ids of celiny in which a celina can be put.
@@ -30,30 +33,33 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
   return $options;
 };
 
-# ANY /<page:str>/<paragraph:cel>.<lang:lng>.html
-# ANY /<:page:str>/<paragraph:cel>.html
+# ANY /<page_alias:str>/<paragraph_alias:cel>.<lang:lng>.html
+# ANY /<page_alias:str>/<paragraph_alias:cel>.html
 # Display a content element in a page in the site.
 sub execute ($c, $page, $user, $l, $preview) {
 
   # TODO celina breadcrumb
   #my $path = [split m|/|, $c->stash->{'paragraph'}];
   #my $path = $c->celini->breadcrumb($p_alias, $path, $l, $user, $preview);
-  my $alias  = $c->stash->{'paragraph'};
+  my $stash  = $c->stash;
+  my $alias  = $stash->{'paragraph_alias'};
   my $celina = $c->celini->find_for_display($alias, $user, $l, $preview,
-    {pid => $c->stash->{celini}[0]{id}, page_id => $page->{id}});
-
-  # Celina was found, but with a new alias.
-  return $c->_redirect_to_new_celina_url($page, $celina, $l)
-    if $celina && $celina->{alias} ne $alias;
+    {page_id => $page->{id}, box => $stash->{boxes}[0]});
 
   unless ($celina) {
     $celina = $c->celini->find_where(
       {page_id => $c->not_found_id, language => $l, data_type => 'title'});
     return $c->render(celina => $celina, status => $c->not_found_code);
   }
+
+  # Celina was found, but with a new alias.
+  return $c->_redirect_to_new_celina_url($page, $celina) if $celina->{alias} ne $alias;
   return $c->is_fresh(last_modified => $celina->{tstamp})
     ? $c->rendered(304)
-    : $c->render(celina => $celina, 'paragraph' => $celina->{alias});
+    : $c->render(
+    celina          => $celina,
+    paragraph_alias => $celina->{alias},
+    lang            => $celina->{language});
 }
 
 # Check for pid and page_id parameters and edirect to pages' index page if
@@ -69,13 +75,13 @@ my sub _validate_create ($c, $u, $l, $str) {
   my $root       = $str->find_where(
     {dom_id => $c->stash('domain')->{id}, page_type => $str->root_page_type});
 
-  if (!$in->{pid} && !$in->{page_id}) {
+  if (!defined $in->{pid} && !defined $in->{page_id}) {
     $c->flash(message => 'Няма подаден номер на страница! '
         . 'Изберете страница, в която да създадете новото писанѥ!');
     $c->redirect_to($c->url_for('home_stranici')->query(pid => $root->{id}));
     return;
   }
-  elsif ($in->{pid} && !$in->{page_id}) {
+  elsif (defined $in->{pid} && !defined $in->{page_id}) {
     my $cel = $celini->find_where({
       pid      => $in->{pid},
       language => $celini->language_like($l),
@@ -89,7 +95,7 @@ my sub _validate_create ($c, $u, $l, $str) {
     }
     $in->{page_id} = $cel->{page_id};
   }
-  elsif (!$in->{pid} && $in->{page_id}) {
+  elsif (!defined $in->{pid} && defined $in->{page_id}) {
     my $cel = $celini->find_where({
       page_id   => $in->{page_id},
       data_type => $data_types->[0],             # note
@@ -238,15 +244,15 @@ sub index ($c) {
   my $page_ids = $str->all({
     columns => 'id',
     where   => {dom_id => $c->stash('domain')->{id}, %{$str->readable_by($c->user)}}
-  })->map(sub { $_->{id} })->to_array;
+  })->map(sub { $_->{id} });
   my $param_page_id = $c->param('page_id');
   my $page_id
-    = $param_page_id
-    ? c(@$page_ids)->first(sub { $_ eq $param_page_id })
+    = defined $param_page_id
+    ? $page_ids->first(sub { $_ eq $param_page_id })
     : $page_ids->[0];
 
-  # TODO
-  if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
+  # TODO - invoked via OpenAPI
+  if ($c->current_route =~ /^api\./) {
     $c->openapi->valid_input or return;
     my $input = $c->validation->output;
     return $c->render(openapi => $c->celini->all($input));
@@ -256,7 +262,6 @@ sub index ($c) {
     where => {
 
       # do not list titles of pages
-      pid       => {'!=' => 0},
       data_type => {'!=' => $str->title_data_type},
       page_id   => $page_id,
       %{$celini->readable_by($c->user)}
@@ -324,9 +329,9 @@ sub _validation ($c) {
   my $int = qr/^\d{1,10}$/;
   $v->$alias('alias', 'slugify')->size(0, 255);
   $v->$title('title', 'xml_escape', 'trim')->size(0, 255);
-  $v->$pid('pid', 'trim')->like($int);
+  $v->$pid('pid', 'not_empty', 'trim')->like($int);
   $v->optional('from_id', 'trim')->like($int);
-  $v->required('page_id', 'trim')->like($int);
+  $v->required('page_id', 'not_empty', 'trim')->like($int);
   $v->optional('user_id',  'trim')->like($int);
   $v->optional('group_id', 'trim')->like($int);
   $v->optional('sorting',  'trim')->like(qr/^\d{1,3}$/);

@@ -8,7 +8,7 @@ use Mojo::File qw(path);
 use Mojo::Util qw(decode encode sha1_sum);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-# '.' => '/tmp/slovo'
+  #  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 isa_ok($app, 'Slovo');
@@ -87,7 +87,7 @@ my $remove_user = sub {
 my $stranici_url = $app->url_for('store_stranici')->to_string;
 my $sform        = {
   alias       => 'събития',
-  page_type   => 'обичайна',
+  page_type   => 'regular',
   permissions => '-rwxr-xr-x',
   published   => 1,
   title       => 'Събития',
@@ -98,21 +98,41 @@ my $sform        = {
 my $new_page_id      = 0;
 my $stranici_url_new = "$stranici_url/";
 my $create_stranici  = sub {
+
+  # not enough arguments - for example 'pid'
+  $t->post_ok($stranici_url => form => $sform)->status_is(400);
+
+  # get the suggested pid from the form
+  $sform->{pid} = $t->tx->res->dom->at('select[name="pid"]>option[selected]')->{value};
   $t->post_ok($stranici_url => form => $sform)->status_is(302);
+
+  # note $t->tx->res->body;
+  #go to the page nad get the new id as well as title_id
   $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
   $stranici_url_new .= $new_page_id;
   $t->header_is(
     Location => "$stranici_url_new/edit",
     "Location: /manage/stranici/$new_page_id/edit"
   )->content_is('', 'empty content');
+
+  # The page was created!
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
+  $t->get_ok("/manage/stranici/$new_page_id/edit")->status_is(200);
+
+  # note $t->tx->res->body;
+  $sform->{title_id} = $t->tx->res->dom->at('[name="title_id"]')->{value};
+  $t->attr_is(
+    '[name="title"]',
+    'value' => $sform->{title},
+    'expected title:' . $sform->{title});
+  $t->text_is('form>legend' => "Промяна на страница $new_page_id");
+  ok($sform->{title_id}, 'we have a title_id:' . $sform->{title_id});
   my $title
     = $app->celini->all({where => {page_id => $new_page_id, data_type => 'title'}});
   is(@$title, 1, 'only one title');
 
-  # get some title properties to check in the next subtest
-  $sform->{title_id} = $title->[0]{id};
-  $sform->{title}    = $title->[0]{title};
+  is($sform->{title_id} => $title->[0]{id},    'title_id has the right value');
+  is($sform->{title}    => $title->[0]{title}, 'title has the right value');
 };
 
 # List all stranici as an expandable tree
@@ -354,8 +374,20 @@ my $user_permissions = sub {
   $t->post_ok($stranici_url => {} => form => $sform)->status_is(302);
   $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
   my $stranica_url = $app->url_for('update_stranici', id => $new_page_id);
+
+  #Get the page itself
+  my $page_row = $app->stranici->find_for_edit($new_page_id, $sform->{language});
+
+  $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)->status_is(500);
+  $t->content_like(qr"The field &#39;title_id&#39; is required",
+    'title_id is required in case some related field is updated');
+  $sform->{title_id} = $page_row->{title_id};
+
+
+  # $app->debug($sform, $page_row);
   $t->put_ok($stranica_url => {Accept => '*/*'} => form => $sform)->status_is(204);
 
+  # $app->mode('production');
   # change ownership.
   $sform->{user_id} = 4;
   $t->put_ok($stranica_url => {} => form => $sform)->status_is(204);

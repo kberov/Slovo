@@ -15,6 +15,7 @@ use Mojo::File 'path';
 use Mojo::Collection 'c';
 use Slovo::Controller::Auth;
 use Slovo::Validator;
+use Slovo::Cache;
 
 our $AUTHORITY = 'cpan:BEROV';
 our $VERSION   = '2020.12.12';
@@ -40,6 +41,23 @@ has home => sub {
   return $_[0]->SUPER::home;
 };
 
+# Writes to $home/log/slovo.log if $home/log/ exists and is writable.
+has log => sub {
+  my $self = shift;
+
+  my $mode = $self->mode;
+  my $log  = Mojo::Log->new;
+
+  my $home = $self->home;
+  if (-d $home->child('log') && -w _) {
+    $log->path($home->child('log', $self->moniker . ".log"));
+  }
+
+  # Reduced log output outside of development mode
+  return $log->level($ENV{MOJO_LOG_LEVEL}) if $ENV{MOJO_LOG_LEVEL};
+  return $mode eq 'development' ? $log : $log->level('info');
+};
+
 # This method will run once at server start
 sub startup ($app) {
   $app->log->debug("Starting $CLASS $VERSION|$CODENAME");
@@ -51,6 +69,9 @@ sub startup ($app) {
   $app->hook(around_dispatch => \&_around_dispatch);
   $app->hook(before_dispatch => \&_before_dispatch);
   $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
+  my $cache = Slovo::Cache->new();
+  $app->renderer->cache($cache);
+  $app->routes->cache($cache);
   $app->defaults(
 
     # layout => 'default'
@@ -95,21 +116,49 @@ sub _around_action ($next, $c, $action, $last) {
 # This code is executed on every request, so we try to save as much as possible
 # method calls.
 sub _around_dispatch ($next, $c) {
-  state $app   = $c->app;
-  state $droot = $app->config('domove_root');
+  state $app  = $c->app;
+  state $root = $app->config('domove_root');
 
   state $s_paths = $app->static->paths;
   state $r_paths = $app->renderer->paths;
-  my $dom;
-  eval { $dom = $c->domove->find_by_host($c->host_only) }
+  state $cache   = $app->renderer->cache;
+  my $dom
+    = eval { $c->domove->find_by_host($c->host_only) }
     || die 'No such Host ('
     . $c->host_only
     . ')! Looks like a Proxy Server misconfiguration, readonly'
     . " database file or a missing domain alias in table domove.\n";
 
   # Use domain specific public and templates' paths with priority.
-  unshift @{$s_paths}, "$droot/$dom->{domain}/public";
-  unshift @{$r_paths}, "$droot/$dom->{domain}/templates";
+  unshift @{$s_paths}, "$root/$dom->{domain}/public";
+  if (my $tpls = $dom->{templates}) {
+
+    # absolute path
+    if ($tpls =~ m|^/| && -d $tpls) {
+      unshift @{$r_paths}, $tpls;
+    }
+    else {
+      unshift @{$r_paths}, "$root/$dom->{domain}/templates";
+
+      # try to find the relative path to the theme in the list of paths
+      for my $path (@{$r_paths}) {
+        if (-d "$path/$tpls") {
+          unshift @{$r_paths}, "$path/$tpls";
+          last;
+        }
+      }
+    }
+  }
+  else {
+    unshift @{$r_paths}, "$root/$dom->{domain}/templates";
+  }
+
+  # Templates and routes are cached per domain. By the 'key_prefix' trick we
+  # can provide different templates with the same name to the renderer. This is
+  # how a long running application can switch to different themes per domain
+  # and have different templates although looking like having "the same" path.
+  # This is transparent for the renderer.
+  $cache->key_prefix($dom->{domain});
   $c->stash(domain => $dom);
   $next->();
   shift @{$s_paths};
@@ -127,9 +176,8 @@ sub _load_config ($app) {
   my $file      = $etc->child("$moniker.conf");
   my $mode_file = $etc->child("$moniker.$mode.conf");
   $ENV{MOJO_CONFIG}
-    //= (-e $app->home->child("$moniker.$mode.conf")
-      && $app->home->child("$moniker.$mode.conf"))
-    || (-e $app->home->child("$moniker.conf") && $app->home->child("$moniker.conf"))
+    //= (-e $home->child("$moniker.$mode.conf") && $home->child("$moniker.$mode.conf"))
+    || (-e $home->child("$moniker.conf") && $home->child("$moniker.conf"))
     || (-e $mode_file ? $mode_file : $file);
 
   my $config = $app->plugin('Config');
@@ -181,7 +229,7 @@ sub _load_pugins ($app) {
         });
     }
   }
-  $app->routes->any('/*page')->to('stranici#execute')->name('cach_all');
+  $app->routes->any('/*page_alias')->to('stranici#execute')->name('catch_all');
 
   return $app;
 }
@@ -189,18 +237,20 @@ sub _load_pugins ($app) {
 sub _default_paths ($app) {
 
   # Fallback "public" directory
-  my $public = $app->resources->child('public')->to_string;
-  unshift @{$app->static->paths}, $public if -d $public;
+  push @{$app->static->paths}, $app->resources->child('public')->to_string;
 
   # Fallback templates directory
   # See /perldoc/Mojolicious/Renderer#paths
-  my $templates = $app->resources->child('templates')->to_string;
-  unshift @{$app->renderer->paths}, $templates if -d $templates;
+  push @{$app->renderer->paths}, $app->resources->child('templates')->to_string;
+
+  # Current heme
   return $app;
 }
 
 
-#Set Mojolicious::Routes object attributes and types
+# Set Mojolicious::Routes object attributes and types
+# See Mojolicious::Routes#base_classes
+# See Mojolicious::Guides::Routing#Placeholder-types
 sub _set_routes_attrs ($app) {
   my $r = $app->routes;
   push @{$r->base_classes}, $app->controller_class;
@@ -219,8 +269,8 @@ sub _add_media_types ($app) {
 }
 
 sub load_class ($app, $class) {
-  state $log = $app->log;
 
+  # state $log = $app->log;
   # $log->debug("Loading $class");
   if (my $e = Mojo::Loader::load_class $class) {
     Carp::croak ref $e ? "Exception: $e" : "$class - Not found!";
@@ -253,22 +303,25 @@ For help visit L<http://127.0.0.1:3000/perldoc>.
 
 L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
-with nice core features like:
+with nice core features, listed below. 
+
+This is a usable release, yet full of creeping bugs and half-implemented
+pieces! The project is in active development, so expect often breaking changes.
 
 =over
 
 =item On the fly generation of static pages under Apache/CGI – perfect for
 cheap shared hosting and blogging – BETA
 
-=item Multi-domain support - DONE;
+=item Multi-domain support - WIP;
 
-=item Multi-language pages - DONE;
+=item Multi-language pages - WIP;
 
 =item Cached published pages and content - DONE;
 
 =item Multi-user support - DONE;
 
-=item User onboarding - BETA;
+=item User onboarding - WIP;
 
 =item User sign in - DONE;
 
@@ -303,8 +356,6 @@ for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 =item and more to come…
 
 =back
-
-This is a usable release!
 
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
@@ -388,6 +439,9 @@ C<$ENV{MOJO_HOME}/domove/your.domain/public>,
 C<$ENV{MOJO_HOME}/domove/your.other.domain/templates>, etc. See
 C<$ENV{MOJO_HOME}/domove/localhost> for example.
 
+You can switch between different themes by just selecting the theme in the
+form for editing domains.
+
 Last but not least, you can add your own classes into
 C<$ENV{MOJO_HOME}/site/lib> and (why not) replace entirely some Slovo classes
 or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will automatically load them.
@@ -432,11 +486,17 @@ Examples:
     berov@Skylake:t.com$ perl -Islovo/lib/perl5 -MSlovo -E 'say Slovo->new->home'
     /home/berov/opt/t.com/slovo
 
+=head2 log
+
+Overrides L<Mojolicious/log>. Logs to C<self-E<gt>home->child('log/slovo.log')>
+if C<$self-E<gt>home->child('log')> exists and is writable. Oderwise writes to
+STERR.  The log-level will default to either the C<MOJO_LOG_LEVEL> environment
+variable, C<debug> if the "mode" is C<development>, or C<info> otherwise.
+
 =head2 resources
 
   push @{$app->static->paths}, $app->resources->child('public');
 
-Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
 =head2 validator
@@ -470,11 +530,9 @@ Loads a class and croaks if something is wrong. This could be a helper.
 
 =head2 startup
 
-    my $app = Slovo->new->startup;
-
 Starts the application. Adds hooks, prepares C<$app-E<gt>routes> for use, loads
 configuration files and applies settings from them, loads plugins, sets default
-paths, and returns the application instance.
+paths, and returns the application instance. See also L<Mojolicious/startup>.
 
 =head1 HOOKS
 
@@ -493,6 +551,57 @@ available in the respective templates. Here they are:
 On each request we determine the current host and modify the static and
 renderer paths accordingly. This is how the multi-domain support works.
 
+Also if the C<templates> field for the current domain is not empty, we
+determine from it the templates root for the theme to be used for this domain
+during this request. This is how the themes support for multidomain L<Slovo>
+applications work.
+
+It is also important to note that in a long running application (not CGI) the
+templates are catched in memory and the relative path from the current
+templates root to each template is used as the key in L<Mojo::Cache> cache. We
+had to implement L<Slovo::Cache/key_prefix> to be able to differentiate between
+templates having the same names, but found in different paths. All this is
+possible thanks to L<Mojolicious>'s well decoupled components.
+
+Example: Let's suppose that the domain L<https://слово.бг> has the field
+'templates' value set to C<themes/malka> (малка==small f. in Bulgarian).
+
+Renderer paths before the check is performed:
+
+  [
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths before the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
+
+Renderer paths after the check is performed. The first path in the list will be
+used with priority:
+
+  [
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates/themes/malka", # if exists!
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/templates", # if exists!
+    "/home/berov/opt/dev/Slovo/templates",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/templates",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/templates"
+  ]
+
+Static paths after the check:
+
+  [
+    "/home/berov/opt/dev/Slovo/domove/xn--b1arjbl.xn--90ae/public", # if exists!
+    "/home/berov/opt/dev/Slovo/public",
+    "/home/berov/perl5/perlbrew/perls/perl-5.28.2/lib/site_perl/5.28.2/Mojolicious/Plugin/Minion/resources/public",
+    "/home/berov/opt/dev/Slovo/lib/Slovo/resources/public"
+  ]
+
 In addition the current domain row from table C<domove> becomes available in
 the stash as C<$domain>.
 
@@ -508,7 +617,7 @@ the stash as C<$domain>.
     required => 1,
     label    => 'Дом',
     title    => 'В кой сайт се намира страницата.',
-    readonly => undef,
+    readonly => '',
     value    => $domain->{id} #default value
   %>
 
@@ -585,11 +694,8 @@ respective authors.
 Considerably improve the Adminiastration UI - now it is quite simplistic.
 
 Consider using L<Mithril|https://github.com/MithrilJS/mithril.js> or
-L<Dojo|https://dojo.io/> or something light as frontend framework for building
-UI. We already use jQuery from Mojolicious.
-
-Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
-administrative panel.
+L<Vue.js|https://vuejs.org/> or something light as frontend framework for
+building UI. We already use jQuery distributed with the Mojolicious distro.
 
 =head1 SEE ALSO
 
@@ -597,3 +703,4 @@ L<Slovo::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>,
 L<Slovo::Validator>, L<Mojolicious>, L<Mojolicious::Guides>
 
 =cut
+

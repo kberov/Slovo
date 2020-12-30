@@ -9,4 +9,5 @@
 <p><%= $dom->{'group_id'} %></p>
 <p><%= $dom->{'permissions'} %></p>
 <p><%= $dom->{'published'} %></p>
+<p><%= $dom->{'templates'} %></p>
 %= link_to 'Edit' => edit_domove => {id => $dom->{id}}

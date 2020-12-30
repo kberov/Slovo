@@ -1,0 +1,62 @@
+<!-- _header -->
+    <header class="is-fixed bg-dark row">
+      <nav class="col-2 nav-left">
+        <%=
+          link_to sub {
+            t(img => (id => 'logo', src => '/img/slovo-white.png'));
+          } => url_for(коренъ => {lang => $l})
+        %>
+        %= (@$breadcrumb ? '⸙':'')
+        <%=
+        $breadcrumb->map(sub {
+          link_to $_->{title},
+            page_with_lang => {page_alias => $_->{alias}, lang => $_->{language}} => (
+            class => ($page->{id} == $_->{id} ? 'active text-success' : 'text-white'),
+            $page->{id} == $_->{id} ? ('aria-current' => 'page') : ());
+        })->join('⸙')
+          %>
+        </nav>
+        <nav class="col nav-center">
+            % if ($menu->size > 1) {
+            <div class="tabs"><%=
+            $menu->map(sub {
+              return if $page->{id} == $_->{id};
+              if ($_->{is_dir}) {
+                my $submenu
+                  = $c->stranici->all_for_list($user, $domain->{domain}, $preview, $l,
+                  {columns => $list_columns, pid => $_->{id}, order_by => 'sorting'});
+                if ($submenu->size) {
+                  $submenu = $submenu->map(sub {
+                    my $s = shift;
+                    link_to $s->{title} => page_with_lang =>
+                      {page_alias => $s->{alias}, lang => $s->{language}} =>
+                      (class => 'text-white');
+                  })->join('');
+
+                  #U+25BF WHITE DOWN-POINTING SMALL TRIANGLE
+                  return '<div class="dropdown">'
+                    . link_to("$_->{title} ▿" => page_with_lang =>
+                      {page_alias => $_->{alias}, lang => $_->{language}} =>
+                      (class => 'text-white'))
+                    . '<div class="menu bg-dark text-left">'
+                    . $submenu
+                    . '</div></div>';
+                }
+              }
+              return link_to $_->{title}                    => page_with_lang =>
+                {page_alias => $_->{alias}, lang => $_->{language}} => (class => 'text-white');
+            })->join('')
+            %></div>
+            % }
+      </nav>
+      <nav class="col-2 nav-right">
+        % if ($c->is_user_authenticated) {
+        % my $name = $user->{first_name} . ' ' . $user->{last_name};
+            %= link_to 'Изходъ '.$name => 'sign_out'
+        % } else {
+            %= link_to 'Входъ' => 'sign_in'
+        % }
+        %= include 'partials/_lang_menu'
+      </nav>
+    </header>
+

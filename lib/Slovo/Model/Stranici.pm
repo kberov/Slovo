@@ -139,17 +139,24 @@ SQL
 }
 
 # Inserts a new row in table stranici and title row in table celini for this
-# page.  Most columns in the title row are set to the values of the page row.
+# page. Most columns in the title row are set to the values of the page row.
 # The title always serves as default container for other celini in the page -
-# in other words,its permissions start with 'd'.
+# in other words, its permissions start with 'd'.
 # Returns the id of the new page record or croaks with the eventual database
 # error.
 sub add ($m, $row) {
-  $row->{tstamp} = time - 1;
-  $row->{start} //= $row->{tstamp};
-  my $title = {};
+  $row->{tstamp} //= time - 1;
+  $row->{start}  //= $row->{tstamp};
+  my $title            = {};
+  my $mandatory_fields = [qw(title language body data_format tstamp user_id
+  group_id changed_by alias permissions published)];
+  for (@$mandatory_fields) {
+    Carp::croak "The following field is mandatory to create a page: $_"
+      unless defined $row->{$_};
+  }
   @$title{qw(title language body data_format)}
     = delete @$row{qw(title language body data_format)};
+
   @$title{qw(sorting data_type created_at user_id
   group_id changed_by alias permissions published)} = (
     0,
@@ -157,9 +164,6 @@ sub add ($m, $row) {
     @$row{qw(tstamp user_id
     group_id changed_by alias permissions published)});
 
-  # The title always serves as default container for other celini in the
-  # page.
-  $title->{permissions} =~ s/^[\-l]/d/;
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
@@ -192,24 +196,51 @@ sub save ($m, $id, $row) {
   my $title = {};
   $row->{tstamp} = time - 1;
 
-  # Get the values for celini
-  @$title{qw(page_id title body language id data_format
-  alias changed_by permissions published tstamp)} = (
-    $id,
-    delete @$row{qw(title body language title_id data_format)},
-    @$row{qw(alias changed_by permissions published tstamp)});
+  # Delete undefined fields. We do not want anything to be set to NULL.
+  # TODO: Set the fields to NOT NULL in the database table - not here.
+  for (keys %$row) {
+    delete $row->{$_} unless defined $row->{$_};
+  }
 
-  # The title always serves as default container for other celini in the
-  # page.
-  $title->{permissions} =~ s/^[\-l]/d/;
+  # The title serves as default container for other celini in the page and it
+  # has the same permissions like the page as well as other properties.
+  my $title_related_fields = [qw(
+    title body language data_format alias
+    changed_by permissions published
+  user_id group_id start stop deleted)];
+
+  for (@$title_related_fields) {
+    Carp::croak("Error updating $table: The field 'title_id' is required "
+        . " in case '$_' is updated!")
+      if (!defined $row->{title_id} && defined $row->{$_});
+  }
+
+  # Get the values for the title record for this page in celini
+  if (defined $row->{title_id}) {
+    $title->{page_id} = $id;
+    for (qw(title body language id data_format)) {
+      if (defined $row->{$_}) { $title->{$_} = delete $row->{$_}; }
+    }
+    for (qw(alias changed_by permissions published
+    tstamp user_id group_id start stop deleted))
+    {
+      if (defined $row->{$_}) { $title->{$_} = $row->{$_}; }
+    }
+    $title->{id} = delete $row->{title_id};
+  }
+
   my $db = $m->dbx->db;
   eval {
     my $tx = $db->begin;
-    $m->upsert_aliases($db, $id, $row->{alias});
-    $db->update($table,        $row,   {id => $id});
-    $db->update($celini_table, $title, {id => $title->{id}});
+    $m->upsert_aliases($db, $id, $row->{alias}) if $row->{alias};
+    $db->update($table, $row, {id => $id});
+    if (defined $title->{id}) {
+
+      $title->{permissions} =~ s/^[\-l]/d/ if $title->{permissions};
+      $db->update($celini_table, $title, {id => $title->{id}});
+    }
     $tx->commit;
-  } || Carp::croak("Error updating $table: $@");
+  } || Carp::croak("Error updating $table and $celini_table: $@");
 
   return $id;
 }
@@ -269,13 +300,15 @@ sub all_for_list ($self, $user, $domain_name, $preview, $l, $opts = {}) {
   return $self->all($opts);
 }
 
-# Returns all pages for listing under 'home_stranici' or via Swagger API for which the user has read permissions.
-# Beware not to mention one column twice as a key in the WHERE clause, because
-# only the second mention will remain for generating the SQL.
+# Returns all pages for editing under 'home_stranici' or via Swagger API for
+# which the user has write permissions.  Beware not to mention one column twice
+# as a key in the WHERE clause, because only the second mention will remain for
+# generating the SQL.
 sub all_for_edit ($self, $user, $domain_name, $l, $opts = {}) {
   $opts->{table} = [$table, $celini_table];
   my @columns = map { _transform_columns($_) } @{$opts->{columns}};
   $opts->{columns} = join ",", @columns;
+  $opts->{order_by} //= {-asc => [$table . '.sorting']};
   my $pid = delete $opts->{pid};
   $opts->{where} = {
     defined $pid

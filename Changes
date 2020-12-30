@@ -1,5 +1,29 @@
 Revision history for Mojolicious application Slovo
 
+2020.12.22
+    * Added new lightweight theme, named "malka". Using
+      https://github.com/necolas/normalize.css and
+      https://github.com/jenil/chota.
+      Work in progress!!
+    * MUI CSS is deprecated and may be removed soon.
+      The new theme will be the default.
+    * Now lib/Slovo/resources/templates comes after $app->home/templates in
+      @{$app->static->paths} and lib/Slovo/resources/public comes after
+      $app->home/public in @{$app->renderer->paths}.
+    * Added new column 'templates' to table 'domove'. This way every domain can
+      switch easily the theme without moving files around - just by pointing to
+      the theme directory where the templates reside.
+    * Implemented Slovo::Cache to support mutiple domains theming by storing
+      compiled templates with different key prefix per domain.
+    * Moved .perlcriticrc to the root directory of the project.
+    * In the control panel the pages now are sorted only by 'sorting'.
+    * Mojo deprecated the default behavior of writing to log/$mode.log and we
+      implemented by default writing to log/$moniker.log if possible.
+    * Refactored and improved Slovo::Controller::Role::Stranica and the
+      corresponding Controller and Model classes, tests and templates.
+    * Many bugs were fixed along the way.
+
+
 2020.12.12
     * Improved messages and documentation of commands a2htaccess and novy_dom.
     * Now default permissions for folders created by novy_dom are 0755. This

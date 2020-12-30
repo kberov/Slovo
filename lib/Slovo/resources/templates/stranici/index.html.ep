@@ -1,7 +1,7 @@
 <%
 layout 'upravlenie', title => 'Страници';
 my $stranici = stranici->all_for_edit($user, $domain->{domain}, $l,
-  {columns => [@$stranici_columns]});
+{columns => [@$stranici_columns], order_by =>'sorting'});
 %>
 <div class="mui-panel breadcrumb">
     %= link_to url_with('create_stranici') =>(title=>'Нова страница') => begin

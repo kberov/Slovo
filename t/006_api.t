@@ -6,7 +6,7 @@ use Test::Mojo;
 use Mojo::ByteStream 'b';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-# '.', '/tmp/slovo'
+  '.', '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -22,13 +22,16 @@ subtest 'api/stranici' => sub {
     title       => 'Събития',
     body        => 'Някaкъв по-дълъг теѯт, който е тяло на писанѥто.',
     language    => 'bg-bg',
-    data_format => 'text'
+    data_format => 'text',
+    pid         => 0,
   };
   my $stranici_url     = $app->url_for('store_stranici')->to_string;
   my $pid              = 9;
-  my $stranici_url_new = "$stranici_url/$pid";
-  $t->ua->post($stranici_url => form => $sform);
+  my $stranici_url_new = $app->url_for('edit_stranici', id => $pid)->to_string;
+  $t->post_ok($stranici_url => form => $sform)->status_is(302);
   $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
+
+
   @$sform{qw(permissions pid)} = ('-rwxr-xr-x', $pid);
   my $id = $pid;
 

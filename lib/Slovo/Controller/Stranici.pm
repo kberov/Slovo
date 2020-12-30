@@ -12,12 +12,7 @@ with 'Slovo::Controller::Role::Stranica';
 # Display a page in the site
 # See the wrapper method 'around execute' in Slovo::Controller::Role::Stranica.
 sub execute ($c, $page, $user, $l, $preview) {
-
-  # Make the root page looks like just updated when max_age elapsed and the
-  # browser makes a request again, because it is very rarely directly
-  # updated.
-  my $refresh_root = $page->{page_type} eq $c->app->defaults('page_types')->[0];    # root
-  return $c->is_fresh(last_modified => $refresh_root ? time : $page->{tstamp})
+  return $c->is_fresh(last_modified => $page->{tstamp})
     ? $c->rendered(304)
     : $c->render();
 }
@@ -46,32 +41,40 @@ sub create ($c) {
 sub store ($c) {
   my $user = $c->user;
   my $in   = {};
-  @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
-  if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
-    $c->openapi->valid_input or return;
-    $in = {%$in, %{$c->validation->output}};
-    my $id = $c->stranici->add($in);
-    $c->res->headers->location($c->url_for("api.show_stranici", id => $id)->to_string);
+  my $str  = $c->stranici;
+
+  # Invoked via OpenAPI
+  if ($c->current_route =~ /^api\./) {
+
+    # TODO
+    # $c->openapi->valid_input or return;
+    # $in = {%{$c->validation->output},%$in};
+    # my $id = $str->add($in);
+    # $c->res->headers->location($c->url_for("api.show_stranici", id => $id)->to_string);
     return $c->render(openapi => '', status => 201);
   }
 
   # 1. Validate input
   my $v = $c->_validation;
-  $in = {%$in, %{$v->output}};
+  $in = $v->output;
+  my $host = $c->stash('domain')->{domain};
   if ($v->has_error) {
-    my $l     = $c->language;
-    my $bread = $c->stranici->breadcrumb($in->{pid}, $l);
+    my $l = $c->language;
+    $in->{pid}
+      //= $str->all_for_edit($user, $host, $l, {limit => 1, columns => ['id']})->[0]{id};
+    my $bread = $str->breadcrumb($in->{pid}, $l);
     return $c->render(
+      status     => 400,
       action     => 'create',
       in         => $in,
       breadcrumb => $bread,
-      parents    =>
-        $c->page_id_options($bread, {pid => $in->{pid}}, $c->user, $c->host_only, $l),
+      parents    => $c->page_id_options($bread, {pid => $in->{pid}}, $user, $host, $l),
     );
   }
 
   # 2. Insert it into the database
-  my $id = $c->stranici->add($in);
+  @$in{qw(user_id group_id changed_by)} = ($user->{id}, $user->{group_id}, $user->{id});
+  my $id = $str->add($in);
 
   # 3. Prepare the response data or just return "201 Created"
   # See https://developer.mozilla.org/docs/Web/HTTP/Status/201
@@ -111,13 +114,14 @@ sub update ($c) {
   my $v  = $c->_validation;
   my $in = $v->output;
 
-  #TODO: Make proper error displaying for flash mesages and/or just make sure
-  #all stash variables are prepared and error messages are displayed near the
-  #failed fields ot in this page
+  # TODO: Make proper error displaying for flash mesages and/or just make sure
+  # all stash variables are prepared and error messages are displayed near the
+  # failed fields ot in this page.
   if ($v->has_error) {
     $c->flash(message => 'Failed validation for: ' . join(', ', @{$v->failed}));
     return $c->redirect_to('edit_stranici', id => $c->stash->{id});
   }
+  @$in{qw(changed_by)} = ($c->user->{id});
 
   # Update the record
   my $id = $c->param('id');
@@ -133,7 +137,8 @@ sub update ($c) {
 # GET /stranici/:id
 # Display a record from table stranici.
 sub show ($c) {
-  my $row = $c->stranici->find($c->param('id'));
+  my $id  = $c->param('id');
+  my $row = $c->stranici->find($id);
   if ($c->current_route =~ /^api\./) {    #invoked via OpenAPI
     return $c->render(
       openapi => {errors => [{path => $c->url_for, message => 'Not Found'}]},
@@ -141,7 +146,6 @@ sub show ($c) {
     ) unless $row;
     return $c->render(openapi => $row);
   }
-  $row = $c->stranici->find($c->param('id'));
   return $c->render(text     => $c->res->default_message(404), status => 404) unless $row;
   return $c->render(stranici => $row);
 }
@@ -214,24 +218,23 @@ sub _validation ($c) {
   # If we edit an existing page, check if the page is writable by the
   # current user.
   my $int = qr/^\d{1,10}$/;
-  $v->optional('pid',    'trim')->like($int);
+  $v->required('pid', 'trim')->like($int);
   $v->optional('dom_id', 'trim')->equals($c->stash('domain')->{id});
   $v->required('alias',     'slugify')->size(0, 32);
   $v->required('page_type', 'trim')->size(0, 32);
   $v->optional('sorting',     'trim')->like($int);
-  $v->optional('template',    'not_empty')->size(0, 255);
-  $v->optional('user_id',     'trim')->like($int);
-  $v->optional('group_id',    'trim')->like($int);
+  $v->optional('template',    'not_empty', 'trim')->size(0, 255);
+  $v->optional('user_id',     'not_empty', 'trim')->like($int);
+  $v->optional('group_id',    'not_empty', 'trim')->like($int);
   $v->optional('permissions', 'trim')->is(\&writable, $c);
-  $v->optional('tstamp',      'trim')->like($int);
   $v->optional('start',       'not_empty')->like($int);
   $v->optional('stop',        'not_empty')->like($int);
   $v->optional('published',   'trim')->in(2, 1, 0);
   $v->optional('hidden',      'trim')->in(1, 0);
   $v->optional('deleted',     'trim')->in(1, 0);
-  $v->optional('changed_by',  'trim')->like($int);
+  $v->optional('changed_by',  'not_empty', 'trim')->like($int);
 
-  # Page attributes
+  # Page attributes in celini
   $v->required('title', 'xml_escape', 'trim')->size(3, 32);
   $v->optional('body',     'trim');
   $v->optional('title_id', 'not_empty')->like($int);
@@ -252,8 +255,8 @@ sub list ($c) {
   my $in      = $c->validation->output;
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
-  my $list
-    = $c->stranici->all_for_list($user, $c->host_only, $preview, $c->language, $in);
+  my $list    = $c->stranici->all_for_list($user, $c->stash('domain')->{domain},
+    $preview, $c->language, $in);
   return $c->render(openapi => $list);
 }
 

@@ -15,7 +15,7 @@ if ($EVAL_ERROR) {
   plan(skip_all => $msg);
 }
 
-my $rcfile = dirname(__FILE__) . '/.perlcriticrc';
+my $rcfile = dirname(__FILE__) . '/../.perlcriticrc';
 
 Test::Perl::Critic->import(-profile => $rcfile, -verbose => 10);
 all_critic_ok();

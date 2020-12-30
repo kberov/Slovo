@@ -1,0 +1,14 @@
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="/<%=$canonical_path %>">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Slovo <%= $Slovo::VERSION .'/'. $Slovo::CODENAME %>">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/malka/chota_all.min.css" />
+    <link rel="stylesheet" href="/css/malka/site.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <script src="/mojo/jquery/jquery.js" ></script>
+  </head>

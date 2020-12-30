@@ -12,12 +12,12 @@
               <%=
               $breadcrumb->map(sub {
                 link_to $_->{title} => page_with_lang =>
-                  {page => $_->{alias}, lang => $_->{language}};
+                  {page_alias => $_->{alias}, lang => $_->{language}};
                 })->join(' ⸙ ') unless $page->{id} == $c->not_found_id
               %>
           </td>
           <td class="mui--text-right">
-              %= link_to Ѿносно => 'page_with_lang' => {page => 'ѿносно', lang => language}
+              %= link_to Ѿносно => 'page_with_lang' => {page_alias => 'ѿносно', lang => language}
               % if ($c->is_user_authenticated) {
               % my $name = $c->user->{first_name} . ' ' . $c->user->{last_name};
                   %= link_to '| Изходъ '.$name => 'sign_out'

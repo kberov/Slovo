@@ -629,3 +629,27 @@ UPDATE celini SET box='долу' WHERE box='footer';
 UPDATE stranici SET page_type='коренъ' WHERE page_type='root';
 UPDATE stranici SET page_type='обичайна' WHERE page_type='regular';
 
+
+-- 202012220000 up
+-- Added possibility to set custom templates/ paths for each domain. This is
+-- needed for switching between themes without the need to move folders or copy
+-- files around. One can set specific paths right from the templates. See
+-- "templates/themes/malka" for example.
+
+-- If the templates' path starts with a slash "/" then this will be considered
+-- an absolute path.  Otherwise it will be treated as relative to the root
+-- folder of the specific domain. For example:
+-- /home/berov/opt/example.com/templates/mytheme - absolute path
+-- mytheme/ - relative path in /home/berov/opt/example.com/templates/
+-- If the value is empty, the existing behavior applies. The switching happens
+-- in Slovo::_before_dispatch.
+
+ALTER TABLE domove ADD COLUMN templates varchar(255) DEFAULT '';
+UPDATE domove SET templates = 'themes/malka' WHERE id = 0;
+
+-- 202012220000 down
+-- Skip the 12 steps procedure. remember it for when we really need it.
+-- https://www.sqlite.org/lang_altertable.html#otheralter
+UPDATE domove SET templates = '';
+
+

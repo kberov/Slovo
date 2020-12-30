@@ -4,12 +4,12 @@ use lib "$FindBin::Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
-use Mojo::Util qw(slugify encode sha1_sum);
+use Mojo::Util qw(slugify encode decode sha1_sum);
 use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-#  '.' => '/tmp/slovo'
+  #  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -30,14 +30,12 @@ my $previewed_pages = sub {
 my $site_layout = sub {
   $t->get_ok($app->url_for('sign_out'))->status_is(302)
     ->header_is('Location' => $app->url_for('authform'));
-  $t->get_ok("/коренъ.html")->status_is(200)->element_exists('body header.mui-appbar')
-    ->element_exists('aside#sidedrawer')->element_exists('main#content-wrapper')
-    ->element_exists('footer.mui-appbar');
+  $t->get_ok("/коренъ.html")->status_is(200)->element_exists('body > header nav')
+    ->element_exists('header>nav>a>#logo')->element_exists('main.container')
+    ->element_exists('footer');
   $t->get_ok('/ѿносно.html')->status_is(200)
 
-    #   ->element_exists_not('aside#sidedrawer');
-    # menu item in sidedrawer
-    ->element_exists('#sidedrawer ul li div');
+    ->element_exists('header>nav');
 
 };
 
@@ -48,16 +46,14 @@ my $breadcrumb = sub {
     = '/'
     . b('вести')->encode->url_escape . '/'
     . b('първа-вест.bg-bg.html')->encode->url_escape;
-  $t->get_ok('/вести.html')->element_exists(qq|td.mui--text-title > a[href="/$alias"]|)
-    ->element_exists('main section.title article.writing:nth-of-type(2)>h2:nth-child(1)')
-    ->text_is('section.title.group article.writing:nth-of-type(2)'
-      . '>h2:nth-child(1)>a:nth-child(1)' => 'Вътора вест')
+
+  $t->get_ok('/вести.html')->element_exists(qq|header > nav > a[href="/$alias"]|)
+    ->element_exists('main section.row>.card.col-0')
+    ->text_is('main section.row>.card.col-0>header>h4>a' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
-
   $t->get_ok('/вести/alabala.html')->status_is(404)
-    ->text_is('.title > h1:nth-child(1)' => 'Страницата не е намерена')
-    ->text_is('aside#sidedrawer>ul>li>strong>a[href$="bg-bg.html"]' => 'Вести');
+    ->text_is('main.container > h1:nth-child(1)' => 'Страницата не е намерена');
 };
 
 my $multi_language_pages = sub {
@@ -84,24 +80,24 @@ my $cached_pages = sub {
   # Root page with path / is not cached
   $t->get_ok("/")->status_is(200);
   my $body = $t->get_ok("/")->status_is(200)->tx->res->body;
-  unlike(
-    $body => qr/<html[^>]+><!-- $cached -->/ => 'Root page with path / is not cached');
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
+      'Root page accessed with path / is cached');
+  like(decode('UTF-8', $body) => qr/rel="canonical" href="\/коренъ\.bg-bg\.html"/ =>
+      '... and shows its canonical url.');
 
   # Page with alias as name is cached
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
-  unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'On first load page with path /foo.html IS NOT cached');
-
-  $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'On second load page with path /foo.html IS cached');
+      'Page  accessed with path /foo.html IS cached');
+  like(decode('UTF-8', $body) => qr/rel="canonical" href="\/коренъ\.bg-bg\.html"/ =>
+      '... and shows its canonical url.');
 
-  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => 'коренъ.html')) . '.html'),
+  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => 'коренъ.bg-bg.html')) . '.html'),
     'and file is on disk');
-  ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT YET cached');
+  ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT cached');
 
-  $t->get_ok("/коренъ.bg.html");
-  $body = $t->get_ok("/коренъ.bg.html")->status_is(200)->tx->res->body;
+  $t->get_ok("/коренъ.bg-bg.html");
+  $body = $t->get_ok("/коренъ.bg-bg.html")->status_is(200)->tx->res->body;
   like(
     $body => qr/<html[^>]+><!-- $cached -->/ => 'Page with alias and language is cached');
 
@@ -188,31 +184,36 @@ my $home_page = sub {
   $app->stranici->save(0 => {template => 'stranici/templates/dom'});
   $t->get_ok('/')->status_is(200);
 
+  # my $body = $t->tx->res->body;
+  # note $body;
+  #return;
   for my $p (@cats) {
-    my $id = 'section#page-' . $pages->{$p}{id};
-    $t->element_exists($id)->element_count_is($id . ' article.writing', 6);
-    $t->element_exists($id . ' article h2 a[title^="' . substr($_->{title}, 0, 5) . '"]')
-      for @{$pages->{$p}{articles}}[0 .. 5];
+    my $id = '#page-' . $pages->{$p}{id};
+
+    # note $id;
+    $t->element_exists($id, $id . ' exists in page ');
+    $t->element_exists($id . ' a[title^="' . ucfirst(substr($p, 0, 5) . '"]'),
+      'link with title ' . $p);
   }
 };
 
 sub _category_page {
   my ($p, $pages) = @_;
-  my $body = c(split /[,.\n]?\s+/, lc data_section('Slovo::Test::Text', 'text.txt'))
-    ->shuffle->head(50)->join(' ');
+  my $body
+    = c(split /[\n\n]/, data_section('Slovo::Test::Text', 'text.txt'))->shuffle->head(3)
+    ->join('</p><p>');
   $pages->{$p}{id} = $app->stranici->add({
     title       => ucfirst($p),
     language    => 'bg',
     body        => "<p>$body</p>",
     data_format => 'html',
-    tstamp      => time,
     user_id     => 5,
     group_id    => 5,
     changed_by  => 5,
     alias       => slugify($p, 1),
-    permissions => 'drwxr-xr-x',
+    permissions => 'drwxrwxr-x',
     published   => 2,
-    page_type   => 'обичайна',
+    page_type   => 'regular',
     dom_id      => 0,
   });
   _pisania($p, $pages);
@@ -224,10 +225,12 @@ sub _sub_pages {
   my ($p, $pages) = @_;
   my $sub_pages = {};
   for my $sp (qw(днесъ вчера оня-ден)) {
+    my $body = c(split /[\n\n]/, data_section('Slovo::Test::Text', 'text.txt'))
+      ->shuffle->head(2)->join('</p><p>');
     $sub_pages->{$sp} = $app->stranici->add({
       title       => ucfirst($sp),
       language    => 'bg',
-      body        => "",
+      body        => "<p>$body</p>",
       data_format => 'html',
       tstamp      => time,
       user_id     => 5,
@@ -236,7 +239,7 @@ sub _sub_pages {
       alias       => slugify("$p-$sp", 1),
       permissions => 'rwxr-xr-x',
       published   => 2,
-      page_type   => 'обичайна',
+      page_type   => 'regular',
       dom_id      => 0,
       pid         => $pages->{$p}{id}});
   }
@@ -251,11 +254,11 @@ sub _pisania {
     = $app->celini->find_where({page_id => $pages->{$p}{id}, data_type => 'title'})->{id};
   my $cels = int(rand(50));
   $pages->{$p}{articles} = [];
-  my $data = lc data_section('Slovo::Test::Text', 'text.txt');
+  my $data = data_section('Slovo::Test::Text', 'text.txt');
   for my $cel (0 .. ($cels < 10 ? 10 : $cels)) {
 
     #create dummy body
-    my $body    = c(split /[,.\n]?\s+/, $data)->shuffle->join(' ');
+    my $body    = c(split /\n\n/, $data)->shuffle->join('</p><p>');
     my $tlength = int rand(100);
     $tlength < 20 && ($tlength = 20);
 
@@ -322,50 +325,58 @@ subtest breadcrumb        => $breadcrumb;
 # subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages => $cached_pages;
 
-#subtest 'Browser cache' => $browser_cache;
+subtest 'Browser cache' => $browser_cache;
 
-#subtest home_page => $home_page;
+subtest home_page => $home_page;
+
 #subtest aliases   => $aliases;
 done_testing;
+
 
 package Slovo::Test::Text;
 
 __DATA__
 @@ text.txt
-Да се познават случилите се по-рано в тоя
-свят неща и делата на ония, които са живеели на земята, е не само полезно, но и
-твърде потребно, любомъдри читателю. Ако навикнеш да прочиташ често тия неща,
-ще се обогатиш с разум, не ще бъдеш много неизкусен и ще отговаряш на малките
-деца и простите хора, когато при случай те запитат за станалите по-рано в света
-деяния от черковната и гражданска история. И не по-малко ще се срамуваш, когато
-не можеш да отговориш за тях.
+Да се познават случилите се по-рано в тоя свят неща и делата на ония, които са
+живеели на земята, е не само полезно, но и твърде потребно, любомъдри читателю.
+Ако навикнеш да прочиташ често тия неща, ще се обогатиш с разум, не ще бъдеш
+много неизкусен и ще отговаряш на малките деца и простите хора, когато при
+случай те запитат за станалите по-рано в света деяния от черковната и
+гражданска история. И не по-малко ще се срамуваш, когато не можеш да отговориш
+за тях.
 
 Отгде ще можеш да добиеш тия знания, ако не от ония, които писаха историята
 на този свят и които при все че не са живели дълго време, защото никому не се
 дарява дълъг живот, за дълго време оставиха писания за тия неща. Сами от себе
 си да се научим не можем, защото кратки са дните на нашия живот на земята.
+
 Затова с четене на старите летописи и с чуждото умение трябва да попълним
 недостатъчността на нашите години за обогатяване на разума.
 
 Искаш ли да седиш у дома си и да узнаеш без много трудно и опасно пътуване
 миналото на всички царства на тоя свят и ставащите сега събития в тях и да
 употребиш тия знания за умна наслада и полза за себе си и за другите, чети
-историята! Искаш ли да видиш като на театър играта на тоя свят, промяната и
-гибелта на големи царства и царе и непостоянството на тяхното благополучие, как
+историята!
+
+Искаш ли да видиш като на театър играта на тоя свят, промяната и гибелта на
+големи царства и царе и непостоянството на тяхното благополучие, как
 господстващите и гордеещите се между народите племена, силни и непобедими в
 битките, славни и почитани от всички, внезапно отслабваха, смиряваха се,
 упадаха, загиваха, изчезваха - чети историята и като познаеш от нея суетата на
-този свят, научи се да го презираш. Историята дава разум не само на всеки
+този свят, научи се да го презираш.
+
+Историята дава разум не само на всеки
 човек, за да управлява себе си или своя дом, но и на големите владетели за
 добро властвуване: как могат да държат дадените им от бога поданици в страх
 божи, в послушание, тишина, правда и благочестие, как да укротяват и
 изкореняват бунтовниците, как да се опълчват против външните врагове във
-войните, как да ги победят и сключат мир. Виж колко голяма е ползата от
-историята. Накратко това е заявил Василий, источният кесар, на своя син Лъв
-Премъдри. Съветайки го, каза: „Не преставай - рече - да четеш историята на
-древните. Защото там без труд ще намериш онова, за което други много са се
-трудили. От тях ще узнаеш добродетелите на добрите и законопрестъпленията на
-злите, ще познаеш превратностите на човешкия живот и обратите на благополучието
-в него, и непостоянството в този свят, и как и велики държави клонят към
-падение. Ще размислииш и ще видиш наказанието на злите и наградата на добрите.
-От тях се пази!”
+войните, как да ги победят и сключат мир.
+
+Виж колко голяма е ползата от историята. Накратко това е заявил Василий,
+источният кесар, на своя син Лъв Премъдри. Съветайки го, каза: „Не преставай -
+рече - да четеш историята на древните. Защото там без труд ще намериш онова, за
+което други много са се трудили. От тях ще узнаеш добродетелите на добрите и
+законопрестъпленията на злите, ще познаеш превратностите на човешкия живот и
+обратите на благополучието в него, и непостоянството в този свят, и как и
+велики държави клонят към падение. Ще размислииш и ще видиш наказанието на
+злите и наградата на добрите.  От тях се пази!”
