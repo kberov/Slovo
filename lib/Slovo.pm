@@ -229,7 +229,7 @@ sub _load_pugins ($app) {
         });
     }
   }
-  $app->routes->any('/*page')->to('stranici#execute')->name('cach_all');
+  $app->routes->any('/*page_alias')->to('stranici#execute')->name('catch_all');
 
   return $app;
 }
@@ -439,6 +439,9 @@ C<$ENV{MOJO_HOME}/domove/your.domain/public>,
 C<$ENV{MOJO_HOME}/domove/your.other.domain/templates>, etc. See
 C<$ENV{MOJO_HOME}/domove/localhost> for example.
 
+You can switch between different themes by just selecting the theme in the
+form for editing domains.
+
 Last but not least, you can add your own classes into
 C<$ENV{MOJO_HOME}/site/lib> and (why not) replace entirely some Slovo classes
 or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will automatically load them.
@@ -527,11 +530,9 @@ Loads a class and croaks if something is wrong. This could be a helper.
 
 =head2 startup
 
-    my $app = Slovo->new->startup;
-
 Starts the application. Adds hooks, prepares C<$app-E<gt>routes> for use, loads
 configuration files and applies settings from them, loads plugins, sets default
-paths, and returns the application instance.
+paths, and returns the application instance. See also L<Mojolicious/startup>.
 
 =head1 HOOKS
 
@@ -693,11 +694,8 @@ respective authors.
 Considerably improve the Adminiastration UI - now it is quite simplistic.
 
 Consider using L<Mithril|https://github.com/MithrilJS/mithril.js> or
-L<Dojo|https://dojo.io/> or something light as frontend framework for building
-UI. We already use jQuery from Mojolicious.
-
-Consider using L<DataTables|https://datatables.net/> jQuery plugin for the
-administrative panel.
+L<Vue.js|https://vuejs.org/> or something light as frontend framework for
+building UI. We already use jQuery distributed with the Mojolicious distro.
 
 =head1 SEE ALSO
 
@@ -705,3 +703,4 @@ L<Slovo::Plugin::TagHelpers>, L<Slovo::Plugin::DefaultHelpers>,
 L<Slovo::Validator>, L<Mojolicious>, L<Mojolicious::Guides>
 
 =cut
+

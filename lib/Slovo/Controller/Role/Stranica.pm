@@ -30,7 +30,7 @@ sub _around_execute ($execute, $c) {
   # Page was found, but with a new alias, and we are not showing a celina
   # (paragraph/content)
   return $c->_go_to_new_page_url($page, $l)
-    if ref $page && $page->{alias} ne $alias && !$stash->{'paragraph'};
+    if ref $page && $page->{alias} ne $alias && !$stash->{paragraph_alias};
 
   # Give up - page was not found.
   $page //= $str->find($not_found_id);
@@ -316,7 +316,8 @@ sub is_item_editable ($c, $e) {
   if ( $groups->first(sub { $_->{group_id} == $e->{group_id} })
     && $e->{permissions} =~ /^[ld\-]${rwx}rw/x)
   {
-    $c->debug($e->{id} . ' is_item_editable? - yes: group with "rw" priviledges');
+    $c->debug($e->{id}
+        . " is_item_editable? - yes: group_id $e->{group_id} has 'rw' priviledges");
     return 1;
   }
 
@@ -324,7 +325,7 @@ sub is_item_editable ($c, $e) {
     $c->debug($e->{id} . ' is_item_editable? - yes: others with "rw" priviledges');
     return 1;
   }
-  $c->debug($e->{id} . ' is_item_editable? - NO.');
+  $c->debug($e->{id} . ' is_item_editable? - NO. All checks made');
   return 0;
 }
 
