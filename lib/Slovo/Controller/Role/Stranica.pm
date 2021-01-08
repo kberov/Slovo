@@ -98,11 +98,15 @@ sub _around_execute ($execute, $c) {
       pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
       order_by => 'sorting'
     });
+
   $stash->{canonical_path}
     = $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
       {lang => $celina->{language}})->to_abs->path->canonicalize->to_route =~ s|^/||r;
+
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
+
   my $ok = $execute->($c, $page, $user, $l, $preview);
+
   if ($cache_pages && $c->res->is_success) {
     state $cache_control = $c->app->config('cache_control');
     my $hs = $c->res->headers;
@@ -332,12 +336,12 @@ sub is_item_editable ($c, $e) {
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
+  my $st  = $c->stash;
   my $root
-    = $str->find_where({
-    page_type => $c->stash('page_types')->[0], dom_id => $c->stash('domain')->{id}});
-  state $pt           = $str->table;
-  state $list_columns = $c->stash('stranici_columns');
-  my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
+    = $str->find_where({page_type => $st->{page_types}[0], dom_id => $st->{domain}{id}});
+  return [['никоя', 0]] if $row->{id} == $root->{id};
+  my $opts
+    = {pid => $root->{id}, order_by => ['sorting'], columns => $st->{stranici_columns}};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
     @{
