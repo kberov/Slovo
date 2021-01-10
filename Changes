@@ -1,9 +1,15 @@
 Revision history for Mojolicious application Slovo
 
 2021.01.11
+    * Happy new year!
     * Fixed a bug in Slovo::Controller::Role::Stranica::page_id_options(...)
       which caused unpleasant recursion in site menu when the root page is
-      edited and saved. Root page was being set with pid=id.
+      edited and saved. Root page was being set with pid=id, but it should
+      always have pid=0.
+    * Moved templates from themes/malka to Slovo::Malka.
+    * Deleted existing default templates for the "site" part of the templates.
+      Now Slovo::Malka is the default.
+    * Implementing Slovo::Command::Author::inflate - WIP.
 
 
 2020.12.22

@@ -1,2 +1,0 @@
-% layout 'upravlenie', title => 'Нова цѣлина';
-%= include 'celini/_form', caption => 'Create', target => 'store_celini'

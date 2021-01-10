@@ -26,8 +26,8 @@
   %= number_field published => (required => 1, size => 1)
 <br />
   <%= 
-  select_box templates => [['никаква' => '' ], ['малка'=> 'themes/malka']] =>
-    (label => 'Теми');
+  select_box templates => [['никаква' => '' ], @{config->{domove_templates}}] =>
+  (label => 'Теми', 'title' => 'Тема за този сайт. За да работи, папката с образците трябва да съществува.');
   %>
 <br />
   %= submit_button $caption

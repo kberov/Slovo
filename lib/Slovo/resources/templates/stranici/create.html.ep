@@ -1,2 +1,0 @@
-% layout 'upravlenie', title => 'Нова страница';
-%= include 'stranici/_form', caption => 'Create', target => 'store_stranici'

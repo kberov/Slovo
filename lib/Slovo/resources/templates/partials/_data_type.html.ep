@@ -1,7 +1,0 @@
-<!-- _data_type -->
-<section class="<%= $row->{data_type} %>">
-    %= t 'h' . $level => $row->{title}
-%== format_body($row)
-</section>
-<!-- end _data_type -->
-
