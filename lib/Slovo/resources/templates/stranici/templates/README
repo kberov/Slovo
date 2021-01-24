@@ -1,0 +1,5 @@
+In this folder (and the same folder in the respective domain folder) you can
+put your own page templates. They will be shown in the dorpdown box of the form
+for creating pages in the administration area. This gives you full flexibility
+to choose your own layouts per page and make differently looking pages.
+

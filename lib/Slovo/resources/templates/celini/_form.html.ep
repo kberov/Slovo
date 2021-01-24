@@ -1,0 +1,231 @@
+<%
+$in->{user_id}  //= $user->{id};
+$in->{group_id} //= $user->{group_id};
+my $sorting       = [map $_, (0 .. 15)];
+my $sorting_title = 'Мѣсто в подредбата';
+my $sorting_label = 'Мѣсто в подредбата';
+my $breadcrumb_path = '';
+%>
+
+<div class="mui-panel breadcrumb">
+    <%=
+    link_to url_with('create_celini')
+      ->query(pid => $in->{pid}, page_id => $in->{page_id}) =>
+      (title => 'Нова цѣлина в сѫщата страница') => begin %>
+    <i class="fas fa-plus-square"></i>
+    <% end %>
+% my $root_page_id = @$breadcrumb ? $breadcrumb->[0]->{pid} : $in->{page_id};
+%= link_to '⸙' => url_for(celini_in_stranica => page_id =>$root_page_id), title => "Цѣлини"
+  <%= 
+  $breadcrumb->map(sub {
+  link_to $_->{alias} => url_for(celini_in_stranica => page_id => $_->{id}),
+      title             => "Цѣлини въ страница „$_->{alias}\"";
+  })->join(' ⸙ ');
+  %>
+</div>
+
+
+<div class="mui-container">
+    <div class="mui-panel">
+        %= form_for $target => (class=>'mui-form') => begin
+        %= t legend => title
+        %= t fieldset => (id=>'main_properties') => begin
+          %= t legend => 'Главни свойства'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= label_for title =>'Заглавѥ'
+                %= text_field title => (placeholder =>'Заглавѥ на цѣлината', required => 1)
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6') => begin
+                %= label_for alias =>'Слогъ'
+                %= text_field 'alias'
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                data_type => [map {[$_=>$_]} @$data_types],
+                label => 'Видъ съдържанѥ',
+                value => $data_types->[1]
+              %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                data_format => [map {[$_=>$_]} @$data_formats],
+                label => 'Форматъ на съдържанѥто'
+              %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-4') => begin
+              <%=
+              select_box
+                language => $languages->map(sub {[$_=>$_]}),
+                label => 'Ѩꙁыкъ'
+              %>
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-12') => begin
+                %= label_for 'body' => 'Цѣлина'
+                <div id="_body" class="mui-textfield">
+                %= text_area 'body' => (required => 1)
+                </div>
+              % end; # mui-col
+          % end; # mui-row
+        % end ;# fieldset
+
+
+        % if (${target} eq 'update_celini') {
+        %= t fieldset => (id=>'permissions') => begin
+          %= t legend => 'Разрешения и обнародване'
+          %= t div => (class => 'mui-row') => begin
+        <%
+        # TODO: Make these listings an Ajax request and implement Autocomplete
+        # making requests each 500ms. like in jQ UI. This will be needed when
+        # we have many (more than 100) users.
+        state $select_users
+          = users->all({where => {login_name => {'!=' => 'guest'}}})
+          ->map(sub { [$_->{first_name} . ' ' . $_->{last_name} => $_->{id}] }) || c();
+          state $groups
+          = groups->all({where => {name => {'!=' => 'guest'}, disabled => 0}})
+          ->map(sub { [$_->{name} => $_->{id}] });
+        %>
+
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%
+                if ($in->{user_id} != $user->{id}) {
+                    my $owner = $select_users->first(sub{ $_->[1] eq $in->{user_id}});
+                %>
+                  <span style ="display: inline-block"> Собственик:
+                      %== $owner ? $owner->[0] : '<i>Недействащ потребител</i>'
+                  %= hidden_field(user_id => $in->{user_id})
+                  <% } else { %>
+                  <%=
+                  select_box(
+                    user_id => [['Изберете нов собственик' => ''], @$select_users],
+                    label   => 'Собственик')
+                  %>
+                  % }
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    group_id => [['Множество сътрудници' => ''], @$groups],
+                    label    => 'Сътрудници'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+              % # TODO: document and design the behavior for celini which are "d"
+              % # (directories) and "l" (links)
+                  <%=
+                  select_box
+                    permissions => [map { [$_ => $_] } @$permissions],
+                    required    => 1,
+                    label       => 'Права'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-col-md-3') => begin
+                  <%=
+                  select_box
+                    published => [['за преглед' => 1], ['не' => 0], ['да' => 2]],
+                    label => 'Обнародвано'
+                  %>
+              % end
+          % end; # mui-row
+        % end ;# fieldset
+        % }
+        %= t fieldset => (id=>'additional_properties') => begin
+          %= t legend => 'Допълнителни свойства'
+          %= t 'div' => (class => 'mui-row') => begin
+              %= input_tag page_id => (type=>'hidden')
+              %= t 'div' => (class => 'mui-col-md-3', title=>'Въ цѣлина') => begin
+                  <%=
+                  select_box
+                    pid      => $parent_celini,
+                    label    => 'Въ цѣлина',
+                    required => 1,
+                    value    => $in->{pid}
+                  %>
+              % end
+              <%= t 'div' => (class => 'mui-col-md-3',
+              title => 'Въ коя кутийка на страницата се намира') => begin %>
+                  <%=
+                  select_box
+                  box => [map {[$_ => $_]} @$boxes],
+                    label => 'Въ кутия'
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3') => begin
+                %= label_for from_id => 'Превѣдено отъ №'
+                %= number_field from_id => 0
+              % end
+          % end; # mui-row
+
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-col-md-4', title => $sorting_title) => begin
+                  <%=
+                  select_box
+                    sorting => $sorting,
+                    label => $sorting_label, title => $sorting_title
+                  %>
+              % end
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-4', title => 'Препорѫчано (на първо мѣсто)') => begin
+                  %= check_box 'featured' => 1
+                  %= label_for featured => 'Препорѫчано'
+              % end
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-4') => begin
+                %= check_box deleted => 1
+                %= label_for deleted => 'Изтрито'
+              % end
+          % end; # mui-row
+
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-12', title => 'Описанѥ') => begin
+                  %= label_for description =>'Описанѥ'
+                  %= text_field 'description'
+              % end
+          % end; # mui-row
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6', title => 'Ключови думи') => begin
+                  %= label_for keywords =>'Ключови думи'
+                  %= text_field 'keywords'
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-6', title => 'Тагове') => begin
+                  %= label_for tags =>'Тагове'
+                  %= text_field tags => size => 100
+              % end
+          % end; # mui-row
+
+          %= t 'div' => (class => 'mui-row') => begin
+              %= t 'div' => (class => 'mui-checkbox mui-col-md-3', title => 'Ако това е „въпрос”, приет ли е?') => begin
+                  %= check_box accepted => 1
+                  %= label_for accepted => 'Приет'
+              % end
+              %= t 'div' => (class => 'mui-textfield mui-col-md-3', title => 'Означаване като „лошо” съдържанѥ и в каква степен.') => begin
+                  %= label_for bad => 'Лошо'
+                  %= number_field 'bad'
+              % end
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Начало на обнародването (в секунди от 1970) (има да се направи по-добре с избор от калѧдар)') => begin %>
+                  %= label_for start => 'Начало'
+                  %= number_field start =>0
+              % end
+              <%= t 'div' => (class => 'mui-textfield mui-col-md-3',
+                title=> 'Край на обнародването (в секунди от 1970)') => begin %>
+                  %= label_for stop => 'Край'
+                  %= number_field stop => 0
+              % end
+          % end; # mui-row
+        % end ;# fieldset
+
+          % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
+          %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
+          <%= $caption eq 'Create' ? '' :
+            t button => (type => 'submit', class => 'mui-btn mui-btn--primary',
+              name => 'redirect', value => 'show_celini') => '… и прегледъ' %>
+        % end
+    </div>
+</div>
+
+%=javascript '/js/editor.js'

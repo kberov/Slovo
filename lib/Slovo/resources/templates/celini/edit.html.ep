@@ -1,0 +1,2 @@
+% layout 'upravlenie', title => ${id} ? 'Промѣна на цѣлина ' . ${id} : 'Нова цѣлина';
+%= include 'celini/_form', caption => 'Update', target => 'update_celini'
