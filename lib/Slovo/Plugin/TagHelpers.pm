@@ -1,6 +1,6 @@
 package Slovo::Plugin::TagHelpers;
 use Mojo::Base 'Mojolicious::Plugin::TagHelpers', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Scalar::Util 'blessed';
 use Mojo::DOM::HTML 'tag_to_html';
@@ -14,7 +14,7 @@ my sub _select_box ($c, $name, $options, %attrs) {
         if exists $attrs{value} && !defined $c->param($name);
       return $label . ' ' . $c->select_field($name, $options, %attrs);
     });
-};
+}
 
 my sub _checkboxes ($c, $name, $options, %attrs) {
   my $label = $c->label_for($name => delete $attrs{label} // ucfirst $name);
@@ -30,7 +30,7 @@ my sub _checkboxes ($c, $name, $options, %attrs) {
       return $label . $/ . tag_to_html(div => (class => 'mui-checkbox') => sub {$html});
     });
 
-};
+}
 
 my sub _html_substr ($c, $html, $selector, $chars) {
   state $html_dom = Mojo::DOM->new;
@@ -59,7 +59,7 @@ my sub _html_substr ($c, $html, $selector, $chars) {
   })->join('');
 
   return $out;
-};
+}
 
 my sub _format_body ($c, $celina) {
   my $id = 'celina_body_' . $celina->{data_format} . $celina->{id};
@@ -78,7 +78,7 @@ JS
       });
   }
   return tag_to_html(div => (id => $id), sub { $celina->{body} });
-};
+}
 
 sub register ($self, $app, $config) {
 

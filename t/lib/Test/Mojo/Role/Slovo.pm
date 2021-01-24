@@ -5,9 +5,8 @@ BEGIN {
   binmode STDERR => ':utf8';
 }
 use Mojo::Base -role, -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+use feature qw(unicode_strings);
+
 use Test::More;
 use Mojo::File qw(path tempdir);
 use Mojo::ByteStream 'b';

@@ -1,6 +1,6 @@
 package Slovo::Controller::Domove;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 # GET /domove/create
 # Display form for creating resource in table domove.

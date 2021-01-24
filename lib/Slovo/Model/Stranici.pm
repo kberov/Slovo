@@ -1,6 +1,6 @@
 package Slovo::Model::Stranici;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Slovo::Model::Celini;
 
@@ -271,7 +271,7 @@ my sub _transform_columns ($col) {
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return "$/$table.$col AS $col";
-};
+}
 
 # Returns all pages for listing in a sidebar or via Swagger API. Beware not to
 # mention one column twice as a key in the WHERE clause, because only the

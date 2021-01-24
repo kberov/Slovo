@@ -1,6 +1,6 @@
 package Slovo::Controller::Stranici;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';

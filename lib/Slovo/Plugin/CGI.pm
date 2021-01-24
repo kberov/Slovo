@@ -1,6 +1,6 @@
 package Slovo::Plugin::CGI;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Mojo::Util qw(punycode_decode);
 

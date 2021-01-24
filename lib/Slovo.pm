@@ -1,9 +1,8 @@
 package Slovo;
 
-# * my/state/our sub foo syntax: see /perldoc/feature#The-lexical_subs-feature
 # * signatures /perldoc/feature#The-signatures-feature
 use Mojo::Base 'Mojolicious', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';

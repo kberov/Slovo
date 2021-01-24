@@ -1,6 +1,6 @@
 package Slovo::Command::Author::generate::novy_dom;
 use Mojo::Base 'Slovo::Command', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Mojo::File 'path';
 use Mojo::Util qw(getopt class_to_path dumper sha1_sum encode);

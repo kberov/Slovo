@@ -1,6 +1,6 @@
 package Slovo::Model::Domove;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Mojo::Collection;
 

@@ -1,6 +1,6 @@
 package Slovo::Controller::Celini;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
@@ -16,7 +16,7 @@ my sub _redirect_to_new_celina_url ($c, $page, $celina) {
       paragraph_alias => $celina->{alias},
       page_alias      => $page->{alias},
       lang            => $celina->{language}});
-};
+}
 
 # Prepares collection of parent ids of celiny in which a celina can be put.
 my sub _celini_options ($c, $id, $page_id, $user, $l) {
@@ -30,7 +30,7 @@ my sub _celini_options ($c, $id, $page_id, $user, $l) {
   my $options = $celini->all($opts)->map(sub { ["„$_->{title}”" => $_->{id}] });
   unshift @$options, ['Въ никоѭ' => 0];
   return $options;
-};
+}
 
 # ANY /<page_alias:str>/<paragraph_alias:cel>.<lang:lng>.html
 # ANY /<page_alias:str>/<paragraph_alias:cel>.html
@@ -111,7 +111,7 @@ my sub _validate_create ($c, $u, $l, $str) {
 
   }
   return $in;
-};
+}
 
 # GET /celini/create
 # Display form for creating resource in table celini.

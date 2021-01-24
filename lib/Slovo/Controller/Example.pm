@@ -1,6 +1,6 @@
 package Slovo::Controller::Example;
 use Mojo::Base 'Slovo::Controller';
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 # This action will render a template
 sub welcome {

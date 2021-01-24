@@ -1,6 +1,6 @@
 package Slovo::Controller::Role::Stranica;
 use Mojo::Base -role, -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 use Mojo::File 'path';
 use Mojo::ByteStream 'b';

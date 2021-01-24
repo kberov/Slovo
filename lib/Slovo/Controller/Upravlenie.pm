@@ -1,6 +1,6 @@
 package Slovo::Controller::Upravlenie;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 # ANY /manage/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)

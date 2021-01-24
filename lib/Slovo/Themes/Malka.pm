@@ -1,6 +1,6 @@
 package Slovo::Themes::Malka;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use feature qw(lexical_subs unicode_strings);
+use feature qw(unicode_strings);
 
 sub register ($self, $app, $conf) {
 
