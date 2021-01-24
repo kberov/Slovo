@@ -275,6 +275,7 @@ sub load_class ($app, $class) {
   if (my $e = Mojo::Loader::load_class $class) {
     Carp::croak ref $e ? "Exception: $e" : "$class - Not found!";
   }
+  return;
 }
 
 1;
@@ -527,6 +528,10 @@ the following new ones.
 
 A convenient wrapper with check for L<Mojo::Loader/load_class>.
 Loads a class and croaks if something is wrong. This could be a helper.
+
+  for my $class (@{$config->{load_classes} // []}) {
+    $app->load_class($class);
+  }
 
 =head2 startup
 
