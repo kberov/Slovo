@@ -1,8 +1,6 @@
 package Slovo::Themes::Malka;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 sub register ($self, $app, $conf) {
 
@@ -67,7 +65,7 @@ internationalized domain name (IDN) - слово.бг (xn--b1arjbl.xn--90ae).
   bin/slovo inflate --class Slovo::Themes::Malka -t \
     --path domove/xn--b1arjbl.xn--90ae/templates/themes/malka
   bin/slovo inflate --class Slovo::Themes::Malka -p \
-    --path domove/xn--b1arjbl.xn--90ae/public
+    --path domove/xn--b1arjbl.xn--90ae
 
 =head1 METHODS
 

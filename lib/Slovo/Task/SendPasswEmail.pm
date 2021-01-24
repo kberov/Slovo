@@ -1,8 +1,6 @@
 package Slovo::Task::SendPasswEmail;
 use Mojo::Base 'Slovo::Task::SendOnboardingEmail', -signatures;
 use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';

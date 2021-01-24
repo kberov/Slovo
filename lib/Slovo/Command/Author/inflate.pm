@@ -1,8 +1,6 @@
 package Slovo::Command::Author::inflate;
 use Mojo::Base 'Mojolicious::Command::Author::inflate', -signatures;
 use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 use Mojo::File qw(path);
 use Mojo::Loader qw(data_section file_is_binary);

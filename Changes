@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2021.02.02
+    * We now require minimum version of Perl 5.26 to remove form our code 
+      `no warnings "experimental::lexical_subs";`. Respectively we explicitly
+      require at least ExtUtils::MakeMaker 7.24.
+
 2021.01.11
     * Happy new year!
     * Fixed a bug in Slovo::Controller::Role::Stranica::page_id_options(...)

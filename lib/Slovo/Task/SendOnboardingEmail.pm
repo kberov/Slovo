@@ -1,8 +1,7 @@
 package Slovo::Task::SendOnboardingEmail;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Net::SMTP;
 use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';
