@@ -98,11 +98,15 @@ sub _around_execute ($execute, $c) {
       pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
       order_by => 'sorting'
     });
+
   $stash->{canonical_path}
     = $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
       {lang => $celina->{language}})->to_abs->path->canonicalize->to_route =~ s|^/||r;
+
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
+
   my $ok = $execute->($c, $page, $user, $l, $preview);
+
   if ($cache_pages && $c->res->is_success) {
     state $cache_control = $c->app->config('cache_control');
     my $hs = $c->res->headers;
@@ -219,7 +223,7 @@ sub writable ($v, $name, $value, $c) {
   my ($record_type) = ref($c) =~ m|(\w+)$|;
   $record_type = lc($record_type);
   my $m    = $c->$record_type;
-  my $user = $c->user;                                                   # current user
+  my $user = $c->user;
   my $old  = $m->find_where({'id' => $id, %{$m->writable_by($user)}});
   state $log = $c->app->log;
 
@@ -242,7 +246,7 @@ sub writable ($v, $name, $value, $c) {
     }
   }
 
-  #not writable $old
+  # not writable $old
   $old = $m->find_where({'id' => $id, %{$m->readable_by($user)}});
   if ($old->{user_id} != $user->{id}) {
     $v->error(
@@ -258,12 +262,12 @@ sub writable ($v, $name, $value, $c) {
     return 0;
   }
 
-  #new permissions
+  # new permissions
   state $rwx = qr/[r\-][w\-][x\-]/x;
   state $rx  = qr/^[ld\-]($rwx)($rwx)($rwx)$/x;
   my @writable = $value =~ $rx;
 
-  #invalid permissions notation!
+  # invalid permissions notation!
   if (!@writable) {
     $v->error(writable => ['invalid_notation', "permissions: '$value'"]);
     $log->error(
@@ -290,7 +294,7 @@ sub writable ($v, $name, $value, $c) {
         owner_id     => $old->{user_id},
         current_user => $user->{id}}]);
 
-  #unknown error /untested conditions
+  # unknown error /untested conditions
   $v->error(%error);
   $log->error("unknown_not_writable $record_type:"
       . $c->dumper($v->error('writable'))
@@ -332,12 +336,14 @@ sub is_item_editable ($c, $e) {
 # used to generate the options for parent pages.
 sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $str = $c->stranici;
+  my $st  = $c->stash;
   my $root
-    = $str->find_where({
-    page_type => $c->stash('page_types')->[0], dom_id => $c->stash('domain')->{id}});
-  state $pt           = $str->table;
-  state $list_columns = $c->stash('stranici_columns');
-  my $opts = {pid => $root->{id}, order_by => ['sorting'], columns => $list_columns,};
+    = $str->find_where({page_type => $st->{page_types}[0], dom_id => $st->{domain}{id}});
+
+  # Root page should aways have pid=0
+  return [['никоя', 0]] if $row->{id} == $root->{id};
+  my $opts
+    = {pid => $root->{id}, order_by => ['sorting'], columns => $st->{stranici_columns}};
   my $parents_options = [
     [$root->{alias}, $root->{id}],
     @{

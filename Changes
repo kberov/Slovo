@@ -1,5 +1,17 @@
 Revision history for Mojolicious application Slovo
 
+2021.01.11
+    * Happy new year!
+    * Fixed a bug in Slovo::Controller::Role::Stranica::page_id_options(...)
+      which caused unpleasant recursion in site menu when the root page is
+      edited and saved. Root page was being set with pid=id, but it should
+      always have pid=0.
+    * Moved templates from themes/malka to lib/Slovo/Themes/Malka.pm.
+    * Deleted existing default templates for the "site" part of the templates.
+      Now Slovo::Themes::Malka is the default theme for the site.
+    * Implemented Slovo::Command::Author::inflate.
+
+
 2020.12.22
     * Added new lightweight theme, named "malka". Using
       https://github.com/necolas/normalize.css and

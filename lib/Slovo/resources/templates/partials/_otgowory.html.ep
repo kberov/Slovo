@@ -1,5 +1,0 @@
-<!-- _answer -->
-<section class="answer">
-    %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
-%== format_body($celina)
-</section>

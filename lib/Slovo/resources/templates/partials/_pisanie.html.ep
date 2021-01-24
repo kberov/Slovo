@@ -1,7 +1,0 @@
-<!-- _writing -->
-<section class="writing">
-    %= t 'h' . $level => $celina->{title} =~ s/<[^>]+>?//gr;
-%==format_body($celina)
-</section>
-<!-- end _writing -->
-

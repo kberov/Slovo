@@ -96,14 +96,14 @@ sub _check_config ($self, $app, $conf) {
     #      }
   ];
   ref $conf->{on_connection} eq 'ARRAY'
-    || croak('on_connection must be an ARRAY reference');
+    || croak('"on_connection" must be an ARRAY reference');
 
   $conf->{max_connections} //= 3;
   $conf->{auto_migrate}    //= 1;
   $conf->{migration_file}  //= $resources->child("data/migrations.sql")->to_string;
   $conf->{tables}          //= ['users', 'groups', 'domove', 'stranici', 'celini'];
   ref $conf->{tables} eq 'ARRAY'
-    || croak('on_connection must be an ARRAY reference of table names,'
+    || croak('"tables" must be an ARRAY reference of table names,'
       . ' e.g. [qw(users groups ...)]');
   return $conf;
 }

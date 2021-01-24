@@ -100,8 +100,8 @@ subtest 'Skip and refresh files' => sub {
       '--refresh' => 'partials/.+\.ep$'
     );
   }
-  like $buffer => qr/unlink.+_beleyazhka\.html\.ep/ => 'unlink ' . $command->refresh_qr;
-  like $buffer => qr/\[write\].+_beleyazhka\.html\.ep/ => 'refresh '
+  like $buffer => qr/unlink.+partials.+\.html\.ep/    => 'unlink ' . $command->refresh_qr;
+  like $buffer => qr/\[write\].+partials.+\.html\.ep/ => 'refresh '
     . $command->refresh_qr;
   unlike $buffer => qr/\.css$/ms => 'skip ' . $command->skip_qr;
 

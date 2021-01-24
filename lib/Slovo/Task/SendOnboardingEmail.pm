@@ -195,7 +195,7 @@ may use L<Mojolicious::Plugin::OAuth2::Server> at some point.
 
 A user in Slovo can create others users' accounts. Upon creation of the new
 user account an email is sent to the new user. In the email there is a link for
-the first time login fo the new user. The new user follows the link and is
+the first time login for the new user. The new user follows the link and is
 signed in after confirming the names of the user who created his account. After
 that the user has to change his password to be able to sign in next time.
 
