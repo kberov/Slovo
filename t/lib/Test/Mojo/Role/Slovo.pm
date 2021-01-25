@@ -15,7 +15,7 @@ use Mojo::IOLoop::Server;
 
 use FindBin qw($Bin);
 my $default_from   = path($Bin)->dirname;
-my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1);
+my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1, CLEANUP => 1);
 
 has authenticated  => 0;
 has login_name     => 'краси';

@@ -4,10 +4,15 @@ Revision history for Mojolicious application Slovo
     * We now require minimum version of Perl 5.26 to remove form our code 
       `no warnings "experimental::lexical_subs";`. Respectively we explicitly
       require at least ExtUtils::MakeMaker 7.24.
-    * Since Perl 5.26 "the lexical_subs feature has no effect; all Perl code can
-     use lexical subroutines, regardless of what feature declarations are in
-     scope." So we removed `use feature "lexical_subs"`. We just use them now.
-     
+    * Since Perl 5.26 "the lexical_subs feature has no effect; all Perl code
+      can use lexical (provate) subroutines, regardless of what feature
+      declarations are in scope." So we removed `use feature "lexical_subs"`.
+      We just use them now.
+    * Fixed a bug in Slovo::Command::Author::inflate and improved its
+      documentation. The different types of files are now prefixed with
+      `templates/` and `public/` only if they are inflated into the home
+      directory.     
+    * Improved lib/Slovo.pm's POD
 
 2021.01.11
     * Happy new year!
