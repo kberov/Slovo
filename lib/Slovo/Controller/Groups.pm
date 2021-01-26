@@ -1,6 +1,5 @@
 package Slovo::Controller::Groups;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(unicode_strings);
 
 # GET /groups/create
 # Display form for creating resource in table groups.

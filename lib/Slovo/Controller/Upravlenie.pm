@@ -1,6 +1,5 @@
 package Slovo::Controller::Upravlenie;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(unicode_strings);
 
 # ANY /manage/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)

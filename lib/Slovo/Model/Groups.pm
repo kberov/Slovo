@@ -1,6 +1,5 @@
 package Slovo::Model::Groups;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(unicode_strings);
 
 my $table = 'groups';
 

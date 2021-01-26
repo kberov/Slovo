@@ -1,6 +1,5 @@
 package Slovo::Model::Stranici;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(unicode_strings);
 
 use Slovo::Model::Celini;
 

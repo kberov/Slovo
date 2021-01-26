@@ -1,6 +1,5 @@
 package Slovo::Plugin::TagHelpers;
 use Mojo::Base 'Mojolicious::Plugin::TagHelpers', -signatures;
-use feature qw(unicode_strings);
 
 use Scalar::Util 'blessed';
 use Mojo::DOM::HTML 'tag_to_html';

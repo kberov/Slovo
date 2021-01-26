@@ -1,6 +1,5 @@
 package Slovo::Task::SendPasswEmail;
 use Mojo::Base 'Slovo::Task::SendOnboardingEmail', -signatures;
-use feature qw(unicode_strings);
 
 use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';

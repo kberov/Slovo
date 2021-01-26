@@ -1,6 +1,5 @@
 package Slovo::Validator;
 use Mojo::Base 'Mojolicious::Validator', -signatures;
-use feature qw(unicode_strings);
 
 # can this $name with $value do $sub with @args?
 my sub _can ($v, $name, $value, $sub, @args) {

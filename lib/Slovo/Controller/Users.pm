@@ -1,6 +1,5 @@
 package Slovo::Controller::Users;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(unicode_strings);
 
 # GET /users/create
 # Display form for creating resource in table users.

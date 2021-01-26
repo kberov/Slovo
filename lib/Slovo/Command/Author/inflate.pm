@@ -1,6 +1,5 @@
 package Slovo::Command::Author::inflate;
 use Mojo::Base 'Mojolicious::Command::Author::inflate', -signatures;
-use feature qw(unicode_strings);
 
 use Mojo::File qw(path);
 use Mojo::Loader qw(data_section file_is_binary);

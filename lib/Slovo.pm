@@ -1,8 +1,6 @@
 package Slovo;
-
-# * signatures /perldoc/feature#The-signatures-feature
 use Mojo::Base 'Mojolicious', -signatures;
-use feature qw(unicode_strings);
+use feature ':5.26';
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';

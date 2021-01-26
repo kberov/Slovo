@@ -1,6 +1,5 @@
 package Slovo::Themes::Malka;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use feature qw(unicode_strings);
 
 sub register ($self, $app, $conf) {
 
@@ -640,7 +639,10 @@ p.drop-cap::first-letter {
   font-family: BukyvedeRegular;
 }
 @media (max-width: 599px) {
-    body>header  nav .tabs {
+  html {
+    font-size: 66%;
+  }
+  body>header  nav .tabs {
     overflow-y: scroll !important;
     -overflow-scrolling: touch !important;
     -webkit-overflow-scrolling: touch !important;

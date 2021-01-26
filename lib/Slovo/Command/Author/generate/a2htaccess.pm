@@ -1,6 +1,5 @@
 package Slovo::Command::Author::generate::a2htaccess;
 use Mojo::Base 'Slovo::Command', -signatures;
-use feature qw(unicode_strings);
 
 use Mojo::File 'path';
 use Mojo::Util 'getopt';

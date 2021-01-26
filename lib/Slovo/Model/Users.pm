@@ -1,6 +1,5 @@
 package Slovo::Model::Users;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(unicode_strings);
 
 my $table    = 'users';
 my $ug_table = 'user_group';

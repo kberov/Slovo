@@ -1,6 +1,5 @@
 package Slovo::Controller::Auth;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(unicode_strings);
 
 use Mojo::Util qw(encode sha1_sum);
 

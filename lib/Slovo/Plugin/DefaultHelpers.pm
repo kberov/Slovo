@@ -1,6 +1,5 @@
 package Slovo::Plugin::DefaultHelpers;
 use Mojo::Base 'Mojolicious::Plugin::DefaultHelpers', -signatures;
-use feature qw(unicode_strings);
 
 use Mojo::Util qw(punycode_decode);
 use Mojo::Collection 'c';

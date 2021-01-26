@@ -5,7 +5,6 @@ BEGIN {
   binmode STDERR => ':utf8';
 }
 use Mojo::Base -role, -signatures;
-use feature qw(unicode_strings);
 
 use Test::More;
 use Mojo::File qw(path tempdir);

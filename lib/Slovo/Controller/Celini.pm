@@ -1,6 +1,5 @@
 package Slovo::Controller::Celini;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(unicode_strings);
 
 use Role::Tiny::With;
 with 'Slovo::Controller::Role::Stranica';
