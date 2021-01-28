@@ -173,6 +173,7 @@ script/slovo_minion.service
 t/001_load.t
 t/002_basic.t
 t/002_cache.t
+t/002_database.t
 t/003_sign_in.t
 t/004_crud.t
 t/005_site.t

@@ -29,6 +29,14 @@ sub domain_aliases {'some.domain alias.domain alias2.domain'}
 # automatically deleted and you can debug the installed application.
 my $MOJO_HOME;
 
+sub new {
+
+  # class Test::Mojo__WITH__Test::Mojo::Role::Slovo
+  my $t = Test::Mojo::new(@_);
+  ok($t->app->dbx->migrations->migrate, 'migrated');
+  return $t;
+}
+
 sub install ($class, $from = $default_from, $to_tempdir = "$random_tempdir/slovo",
   $dir_mode = 0700)
 {

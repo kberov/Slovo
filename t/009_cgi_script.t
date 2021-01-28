@@ -33,7 +33,7 @@ like $buffer => qr/write.+$home\/$moniker\.cgi/x            => "creating $monike
 my $cgi = path "$home/$moniker.cgi";
 ok -f $cgi => "created $cgi";
 my $exe = $command->exe;
-note $exe;
+note '$exe: ', $exe;
 ok((-f $exe) => 'exe exists');
 my $cgi_content = $cgi->slurp;
 like $cgi_content => qr/\s'$mode';/ => "cgi sets current mode as default";
@@ -42,9 +42,11 @@ like $cgi_content => qr/\s'$home';/ => "cgi sets current home as default";
 # Passed values
 $buffer = '';
 {
+
+  $mode = 'production';
+  Slovo->new(mode => $mode)->dbx->migrations->migrate;
   open my $handle, '>', \$buffer;
   local *STDOUT = $handle;
-  $mode = 'production';
   $command->run('-c' => $mode, '--filename' => 'index.cgi');
 }
 

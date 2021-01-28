@@ -250,7 +250,8 @@ my $update_celini = sub {
     'created proper new/old alias relation for celini'
   );
 
-# change permisssions so on the next update user has enough permissions to write.
+  # change permisssions so on the next update user has enough permissions to
+  # write.
   $cform->{permissions} = '-rwxrwxr-x';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
 

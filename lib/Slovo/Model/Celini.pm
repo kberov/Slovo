@@ -115,10 +115,13 @@ sub save ($m, $id, $row) {
   eval {
     my $tx = $db->begin;
     $m->upsert_aliases($db, $id, $row->{alias});
-    $db->update($stranici_table, {tstamp => $row->{tstamp}}, {id => $row->{page_id}})
-      ;    #parent page
-    $db->update($table, {tstamp => $row->{tstamp}}, {id => $row->{pid}});    #parent
+
+    # parent page - update its timestamp
+    $db->update($stranici_table, {tstamp => $row->{tstamp}}, {id => $row->{page_id}});
+
+    # parent - update its timestamp
     $db->update($table, $row, {id => $id});
+
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");
   return $id;

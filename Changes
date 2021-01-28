@@ -14,6 +14,10 @@ Revision history for Mojolicious application Slovo
       `templates/` and `public/` only if they are inflated into the home
       directory.     
     * Improved lib/Slovo.pm's POD
+    * Database migration is not automatic any more. From now on one must run
+      `bin/slovo eval 'app->dbx->migrations->migrate'`.
+    * Added new `BEFORE UPDATE` SQL triggers that check if pid!=id and if the
+      parent record is a directory and throw an SQL  statement error.
 
 2021.01.11
     * Happy new year!

@@ -110,7 +110,7 @@ sub _check_config ($self, $app, $conf) {
 
 =head1 NAME
 
-Slovo::Plugin::MojoDBx - load and use Mojo::Pg/mysql/SQLite
+Slovo::Plugin::MojoDBx - load and use Mojo::Pg|mysql|SQLite
 
 =head1 SYNOPSIS
 
