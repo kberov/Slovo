@@ -1,5 +1,27 @@
 Revision history for Mojolicious application Slovo
 
+2021.02.01
+    * We now require minimum version of Perl 5.26 to remove from our code
+      `no warnings "experimental::lexical_subs";`. Respectively we explicitly
+      require at least ExtUtils::MakeMaker 7.24.
+    * Since Perl 5.26 "the lexical_subs feature has no effect; all Perl code
+      can use lexical (private) subroutines, regardless of what feature
+      declarations are in scope." So we replaced `use feature qw(lexical_subs
+      unicode_strings);` with `use feature ':5.26';`. We just use the whole
+      feature bundle now.
+    * Changed behavior of Slovo::Command::Author::inflate and improved its
+      documentation. The different types of files are now prefixed with
+      `templates/` and `public/` only if they are inflated into the
+      $app->home directory.
+    * Improved lib/Slovo.pm's POD.
+    * Database migration is not automatic any more. From now on one must run
+      `bin/slovo eval 'app->dbx->migrations->migrate'`.
+    * Added new `BEFORE UPDATE` SQL triggers that check if pid!=id and if the
+      parent record is a directory, and throw an SQL statement error.
+    * Added meta tags for 'author', 'description' and 'keywords' in
+      partials/_head.html.ep with default content from the respective row in
+      table celini.
+
 2021.01.11
     * Happy new year!
     * Fixed a bug in Slovo::Controller::Role::Stranica::page_id_options(...)

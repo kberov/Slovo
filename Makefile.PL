@@ -1,12 +1,13 @@
-use 5.020000;
-use ExtUtils::MakeMaker;
+package Slovo;
+use 5.026000;
+use ExtUtils::MakeMaker 7.24;
 use strict;
 use warnings;
 use utf8;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-my $module_file = 'lib/Slovo.pm';
+my $module_file = 'lib/' . __PACKAGE__ . '.pm';
 my $git_url     = 'https://github.com/kberov/Slovo';
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
@@ -35,22 +36,24 @@ if ($ENV{TEST_AUTHOR}) {
 }
 
 WriteMakefile(
-  NAME             => 'Slovo',
-  VERSION_FROM     => $module_file,
-  AUTHOR           => 'Красимир Беров (berov@cpan.org)',
-  ABSTRACT_FROM    => $module_file,
-  LICENSE          => 'artistic_2',
-  PREREQ_PM        => $PREREQ_PM,
-  TEST_REQUIRES    => {},
-  test             => {TESTS => 't/*.t'},
-  EXE_FILES        => ['script/slovo'],
+  NAME               => __PACKAGE__,
+  VERSION_FROM       => $module_file,
+  AUTHOR             => 'Красимир Беров (berov@cpan.org)',
+  ABSTRACT_FROM      => $module_file,
+  LICENSE            => 'artistic_2',
+  PREREQ_PM          => $PREREQ_PM,
+  CONFIGURE_REQUIRES => {},
+  BUILD_REQUIRES     => {'ExtUtils::MakeMaker' => '7.24'},
+  TEST_REQUIRES      => {},
+  test               => {TESTS => 't/*.t'},
+  EXE_FILES          => ['script/slovo'],
   clean            => {FILES => '*.conf Slovo-* READM* lib/Slovo/resources/data/*.sqli*'},
-  MIN_PERL_VERSION => '5.020000',
+  MIN_PERL_VERSION => '5.026000',
   META_MERGE       => {
     dynamic_config => 0,
     'meta-spec'    => {version   => 2},
     no_index       => {directory => ['t']},
-    prereqs        => {runtime   => {requires => {perl => '5.020000'}}},
+    prereqs        => {runtime   => {requires => {perl => '5.026000'}}},
     resources      => {
       bugtracker => {web => "$git_url/issues"},
       homepage   => $git_url,

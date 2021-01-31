@@ -1,8 +1,5 @@
 package Slovo::Command::Author::inflate;
 use Mojo::Base 'Mojolicious::Command::Author::inflate', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 use Mojo::File qw(path);
 use Mojo::Loader qw(data_section file_is_binary);
@@ -62,9 +59,12 @@ sub run ($self, @args) {
   STDERR->say("Nothing to inflate!" . $/, $self->usage) if !keys %all && !$self->quiet;
 
   # Turn them into real files
+  # Prefix the files depending on the type if we inflate in $app->home
+  my $separate = $path eq $self->app->home;
   for my $name (grep {/\.\w+$/} keys %all) {
-    my $prefix = $name =~ /\.\w+\.\w+$/ ? 'templates' : 'public';
-    $self->write_file($path->child("$prefix/$name"), $all{$name});
+    my $prefixed = $name;
+    $prefixed = $name =~ /\.\w+\.\w+$/ ? "templates/$name" : "public/$name" if $separate;
+    $self->write_file($path->child($prefixed), $all{$name});
   }
   return $self;
 }
@@ -88,11 +88,18 @@ Slovo::Command::Author::inflate - Inflate embedded files to domains or applicati
   bin/slovo inflate --class Slovo::Themes::Malka -p \
     --path domove/localhost/public
 
+  !Note: When --path is provided, `public` and `templates` will NOT be appended
+  to the path. It is assumed that the user wants the inflated files (-t or -p)
+  exactly in this path. Thus templates and static files will go to the same
+  --path if both -t and -p are provided. 
+  If --path is not provided, $slovo->home is used as the path and `public`, and
+  `templates` are appended to the path.
+
   Options:
     -h, --help            Show this summary of available options
 
     --path <path>         Path where the files will be inflated.
-                          Defaults to the value of MOJO_HOME or auto-detection.
+                          Defaults to the value of $slovo->home.
 
     --class <Class::Name> From which class only to inflate files. Can be
                           repeated several time for several different classes or
@@ -105,11 +112,29 @@ Slovo::Command::Author::inflate - Inflate embedded files to domains or applicati
 
     If no options are provided, the command behaves like `mojo inflate`.
 
+  Examples:
+    # Inflate ONLY templates from --class to $slovo->home/domove/localhost/templates/themes/malka
+  bin/slovo inflate --class Slovo::Themes::Malka -t --path domove/localhost/templates/themes/malka
+
+    # Inflate ONLY static files from --class to $slovo->home/domove/localhost/public
+  bin/slovo inflate --class Slovo::Themes::Malka -p --path domove/localhost/public
+
+    # Inflate BOTH static files and templates from --class to $slovo->home/domove/localhost
+    # Templates will go to $slovo->home/domove/localhost/
+    # Static files will go to $slovo->home/domove/localhost/
+  bin/slovo inflate --class Slovo::Themes::Malka -p -t --path domove/localhost
+
+    # Inflate BOTH static files and templates from --class to $slovo->home
+    # Templates will go to $slovo->home/templates/
+    # Static files will go to $slovo->home/public/
+  bin/slovo inflate --class Slovo::Themes::Malka -p -t
+
 =head1 DESCRIPTION
 
 L<Slovo::Command::Author::inflate> turns templates and static files embedded in
 the C<__DATA__> sections of your application into real files.
-It is an extended version of L<Mojolicious::Command::Author::inflate>.
+It is an extended version of L<Mojolicious::Command::Author::inflate>,
+providing much flexibility and granularity.
 
 
 =head1 ATTRIBUTES
@@ -123,6 +148,17 @@ L<Mojolicious::Command::Author::inflate> and implements the following.
   $inflate        = $inflate->description('Foo');
 
 Short description of this command, used for the command list.
+
+=head2 usage
+
+  my $usage = $inflate->usage;
+  $inflate  = $inflate->usage('Foo');
+
+By default this attribute extracts the L</SYNOPSIS> section of the documentation,
+appends to it lists for static files and templates of inflatable classes and
+returns it. Thus one can decide from which classes and which type of files only
+to inflate.
+
 
 =head1 METHODS
 

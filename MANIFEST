@@ -40,8 +40,6 @@ lib/Slovo/resources/etc/README
 lib/Slovo/resources/etc/routes.conf
 lib/Slovo/resources/etc/slovo.conf
 lib/Slovo/resources/public/css/fonts.css
-lib/Slovo/resources/public/css/malka/chota_all_min.css
-lib/Slovo/resources/public/css/malka/site.css
 lib/Slovo/resources/public/css/site.css
 lib/Slovo/resources/public/css/slovo-min.css
 lib/Slovo/resources/public/css/upravlenie.css
@@ -173,6 +171,7 @@ script/slovo_minion.service
 t/001_load.t
 t/002_basic.t
 t/002_cache.t
+t/002_database.t
 t/003_sign_in.t
 t/004_crud.t
 t/005_site.t

@@ -1,8 +1,6 @@
 package Slovo::Model::Stranici;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Slovo::Model::Celini;
 
 my $table        = 'stranici';
@@ -150,12 +148,15 @@ sub add ($m, $row) {
   my $title            = {};
   my $mandatory_fields = [qw(title language body data_format tstamp user_id
   group_id changed_by alias permissions published)];
+
   for (@$mandatory_fields) {
     Carp::croak "The following field is mandatory to create a page: $_"
       unless defined $row->{$_};
   }
-  @$title{qw(title language body data_format)}
-    = delete @$row{qw(title language body data_format)};
+
+  for (qw(title language body data_format keywords description)) {
+    $title->{$_} = delete $row->{$_} if exists $row->{$_};
+  }
 
   @$title{qw(sorting data_type created_at user_id
   group_id changed_by alias permissions published)} = (
@@ -272,7 +273,7 @@ my sub _transform_columns ($col) {
 
   # local $db->dbh->{TraceLevel} = "3|SQL";
   return "$/$table.$col AS $col";
-};
+}
 
 # Returns all pages for listing in a sidebar or via Swagger API. Beware not to
 # mention one column twice as a key in the WHERE clause, because only the

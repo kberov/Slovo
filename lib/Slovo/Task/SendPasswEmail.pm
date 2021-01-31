@@ -1,8 +1,5 @@
 package Slovo::Task::SendPasswEmail;
 use Mojo::Base 'Slovo::Task::SendOnboardingEmail', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';
@@ -51,7 +48,7 @@ MAIL
   $app->debug('Message to be send:' . $/ . $message);
   Slovo::Task::SendOnboardingEmail::send_mail_by_net_smtp($message, $to_user, $app);
   return $token;
-};
+}
 
 my sub _mail_passw_login ($job, $to_user, $domain) {
   state $app = $job->app;
@@ -72,7 +69,7 @@ my sub _mail_passw_login ($job, $to_user, $domain) {
       . $to_user->{last_name}
       . ' бе успешно изпратено!');
 
-};
+}
 
 my sub _delete_passw_login ($job, $uid, $token) {
   state $app = $job->app;
@@ -81,7 +78,7 @@ my sub _delete_passw_login ($job, $uid, $token) {
   # also delete expired but not deleted (for any reason) login tokens.
   $app->dbx->db->delete('passw_login' => {stop_date => {'<' => time}});
   return $job->finish;
-};
+}
 
 
 sub register ($self, $app, $conf) {

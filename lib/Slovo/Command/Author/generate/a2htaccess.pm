@@ -1,8 +1,6 @@
 package Slovo::Command::Author::generate::a2htaccess;
 use Mojo::Base 'Slovo::Command', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Mojo::File 'path';
 use Mojo::Util 'getopt';
 

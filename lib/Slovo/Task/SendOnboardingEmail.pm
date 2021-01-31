@@ -1,8 +1,6 @@
 package Slovo::Task::SendOnboardingEmail;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Net::SMTP;
 use Mojo::Util qw(b64_encode encode sha1_sum);
 use Mojo::File 'path';
@@ -84,7 +82,7 @@ MAIL
   $app->debug('Message to be send:' . $/ . $message);
   send_mail_by_net_smtp($message, $to_user, $app);
   return $token;
-};
+}
 
 # Job implementation for mail_first_login. Sends an email to the newly created
 # user with a first time login link.
@@ -107,7 +105,7 @@ my sub _mail_first_login ($job, $from_user, $to_user, $domain) {
       . $to_user->{first_name} . ' '
       . $to_user->{last_name}
       . ' бе успешно изпратено!');
-};    ## Perl::Critic bug needs ";" at the end of private subs
+}    ## Perl::Critic bug needs ";" at the end of private subs
 
 # Job implementation for deleting the token record for first login of the newly
 # created user.
@@ -118,7 +116,7 @@ my sub _delete_first_login ($job, $uid, $token) {
   # also delete expired but not deleted (for any reason) login tokens.
   $app->dbx->db->delete('first_login' => {stop_date => {'<' => time}});
   return $job->finish;
-};
+}
 
 sub register ($self, $app, $conf) {
   $CONF = $self->validate_conf($conf);

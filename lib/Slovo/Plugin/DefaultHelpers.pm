@@ -1,8 +1,6 @@
 package Slovo::Plugin::DefaultHelpers;
 use Mojo::Base 'Mojolicious::Plugin::DefaultHelpers', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Mojo::Util qw(punycode_decode);
 use Mojo::Collection 'c';
 

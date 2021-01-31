@@ -5,9 +5,7 @@ BEGIN {
   binmode STDERR => ':utf8';
 }
 use Mojo::Base -role, -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Test::More;
 use Mojo::File qw(path tempdir);
 use Mojo::ByteStream 'b';
@@ -16,7 +14,7 @@ use Mojo::IOLoop::Server;
 
 use FindBin qw($Bin);
 my $default_from   = path($Bin)->dirname;
-my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1);
+my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1, CLEANUP => 1);
 
 has authenticated  => 0;
 has login_name     => 'краси';
@@ -30,6 +28,14 @@ sub domain_aliases {'some.domain alias.domain alias2.domain'}
 # You can pass '/tmp/slovo' after $from. The tmp/slovo will not be
 # automatically deleted and you can debug the installed application.
 my $MOJO_HOME;
+
+sub new {
+
+  # class Test::Mojo__WITH__Test::Mojo::Role::Slovo
+  my $t = Test::Mojo::new(@_);
+  ok($t->app->dbx->migrations->migrate, 'migrated');
+  return $t;
+}
 
 sub install ($class, $from = $default_from, $to_tempdir = "$random_tempdir/slovo",
   $dir_mode = 0700)
@@ -133,5 +139,13 @@ sub create_edit_domain_ok ($t) {
   return $edit_url;
 }
 
+sub meta_names_ok($t) {
+  for (qw(author description keywords generator viewport )) {
+    my $selector = qq'head meta[name="$_"]';
+    $t->element_exists($selector, $selector . ' exists')
+      ->attr_like($selector => 'content', qr/.+/ => $selector . ' has content');
+  }
+  return $t;
+}
 
 1;

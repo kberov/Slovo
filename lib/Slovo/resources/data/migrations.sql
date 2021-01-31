@@ -652,4 +652,44 @@ UPDATE domove SET templates = 'themes/malka' WHERE id = 0;
 -- https://www.sqlite.org/lang_altertable.html#otheralter
 UPDATE domove SET templates = '';
 
+-- 202102010000 up
+-- Make stricter constrains for stranici and celini.
+-- Disalow accidential equallity between .pid and .id and thus deadly
+-- recursion.
+-- All celini which data_type=title  (are used as title of a page) must be
+-- containers `permissions LIKE 'd%'`!
+-- All celini which contain other celini must be containers`permissions LIKE 'd%'`!
+-- All pages whic hwill contain other pages must have `permissions LIKE 'd%'`.
+CREATE TRIGGER stranici_bu BEFORE UPDATE ON stranici
+BEGIN
+    SELECT
+        CASE
+            -- a page cannot be parent to itself
+            -- except the root of all roots
+            WHEN NEW.pid = OLD.id AND NEW.pid !=0
+            THEN RAISE(ABORT, 's.pid cannot be equal to s.id')
+            -- The parent page must be a container.
+            WHEN EXISTS (SELECT permissions FROM stranici WHERE id=NEW.pid AND permissions NOT LIKE 'd%')
+            THEN RAISE(ABORT, 'The parent page must be a directory(container). Change its permisssions to start with "d"!')
+        END;
+END;
 
+UPDATE celini SET permissions = 'drwxrwxr-x' where id=0;
+UPDATE celini SET permissions = 'drwxrwxr-x' where data_type='title';
+
+CREATE TRIGGER celini_bu BEFORE UPDATE ON celini
+BEGIN
+    SELECT
+        CASE
+            -- a celina cannot be parent to itself
+            -- except the one with page_id=0
+            WHEN NEW.pid = OLD.id AND NEW.pid !=0
+            THEN RAISE(ABORT, 'c.pid cannot be equal to c.id' )
+            -- The parent celina must be a container.
+            WHEN EXISTS (SELECT permissions FROM celini WHERE id=NEW.pid AND permissions NOT LIKE 'd%')
+            THEN RAISE(ABORT, 'The parent celina must be a directory(container). Change its permisssions to start with "d"!')
+        END;
+END;
+-- 202102010000 down
+DROP TRIGGER IF EXISTS stranici_bu; 
+DROP TRIGGER IF EXISTS celini_bu;

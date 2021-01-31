@@ -1,14 +1,6 @@
 package Slovo;
-
-# we want to use many recent native features in modern perl, available in
-# 5.012+. Here are some of them which we switch ON on the next few lines:
-# * unicode strings: see /perldoc/feature#The-unicode_strings-feature
-# * my/state/our sub foo syntax: see /perldoc/feature#The-lexical_subs-feature
-# * signatures /perldoc/feature#The-signatures-feature
 use Mojo::Base 'Mojolicious', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+use feature ':5.26';
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';
@@ -18,7 +10,7 @@ use Slovo::Validator;
 use Slovo::Cache;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.01.11';
+our $VERSION   = '2021.02.01';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -295,7 +287,7 @@ Install Slovo locally with all dependencies in less than two minutes
 
 Run slovo for the first time in debug mode
 
-    ~/opt/slovo/bin/slovo daemon
+   morbo ~/opt/slovo/bin/slovo
 
 Visit L<http://127.0.0.1:3000>.
 For help visit L<http://127.0.0.1:3000/perldoc>.
@@ -306,69 +298,71 @@ L<Slovo> is a simple to install and extensible L<Mojolicious>
 L<CMS|https://en.wikipedia.org/wiki/Web_content_management_system>
 with nice core features, listed below. 
 
-This is a usable release, yet full of creeping bugs and half-implemented
-pieces! The project is in active development, so expect often breaking changes.
+This is a usable release, yet B<full of creeping bugs> and B<half-implemented
+pieces>! The project is in active development, so expect often breaking changes.
 
 =over
 
-=item On the fly generation of static pages under Apache/CGI – perfect for
-cheap shared hosting and blogging – BETA
+=item * On the fly generation of static pages under Apache/CGI – perfect for
+cheap shared hosting and blogging – BETA;
 
-=item Multi-domain support - WIP;
+=item * Multi-domain support - WIP;
 
-=item Multi-language pages - WIP;
+=item * Multi-language pages - WIP;
 
-=item Cached published pages and content - DONE;
+=item * Cached published pages and content - DONE;
 
-=item Multi-user support - DONE;
+=item * Multi-user support - DONE;
 
-=item User onboarding - WIP;
+=item * User onboarding - WIP;
 
-=item User sign in - DONE;
+=item * User sign in - DONE;
 
-=item Managing pages, content, domains, users - WIP;
+=item * Managing pages, content, domains, users - WIP;
 
-=item Managing groups - BASIC;
+=item * Managing groups - BASIC;
 
-=item Multiple groups per user - DONE;
+=item * Multiple groups per user - DONE;
 
-=item Ownership and permissions management per page and it's content - DONE;
+=item * Ownership and permissions management per page and it's content - DONE;
 
-=item Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
+=item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
 and content - DONE;
 
-=item Embedded fonts for displaying all
+=item * Embedded fonts for displaying all
 L<Azbuka|https://en.wikipedia.org/wiki/Cyrillic_script> and
 L<Glagolitsa|https://en.wikipedia.org/wiki/Glagolitic_script> characters -
 DONE;
 
-=item OpenAPI 2.0 (Swagger) REST API - BASIC;
+=item * OpenAPI 2/3.0 (Swagger) REST API - BASIC;
 
-=item Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>;
+=item * Embedded Trumbowyg - L<A lightweight WYSIWYG editor|https://alex-d.github.io/Trumbowyg/>;
 
-=item Editor.md - L<The open source embeddable online markdown editor
+=item * Embedded Editor.md - L<The open source embeddable online markdown editor
 (component), based on CodeMirror & jQuery &
 Marked|http://editor.md.ipandao.com/>;
 
-=item Example startup scripts for slovo and slovo_minion services
+=item * Example startup scripts for slovo and slovo_minion services
 for L<systemd|https://freedesktop.org/wiki/Software/systemd/>, L<Apache
 2.4|https://httpd.apache.org/docs/2.4/> and NGINX vhost configuration files.
 
-=item and more to come…
+=item * Inflatable embedded themes support - BETA;
+
+=item * and more to come…
 
 =back
 
 By default Slovo comes with SQLite database, but support for PostgreSQL or
 MySQL is about to be added when needed. It is just a question of making
 compatible and/or translating some limited number of SQL queries to the
-corresponding SQL dialects. Contributors are wellcome.
+corresponding SQL dialects. Contributors are welcome.
 
-The word "slovo" (слово) has one unchanged meaning during the last millenium in
-all slavic languages. It is actually one language that started splitting apart
-less than one thousand years ago. The meaning is "word" – the God's word (when
-used with capital letter). Hence the self-naming of this group of people
+The word "slovo" (слово) has one unchanged meaning during the last millennium
+among all slavic languages. It is actually one language that started splitting
+apart less than one thousand years ago. The meaning is "word" – the God's word
+(when used with capital letter). Hence the self-naming of this group of people
 C<qr/sl(o|a)v(e|a|i)n(i|y|e)/> - people who have been given the God's word or
-people who can speak. All others were considered "mute", hense the naming
+people who can speak. All others were considered "mute", hence the naming
 (немци)...
 
 =head1 INSTALL
@@ -395,7 +389,7 @@ data directory for sqlite database and run slovo to see available commands.
     && $INSTALL_BASE/bin/slovo
 
 Use cpanm to install or update into a custom location as self contained application and
-run slovo to see how it's going
+run slovo to see how it's going.
 
     # From metacpan. org
     export PREFIX=~/opt/slovo;
@@ -412,6 +406,7 @@ run slovo to see how it's going
 Start the development server and open a browser
 
     morbo ./script/slovo -l http://*:3000 & sleep 1 exo-open http://localhost:3000
+
 =head1 USAGE
 
     cd /path/to/installed/slovo
@@ -424,16 +419,18 @@ L<Slovo> is a L<Mojolicious> application which means that everything
 applying to Mojolicious applies to it too. Slovo main configuration file is
 in C<lib/Slovo/resourses/etc/slovo.conf>. You can use your own by setting
 C<$ENV{MOJO_CONFIG}> or by just copying C<slovo.conf> to $ENV{MOJO_HOME} and
-modify it as you wish. New routes can be described in C<routes.conf>. See
-L<Mojolicious::Plugin::RoutesConfig> for details and examples.
+modify it as you wish. Routes can be added or removed in C<routes.conf>. See
+L<Mojolicious::Plugin::RoutesConfig> for details and examples. New plugins can
+be added per deployment in C<plugins> section in C<slovo.conf>.
 
-C<$ENV{MOJO_HOME}> (L<where you installed Slovo|/home>) is automatically detected and
-used. All paths, used in the application, are expected to be its children.  You
-can add your own templates in C<$ENV{MOJO_HOME}/templates> and they will be
-loaded and used with priority. You can theme your own instance of Slovo by just
-copying C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
+C<$ENV{MOJO_HOME}> (L<where you installed Slovo|/home>) is automatically
+detected and used. All paths, used in the application, are expected to be its
+children. You can add your own templates in C<$ENV{MOJO_HOME}/templates> and
+they will be loaded and used with priority. You can theme your own instance of
+Slovo by just copying C<$ENV{MOJO_HOME}/lib/Slovo/resources/templates> to
 C<$ENV{MOJO_HOME}/templates> and modify them. You can add your own static files
-to C<$ENV{MOJO_HOME}/public>.
+to C<$ENV{MOJO_HOME}/public>. You can create custom themes by forking
+L<Slovo::Themes::Malka> and using it as a starting point.
 
 You can have separate static files and templates per domain under
 C<$ENV{MOJO_HOME}/domove/your.domain/public>,
@@ -445,7 +442,7 @@ form for editing domains.
 
 Last but not least, you can add your own classes into
 C<$ENV{MOJO_HOME}/site/lib> and (why not) replace entirely some Slovo classes
-or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will automatically load them.
+or just extend them. C<$ENV{MOJO_HOME}/bin/slovo> will load them with priority.
 
 With all the above, you can upgrade L<Slovo> by just installing new versions
 over it and your files will not be touched. And of course, we know that you are
@@ -461,7 +458,8 @@ the following new ones.
 L<Slovo> detects where B<home> is not like L<Mojo::Home> by where
 C<lib/Mojolicous.pm> is but by where the C<script/> or C<bin/> folder resides
 starting from where C<lib/Slovo.pm> is and going up the tree. If in one of
-these folders there is C<$app-E<gt>moniker>, then the upper folder is the home.
+these folders there is a C<slovo> executable, then the upper folder is the
+home.
 
 Examples:
 
@@ -489,15 +487,16 @@ Examples:
 
 =head2 log
 
-Overrides L<Mojolicious/log>. Logs to C<self-E<gt>home->child('log/slovo.log')>
-if C<$self-E<gt>home->child('log')> exists and is writable. Oderwise writes to
-STERR.  The log-level will default to either the C<MOJO_LOG_LEVEL> environment
+Overrides L<Mojolicious/log>. Logs to C<self-E<gt>home-E<gt>child('log/slovo.log')>
+if C<$self-E<gt>home-E<gt>child('log')> exists and is writable. Oderwise writes to
+STDERR. The log-level will default to either the C<MOJO_LOG_LEVEL> environment
 variable, C<debug> if the "mode" is C<development>, or C<info> otherwise.
 
 =head2 resources
 
   push @{$app->static->paths}, $app->resources->child('public');
 
+Returns a L<Mojo::File> instance for path L<Slovo/resources> next to where
 C<Slovo.pm> is installed.
 
 =head2 validator
@@ -545,24 +544,25 @@ Slovo adds custom code to the following hooks.
 
 =head2 around_action
 
-On each request we set the following wariables in the stash so they are
+On each request we set the following variables in the stash so they are
 available in the respective templates. Here they are:
 
-    $stash->{l}         //= $c->language;     # current language of the text being edited
+    $stash->{l}         //= $c->language;     # current language
     $stash->{user}      //= $c->user;         # current user
 
 =head2 around_dispatch
 
 On each request we determine the current host and modify the static and
-renderer paths accordingly. This is how the multi-domain support works.
+renderer paths accordingly. This is how each domain has its own templates and
+static files.
 
 Also if the C<templates> field for the current domain is not empty, we
 determine from it the templates root for the theme to be used for this domain
-during this request. This is how the themes support for multidomain L<Slovo>
-applications work.
+during this request. This is how the themes support for multiple domains in one
+L<Slovo> instance work.
 
 It is also important to note that in a long running application (not CGI) the
-templates are catched in memory and the relative path from the current
+templates are cached in memory and the relative path from the current
 templates root to each template is used as the key in L<Mojo::Cache> cache. We
 had to implement L<Slovo::Cache/key_prefix> to be able to differentiate between
 templates having the same names, but found in different paths. All this is
@@ -640,7 +640,7 @@ Slovo implements the following helpers.
 
 =head2 openapi_spec
 
-We need to have our openapi API specification always at hand as a unified
+We need to have our OpenAPI API specification always at hand as a unified
 source of truth so here it is.
 
     # anywhere via $app or $c, even not via a REST call
@@ -686,7 +686,9 @@ Ordered by time of first commit.
 
 =head1 COPYRIGHT
 
-This program is free software licensed under the Artistic License 2.0.
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
 
 The full text of the license can be found in the
 LICENSE file included with this module.
@@ -696,11 +698,22 @@ respective authors.
 
 =head1 TODO
 
-Considerably improve the Adminiastration UI - now it is quite simplistic.
+=over
 
-Consider using L<Mithril|https://github.com/MithrilJS/mithril.js> or
+=item * Stop adding features. Stabilize what we have.
+
+=item * Gradually replace L<MUI CSS|https://www.muicss.com/> with L<Chota
+CSS|https://jenil.github.io/chota/> - site part is done.
+
+=item * Considerably improve the Adminiastration UI - now it is quite
+simplistic. Use ES6 directly as per L<browsers compatibility
+table|https://kangax.github.io/compat-table/es6/>
+
+=item * Consider using L<Mithril|https://github.com/MithrilJS/mithril.js> or
 L<Vue.js|https://vuejs.org/> or something light as frontend framework for
 building UI. We already use jQuery distributed with the Mojolicious distro.
+
+=back
 
 =head1 SEE ALSO
 

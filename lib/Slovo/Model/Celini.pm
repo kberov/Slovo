@@ -1,8 +1,5 @@
 package Slovo::Model::Celini;
 use Mojo::Base 'Slovo::Model', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 my $table = 'celini';
 has stranici   => sub { $_[0]->c->stranici };
@@ -118,10 +115,13 @@ sub save ($m, $id, $row) {
   eval {
     my $tx = $db->begin;
     $m->upsert_aliases($db, $id, $row->{alias});
-    $db->update($stranici_table, {tstamp => $row->{tstamp}}, {id => $row->{page_id}})
-      ;    #parent page
-    $db->update($table, {tstamp => $row->{tstamp}}, {id => $row->{pid}});    #parent
+
+    # parent page - update its timestamp
+    $db->update($stranici_table, {tstamp => $row->{tstamp}}, {id => $row->{page_id}});
+
+    # parent - update its timestamp
     $db->update($table, $row, {id => $id});
+
     $tx->commit;
   } || Carp::croak("Error updating $table: $@");
   return $id;

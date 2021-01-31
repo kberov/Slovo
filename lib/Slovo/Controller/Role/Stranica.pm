@@ -1,12 +1,10 @@
 package Slovo::Controller::Role::Stranica;
 use Mojo::Base -role, -signatures;
+
 use Mojo::File 'path';
 use Mojo::ByteStream 'b';
 use Mojo::Collection 'c';
 use Mojo::Util qw(encode sha1_sum);
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 around execute => \&_around_execute;
 

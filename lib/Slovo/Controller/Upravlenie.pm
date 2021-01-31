@@ -1,8 +1,5 @@
 package Slovo::Controller::Upravlenie;
 use Mojo::Base 'Slovo::Controller', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
 
 # ANY /manage/
 ## no critic qw(Subroutines::ProhibitBuiltinHomonyms)

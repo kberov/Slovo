@@ -1,8 +1,6 @@
 package Slovo::Plugin::CGI;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use feature qw(lexical_subs unicode_strings);
-## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-no warnings "experimental::lexical_subs";
+
 use Mojo::Util qw(punycode_decode);
 
 my $mod_rewrite;
