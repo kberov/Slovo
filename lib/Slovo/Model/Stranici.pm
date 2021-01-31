@@ -148,12 +148,15 @@ sub add ($m, $row) {
   my $title            = {};
   my $mandatory_fields = [qw(title language body data_format tstamp user_id
   group_id changed_by alias permissions published)];
+
   for (@$mandatory_fields) {
     Carp::croak "The following field is mandatory to create a page: $_"
       unless defined $row->{$_};
   }
-  @$title{qw(title language body data_format)}
-    = delete @$row{qw(title language body data_format)};
+
+  for (qw(title language body data_format keywords description)) {
+    $title->{$_} = delete $row->{$_} if exists $row->{$_};
+  }
 
   @$title{qw(sorting data_type created_at user_id
   group_id changed_by alias permissions published)} = (

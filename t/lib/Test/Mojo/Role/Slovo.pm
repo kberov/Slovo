@@ -139,5 +139,13 @@ sub create_edit_domain_ok ($t) {
   return $edit_url;
 }
 
+sub meta_names_ok($t) {
+  for (qw(author description keywords generator viewport )) {
+    my $selector = qq'head meta[name="$_"]';
+    $t->element_exists($selector, $selector . ' exists')
+      ->attr_like($selector => 'content', qr/.+/ => $selector . ' has content');
+  }
+  return $t;
+}
 
 1;
