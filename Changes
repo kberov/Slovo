@@ -4,6 +4,9 @@ Revision history for Mojolicious application Slovo
     * Renamed configuration section `plugins` to `load_plugins` so it does not
       clash with the same feature in Mojolicious 9.0. Kept the feature as Slovo's
       one is more flexible. Slovo is compatible with Mojolicious 9.0.
+    * Added `mojo` subfolder to the mod_rewrite rule for public/ in the produced
+      .htaccess file so we can put static files like jquery/jquery.js there and
+      they will be served by Apache.
 
 2021.02.01
     * We now require minimum version of Perl 5.26 to remove from our code
