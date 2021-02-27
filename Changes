@@ -7,6 +7,7 @@ Revision history for Mojolicious application Slovo
     * Added `mojo` subfolder to the mod_rewrite rule for public/ in the produced
       .htaccess file so we can put static files like jquery/jquery.js there and
       they will be served by Apache.
+    * Made scrollbar-width wider – not thin.
 
 2021.02.01
     * We now require minimum version of Perl 5.26 to remove from our code
