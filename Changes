@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2021.02.20
+    * Renamed configuration section `plugins` to `load_plugins` so it does not
+      clash with the same feature in Mojolicious 9.0. Kept the feature as Slovo's
+      one is more flexible. Slovo is compatible with Mojolicious 9.0.
+
 2021.02.01
     * We now require minimum version of Perl 5.26 to remove from our code
       `no warnings "experimental::lexical_subs";`. Respectively we explicitly
