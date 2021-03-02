@@ -10,7 +10,7 @@ use Slovo::Validator;
 use Slovo::Cache;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.02.01';
+our $VERSION   = '2021.02.20';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
