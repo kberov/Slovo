@@ -10,7 +10,7 @@ use Slovo::Validator;
 use Slovo::Cache;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.02.01';
+our $VERSION   = '2021.02.20';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -81,7 +81,7 @@ sub startup ($app) {
 
 sub _before_dispatch ($c) {
   state $guest       = $c->users->find_by_login_name('guest');
-  state $auth_config = c(@{$c->config('plugins')})->first(sub {
+  state $auth_config = c(@{$c->config('load_plugins')})->first(sub {
     ref $_ eq 'HASH' and exists $_->{Authentication};
   });
   state $session_key     = $auth_config->{Authentication}{session_key};
@@ -197,7 +197,7 @@ sub _load_pugins ($app) {
   # See /perldoc/Mojolicious#plugins
   # See /perldoc/Mojolicious/Plugins#PLUGINS
   $app->plugins->namespaces(['Slovo::Plugin', 'Slovo', 'Mojolicious::Plugin']);
-  my $plugins = $app->config('plugins') // [];
+  my $plugins = $app->config('load_plugins') // [];
   push @$plugins, qw(DefaultHelpers TagHelpers);
   foreach my $plugin (@$plugins) {
     my $name = (ref $plugin ? (keys %$plugin)[0] : $plugin);

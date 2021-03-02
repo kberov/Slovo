@@ -570,9 +570,12 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
   --border-radius:  10px;
   --color-success: #23FF04
 }
-html {
-  font-size: 100%;
+* {
+  scrollbar-width: auto;
   scrollbar-color: var(--color-lightGrey) var(--color-darkGrey);
+}
+*::-webkit-scrollbar {
+  width:1rem
 }
 body>header, body>footer {
   --box-shadow: 0 0.1em 0.5em var(--color-darkGrey);
@@ -643,6 +646,7 @@ body>header nav, body>footer nav {
   margin-bottom: 0.3rem !important;
 }
 main {
+  font-size: 100%;
   padding-top: 4rem !important;
   padding-bottom: 4rem !important;
 }

@@ -1,5 +1,15 @@
 Revision history for Mojolicious application Slovo
 
+2021.02.20
+    * Renamed configuration section `plugins` to `load_plugins` so it does not
+      clash with the same feature in Mojolicious 9.0. Kept the feature as Slovo's
+      one is more flexible. Slovo is compatible with Mojolicious 9.0.
+    * Added `mojo` subfolder to the mod_rewrite rule for public/ in the
+      .htaccess file template so we can put static files like jquery/jquery.js
+      there and they will be served directly by Apache.
+    * Made scrollbar-width wider in Slovo::Themes::Malka.
+    * Upgraded to Mojolicious 9.02.
+
 2021.02.01
     * We now require minimum version of Perl 5.26 to remove from our code
       `no warnings "experimental::lexical_subs";`. Respectively we explicitly

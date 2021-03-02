@@ -212,7 +212,7 @@ ErrorDocument 404 /<%=$moniker%>/<%=$cgi_script%>/%{REQUEST_URI}
   # Match example.com out of ((www|dev|qa).)?example.com
   RewriteCond %{HTTP_HOST} ([\w\-]+.[\w\-]+)$
   RewriteCond %{DOCUMENT_ROOT}/<%=$moniker%>/domove/%1/public/$1 -f
-  RewriteRule ^((?:css|img|js|fonts)/.+)$  /<%=$moniker%>/domove/%1/public/$1 [NE,END]
+  RewriteRule ^((?:css|img|js|mojo|fonts)/.+)$  /<%=$moniker%>/domove/%1/public/$1 [NE,END]
 
   # example.com/about-en-us.html becomes example.com/domove/t.com/public/cached/about-en-us.html
   RewriteCond %{REQUEST_FILENAME} !-f
