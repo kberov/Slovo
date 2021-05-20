@@ -145,6 +145,16 @@ sub meta_names_ok($t) {
     $t->element_exists($selector, $selector . ' exists')
       ->attr_like($selector => 'content', qr/.+/ => $selector . ' has content');
   }
+
+  # OpenGraph
+  for (qw(og:type og:site_name og:title og:url og:type og:article:author og:description
+  og:locale og:published_time og:modified_time))
+  {
+    my $selector = qq'head meta[property="$_"]';
+    $t->element_exists($selector, $selector . ' exists')
+      ->attr_like($selector => 'content', qr/.+/ => $selector . ' has content');
+
+  }
   return $t;
 }
 

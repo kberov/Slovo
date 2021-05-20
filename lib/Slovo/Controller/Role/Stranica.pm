@@ -9,15 +9,12 @@ use Mojo::Util qw(encode sha1_sum);
 around execute => \&_around_execute;
 
 sub _around_execute ($execute, $c) {
-  state $cache_pages    = $c->config('cache_pages');
-  state $list_columns   = $c->app->defaults('stranici_columns');
-  state $not_found_id   = $c->not_found_id;
-  state $not_found_code = $c->not_found_code;
+  state $cache_pages = $c->config('cache_pages');
   my $is_guest = !$c->is_user_authenticated;
-  my $stash    = $c->stash;
-
   return 1 if $cache_pages && $is_guest && $c->_render_cached_page();
+
   my $preview = !$is_guest && $c->param('прегледъ');
+  my $stash   = $c->stash;
   my $alias   = $stash->{page_alias};
   my $l       = $c->language;
   my $user    = $c->user;
@@ -31,6 +28,7 @@ sub _around_execute ($execute, $c) {
     if ref $page && $page->{alias} ne $alias && !$stash->{paragraph_alias};
 
   # Give up - page was not found.
+  state $not_found_id = $c->not_found_id;
   $page //= $str->find($not_found_id);
 
   # Now as we have a page to show, we continue as usual.
@@ -55,6 +53,8 @@ sub _around_execute ($execute, $c) {
   # We were looking for content with 'en' but found en-US
   $l = $c->language($celina->{language})->language;
 
+  state $list_columns = $c->app->defaults('stranici_columns');
+
   #These are always used so we add them to the stash earlier.
   $c->stash(
     celini       => $celini,
@@ -77,6 +77,7 @@ sub _around_execute ($execute, $c) {
     },
   );
 
+  state $not_found_code = $c->not_found_code;
   if ($page->{id} == $not_found_id) {
     return $c->render(
       breadcrumb     => c(),
@@ -99,7 +100,7 @@ sub _around_execute ($execute, $c) {
 
   $stash->{canonical_path}
     = $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
-      {lang => $celina->{language}})->to_abs->path->canonicalize->to_route =~ s|^/||r;
+      {lang => $celina->{language}})->to_abs->path->canonicalize->to_route;
 
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
 
@@ -135,8 +136,7 @@ my $cacheable = qr/\.html$/;    # File exptension for cacheable content
 sub _path_to_file ($c, $url_path) {
 
   # Will be served by Apache or _render_cached_page next time.
-  return path($c->app->static->paths->[0], "$cached/$url_path")
-    if $ENV{GATEWAY_INTERFACE};
+  return path($c->app->static->paths->[0], "$cached$url_path") if $ENV{GATEWAY_INTERFACE};
 
   # Will be served by _render_cached_page.
   return path($c->app->static->paths->[0],
@@ -148,7 +148,7 @@ sub _render_cached_page ($c) {
   $c->res->headers->cache_control($cache_control);
   my $url_path
     = $c->url_for(($c->stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
-      {lang => $c->language})->to_abs->path->canonicalize->to_route =~ s|^/||r;
+      {lang => $c->language})->to_abs->path->canonicalize->to_route;
   return unless $url_path =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   return $c->reply->file($file) if -f $file;
