@@ -1,6 +1,9 @@
 Revision history for Mojolicious application Slovo
 
-2020.05.15
+2021.05.21
+    * Fix canonical URL when it can contain a double slash.
+
+2021.05.15
     * Added initial OpenGraph support.
     * Optimised _around_execute in Slovo::Controller::Role::Stranica to do as
       little as possible when serving cached content.
