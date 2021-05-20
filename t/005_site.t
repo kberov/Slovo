@@ -59,15 +59,14 @@ my $breadcrumb = sub {
 };
 
 my $multi_language_pages = sub {
-  $t->get_ok('/вести/alabala.html')->status_is(404)
-    ->text_like('.mui-dropdown > button' => qr'bg-bg')
-    ->element_exists_not('.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)');
-  my $dom
-    = $t->get_ok("/")->text_like('.mui-dropdown > button' => qr'bg')
-    ->element_exists('.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)')
-    ->tx->res->dom;
+  $t->get_ok('/вести/alabala.html')->status_is(404)->element_exists('html[lang="bg-bg"]');
 
-  # warn $dom->at('.mui-dropdown__menu');
+# TODO: Review language switching.
+#  my $dom
+#    = $t->get_ok("/")->text_like('.mui-dropdown > button' => qr'bg')
+#    ->element_exists('.mui-dropdown__menu > li:nth-child(2) > a:nth-child(1)')
+#    ->tx->res->dom;
+#  warn $dom->at('.mui-dropdown__menu');
 };
 
 my $cached_pages = sub {
@@ -84,17 +83,17 @@ my $cached_pages = sub {
   my $body = $t->get_ok("/")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
       'Root page accessed with path / is cached');
-  like(decode('UTF-8', $body) => qr/rel="canonical" href="\/коренъ\.bg-bg\.html"/ =>
+  like(decode('UTF-8', $body) => qr/rel="canonical" href=".+?коренъ\.bg-bg\.html"/ =>
       '... and shows its canonical url.');
 
   # Page with alias as name is cached
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
   like($body => qr/<html[^>]+><!-- $cached -->/ =>
       'Page  accessed with path /foo.html IS cached');
-  like(decode('UTF-8', $body) => qr/rel="canonical" href="\/коренъ\.bg-bg\.html"/ =>
+  like(decode('UTF-8', $body) => qr/rel="canonical" href=".+?\/коренъ\.bg-bg\.html"/ =>
       '... and shows its canonical url.');
 
-  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => 'коренъ.bg-bg.html')) . '.html'),
+  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => '/коренъ.bg-bg.html')) . '.html'),
     'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT cached');
 
@@ -338,14 +337,12 @@ subtest 'site layout'     => $site_layout;
 subtest breadcrumb        => $breadcrumb;
 
 # Disabled until proper test cases are prepared
-# subtest multi_language_pages => $multi_language_pages;
-subtest cached_pages => $cached_pages;
+subtest multi_language_pages => $multi_language_pages;
+subtest cached_pages         => $cached_pages;
+subtest 'Browser cache'      => $browser_cache;
+subtest home_page            => $home_page;
 
-subtest 'Browser cache' => $browser_cache;
-
-subtest home_page => $home_page;
-
-#subtest aliases   => $aliases;
+# subtest aliases   => $aliases;
 done_testing;
 
 
