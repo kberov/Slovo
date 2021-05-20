@@ -217,7 +217,9 @@ layout 'site',
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
-    <link rel="canonical" href="<%= url_for->base . $canonical_path %>" />
+    % my $base = url_for->base;
+    % $canonical_path =~ s|^/|| if $base =~ m|/$|;
+    <link rel="canonical" href="<%= $base . $canonical_path %>" />
 
     <title><%= title %></title>
     <meta name="author" content="<%= $author %>" />
@@ -228,7 +230,7 @@ layout 'site',
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="<%= $domain->{site_name} %>" />
     <meta property="og:title" content="<%= title %>" />
-    <meta property="og:url" content="<%= url_for->base . $canonical_path %>" />
+    <meta property="og:url" content="<%= $base . $canonical_path %>" />
     <meta property="og:type" content="article" />
     <meta property="og:article:author" content="<%= $author %>" />
     <meta property="og:description" content="<%= $description %>" />
