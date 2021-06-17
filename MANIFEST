@@ -165,6 +165,7 @@ lib/Slovo/Validator.pm
 LICENSE
 Makefile.PL
 MANIFEST
+README.pod
 script/slovo
 script/slovo.service
 script/slovo_minion.service
@@ -184,6 +185,7 @@ t/011_novy_dom.t
 t/012_cgi_hosting.t
 t/013_default_helpers.t
 t/014_inflate.t
+t/015_generate_list.t
 t/data/images/node.png
 t/data/images/perl.gif
 t/data/images/perl6.jpeg

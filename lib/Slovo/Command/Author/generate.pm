@@ -1,14 +1,13 @@
 package Slovo::Command::Author::generate;
 use Mojo::Base 'Mojolicious::Command::Author::generate';
 
-has description => 'Generate files and directories from templates';
-has hint        => <<'EOF';
+has hint => <<'EOF';
 
 See 'slovo generate help GENERATOR' for more information on a specific
 generator.
 EOF
 has message    => sub { shift->extract_usage . "\nGenerators:\n" };
-has namespaces => sub { [__PACKAGE__] };
+has namespaces => sub { [__PACKAGE__, 'Mojolicious::Command::Author::generate'] };
 
 1;
 
