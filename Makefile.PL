@@ -47,9 +47,9 @@ WriteMakefile(
   TEST_REQUIRES      => {},
   test               => {TESTS => 't/*.t'},
   EXE_FILES          => ['script/slovo'],
-  clean            => {FILES => '*.conf Slovo-* lib/Slovo/resources/data/*.sqli*'},
-  MIN_PERL_VERSION => '5.026000',
-  META_MERGE       => {
+  clean              => {FILES => '*.conf Slovo-* lib/Slovo/resources/data/*.sqli*'},
+  MIN_PERL_VERSION   => '5.026000',
+  META_MERGE         => {
     dynamic_config => 0,
     'meta-spec'    => {version   => 2},
     no_index       => {directory => ['t']},

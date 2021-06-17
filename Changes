@@ -5,6 +5,7 @@ Revision history for Mojolicious application Slovo
     * Allow commands from the Mojolicious::Command::Author::generate namespace
       to be listed and executed by Slovo on the command-line. Added tests.
     * Added README.pod to the distribution.
+    * Fixed missing hidden field for permissions when creating a page.
 
 2021.05.21
     * Fix canonical URL when it can contain a double slash.

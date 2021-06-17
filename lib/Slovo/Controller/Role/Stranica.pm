@@ -338,8 +338,8 @@ sub page_id_options ($c, $bread, $row, $u, $d, $l) {
   my $root
     = $str->find_where({page_type => $st->{page_types}[0], dom_id => $st->{domain}{id}});
 
-  # Root page should aways have pid=0
-  return [['никоя', 0]] if $row->{id} == $root->{id};
+  # Root page of a site should aways have pid=0
+  return [['никоя', 0]] if $row->{id} && $row->{id} == $root->{id};
   my $opts
     = {pid => $root->{id}, order_by => ['sorting'], columns => $st->{stranici_columns}};
   my $parents_options = [
