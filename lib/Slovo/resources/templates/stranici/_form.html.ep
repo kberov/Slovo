@@ -136,6 +136,7 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
           % end
         % end
         % if ($target eq 'update_stranici') {
+        <!-- update_stranici -->
         %= t fieldset => (id=>'permissions') => begin
           %= t legend => 'Разрешения и обнародване'
         <%
@@ -193,6 +194,9 @@ my $body_title = 'Нѣколко думи, свързани смислово з�
               % end
           % end; # mui-row
         % end; # fieldset
+        <% } else { %> <!-- create_stranici -->
+            %= input_tag  'published' => (type =>'hidden', value=>0)
+            %= input_tag  'permissions' => (type =>'hidden', value=>$permissions->[2])
         % }
         % my $button_txt = $caption eq 'Create' ? 'Създаване':'Записъ';
         %= submit_button $button_txt => (class => 'mui-btn mui-btn--primary')
