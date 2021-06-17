@@ -11,7 +11,7 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.05.21';
+our $VERSION   = '2021.06.06';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -307,7 +307,7 @@ pieces>! The project is in active development, so expect often breaking changes.
 =item * On the fly generation of static pages under Apache/CGI – perfect for
 cheap shared hosting and blogging – BETA;
 
-=item * Multi-domain support - WIP;
+=item * Multi-domain support - BETA;
 
 =item * Multi-language pages - WIP;
 
@@ -325,7 +325,7 @@ cheap shared hosting and blogging – BETA;
 
 =item * Multiple groups per user - DONE;
 
-=item * Ownership and permissions management per page and it's content - DONE;
+=item * Ownership and permissions management per page and it's content - BETA;
 
 =item * Automatic 301 and 308 (Moved Permanently) redirects for renamed pages
 and content - DONE;
