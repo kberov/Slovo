@@ -11,7 +11,7 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.06.06';
+our $VERSION   = '2021.06.16';
 our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
 my $CLASS = __PACKAGE__;
 
@@ -75,7 +75,8 @@ sub startup ($app) {
     languages        => $app->languages,    # /parameters/language/enum
     page_types       => $app->openapi_spec('/parameters/page_type/enum'),
     permissions      => $app->openapi_spec('/parameters/permissions/enum'),
-    stranici_columns => $app->openapi_spec('/paths/~1stranici/get/parameters/4/default'),
+    stranici_columns =>
+      $app->openapi_spec('/paths/~1stranici/get/parameters/4/items/enum'),
   );
   return $app;
 }

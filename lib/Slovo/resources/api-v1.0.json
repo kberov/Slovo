@@ -69,7 +69,7 @@
          "required" : [
             "id",
             "alias",
-            "page_type"
+            "title"
          ],
          "description" : "An object, representing one item of Stranici."
       },
@@ -195,16 +195,16 @@
                   "type":"array",
                   "in":"query",
                   "collectionFormat": "csv",
-                  "default": ["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language", "user_id", "group_id", "permissions"],
                   "items": {"type":"string",
                       "enum":["id", "pid", "alias", "page_type", "sorting", "title", "is_dir", "language", "user_id", "group_id", "permissions"]},
-                  "description": "Which properties of the object to be returned only?"
+                  "description": "Which properties of the stranica object to be returned only? See StraniciItem for required properties.",
+                  "required" : false
                }
             ],
             "x-mojo-to" : "stranici#list",
             "operationId" : "api_list_stranici",
             "summary" : "List all records of type Stranici.",
-            "description" : "List all records of type Stranici according to the client's priviledges.",
+            "description" : "List all records of type Stranici with pid=$params->{id} according to the client's priviledges.",
             "responses" : {
                "200" : {
                   "schema" : {

@@ -6,7 +6,7 @@ use Test::Mojo;
 use Mojo::ByteStream 'b';
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  '.', '/tmp/slovo'
+#  '.', '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 
@@ -29,7 +29,13 @@ subtest 'api/stranici' => sub {
   my $pid              = 9;
   my $stranici_url_new = $app->url_for('edit_stranici', id => $pid)->to_string;
   $t->post_ok($stranici_url => form => $sform)->status_is(302);
-  $t->get_ok($stranici_url_new)->status_is(200)->content_like(qr/събития/);
+  $t->get_ok("/api/stranici")->status_is(200)->json_is('/2/alias' => 'събития');
+  $t->get_ok("/api/stranici?columns=id,alias,title")->json_is('/2/id' => $pid);
+  # See lib/Slovo/resources/api-v1.0.json StraniciItem.required
+  $t->get_ok("/api/stranici?columns=id,alias")->status_is(500);
+  $t->json_is('/errors/2' => {message => 'Missing property.', path =>'/body/2/title'});
+  # note explain $t->tx->res->json;
+  $t->get_ok("/api/stranici?columns=id,alias,title")->status_is(200)->json_is('/2' => {id =>$pid, alias => 'събития',title => 'Събития'});
 
 
   @$sform{qw(permissions pid)} = ('-rwxr-xr-x', $pid);

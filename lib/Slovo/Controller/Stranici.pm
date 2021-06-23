@@ -243,18 +243,20 @@ sub _validation ($c) {
   return $v;
 }
 
-# GET/api/stranici
+# GET /api/stranici
 # List of published pages under a given pid in the current domain.
 # Used for sidedrawer or sitemap
 sub list ($c) {
-
+  state $columns = $c->app->defaults('stranici_columns');
+  state $mode    = $c->app->mode;
   $c->openapi->valid_input or return;
   my $in      = $c->validation->output;
   my $user    = $c->user;
   my $preview = $c->is_user_authenticated && $c->param('прегледъ');
-  my $list    = $c->stranici->all_for_list($user, $c->stash('domain')->{domain},
+  $in->{columns} //= $columns;
+  my $list = $c->stranici->all_for_list($user, $c->stash('domain')->{domain},
     $preview, $c->language, $in);
-  return $c->render(openapi => $list);
+  return $c->render(($mode eq 'development' ? 'openapi' : 'json') => $list);
 }
 
 1;
