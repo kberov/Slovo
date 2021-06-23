@@ -1,5 +1,9 @@
 Revision history for Mojolicious application Slovo
 
+2021.06.16
+    * Fixed failing tests with Mojolicious::Plugin::OpenAPI 4.04.
+    * Upgraded to Mojolicious::Plugin::OpenAPI 4.04.
+
 2021.06.06
     * Updated progress in the documentation.
     * Allow commands from the Mojolicious::Command::Author::generate namespace
