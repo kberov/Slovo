@@ -5,7 +5,8 @@ Revision history for Mojolicious application Slovo
     * Upgraded to Mojo::SQLite 3.007, Cpanel::JSON::XS 4.27,
       Minion::Backend::SQLite 5.05, Mojolicious::Plugin::PODViewer 0.007,
       Mojolicious::Plugin::Authentication 1.37, Mojolicious::Plugin::OpenAPI 5.02,
-      Mojolicious::Plugin::RoutesConfig 0.07, Net::SMTP 3.13 Role::Tiny 2.002004.
+      Mojolicious::Plugin::RoutesConfig 0.07, Net::SMTP 3.13 Role::Tiny 2.002004,
+      Mojolicious 9.23.
 
 2021.06.16
     * Fixed failing tests with Mojolicious::Plugin::OpenAPI 4.04.
