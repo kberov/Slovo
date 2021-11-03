@@ -16,6 +16,7 @@ sub form ($c) {
   #afterwards if the place he is comming from in the siame domain. If not,
   #redirect him to the main page.
   $c->is_user_authenticated && return $c->redirect_to('/');
+  $c->stash(sign_in_error => '');
   return $c->render;
 }
 
@@ -27,7 +28,8 @@ sub sign_in ($c) {
   my $v = $c->validation;
   $v->required('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{3,12}$/x);
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
-
+  $c->stash(sign_in_error => '');
+  
   if ($v->csrf_protect->has_error('csrf_token')) {
     return $c->render(
       sign_in_error => 'Bad CSRF token!',

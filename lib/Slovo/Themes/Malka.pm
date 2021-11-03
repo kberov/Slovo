@@ -83,6 +83,7 @@ using the given example at the end of the  L<DESCRIPTION>.
 
     @@ celini/execute.html.ep
     @@ layouts/site.html.ep
+    @@ layouts/uprava.html.ep
     @@ partials/_beleyazhka.html.ep
     @@ partials/_ceyalina.html.ep
     @@ partials/_data_type.html.ep
@@ -102,6 +103,7 @@ using the given example at the end of the  L<DESCRIPTION>.
     @@ partials/_zaglawie.html.ep
     @@ stranici/templates/dom.html.ep
     @@ stranici/execute.html.ep
+    @@ auth/form.html.ep
     @@ css/malka/chota_all_min.css
     @@ css/malka/site.css
 
@@ -575,6 +577,82 @@ $main->map(sub {
 })->join($/);
 %>
 <!-- end stranici/execute -->
+
+@@  auth/form.html.ep
+% layout 'uprava';
+% title 'Входъ';
+% if($sign_in_error) {
+    <div class="card text-error bd-error field-with-error"><%= $sign_in_error %></div>
+% }
+
+%= form_for sign_in => (id => 'sign_in' ) => begin
+<fieldset>
+    <legend><%= title %></legend>
+% my $name_title = 'Полето „Име за входъ“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
+%= label_for login_name => 'Име за входъ', title => $name_title
+%= text_field 'login_name', placeholder => $name_title, title => $name_title
+
+
+%= label_for login_key => 'Таен ключ'
+% my $key_title = '"Таен ключ" е задължително поле (от 8 до 40 знака).';
+%= password_field login_key => placeholder => $key_title, title => $key_title, style => 'margin-bottom:1rem;'
+%= hidden_field 'digest'
+%= csrf_field
+
+% if($sign_in_error) {
+%= link_to  'Забравен таен ключ?' => 'lost_password_form' => (id=>'passw_login',style =>'float: inline-end')
+% } #end if
+
+%= submit_button 'Входъ' => (class=> 'button primary')
+</fieldset>
+%=end
+%# end form
+%= javascript 'js/CryptoJS-v3.1.2/sha1.js'
+%= javascript begin
+"use strict";
+const qS = document.querySelector.bind(document);
+
+const name_field = qS('[name="login_name"]');
+const passw_field = qS('[name="login_key"]');
+const dijest_field = qS('[name="digest"]');
+const csrf_field = qS('[name="csrf_token"]');
+const login_form = qS("#sign_in");
+login_form.onsubmit = function() {
+  const concat_ln_lp = name_field.value + passw_field.value;
+  passw_field.parentNode.removeChild(passw_field);
+  const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);
+  dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
+  return true;
+};
+% end
+
+
+@@ layouts/uprava.html.ep
+
+<!DOCTYPE html>
+<html lang="<%= $l %>">
+<!-- from __DATA__ -->
+<!-- <%=$domain->{templates} %> -->
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/malka/chota_all_min.css" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/malka/site.css" />
+  <script src="/mojo/jquery/jquery.js" ></script>
+</head>
+
+<body>
+  <main class="container">
+    % my $messgage = flash('message');
+    %= $messgage ? t(div => (class => 'bd-error text-error') => $messgage) : ''
+    <%= content %>
+  </main>
+</body>
+</html> 
+
+
 
 @@ css/malka/chota_all_min.css
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
