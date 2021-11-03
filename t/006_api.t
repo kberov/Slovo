@@ -31,11 +31,14 @@ subtest 'api/stranici' => sub {
   $t->post_ok($stranici_url => form => $sform)->status_is(302);
   $t->get_ok("/api/stranici")->status_is(200)->json_is('/2/alias' => 'събития');
   $t->get_ok("/api/stranici?columns=id,alias,title")->json_is('/2/id' => $pid);
+
   # See lib/Slovo/resources/api-v1.0.json StraniciItem.required
   $t->get_ok("/api/stranici?columns=id,alias")->status_is(500);
-  $t->json_is('/errors/2' => {message => 'Missing property.', path =>'/body/2/title'});
+  $t->json_is('/errors/2' => {message => 'Missing property.', path => '/body/2/title'});
+
   # note explain $t->tx->res->json;
-  $t->get_ok("/api/stranici?columns=id,alias,title")->status_is(200)->json_is('/2' => {id =>$pid, alias => 'събития',title => 'Събития'});
+  $t->get_ok("/api/stranici?columns=id,alias,title")->status_is(200)
+    ->json_is('/2' => {id => $pid, alias => 'събития', title => 'Събития'});
 
 
   @$sform{qw(permissions pid)} = ('-rwxr-xr-x', $pid);

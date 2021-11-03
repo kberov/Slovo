@@ -148,7 +148,7 @@ sub meta_names_ok($t) {
 
   # OpenGraph
   for (qw(og:type og:site_name og:title og:url og:type og:article:author og:description
-  og:locale og:published_time og:modified_time))
+  og:locale og:article:published_time og:article:modified_time))
   {
     my $selector = qq'head meta[property="$_"]';
     $t->element_exists($selector, $selector . ' exists')

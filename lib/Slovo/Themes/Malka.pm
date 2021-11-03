@@ -235,8 +235,8 @@ layout 'site',
     <meta property="og:article:author" content="<%= $author %>" />
     <meta property="og:description" content="<%= $description %>" />
     <meta property="og:locale" content="<%= $l %>" />
-    <meta property="og:published_time" content="<%= $created_at %>" />
-    <meta property="og:modified_time" content="<%= $tstamp %>" />
+    <meta property="og:article:published_time" content="<%= $created_at %>" />
+    <meta property="og:article:modified_time" content="<%= $tstamp %>" />
     <link rel="stylesheet" href="/css/malka/chota_all_min.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/malka/site.css" />
