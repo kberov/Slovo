@@ -32,9 +32,9 @@ Slovo::Themes::Malka - a small theme, using chota.css
     # ...
     # Themes. The precedence is depending on the order here.
     "Themes::Malka"
-    # another custom theme
-    {"Themes::MyTheme"=>{templates=>['themes/my_theme' => 'themes/my_theme']}}
-  ],
+      # another custom theme
+      {"Themes::MyTheme" => {templates => ['themes/my_theme' => 'themes/my_theme']}}
+    ],
 
 
 =head1 DESCRIPTION
@@ -42,23 +42,23 @@ Slovo::Themes::Malka - a small theme, using chota.css
 Slovo::Themes::Malka is a core plugin which is loaded by defauld during
 startup. It contains a __DATA__ section with a set of templates and static
 files. It adds itself to the beginning of the
-C<@{$renderer-E<gt>classes}>. Also it appends its suggested relative
+C<<@{$renderer->classes}>>. Also it appends its suggested relative
 path C<themes/malka> to the "Themes" select_box in the form for editing domains
-C<domove/form.html.ep>. This way the theme can be shosen for use by separate
+C<domove/form.html.ep>. This way the theme can be chosen for use by separate
 domains, served by one Slovo instance.
 
 Note that the theme must be inflated first to the respective C<domove> folder
 for the selection to work. See L<Slovo::Command::Author::inflate>.
 
-The theme holds templates and static files in its C<__DATA__> section.
-Templates from C<__DATA__> section reduce IO operations during startup time as
-the application does not have to load them from separate files. This reduces
+The theme holds templates and static files in its C<<__DATA__>> section.
+Templates from C<<__DATA__>> section reduce IO operations during startup time
+as the application does not have to load them from separate files. This reduces
 the overall execution time when the application is run as a CGI script. This
-works well for one-site deployments or several sites, using the same theme.
+works well for one-site or multidomain deployments, using the same theme.
 
 The templates and static files can be inflated to separate files and customised
 for your own deployment using the command
-L<Slovo::Command::Author::inflate>. Here is an example with an
+L<<Slovo::Command::Author::inflate>>. Here is an example with an
 internationalized domain name (IDN) - слово.бг (xn--b1arjbl.xn--90ae).
 
   bin/slovo inflate --class Slovo::Themes::Malka -t \
@@ -72,14 +72,14 @@ The usual method is implemented.
 
 =head2 register
 
-Prepends the class to renderer and static classes and prepends the base path of the
-templates from the C<__DATA__> section to C<$conf-E<gt>{domove_templates}>,
+Prepends the class to renderer and static classes and prepends the base path of
+the templates from the C<<__DATA__>> section to C<<$conf->{domove_templates}>>,
 which is used in the domains form.
 
 =head1 EMBEDDED FILES
 
 Currently this theme embeds the following files. They will be inflated when
-using the given example at the end of the  L<DESCRIPTION>.
+using the given example at the end of the  L<<DESCRIPTION>>.
 
     @@ celini/execute.html.ep
     @@ layouts/site.html.ep
@@ -628,7 +628,6 @@ login_form.onsubmit = function() {
 
 
 @@ layouts/uprava.html.ep
-
 <!DOCTYPE html>
 <html lang="<%= $l %>">
 <!-- from __DATA__ -->
@@ -636,23 +635,37 @@ login_form.onsubmit = function() {
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="Slovo <%= $Slovo::VERSION .'/'. $Slovo::CODENAME %>" />
   <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="/css/malka/chota_all_min.css" />
   <link rel="stylesheet" href="/css/fonts.css" />
   <link rel="stylesheet" href="/css/malka/site.css" />
-  <script src="/mojo/jquery/jquery.js" ></script>
+  <script src="/mojo/jquery/jquery.js"></script>
 </head>
-
 <body>
+  <header class="is-fixed bg-dark row">
+    <nav class="col-2 nav-left">
+      <%=
+        link_to sub {
+          t(img => (id => 'logo', src => '/img/slovo-white.png'));
+        } => url_for(коренъ => {lang => $l})
+      %>
+    </nav>
+    <nav class="col nav-center">
+
+    </nav>
+    <nav class="col-2 nav-right">
+    
+    </nav>
+  </header>
   <main class="container">
     % my $messgage = flash('message');
     %= $messgage ? t(div => (class => 'bd-error text-error') => $messgage) : ''
     <%= content %>
   </main>
+  %= include 'partials/_footer'    
 </body>
 </html> 
-
-
 
 @@ css/malka/chota_all_min.css
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -773,6 +786,9 @@ p.drop-cap::first-letter {
 }
 
 @media (max-width: 599px) {
+  html {
+      font-size: 90%;
+  }
   body>header  nav .tabs {
     overflow-y: scroll !important;
     -overflow-scrolling: touch !important;
@@ -781,14 +797,13 @@ p.drop-cap::first-letter {
    body>header nav, 
    body>footer nav {
     margin: 0 !important;
-    font-size: 66% !important;
+    font-size: 86% !important;
   }
   .dropdown .menu a {
     display: inline;
   }
   main {
-    padding-top: 8.5rem !important;
-    padding-bottom: 8.5rem !important;
+    padding-top: 5.5rem !important;
+    padding-bottom: 5.5rem !important;
   }
 }
-
