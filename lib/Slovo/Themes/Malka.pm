@@ -104,6 +104,7 @@ using the given example at the end of the  L<<DESCRIPTION>>.
     @@ stranici/templates/dom.html.ep
     @@ stranici/execute.html.ep
     @@ auth/form.html.ep
+    @@ layouts/uprava.html.ep
     @@ css/malka/chota_all_min.css
     @@ css/malka/site.css
 

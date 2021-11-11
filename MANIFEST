@@ -121,7 +121,6 @@ lib/Slovo/resources/public/js/trumbowyg-2.18/trumbowyg.min.js
 lib/Slovo/resources/public/js/trumbowyg-2.18/ui/icons.svg
 lib/Slovo/resources/public/js/trumbowyg-2.18/ui/trumbowyg.min.css
 lib/Slovo/resources/templates/auth/first_login_form.html.ep
-lib/Slovo/resources/templates/auth/form.html.ep
 lib/Slovo/resources/templates/auth/lost_password_form.html.ep
 lib/Slovo/resources/templates/celini/_form.html.ep
 lib/Slovo/resources/templates/celini/create.html.ep
