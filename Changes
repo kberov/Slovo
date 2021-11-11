@@ -1,5 +1,8 @@
 Revision history for Mojolicious application Slovo
 
+2021.11.12
+    * Fixed wrong Mojolicious version in Makefile.PL to 9.22.
+
 2021.11.11
     * Fixed og attributes for article.
     * Upgraded to Mojo::SQLite 3.007, Cpanel::JSON::XS 4.27,
@@ -7,7 +10,7 @@ Revision history for Mojolicious application Slovo
       Mojolicious::Plugin::Authentication 1.37, Mojolicious::Plugin::OpenAPI 5.00,
       Mojolicious::Plugin::RoutesConfig 0.07, Net::SMTP 3.13 Role::Tiny 2.002004,
       Mojolicious 9.23.
-    * Replaced login form fith a new one. Switching to theme Malka.
+    * Replaced login form with a new one. Switching to theme Malka.
     * Added new layout for control panel layouts/uprava.html.ep.
     * Slightly improved documentation of Slovo::Themes::Malka.
 
