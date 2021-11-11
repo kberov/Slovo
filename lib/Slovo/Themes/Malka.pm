@@ -32,9 +32,9 @@ Slovo::Themes::Malka - a small theme, using chota.css
     # ...
     # Themes. The precedence is depending on the order here.
     "Themes::Malka"
-    # another custom theme
-    {"Themes::MyTheme"=>{templates=>['themes/my_theme' => 'themes/my_theme']}}
-  ],
+      # another custom theme
+      {"Themes::MyTheme" => {templates => ['themes/my_theme' => 'themes/my_theme']}}
+    ],
 
 
 =head1 DESCRIPTION
@@ -42,23 +42,23 @@ Slovo::Themes::Malka - a small theme, using chota.css
 Slovo::Themes::Malka is a core plugin which is loaded by defauld during
 startup. It contains a __DATA__ section with a set of templates and static
 files. It adds itself to the beginning of the
-C<@{$renderer-E<gt>classes}>. Also it appends its suggested relative
+C<<@{$renderer->classes}>>. Also it appends its suggested relative
 path C<themes/malka> to the "Themes" select_box in the form for editing domains
-C<domove/form.html.ep>. This way the theme can be shosen for use by separate
+C<domove/form.html.ep>. This way the theme can be chosen for use by separate
 domains, served by one Slovo instance.
 
 Note that the theme must be inflated first to the respective C<domove> folder
 for the selection to work. See L<Slovo::Command::Author::inflate>.
 
-The theme holds templates and static files in its C<__DATA__> section.
-Templates from C<__DATA__> section reduce IO operations during startup time as
-the application does not have to load them from separate files. This reduces
+The theme holds templates and static files in its C<<__DATA__>> section.
+Templates from C<<__DATA__>> section reduce IO operations during startup time
+as the application does not have to load them from separate files. This reduces
 the overall execution time when the application is run as a CGI script. This
-works well for one-site deployments or several sites, using the same theme.
+works well for one-site or multidomain deployments, using the same theme.
 
 The templates and static files can be inflated to separate files and customised
 for your own deployment using the command
-L<Slovo::Command::Author::inflate>. Here is an example with an
+L<<Slovo::Command::Author::inflate>>. Here is an example with an
 internationalized domain name (IDN) - слово.бг (xn--b1arjbl.xn--90ae).
 
   bin/slovo inflate --class Slovo::Themes::Malka -t \
@@ -72,17 +72,18 @@ The usual method is implemented.
 
 =head2 register
 
-Prepends the class to renderer and static classes and prepends the base path of the
-templates from the C<__DATA__> section to C<$conf-E<gt>{domove_templates}>,
+Prepends the class to renderer and static classes and prepends the base path of
+the templates from the C<<__DATA__>> section to C<<$conf->{domove_templates}>>,
 which is used in the domains form.
 
 =head1 EMBEDDED FILES
 
 Currently this theme embeds the following files. They will be inflated when
-using the given example at the end of the  L<DESCRIPTION>.
+using the given example at the end of the  L<<DESCRIPTION>>.
 
     @@ celini/execute.html.ep
     @@ layouts/site.html.ep
+    @@ layouts/uprava.html.ep
     @@ partials/_beleyazhka.html.ep
     @@ partials/_ceyalina.html.ep
     @@ partials/_data_type.html.ep
@@ -102,6 +103,8 @@ using the given example at the end of the  L<DESCRIPTION>.
     @@ partials/_zaglawie.html.ep
     @@ stranici/templates/dom.html.ep
     @@ stranici/execute.html.ep
+    @@ auth/form.html.ep
+    @@ layouts/uprava.html.ep
     @@ css/malka/chota_all_min.css
     @@ css/malka/site.css
 
@@ -235,8 +238,8 @@ layout 'site',
     <meta property="og:article:author" content="<%= $author %>" />
     <meta property="og:description" content="<%= $description %>" />
     <meta property="og:locale" content="<%= $l %>" />
-    <meta property="og:published_time" content="<%= $created_at %>" />
-    <meta property="og:modified_time" content="<%= $tstamp %>" />
+    <meta property="og:article:published_time" content="<%= $created_at %>" />
+    <meta property="og:article:modified_time" content="<%= $tstamp %>" />
     <link rel="stylesheet" href="/css/malka/chota_all_min.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/malka/site.css" />
@@ -576,6 +579,95 @@ $main->map(sub {
 %>
 <!-- end stranici/execute -->
 
+@@  auth/form.html.ep
+% layout 'uprava';
+% title 'Входъ';
+% if($sign_in_error) {
+    <div class="card text-error bd-error field-with-error"><%= $sign_in_error %></div>
+% }
+
+%= form_for sign_in => (id => 'sign_in' ) => begin
+<fieldset>
+    <legend><%= title %></legend>
+% my $name_title = 'Полето „Име за входъ“ може да съдържа от 4 до 12 букви цифри, и знаците „.“,„-“ и „$“';
+%= label_for login_name => 'Име за входъ', title => $name_title
+%= text_field 'login_name', placeholder => $name_title, title => $name_title
+
+
+%= label_for login_key => 'Таен ключ'
+% my $key_title = '"Таен ключ" е задължително поле (от 8 до 40 знака).';
+%= password_field login_key => placeholder => $key_title, title => $key_title, style => 'margin-bottom:1rem;'
+%= hidden_field 'digest'
+%= csrf_field
+
+% if($sign_in_error) {
+%= link_to  'Забравен таен ключ?' => 'lost_password_form' => (id=>'passw_login',style =>'float: inline-end')
+% } #end if
+
+%= submit_button 'Входъ' => (class=> 'button primary')
+</fieldset>
+%=end
+%# end form
+%= javascript 'js/CryptoJS-v3.1.2/sha1.js'
+%= javascript begin
+"use strict";
+const qS = document.querySelector.bind(document);
+
+const name_field = qS('[name="login_name"]');
+const passw_field = qS('[name="login_key"]');
+const dijest_field = qS('[name="digest"]');
+const csrf_field = qS('[name="csrf_token"]');
+const login_form = qS("#sign_in");
+login_form.onsubmit = function() {
+  const concat_ln_lp = name_field.value + passw_field.value;
+  passw_field.parentNode.removeChild(passw_field);
+  const passw_sha1 = CryptoJS.SHA1(concat_ln_lp);
+  dijest_field.value = CryptoJS.SHA1(csrf_field.value + passw_sha1);
+  return true;
+};
+% end
+
+
+@@ layouts/uprava.html.ep
+<!DOCTYPE html>
+<html lang="<%= $l %>">
+<!-- from __DATA__ -->
+<!-- <%=$domain->{templates} %> -->
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="Slovo <%= $Slovo::VERSION .'/'. $Slovo::CODENAME %>" />
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/malka/chota_all_min.css" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/malka/site.css" />
+  <script src="/mojo/jquery/jquery.js"></script>
+</head>
+<body>
+  <header class="is-fixed bg-dark row">
+    <nav class="col-2 nav-left">
+      <%=
+        link_to sub {
+          t(img => (id => 'logo', src => '/img/slovo-white.png'));
+        } => url_for(коренъ => {lang => $l})
+      %>
+    </nav>
+    <nav class="col nav-center">
+
+    </nav>
+    <nav class="col-2 nav-right">
+    
+    </nav>
+  </header>
+  <main class="container">
+    % my $messgage = flash('message');
+    %= $messgage ? t(div => (class => 'bd-error text-error') => $messgage) : ''
+    <%= content %>
+  </main>
+  %= include 'partials/_footer'    
+</body>
+</html> 
+
 @@ css/malka/chota_all_min.css
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:0.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}button,[type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:0.35em 0.75em 0.625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
@@ -695,6 +787,9 @@ p.drop-cap::first-letter {
 }
 
 @media (max-width: 599px) {
+  html {
+      font-size: 90%;
+  }
   body>header  nav .tabs {
     overflow-y: scroll !important;
     -overflow-scrolling: touch !important;
@@ -703,14 +798,13 @@ p.drop-cap::first-letter {
    body>header nav, 
    body>footer nav {
     margin: 0 !important;
-    font-size: 66% !important;
+    font-size: 86% !important;
   }
   .dropdown .menu a {
     display: inline;
   }
   main {
-    padding-top: 8.5rem !important;
-    padding-bottom: 8.5rem !important;
+    padding-top: 5.5rem !important;
+    padding-bottom: 5.5rem !important;
   }
 }
-

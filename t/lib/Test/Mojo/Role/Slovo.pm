@@ -72,7 +72,7 @@ sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
 
     $t->get_ok($host . '/manage')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /in');
-    $t->get_ok($host . '/in')->status_is(200)->text_is('head title' => 'Входъ');
+    $t->get_ok($host . '/in')->status_is(200)->text_is('fieldset legend' => 'Входъ');
 
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body
@@ -148,7 +148,7 @@ sub meta_names_ok($t) {
 
   # OpenGraph
   for (qw(og:type og:site_name og:title og:url og:type og:article:author og:description
-  og:locale og:published_time og:modified_time))
+  og:locale og:article:published_time og:article:modified_time))
   {
     my $selector = qq'head meta[property="$_"]';
     $t->element_exists($selector, $selector . ' exists')
