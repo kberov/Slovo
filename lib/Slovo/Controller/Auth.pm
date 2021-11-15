@@ -29,7 +29,7 @@ sub sign_in ($c) {
   $v->required('login_name', 'trim')->like(qr/^[\p{IsAlnum}\.\-\$]{3,12}$/x);
   $v->required('digest')->like(qr/[0-9a-f]{40}/i);
   $c->stash(sign_in_error => '');
-  
+
   if ($v->csrf_protect->has_error('csrf_token')) {
     return $c->render(
       sign_in_error => 'Bad CSRF token!',

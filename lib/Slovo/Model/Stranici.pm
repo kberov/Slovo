@@ -147,7 +147,7 @@ sub add ($m, $row) {
   $row->{start}  //= $row->{tstamp};
   my $title            = {};
   my $mandatory_fields = [qw(title language body data_format tstamp user_id
-  group_id changed_by alias permissions published)];
+    group_id changed_by alias permissions published)];
 
   for (@$mandatory_fields) {
     Carp::croak "The following field is mandatory to create a page: $_"
@@ -159,11 +159,11 @@ sub add ($m, $row) {
   }
 
   @$title{qw(sorting data_type created_at user_id
-  group_id changed_by alias permissions published)} = (
+    group_id changed_by alias permissions published)} = (
     0,
     $m->title_data_type,
     @$row{qw(tstamp user_id
-    group_id changed_by alias permissions published)});
+      group_id changed_by alias permissions published)});
 
   my $db = $m->dbx->db;
   eval {
@@ -208,7 +208,7 @@ sub save ($m, $id, $row) {
   my $title_related_fields = [qw(
     title body language data_format alias
     changed_by permissions published
-  user_id group_id start stop deleted)];
+    user_id group_id start stop deleted)];
 
   for (@$title_related_fields) {
     Carp::croak("Error updating $table: The field 'title_id' is required "
@@ -223,7 +223,7 @@ sub save ($m, $id, $row) {
       if (defined $row->{$_}) { $title->{$_} = delete $row->{$_}; }
     }
     for (qw(alias changed_by permissions published
-    tstamp user_id group_id start stop deleted))
+      tstamp user_id group_id start stop deleted))
     {
       if (defined $row->{$_}) { $title->{$_} = $row->{$_}; }
     }

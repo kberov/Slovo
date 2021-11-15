@@ -315,7 +315,7 @@ sub _validation ($c) {
 
   # For all but the last two types the following properties are required
   my $types_rx = join '|', @$types[0 .. @$types - 2];
-  my $dt = $v->param('data_type') // '';
+  my $dt       = $v->param('data_type') // '';
   if ($dt =~ /^($types_rx)$/x) {
     $title = $alias = 'required';
   }

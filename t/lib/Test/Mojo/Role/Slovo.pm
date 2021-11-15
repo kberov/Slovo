@@ -37,8 +37,12 @@ sub new {
   return $t;
 }
 
-sub install ($class, $from = $default_from, $to_tempdir = "$random_tempdir/slovo",
-  $dir_mode = 0700)
+sub install (
+  $class,
+  $from       = $default_from,
+  $to_tempdir = "$random_tempdir/slovo",
+  $dir_mode   = 0700
+  )
 {
   $MOJO_HOME = path($to_tempdir);
   note '$MOJO_HOME:' . $MOJO_HOME;
@@ -139,7 +143,7 @@ sub create_edit_domain_ok ($t) {
   return $edit_url;
 }
 
-sub meta_names_ok($t) {
+sub meta_names_ok ($t) {
   for (qw(author description keywords generator viewport )) {
     my $selector = qq'head meta[name="$_"]';
     $t->element_exists($selector, $selector . ' exists')
@@ -148,7 +152,7 @@ sub meta_names_ok($t) {
 
   # OpenGraph
   for (qw(og:type og:site_name og:title og:url og:type og:article:author og:description
-  og:locale og:article:published_time og:article:modified_time))
+    og:locale og:article:published_time og:article:modified_time))
   {
     my $selector = qq'head meta[property="$_"]';
     $t->element_exists($selector, $selector . ' exists')
