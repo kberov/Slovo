@@ -186,30 +186,39 @@ my $clear_cache = sub ($action, $c) {
 
 around update => $clear_cache;
 around remove => $clear_cache;
+use Time::Piece;
 
-sub b64_images_to_files ($c, $name) {
+sub b64_images_to_files ($c, $field_name) {
   my $v = $c->validation->output;
   return if (($v->{data_format} // '') ne 'html');
-  return unless ($v->{$name} =~ m|<img.+?src=['"]data\:.+?base64|mso);
-  my $dom    = Mojo::DOM->new($v->{$name});
-  my $images = $dom->find('img[src^="data:image/"]');
+
+  # Do nothing if the value of this field is not HTML that contains images with
+  # base64 encoded src attribute.
+  return unless ($v->{$field_name} =~ m|<img.+?src=['"]data\:.+?base64|ms);
+  my $dom    = Mojo::DOM->new($v->{$field_name});
+  my $images = $dom->find('img[src]');
   state $paths = $c->app->static->paths;
   $images->each(
     sub ($img, $i) {
       my ($type, $b64) = $img->{src} =~ m|data:([\w/\-]+);base64\,(.+)$|;
+
+      # Do nothing if image is already on disk.
       return unless $b64;
-      my ($ext) = $type =~ m|/(.+)$|;
-      my $stream = b($b64)->b64_decode;
-      my $ipad = sprintf '%02d', $i;
-      my $src  = path($paths->[0], 'img',
-        sha1_sum(encode('UTF-8' => $v->{alias})) . "-$ipad.$ext")->spurt($stream);
+      my ($ext)     = $type =~ m|/(.+)$|;
+      my $stream    = b($b64)->b64_decode;
+      my $image_num = sprintf '%02d', $i;
+      my $file_name
+        = substr(sha1_sum($b64), 0, 6)
+        . gmtime->strftime('-%Y%m%d%H%M%S')
+        . "-$image_num.$ext";
+      my $src = path($paths->[0], 'img', $file_name)->spurt($stream);
       ($img->{src}) = $src =~ m|public(/.+)$|;
 
       # TODO: resize the image on disc according to 'with' and 'height'
       # attributes if available and keep resolution 96dpi. Save original image
       # as well as resized image. Use resized image in src attribute.
     });
-  $v->{$name} = $dom->to_string;
+  $v->{$field_name} = $dom->to_string;
   return;
 }
 
@@ -429,17 +438,24 @@ pages.
 
   $c->b64_images_to_files('foo');
 
-Cleans up a parameter from base64 images and updates it with path to extracted
-images.
+Cleans up a parameter containing HTML from base64 images and updates it with
+paths to extracted images' sources.
 
 Expects that the value of the form parameter with name 'foo' is a HTML string.
 Scans it for C<img> tags wich contain base64 encoded image in their C<src>
-attribute.  Decodes the encoded values and saves them in files in the specific
-domain public directory. The files are named after the alias of the record +
-count.  Example (Second image in the body of a celina record with alias
-'hello'): C<hello-01.png>. Puts the URL path to the newly created file into the
-src attribute (e.g. C</img/hello-01.png>). The <src> attributes of the images
-are replaced with the paths to the newly created files.
+attribute. Decodes the encoded values and saves them in files in the specific
+domain public directory.
+
+To ensure unique filenames, the files are named after the following algorithm:
+first 6 symbols of the sha1_sum of the base64 string, current gmtime in format
+C<%Y%m%d%H%M%S> and count of the image in the HTML string with dashes in between.
+Example (Second image in the body of a celina record):
+C<7e556c-20211115225521-02.gif>. Puts the URL path to the newly created file
+into the src attribute (e.g. C</img/7e556c-20211115225521-02.gif>). The
+C<src> attributes of the images are replaced with the paths to the newly
+created files.
+
+Returns void.
 
 =head2 is_item_editable
 

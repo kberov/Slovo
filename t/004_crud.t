@@ -8,7 +8,7 @@ use Mojo::File qw(path);
 use Mojo::Util qw(decode encode sha1_sum);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  #  '.' => '/tmp/slovo'
+  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 isa_ok($app, 'Slovo');
@@ -195,17 +195,17 @@ my $cform = {
 };
 my $max_id = $app->dbx->db->query("SELECT max(id) as id FROM celini")->hash->{id} + 2;
 
+use Time::Piece;
 my $create_celini = sub {
+  my @b64_img_src = ();
 
   # add a new image as base64 data.
   my $images = path('t/data/images')->list_tree()->map(sub {
-    my $img = shift;
+    my $img   = shift;
     my ($ext) = $img =~ /\.(\w+)$/;
-    return
-        '<img src="data:image/'
-      . $ext
-      . ';base64,'
-      . b($img->slurp)->b64_encode('') . '" />';
+    my $b64   = b($img->slurp)->b64_encode('');
+    push @b64_img_src, $b64;
+    return '<img src="data:image/' . $ext . ';base64,' . $b64 . '" />';
   });
   $cform->{body} .= $images->join($/);
   $t->post_ok($app->url_for('store_celini') => form => $cform)
@@ -215,15 +215,20 @@ my $create_celini = sub {
     $cform->{body} => qr/<img.+?src=['"]data\:.+?base64/mso,
     'No base64 src in body.'
   );
+
+  my $c = 0;
   for ('01.png', '02.gif', '03.jpeg') {
     my $img = $app->home->child('domove/localhost/public/img',
-      sha1_sum(encode('UTF-8' => 'цѣлина')) . '-' . $_);
+          substr(sha1_sum($b64_img_src[$c]), 0, 6)
+        . gmtime->strftime('-%Y%m%d%H%M%S') . '-'
+        . $_);
     ok(-s $img, "Image *-$_ is created on disk.");
     my ($img_path) = $img =~ m|public(/.+)$|;
     like(
       $cform->{body} => qr/src="$img_path"/,
       'Base64 src is replaced with path to image.'
     );
+    $c++;
   }
 
 # In the next subtest we change the title and the alias will be created from it.
@@ -236,7 +241,7 @@ my $update_celini = sub {
   my $old_title = $cform->{title};
   $cform->{title} = 'Заглавие на цѣлината';
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
-  my $new_alias = Mojo::Util::slugify($cform->{title}, 1);
+  my $new_alias = Mojo::Util::slugify($cform->{title}, my $allow_unicode = 1);
   $t->get_ok($sh_up_url)->text_is('#alias' => 'alias: ' . $new_alias);
   my $new_row = $app->dbx->db->select('aliases', '*', {new_alias => $new_alias})->hash;
   is_deeply(
