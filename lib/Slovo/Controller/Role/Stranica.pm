@@ -442,7 +442,7 @@ Cleans up a parameter containing HTML from base64 images and updates it with
 paths to extracted images' sources.
 
 Expects that the value of the form parameter with name 'foo' is a HTML string.
-Scans it for C<img> tags wich contain base64 encoded image in their C<src>
+Scans it for C<img> tags which contain base64 encoded image in their C<src>
 attribute. Decodes the encoded values and saves them in files in the specific
 domain public directory.
 

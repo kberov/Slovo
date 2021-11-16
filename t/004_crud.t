@@ -8,7 +8,7 @@ use Mojo::File qw(path);
 use Mojo::Util qw(decode encode sha1_sum);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  '.' => '/tmp/slovo'
+  #  '.' => '/tmp/slovo'
 )->new('Slovo');
 my $app = $t->app;
 isa_ok($app, 'Slovo');
@@ -264,6 +264,10 @@ my $update_celini = sub {
   $cform->{user_id} = 4;
   $t->put_ok($sh_up_url => {} => form => $cform)->status_is(204);
   $cform->{redirect} = 'show_celini';
+
+  # Add one more image to test the uniqueness of generated filenames.
+  my $b64 = b(path('t/data/images/perl.gif')->slurp)->b64_encode('');
+  $cform->{body} .= 'yet another image <img src="data:image/gif;base64,' . $b64 . '" />';
   $t->put_ok($sh_up_url => {Accept => '*/*'} => form => $cform)->status_is(302)
     ->header_is(Location => $app->url_for('show_celini' => {id => $max_id}));
   my $e_celini_url = $app->url_for('edit_celini', {id => $max_id})->to_string;
@@ -272,6 +276,14 @@ my $update_celini = sub {
     ->text_is('select[name="group_id"]>option[selected]'    => 'краси')
     ->text_is('select[name="permissions"]>option[selected]' => $cform->{permissions});
 
+  # The newly added image has different file name than any prevoulsy existing
+  # although being really the same as the second.
+  my $html   = $t->tx->res->dom->at('[name="body"]')->content;
+  my $images = Mojo::DOM->new($html)->find('img[src]');
+  my $last   = pop @$images;
+  $images->each(sub {
+    isnt($_->{src} => $last->{src}, "$_->{src} is not $last->{src}");
+  });
 };
 
 # Remove Celini
@@ -413,6 +425,7 @@ subtest update_stranica => $update_stranica;
 
 subtest create_celini => $create_celini;
 subtest update_celini => $update_celini;
+
 subtest remove_celini => $remove_celini;
 
 subtest crud_domain      => $crud_domain;
