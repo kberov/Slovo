@@ -208,10 +208,47 @@ layout 'site',
     Направено съ ♥ и <a target="_blank" href="https://github.com/kberov/Slovo">Слово</a>.
   </nav>
 </footer>
+
 @@ partials/_footer_right.html.ep
 <%
-# This template i here just to be found when the "localhost" domain is served
-%><img src="/img/slovo-white.png" style="height: 1rem" />
+my $sharer_url = url_for->base . $canonical_path;
+%>
+<a class="button sharer text-success" target="_blank"
+    href="https://www.facebook.com/share.php?u=<%= $sharer_url %>" rel="noopener"
+    aria-label="Споделяне във Facebook"
+    title="Споделяне във Facebook">f</a><a
+    
+    class="button sharer text-success" target="_blank"
+    href="https://www.reddit.com/submit?url=<%= $sharer_url %>"
+    aria-label="Споделяне в Reddit"
+    title="Споделяне в Reddit">r</a><a
+
+    class="button sharer text-success" target="_blank"
+    href="https://www.linkedin.com/shareArticle?mini=true&url=<%= $sharer_url %>;title=<%= title %>"
+    aria-label="Споделяне в LinkedIn"
+    title="Споделяне в LinkedIn">in</a><a
+
+    class="button sharer text-success" target="_blank"
+    href="https://twitter.com/intent/tweet?url=<%= $sharer_url %>;via=@kberov;title=<%= title %>"
+    aria-label="Споделяне в Twitter"
+    title="Споделяне в Twitter">t</a><a
+
+    class="button sharer text-success" target="_blank"
+    href="https://pinterest.com/pin/create/button/?url=<%= $sharer_url %>;description=<%= title %>"
+    aria-label="Споделяне в Pinterest"
+    title="Споделяне в Pinterest">p</a><a
+
+    class="button sharer text-success" target="_blank"
+    href="mailto:?subject=<%= title %>;body=<%= $sharer_url %>"
+    aria-label="Напишете писмо"
+    title="Напишете писмо">✉</a><a
+
+    class="button sharer text-success" target="_blank"
+    href="tg://msg_url?url=<%= $sharer_url %>;text=<%= title %>"
+    aria-label="Споделяне в Telegram"
+    title="Споделяне в Telegram">➢</a>
+&nbsp;<img src="/img/slovo-white.png" style="height: 1.5rem" />
+
 
 @@ partials/_head.html.ep
 <!-- from __DATA__ -->
@@ -808,3 +845,13 @@ p.drop-cap::first-letter {
     padding-bottom: 5.5rem !important;
   }
 }
+
+footer .sharer {
+    background-color: black;
+    font-weight: bolder;
+    font-family: Repo, sans-serif;
+    border-radius: 50%;
+    font-size: small;
+    padding: .5rem 1rem;
+}
+
