@@ -178,13 +178,16 @@ layout 'site',
 <!-- _note -->
 <section class="note">
     %= t 'h' . $level => $celina->{title}
+%$celina->{body} .= include 'partials/_created_tstamp';
 %== format_body($celina)
+
 </section>
 
 @@ partials/_ceyalina.html.ep
 <!-- _paragraph -->
 <section class="paragraph">
     %= t 'h' . $level => $celina->{title}
+%$celina->{body} .= include 'partials/_created_tstamp';
 %== format_body($celina)
 </section>
 
@@ -194,7 +197,9 @@ layout 'site',
 <!-- <%= $domain->{templates} %> -->
 <section class="<%= $row->{data_type} %>">
     %= t 'h' . $level => $row->{title}
+%$celina->{body} .= include 'partials/_created_tstamp';
 %== format_body($row)
+
 </section>
 <!-- end _data_type -->
 
@@ -203,52 +208,67 @@ layout 'site',
 <!-- <%= $domain->{templates} %> -->
 <footer class="is-fixed bg-dark row">
   <nav class="col text-left">
-    <div class="pull-right text-right"><%= include "partials/_footer_right" %></div>
+  
+% if(stash->{canonical_path}) {
+%=  include "partials/_footer_right";
+% } else {
+<div class="pull-right text-right social">Тук вече ползваме сесийни бисквитки.</div>
+%}
+
     <%= link_to 'manage' => 'under_management' => (id=>'manage') if $c->is_user_authenticated %>
-    Направено съ ♥ и <a target="_blank" href="https://github.com/kberov/Slovo">Слово</a>.
+    <div class="pull-left text-left love">
+        Направено съ ♥ и <a target="_blank" href="https://github.com/kberov/Slovo">Слово</a>.
+    </div>
   </nav>
 </footer>
 
 @@ partials/_footer_right.html.ep
+<div class="pull-right text-right social">
 <%
 my $sharer_url = url_for->base . $canonical_path;
 %>
-<a class="button sharer text-success" target="_blank"
+<a class="button outline primary sharer" target="_blank"
     href="https://www.facebook.com/share.php?u=<%= $sharer_url %>" rel="noopener"
     aria-label="Споделяне във Facebook"
     title="Споделяне във Facebook">f</a><a
     
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="https://www.reddit.com/submit?url=<%= $sharer_url %>"
     aria-label="Споделяне в Reddit"
     title="Споделяне в Reddit">r</a><a
 
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="https://www.linkedin.com/shareArticle?mini=true&url=<%= $sharer_url %>;title=<%= title %>"
     aria-label="Споделяне в LinkedIn"
     title="Споделяне в LinkedIn">in</a><a
 
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="https://twitter.com/intent/tweet?url=<%= $sharer_url %>;via=@kberov;title=<%= title %>"
     aria-label="Споделяне в Twitter"
-    title="Споделяне в Twitter">t</a><a
+    title="Споделяне в Twitter">t</a><!--<a
 
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="https://pinterest.com/pin/create/button/?url=<%= $sharer_url %>;description=<%= title %>"
     aria-label="Споделяне в Pinterest"
-    title="Споделяне в Pinterest">p</a><a
+    title="Споделяне в Pinterest">P</a>--><a
 
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="mailto:?subject=<%= title %>;body=<%= $sharer_url %>"
     aria-label="Напишете писмо"
     title="Напишете писмо">✉</a><a
 
-    class="button sharer text-success" target="_blank"
+    class="button outline primary sharer" target="_blank"
     href="tg://msg_url?url=<%= $sharer_url %>;text=<%= title %>"
     aria-label="Споделяне в Telegram"
-    title="Споделяне в Telegram">➢</a>
-&nbsp;<img src="/img/slovo-white.png" style="height: 1.5rem" />
+    title="Споделяне в Telegram">➢</a><a
 
+    class="button outline primary sharer" target="_blank"
+    aria-label="Направено съ ♥ и Слово"
+    title="Направено съ ♥ и Слово"
+    href="https://github.com/kberov/Slovo"><img
+    src="/img/slovo-white.png"/></a>
+        
+</div>
 
 @@ partials/_head.html.ep
 <!-- from __DATA__ -->
@@ -282,6 +302,12 @@ my $sharer_url = url_for->base . $canonical_path;
     <link rel="stylesheet" href="/css/malka/site.css" />
     <script src="/mojo/jquery/jquery.js" ></script>
   </head>
+
+@@ partials/_created_tstamp.html.ep
+<p class="text-right is-small">
+    От: <%= $author %>; Създадено: <%= $created_at %>; Обновено: <%= $tstamp %>
+</p>
+
 @@ partials/_header.html.ep
 <!-- from __DATA__ -->
 <!-- <%=$domain->{templates} %> -->
@@ -352,6 +378,7 @@ my $sharer_url = url_for->base . $canonical_path;
 <!-- <%= $domain->{templates} %> -->
 <section class="<%= $row->{data_type} %>">
     %= t 'h' . $level => $celina->{title}
+%$celina->{body} .= include 'partials/_created_tstamp';
 %== format_body($celina)
 </section>
 
@@ -421,6 +448,7 @@ $list->map(sub {
 <!-- _writing -->
 <section class="writing">
     %= t 'h' . $level => $celina->{title}
+%$celina->{body} .= include 'partials/_created_tstamp';
 %==format_body($celina)
 </section>
 <!-- end _writing -->
@@ -823,7 +851,19 @@ p.drop-cap::first-letter {
   font-family: BukyvedeRegular;
 }
 
-@media (max-width: 599px) {
+footer .button.outline.primary.sharer {
+    font-family: Repo, sans-serif;
+    color: var(--color-success);
+    font-weight: bolder;
+    border-radius: 4px;
+    font-size: small;
+    padding: .5rem 1rem;
+}
+footer .button.outline.primary.sharer img {
+    height: .85rem;
+}
+
+@media (max-width: 721px) {
   html {
       font-size: 90%;
   }
@@ -844,14 +884,12 @@ p.drop-cap::first-letter {
     padding-top: 5.5rem !important;
     padding-bottom: 5.5rem !important;
   }
-}
-
-footer .sharer {
-    background-color: black;
-    font-weight: bolder;
-    font-family: Repo, sans-serif;
-    border-radius: 50%;
-    font-size: small;
-    padding: .5rem 1rem;
-}
+  footer .love {
+    display: none;
+  }
+  footer .social {
+    float: revert !important;
+    text-align: center;
+  }
+} /* end @media (max-width: 721px) */
 

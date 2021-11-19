@@ -1,9 +1,13 @@
 Revision history for Mojolicious application Slovo
 
-2021.11.21
+2021.11.20
     * Fixed: Image filenames for files generated from base64 data were not
       really unique.
     * Added several simple sharing buttons - No JS.
+    * Improved footer CSS.
+    * Added author's name, 'created' and 'updated' dates at the bottom of some
+      celini templates.
+    * Happy birthday to my muse!
 
 2021.11.12
     * Fixed wrong Mojolicious version in Makefile.PL to 9.22.
