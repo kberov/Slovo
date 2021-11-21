@@ -225,7 +225,7 @@ layout 'site',
 @@ partials/_footer_right.html.ep
 <div class="pull-right text-right social">
 <%
-my $sharer_url = url_for->base . $canonical_path;
+my $sharer_url = url_for;
 %>
 <a class="button outline primary sharer" target="_blank"
     href="https://www.facebook.com/share.php?u=<%= $sharer_url %>" rel="noopener"
@@ -238,27 +238,27 @@ my $sharer_url = url_for->base . $canonical_path;
     title="Споделяне в Reddit">r</a><a
 
     class="button outline primary sharer" target="_blank"
-    href="https://www.linkedin.com/shareArticle?mini=true&url=<%= $sharer_url %>;title=<%= title %>"
+    href="https://www.linkedin.com/shareArticle?mini=true&url=<%= $sharer_url %>&title=<%= title %>"
     aria-label="Споделяне в LinkedIn"
     title="Споделяне в LinkedIn">in</a><a
 
     class="button outline primary sharer" target="_blank"
-    href="https://twitter.com/intent/tweet?url=<%= $sharer_url %>;via=@kberov;title=<%= title %>"
+    href="https://twitter.com/intent/tweet?url=<%= $sharer_url %>&via=@kberov&title=<%= title %>"
     aria-label="Споделяне в Twitter"
     title="Споделяне в Twitter">t</a><!--<a
 
     class="button outline primary sharer" target="_blank"
-    href="https://pinterest.com/pin/create/button/?url=<%= $sharer_url %>;description=<%= title %>"
+    href="https://pinterest.com/pin/create/button/?url=<%= $sharer_url %>&description=<%= title %>"
     aria-label="Споделяне в Pinterest"
     title="Споделяне в Pinterest">P</a>--><a
 
     class="button outline primary sharer" target="_blank"
-    href="mailto:?subject=<%= title %>;body=<%= $sharer_url %>"
+    href="mailto:?subject=<%= title %>&body=<%= $sharer_url %>"
     aria-label="Напишете писмо"
     title="Напишете писмо">✉</a><a
 
     class="button outline primary sharer" target="_blank"
-    href="tg://msg_url?url=<%= $sharer_url %>;text=<%= title %>"
+    href="tg://msg_url?url=<%= $sharer_url %>&text=<%= title %>"
     aria-label="Споделяне в Telegram"
     title="Споделяне в Telegram">➢</a><a
 

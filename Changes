@@ -1,4 +1,6 @@
 Revision history for Mojolicious application Slovo
+2021.11.22
+    Fixed wrong separator for sharer urls in _footer_right.html.ep
 
 2021.11.20
     * Fixed: Image filenames for files generated from base64 data were not
