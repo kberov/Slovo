@@ -99,8 +99,10 @@ sub _around_execute ($execute, $c) {
     });
 
   $stash->{canonical_path}
-    = $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
-      {lang => $celina->{language}})->to_abs->path->canonicalize->to_route;
+    = $c->url_for->base
+    . $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
+      {lang => $celina->{language}})->to_abs->path->leading_slash(0)
+    ->canonicalize->to_route;
 
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
 
@@ -133,10 +135,14 @@ sub _go_to_new_page_url ($c, $page, $l) {
 my $cached    = 'cached';       # Directory name to save pages to
 my $cacheable = qr/\.html$/;    # File exptension for cacheable content
 
+has url_to_path => sub {
+  $_[0]->url_for->path->leading_slash(0)->trailing_slash(0)->canonicalize->to_route;
+};
+
 sub _path_to_file ($c, $url_path) {
 
   # Will be served by Apache or _render_cached_page next time.
-  return path($c->app->static->paths->[0], "$cached$url_path") if $ENV{GATEWAY_INTERFACE};
+  return path($c->app->static->paths->[0], $cached, $url_path) if $ENV{GATEWAY_INTERFACE};
 
   # Will be served by _render_cached_page.
   return path($c->app->static->paths->[0],
@@ -146,10 +152,7 @@ sub _path_to_file ($c, $url_path) {
 sub _render_cached_page ($c) {
   state $cache_control = $c->app->config('cache_control');
   $c->res->headers->cache_control($cache_control);
-  my $url_path
-    = $c->url_for(($c->stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
-      {lang => $c->language})->to_abs->path->canonicalize->to_route;
-  return unless $url_path =~ $cacheable;
+  return unless (my $url_path = $c->url_to_path) =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   return $c->reply->file($file) if -f $file;
   return;
@@ -158,8 +161,7 @@ sub _render_cached_page ($c) {
 # Cache the page on disk which is being rendered for non authenticated users.
 # Cached files are deleted when any page or content is changed.
 sub _cache_page ($c, $l) {
-  my $url_path = $c->stash('canonical_path');
-  return unless $url_path =~ $cacheable;
+  return unless (my $url_path = $c->url_to_path) =~ $cacheable;
   my $file = $c->_path_to_file($url_path);
   $file->dirname->make_path({mode => oct(755)});
   return $file->spurt($c->res->body =~ s/(<html[^>]+>)/$1<!-- $cached -->/r);

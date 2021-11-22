@@ -1,6 +1,6 @@
 package Slovo;
-use Mojo::Base 'Mojolicious', -signatures;
 use feature ':5.26';
+use Mojo::Base 'Mojolicious', -signatures;
 
 use Mojo::Util 'class_to_path';
 use Mojo::File 'path';

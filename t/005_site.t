@@ -18,7 +18,6 @@ $app->config->{cache_pages} = 1;
 my $not_found = sub {
   for my $alias (qw(скрита изтрита предстояща изтекла несъществуваща)) {
     $t->get_ok("/$alias.html")->status_is(404);
-    $t->meta_names_ok();
   }
 };
 $t->login('краси', 'беров');
@@ -81,19 +80,18 @@ my $cached_pages = sub {
   # Root page with path / is not cached
   $t->get_ok("/")->status_is(200);
   my $body = $t->get_ok("/")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'Root page accessed with path / is cached');
   like(decode('UTF-8', $body) => qr/rel="canonical" href=".+?коренъ\.bg-bg\.html"/ =>
       '... and shows its canonical url.');
 
-  # Page with alias as name is cached
+  # Page with alias as name is cached AS IS
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'Page  accessed with path /foo.html IS cached');
   like(decode('UTF-8', $body) => qr/rel="canonical" href=".+?\/коренъ\.bg-bg\.html"/ =>
       '... and shows its canonical url.');
 
-  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => '/коренъ.bg-bg.html')) . '.html'),
+  $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
+      'Page  accessed with path /foo.html IS cached');
+  ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => '/коренъ.html')) . '.html'),
     'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT cached');
 
@@ -107,17 +105,16 @@ my $cached_pages = sub {
 
   $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-        'On first request celina with path /foo/bar.bg.html was just'
-      . ' cached (but using it\'s canonical name )');
+      'On first request celina with path /foo/bar.bg.html was just cached');
 
   $body = $t->get_ok("/вести/вътора-вест.bg-bg.html")->status_is(200)->tx->res->body;
-  like(
-    $body => qr/<html[^>]+><!-- $cached -->/ => 'celina with canonical name is cached');
-  ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
-    '/foo/bar.bg.html IS NOT ever cached');
-  $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
   unlike($body => qr/<html[^>]+><!-- $cached -->/ =>
-      ' /foo/bar.bg.html is not canonical and thus not cached');
+      'celina with canonical name is cached for next requests');
+  ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
+    '/foo/bar.bg.html IS NOT cached');
+  $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
+  like($body => qr/<html[^>]+><!-- $cached -->/ =>
+      ' /foo/bar.bg.html is not canonical but still cached');
   $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or writing
@@ -142,9 +139,7 @@ my $browser_cache = sub {
   $t->get_ok("/вести.bg.html" =>
       {'If-Modified-Since' => $headers->last_modified, 'If-None-Match' => $headers->etag})
     ->status_is(304);
-  $t->get_ok("/вести.bg.html" => {'If-None-Match'     => $headers->etag})->status_is(200);
-  $t->get_ok("/вести.bg.html" => {'If-Modified-Since' => $headers->last_modified})
-    ->status_is(304);
+  $t->get_ok("/вести.bg.html" => {'If-None-Match' => $headers->etag})->status_is(200);
   $t->header_is('Cache-Control' => $app->config('cache_control'));
 
   # this is cannonical
@@ -339,6 +334,7 @@ subtest breadcrumb        => $breadcrumb;
 # Disabled until proper test cases are prepared
 subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages         => $cached_pages;
+
 subtest 'Browser cache'      => $browser_cache;
 subtest home_page            => $home_page;
 

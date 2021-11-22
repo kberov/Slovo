@@ -225,7 +225,7 @@ layout 'site',
 @@ partials/_footer_right.html.ep
 <div class="pull-right text-right social">
 <%
-my $sharer_url = url_for;
+my $sharer_url = $canonical_path;
 %>
 <a class="button outline primary sharer" target="_blank"
     href="https://www.facebook.com/share.php?u=<%= $sharer_url %>" rel="noopener"
@@ -277,9 +277,7 @@ my $sharer_url = url_for;
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
-    % my $base = url_for->base;
-    % $canonical_path =~ s|^/|| if $base =~ m|/$|;
-    <link rel="canonical" href="<%= $base . $canonical_path %>" />
+    <link rel="canonical" href="<%= $canonical_path %>" />
 
     <title><%= title %></title>
     <meta name="author" content="<%= $author %>" />
@@ -290,7 +288,7 @@ my $sharer_url = url_for;
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="<%= $domain->{site_name} %>" />
     <meta property="og:title" content="<%= title %>" />
-    <meta property="og:url" content="<%= $base . $canonical_path %>" />
+    <meta property="og:url" content="<%= $canonical_path %>" />
     <meta property="og:type" content="article" />
     <meta property="og:article:author" content="<%= $author %>" />
     <meta property="og:description" content="<%= $description %>" />
