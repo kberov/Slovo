@@ -335,8 +335,8 @@ subtest breadcrumb        => $breadcrumb;
 subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages         => $cached_pages;
 
-subtest 'Browser cache'      => $browser_cache;
-subtest home_page            => $home_page;
+subtest 'Browser cache' => $browser_cache;
+subtest home_page       => $home_page;
 
 # subtest aliases   => $aliases;
 done_testing;
