@@ -30,8 +30,9 @@
     % }
         <th></th>
         </tr>
+% my $title_data_type = $c->stranici->title_data_type;
 % for my $item (@$celini) { $item->{is_dir} = 1 if ($item->{permissions} =~ /^d/);
-        <tr>
+<tr <%== $item->{data_type} eq $title_data_type ? ' style="font-weight: bolder"' : ''%>>
             <th><%= $item->{is_dir} ? '🗀' : '☰' %></th>
     % for my $column (@columns) {
       % if ($column eq 'id') {

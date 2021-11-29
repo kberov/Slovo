@@ -258,9 +258,6 @@ sub index ($c) {
   my $celini = $c->celini;
   my $opts   = {
     where => {
-
-      # do not list titles of pages
-      data_type => {'!=' => $str->title_data_type},
       page_id   => $page_id,
       %{$celini->readable_by($c->user)}
     },

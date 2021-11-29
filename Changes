@@ -1,4 +1,11 @@
 Revision history for Mojolicious application Slovo
+
+2021.12.02
+    * Fixed error in template partials/_kniga.html.ep in Slovo::Themes::Malka.
+    * Returned again to showing the celina used for title of a stranica in
+      Slovo::Controller::Celini->index().
+
+
 2021.11.22
     * Fixed wrong separator for sharer urls in _footer_right.html.ep
     * Simplified logic for caching pages.

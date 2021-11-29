@@ -374,7 +374,7 @@ my $sharer_url = $canonical_path;
 <!-- _book -->
 <!-- from __DATA__ -->
 <!-- <%= $domain->{templates} %> -->
-<section class="<%= $row->{data_type} %>">
+<section class="<%= $celina->{data_type} %>">
     %= t 'h' . $level => $celina->{title}
 %$celina->{body} .= include 'partials/_created_tstamp';
 %== format_body($celina)
