@@ -4,7 +4,18 @@ Revision history for Mojolicious application Slovo
     * Fixed error in template partials/_kniga.html.ep in Slovo::Themes::Malka.
     * Returned again to showing the celina used for title of a stranica in
       Slovo::Controller::Celini->index().
-
+    * Added social icons from materialdesignicons.com and icon-icons.com to
+      Slovo::Plugin::Themes::Malka and used them in the footer. Slightly
+      improved CSS for mobile devices.
+    * Enabled partials/_right.html.ep and added <aside id="widgets"> to it to
+      enable plugins to put there content.
+    * Moved Plugins TagHelpers and DefaultHelpers to slovo.conf just after
+      Authentication plugin to allow their helpers to be used by plugins which
+      load next and still override Authentication's is_user_authenticated.
+    * Added two new helpers to TagHelpers plugin to allow other plugins to put
+      css and js files to $app->defaults so they are automatically available in
+      stash as <link> and <script> tags. Used the new feature in Malka.pm
+     
 
 2021.11.22
     * Fixed wrong separator for sharer urls in _footer_right.html.ep

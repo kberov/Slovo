@@ -60,7 +60,7 @@ sub execute ($c, $page, $user, $l, $preview) {
     lang            => $celina->{language});
 }
 
-# Check for pid and page_id parameters and edirect to pages' index page if
+# Check for pid and page_id parameters and redirect to pages' index page if
 # needed, so the user can choose in which page to create the new writing.
 my sub _validate_create ($c, $u, $l, $str) {
   my $int = qr/^\d{1,10}$/;
@@ -257,11 +257,8 @@ sub index ($c) {
   }
   my $celini = $c->celini;
   my $opts   = {
-    where => {
-      page_id   => $page_id,
-      %{$celini->readable_by($c->user)}
-    },
-    order_by => {-asc => [qw(page_id pid sorting id)]}};
+    where    => {page_id => $page_id, %{$celini->readable_by($c->user)}},
+    order_by => {-asc    => [qw(page_id pid sorting id)]}};
 
   return $c->render(
     celini     => $celini->all($opts),

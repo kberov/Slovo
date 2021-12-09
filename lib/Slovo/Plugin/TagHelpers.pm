@@ -89,6 +89,18 @@ sub register ($self, $app, $config) {
   $app->helper(html_substr => \&_html_substr);
   $app->helper(format_body => \&_format_body);
 
+  for my $h (qw(stylesheets javascripts)) {
+    $app->helper(
+      $h => sub {
+        state $tag = $h =~ s/s$//r;
+        if ($_[1]) {
+          my $d = $app->defaults->{$h} //= [];
+          push @$d, $_[0]->$tag($_[1]);
+          return $_[0];
+        }
+        return join $/, @{$_[0]->stash->{$h} //= []};
+      });
+  }
   return $self;
 }
 
@@ -158,6 +170,24 @@ are not more than C<$chars>. Starts from the first character in the first
 matched C<$selector>. In case the C<$html> is simple text, produces
 C<E<lt>pE<gt>> elements.
 
+=head2 javascripts
+
+Add one JS file to L<Mojolicious/defaults> C<<$app->defaults->{javascripts}>>.
+Intended for use in a plugin's C<register> method.
+
+    $app->javascripts('/js/foo.js');
+    $app->javascripts('/js/bar.js');
+
+
+When invoked without arguments, returns the list of generated tags for those
+files, found in C<<$c->stash->{javascripts}>>.
+
+    %=javascripts
+
+    # returns
+    <script src="/path/to/foo.js"></script>
+    <script src="/path/to/bar.js"></script>
+
 =head2 select_box
 
     <%=
@@ -182,6 +212,22 @@ retreived from input C<$c-E<gt>every_param($name)> by the wrapped
 C<select_field>. If value is provided it does C<$c-E<gt>param($name =E<gt>
 $attrs{value})>. The generated tags are wrapped in a C<div> tag with
 C<class="mui-select $name">.
+
+=head2 stylesheets
+
+Adds an item to C<<$app->defaults->{stylesheets}>> and returns $c.
+Intended for use in a plugin's C<register> method.
+
+    $app->stylesheets('/css/bar.css');
+    $app->stylesheets('/css/foo.css');
+
+When invoked without arguments, returns the list of generated tags for those
+files, found in C<<$c->stash->{stylesheets}>>.
+
+    %=stylesheets
+    #returns:
+    <link rel="stylesheet" href="/css/foo.css" />
+    <link rel="stylesheet" href="/css/bar.css" />
 
 =head1 METHODS
 

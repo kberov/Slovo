@@ -5,67 +5,42 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   id="svg2"
-   height="48"
    width="48"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="slovo-white.svg">
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1647"
-     inkscape:window-height="864"
-     id="namedview14"
-     showgrid="false"
-     inkscape:snap-text-baseline="true"
-     inkscape:zoom="4.9166667"
-     inkscape:cx="-15.254237"
-     inkscape:cy="24"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+   height="48"
+   id="svg2"
+   version="1.1">
   <defs
      id="defs4">
     <filter
-       style="color-interpolation-filters:sRGB;"
-       id="filter2989">
+       id="filter2989"
+       style="color-interpolation-filters:sRGB;">
       <feFlood
-         result="flood"
-         flood-color="rgb(0,0,0)"
+         id="feFlood2991"
          flood-opacity="1"
-         id="feFlood2991" />
+         flood-color="rgb(0,0,0)"
+         result="flood" />
       <feComposite
-         result="composite1"
-         operator="in"
-         in="flood"
+         id="feComposite2993"
          in2="SourceGraphic"
-         id="feComposite2993" />
+         in="flood"
+         operator="in"
+         result="composite1" />
       <feGaussianBlur
-         result="blur"
-         stdDeviation="1"
+         id="feGaussianBlur2995"
          in="composite"
-         id="feGaussianBlur2995" />
+         stdDeviation="1"
+         result="blur" />
       <feOffset
-         result="offset"
-         dy="1"
+         id="feOffset2997"
          dx="1"
-         id="feOffset2997" />
+         dy="1"
+         result="offset" />
       <feComposite
-         result="composite2"
-         operator="over"
-         in="SourceGraphic"
+         id="feComposite2999"
          in2="offset"
-         id="feComposite2999" />
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
     </filter>
   </defs>
   <metadata
@@ -81,19 +56,19 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(0,-1004.3622)"
+     style="fill:#ffffff"
      id="layer1"
-     style="fill:#ffffff">
+     transform="translate(0,-1004.3622)">
     <text
-       transform="matrix(0.90155734,0,0,0.92276959,1.5730563,82.614718)"
-       id="text2985"
-       y="1044.9998"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:61.46406555px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter2989)"
        x="2.3184695"
-       style="font-style:normal;font-weight:normal;font-size:61.46406555px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter2989)"
-       xml:space="preserve"><tspan
-         y="1044.9998"
-         x="2.3184695"
+       y="1044.9998"
+       id="text2985"
+       transform="matrix(0.90155734,0,0,0.92276959,1.5730563,82.614718)"><tspan
+         style="font-family:sans-serif;fill:#ffffff"
          id="tspan2987"
-         style="fill:#ffffff">Ⱄ</tspan></text>
+         x="2.3184695"
+         y="1044.9998">Ⱄ</tspan></text>
   </g>
 </svg>
