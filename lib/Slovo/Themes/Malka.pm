@@ -346,7 +346,9 @@ my $sharer_url = $canonical_path;
         </nav>
         <nav class="col nav-center">
             % if ($menu->size > 1) {
-            <div class="tabs"><%=
+            <button class="button primary outline icon sharer"><img width="32" src="/css/malka/menu.svg"></button>
+            <div class="tabs">
+            <%=
             $menu->map(sub {
               return if $page->{id} == $_->{id};
               if ($_->{is_dir}) {
@@ -377,6 +379,7 @@ my $sharer_url = $canonical_path;
             %></div>
             % }
       </nav>
+      <script>$('header>nav.col>button.sharer').click(function(){$('nav.col>div.tabs').toggle()});</script>
       <nav class="col-2 nav-right">
         % if ($c->is_user_authenticated) {
         % my $name = $user->{first_name} . ' ' . $user->{last_name};
@@ -384,7 +387,7 @@ my $sharer_url = $canonical_path;
         % } else {
             <%= link_to sign_in => begin%><img title="Входъ" src="/css/malka/login.svg"><% end %>
         % }
-        %= include 'partials/_lang_menu'
+        %#= include 'partials/_lang_menu'
       </nav>
     </header>
 
@@ -478,13 +481,18 @@ my $link    = link_to $celina->{title} => para_with_lang => {
     paragraph_alias => $celina->{alias},
     lang            => $celina->{language}
 } => (title => $celina->{title});
+my $link_bottom = link_to '…' => para_with_lang => {
+  page_alias      => $p->{alias},
+  paragraph_alias => $celina->{alias},
+  lang            => $celina->{language}} => (title => $celina->{title});
+
 my $html = html_substr($celina->{teaser} // $celina->{body},
     'p,blockquote', $col_num eq '-0' ? 220 * 2 : 220);
 %>
 <!-- <%= $celina->{data_type} ." $num" %> exerpt -->
     <div class="card col<%= $col_num %> <%= $celina->{data_type} %>">
         <header><h4><%= $link %></h4></header>
-        %== $html
+        %== $html.$link_bottom
     </div>
 
 @@ partials/_right.html.ep
@@ -850,16 +858,19 @@ body>header nav, body>footer nav {
   border-radius: var(--border-radius);
   font-size: 80%;
 }
+
 .card p, .card h4 {
   margin: 0;
   line-height: 1.1;
 }
+
 p, h4 {
   margin-bottom:0.7rem;
   -webkit-hyphens: auto;
   -ms-hyphens: auto;
   hyphens: auto;
 }
+
 p.drop-cap::first-letter {
   float: left;
   font-size: 5rem;
@@ -871,8 +882,7 @@ p.drop-cap::first-letter {
   font-family: BukyvedeRegular;
 }
 
-footer .button.outline.primary.sharer {
-    font-family: Repo, sans-serif;
+.button.outline.primary.sharer {
     color: var(--color-success);
     font-weight: bolder;
     border-radius: 4px;
@@ -889,8 +899,22 @@ footer .button.outline.primary.sharer img {
     margin-right: auto;
 }
 
+header nav.col.nav-center>button.sharer {
+    display: none;
+}
 
-@media (max-width: 721px) {
+@media (max-width: 700px) {
+    header nav.col.nav-center{
+        justify-content: space-evenly;
+    }
+    header nav.col.nav-center>button.sharer {
+        display: block;
+    }
+    header nav.col-2.nav-right,
+    header nav.col.nav-center>div.tabs {
+        display: none;
+    }
+
   html {
       font-size: 90%;
   }
@@ -920,12 +944,23 @@ footer .button.outline.primary.sharer img {
     float: revert !important;
     text-align: center;
   }
+  h1{
+      font-size:1.2em;
+      margin-bottom: 0;
+      line-height: 1.1;
+  }
 } /* end @media (max-width: 721px) */
 
+@@ css/malka/book-open-page-variant-outline.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M19 1L14 6V17L19 12.5V1M21 5V18.5C19.9 18.15 18.7 18 17.5 18C15.8 18 13.35 18.65 12 19.5V6C10.55 4.9 8.45 4.5 6.5 4.5C4.55 4.5 2.45 4.9 1 6V20.65C1 20.9 1.25 21.15 1.5 21.15C1.6 21.15 1.65 21.1 1.75 21.1C3.1 20.45 5.05 20 6.5 20C8.45 20 10.55 20.4 12 21.5C13.35 20.65 15.8 20 17.5 20C19.15 20 20.85 20.3 22.25 21.05C22.35 21.1 22.4 21.1 22.5 21.1C22.75 21.1 23 20.85 23 20.6V6C22.4 5.55 21.75 5.25 21 5M10 18.41C8.75 18.09 7.5 18 6.5 18C5.44 18 4.18 18.19 3 18.5V7.13C3.91 6.73 5.14 6.5 6.5 6.5C7.86 6.5 9.09 6.73 10 7.13V18.41Z" /></svg>
+@@ css/malka/download.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>
 @@ css/malka/email-fast-outline.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M22 5.5H9C7.9 5.5 7 6.4 7 7.5V16.5C7 17.61 7.9 18.5 9 18.5H22C23.11 18.5 24 17.61 24 16.5V7.5C24 6.4 23.11 5.5 22 5.5M22 16.5H9V9.17L15.5 12.5L22 9.17V16.5M15.5 10.81L9 7.5H22L15.5 10.81M5 16.5C5 16.67 5.03 16.83 5.05 17H1C.448 17 0 16.55 0 16S.448 15 1 15H5V16.5M3 7H5.05C5.03 7.17 5 7.33 5 7.5V9H3C2.45 9 2 8.55 2 8S2.45 7 3 7M1 12C1 11.45 1.45 11 2 11H5V13H2C1.45 13 1 12.55 1 12Z" /></svg>
 @@ css/malka/facebook.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z" /></svg>
+@@ css/malka/file-pdf-box.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M12,10.5H13V13.5H12V10.5M7,11.5H8V10.5H7V11.5M20,6V18A2,2 0 0,1 18,20H6A2,2 0 0,1 4,18V6A2,2 0 0,1 6,4H18A2,2 0 0,1 20,6M9.5,10.5A1.5,1.5 0 0,0 8,9H5.5V15H7V13H8A1.5,1.5 0 0,0 9.5,11.5V10.5M14.5,10.5A1.5,1.5 0 0,0 13,9H10.5V15H13A1.5,1.5 0 0,0 14.5,13.5V10.5M18.5,9H15.5V15H17V13H18.5V11.5H17V10.5H18.5V9Z" /></svg>
 @@ css/malka/icons8-telegram-app.svg
 <svg fill="white" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 19.976562 3.1210938 L 19.611328 3.2695312 C 19.611328 3.2695312 6.6375504 8.5740484 2.6132812 10.267578 L 2.0019531 10.525391 L 2.0019531 12.779297 L 6.9472656 14.755859 L 8.6796875 19.996094 L 10.251953 20.005859 L 12.955078 17.720703 L 16.355469 20.996094 L 18.808594 20.996094 L 21.964844 3.875 L 19.976562 3.1210938 z M 19.646484 5.4179688 L 17.146484 18.980469 L 13.044922 15.029297 L 10.224609 17.410156 L 11 14.375 L 17.28125 8 L 17.082031 7.7988281 C 17.082031 7.7988281 10.706702 11.473998 8.0019531 13.023438 L 4.5371094 11.638672 C 9.0770415 9.7455758 18.697943 5.8058761 19.646484 5.4179688 z"/></svg>
 @@ css/malka/linkedin.svg
@@ -933,7 +968,9 @@ footer .button.outline.primary.sharer img {
 @@ css/malka/login.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z" /></svg>
 @@ css/malka/logout.svg
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" /></svg>
+@@ css/malka/menu.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
 @@ css/malka/reddit.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M14.5 15.41C14.58 15.5 14.58 15.69 14.5 15.8C13.77 16.5 12.41 16.56 12 16.56C11.61 16.56 10.25 16.5 9.54 15.8C9.44 15.69 9.44 15.5 9.54 15.41C9.65 15.31 9.82 15.31 9.92 15.41C10.38 15.87 11.33 16 12 16C12.69 16 13.66 15.87 14.1 15.41C14.21 15.31 14.38 15.31 14.5 15.41M10.75 13.04C10.75 12.47 10.28 12 9.71 12C9.14 12 8.67 12.47 8.67 13.04C8.67 13.61 9.14 14.09 9.71 14.08C10.28 14.08 10.75 13.61 10.75 13.04M14.29 12C13.72 12 13.25 12.5 13.25 13.05S13.72 14.09 14.29 14.09C14.86 14.09 15.33 13.61 15.33 13.05C15.33 12.5 14.86 12 14.29 12M22 12C22 17.5 17.5 22 12 22S2 17.5 2 12C2 6.5 6.5 2 12 2S22 6.5 22 12M18.67 12C18.67 11.19 18 10.54 17.22 10.54C16.82 10.54 16.46 10.7 16.2 10.95C15.2 10.23 13.83 9.77 12.3 9.71L12.97 6.58L15.14 7.05C15.16 7.6 15.62 8.04 16.18 8.04C16.75 8.04 17.22 7.57 17.22 7C17.22 6.43 16.75 5.96 16.18 5.96C15.77 5.96 15.41 6.2 15.25 6.55L12.82 6.03C12.75 6 12.68 6.03 12.63 6.07C12.57 6.11 12.54 6.17 12.53 6.24L11.79 9.72C10.24 9.77 8.84 10.23 7.82 10.96C7.56 10.71 7.2 10.56 6.81 10.56C6 10.56 5.35 11.21 5.35 12C5.35 12.61 5.71 13.11 6.21 13.34C6.19 13.5 6.18 13.62 6.18 13.78C6.18 16 8.79 17.85 12 17.85C15.23 17.85 17.85 16.03 17.85 13.78C17.85 13.64 17.84 13.5 17.81 13.34C18.31 13.11 18.67 12.6 18.67 12Z" /></svg>
 @@ css/malka/twitter.svg

@@ -1,5 +1,16 @@
 Revision history for Mojolicious application Slovo
 
+2021.12.12
+    * Set default max-age for Cache-Control HTTP header to one hour.
+    * Canonical URL for unicode domain names now are generated with the domain
+      ASIS.
+    * Using a burger menu in partials/_header.html.ep in Slovo::Themes::Malka
+      for better UX on small screens. The language menu is temporarily
+      disabled. The login button is hidden on small screens. Added a new link
+      to the respective page in partials/_pisanie_otkysy.html.ep at the bottom
+      of each div.card for better UX on small screens. Reduced the font-size
+      for H1 tags on small screens. Added new SVG icons.
+
 2021.12.02
     * Fixed error in template partials/_kniga.html.ep in Slovo::Themes::Malka.
     * Returned again to showing the celina used for title of a stranica in
@@ -15,7 +26,6 @@ Revision history for Mojolicious application Slovo
     * Added two new helpers to TagHelpers plugin to allow other plugins to put
       css and js files to $app->defaults so they are automatically available in
       stash as <link> and <script> tags. Used the new feature in Malka.pm
-     
 
 2021.11.22
     * Fixed wrong separator for sharer urls in _footer_right.html.ep
