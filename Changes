@@ -1,5 +1,8 @@
 Revision history for Mojolicious application Slovo
 
+2021.12.21
+    * Fixed bug in canonical_path creation under CGI.
+
 2021.12.12
     * Set default max-age for Cache-Control HTTP header to one hour.
     * Canonical URL for unicode domain names now are generated with the domain
