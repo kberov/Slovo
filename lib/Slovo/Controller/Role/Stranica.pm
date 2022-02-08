@@ -102,7 +102,7 @@ sub _around_execute ($execute, $c) {
     = ($c->url_for->base =~ s/$host/$c->ihost_only/er =~ s|/?$||r)
     . $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
       {lang => $celina->{language}})->path->to_route;
-  
+
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
 
   my $ok = $execute->($c, $page, $user, $l, $preview);

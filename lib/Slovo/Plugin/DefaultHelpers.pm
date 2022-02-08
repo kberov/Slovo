@@ -1,7 +1,7 @@
 package Slovo::Plugin::DefaultHelpers;
 use Mojo::Base 'Mojolicious::Plugin::DefaultHelpers', -signatures;
 
-use Mojo::Util qw(punycode_decode);
+use Mojo::Util qw(punycode_decode dumper);
 use Mojo::Collection 'c';
 
 our $DEV_MODE = ($ENV{MOJO_MODE} || '' =~ /dev/);
@@ -70,7 +70,7 @@ if ($DEV_MODE) {
     for my $p (@params) {
 
       if (ref $p) {
-        $msg .= Mojo::Util::dumper($p);
+        $msg .= dumper($p);
         chomp $msg if $p eq $params[-1];
       }
       else { $msg .= $p // 'undefined'; }

@@ -116,7 +116,8 @@ Slovo::Plugin::MojoDBx - load and use Mojo::Pg|mysql|SQLite
 
   # in slovo.conf
   plugins => [
-   #... Should be one of the first plugins
+   # Should be one of the firstly loaded plugins because lately loaded plugins
+   # may want to use $app->dbx.
    {
     MojoDBx => {
       adaptor   => 'SQLite',

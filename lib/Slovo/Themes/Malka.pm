@@ -339,7 +339,7 @@ my $sharer_url = $canonical_path;
         </nav>
         <nav class="col nav-center">
             % if ($menu->size > 1) {
-            <button class="button primary outline icon sharer"><img width="32" src="/css/malka/menu.svg"></button>
+            <button class="button primary outline menu icon sharer"><img width="32" src="/css/malka/menu.svg"></button>
             <div class="tabs">
             <%=
             $menu->map(sub {
@@ -490,7 +490,6 @@ my $html = html_substr($celina->{teaser} // $celina->{body},
 
 @@ partials/_right.html.ep
     <!-- right -->
-    <aside id="widgets"></aside>
     % if ( @$right ) {
     %= t aside => (class=>"right") => begin
         <%==
@@ -771,6 +770,16 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
 *::-webkit-scrollbar {
   width:1rem
 }
+
+body {
+    /* example background
+    background-image: url('/img/pexels-engin-akyurt-1552640.webp');
+    background-position: top right -45px;
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    */
+}
+
 body>header, body>footer {
   --box-shadow: 0 0.1em 0.5em var(--color-darkGrey);
   z-index: 1;
@@ -883,8 +892,10 @@ p.drop-cap::first-letter {
     border-radius: 4px;
     padding: .1rem .5rem;
 }
-{
 
+.button.primary.sharer
+{
+    color: white;
 }
 footer .button.outline.primary.sharer img {
     height: 24px;
@@ -894,7 +905,7 @@ footer .button.outline.primary.sharer img {
     margin-right: auto;
 }
 
-header nav.col.nav-center>button.sharer {
+header nav.col.nav-center>button.menu {
     display: none;
 }
 
@@ -927,8 +938,8 @@ header nav.col.nav-center>button.sharer {
     display: inline;
   }
   main.container {
-    padding-top: 5.5rem important;
-    padding-bottom: 5.5rem important;
+    padding-top: 5.5rem !important;
+    padding-bottom: 5.5rem !important;
     width: 90%;
     font-size: 80%;
   }
