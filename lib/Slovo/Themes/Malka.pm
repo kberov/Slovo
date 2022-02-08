@@ -280,14 +280,7 @@ my $sharer_url = $canonical_path;
     class="button outline primary sharer" target="_blank"
     href="tg://msg_url?url=<%= $sharer_url %>&text=<%= title %>"
     aria-label="Споделяне в Telegram"
-    title="Споделяне в Telegram"><img src="/css/malka/icons8-telegram-app.svg"></a><a
-
-    class="button outline primary sharer" target="_blank"
-    aria-label="Направено съ ♥ и Слово"
-    title="Направено съ ♥ и Слово"
-    href="https://github.com/kberov/Slovo"><img
-    src="/img/slovo-white.png"/></a>
-        
+    title="Споделяне в Telegram"><img src="/css/malka/icons8-telegram-app.svg"></a>
 </div>
 
 @@ partials/_head.html.ep
@@ -346,7 +339,7 @@ my $sharer_url = $canonical_path;
         </nav>
         <nav class="col nav-center">
             % if ($menu->size > 1) {
-            <button class="button primary outline icon sharer"><img width="32" src="/css/malka/menu.svg"></button>
+            <button class="button primary outline menu icon sharer"><img width="32" src="/css/malka/menu.svg"></button>
             <div class="tabs">
             <%=
             $menu->map(sub {
@@ -497,7 +490,6 @@ my $html = html_substr($celina->{teaser} // $celina->{body},
 
 @@ partials/_right.html.ep
     <!-- right -->
-    <aside id="widgets"></aside>
     % if ( @$right ) {
     %= t aside => (class=>"right") => begin
         <%==
@@ -778,6 +770,16 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
 *::-webkit-scrollbar {
   width:1rem
 }
+
+body {
+    /* example background
+    background-image: url('/img/pexels-engin-akyurt-1552640.webp');
+    background-position: top right -45px;
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    */
+}
+
 body>header, body>footer {
   --box-shadow: 0 0.1em 0.5em var(--color-darkGrey);
   z-index: 1;
@@ -846,12 +848,13 @@ body>header nav, body>footer nav {
   margin-top: 0.5rem !important;
   margin-bottom: 0.3rem !important;
 }
-  main.container {
+
+main.container {
   font-size: 100%;
   padding-top: 4rem !important;
   padding-bottom: 4rem !important;
-  max-width: 86rem;
-  width: 80%;
+  max-width: 100rem;
+  width: 85%;
 }
 
 .card {
@@ -882,14 +885,17 @@ p.drop-cap::first-letter {
   font-family: BukyvedeRegular;
 }
 
+.button.primary.sharer,
 .button.outline.primary.sharer {
     color: var(--color-success);
     font-weight: bolder;
     border-radius: 4px;
     padding: .1rem .5rem;
 }
-{
 
+.button.primary.sharer
+{
+    color: white;
 }
 footer .button.outline.primary.sharer img {
     height: 24px;
@@ -899,7 +905,7 @@ footer .button.outline.primary.sharer img {
     margin-right: auto;
 }
 
-header nav.col.nav-center>button.sharer {
+header nav.col.nav-center>button.menu {
     display: none;
 }
 
@@ -932,9 +938,10 @@ header nav.col.nav-center>button.sharer {
     display: inline;
   }
   main.container {
-    padding-top: 5.5rem important;
-    padding-bottom: 5.5rem important;
+    padding-top: 5.5rem !important;
+    padding-bottom: 5.5rem !important;
     width: 90%;
+    font-size: 80%;
   }
 
   footer .love {
@@ -953,6 +960,8 @@ header nav.col.nav-center>button.sharer {
 
 @@ css/malka/book-open-page-variant-outline.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M19 1L14 6V17L19 12.5V1M21 5V18.5C19.9 18.15 18.7 18 17.5 18C15.8 18 13.35 18.65 12 19.5V6C10.55 4.9 8.45 4.5 6.5 4.5C4.55 4.5 2.45 4.9 1 6V20.65C1 20.9 1.25 21.15 1.5 21.15C1.6 21.15 1.65 21.1 1.75 21.1C3.1 20.45 5.05 20 6.5 20C8.45 20 10.55 20.4 12 21.5C13.35 20.65 15.8 20 17.5 20C19.15 20 20.85 20.3 22.25 21.05C22.35 21.1 22.4 21.1 22.5 21.1C22.75 21.1 23 20.85 23 20.6V6C22.4 5.55 21.75 5.25 21 5M10 18.41C8.75 18.09 7.5 18 6.5 18C5.44 18 4.18 18.19 3 18.5V7.13C3.91 6.73 5.14 6.5 6.5 6.5C7.86 6.5 9.09 6.73 10 7.13V18.41Z" /></svg>
+@@ css/malka/card-bulleted-off-outline.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="24" height="24" viewBox="0 0 24 24"><path fill="#000000" d="M20.59,20.87L19.17,22.29L16.88,20H4A2,2 0 0,1 2,18V6C2,5.74 2.05,5.5 2.14,5.26L1.17,4.29L2.59,2.87L3.73,4L20.59,20.87V20.87M6.54,4H20A2,2 0 0,1 22,6V18C22,18.41 21.87,18.8 21.66,19.12L20,17.46V6H8.54L6.54,4M4,18H14.88L11.88,15H10V13.12L7.88,11H6V9.12L4,7.12V18M18,15H17.54L15.54,13H18V15M18,11H13.54L11.54,9H18V11Z" /></svg>
 @@ css/malka/download.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>
 @@ css/malka/email-fast-outline.svg
@@ -961,6 +970,8 @@ header nav.col.nav-center>button.sharer {
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z" /></svg>
 @@ css/malka/file-pdf-box.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M12,10.5H13V13.5H12V10.5M7,11.5H8V10.5H7V11.5M20,6V18A2,2 0 0,1 18,20H6A2,2 0 0,1 4,18V6A2,2 0 0,1 6,4H18A2,2 0 0,1 20,6M9.5,10.5A1.5,1.5 0 0,0 8,9H5.5V15H7V13H8A1.5,1.5 0 0,0 9.5,11.5V10.5M14.5,10.5A1.5,1.5 0 0,0 13,9H10.5V15H13A1.5,1.5 0 0,0 14.5,13.5V10.5M18.5,9H15.5V15H17V13H18.5V11.5H17V10.5H18.5V9Z" /></svg>
+@@ css/malka/help-circle-outline.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" /></svg>
 @@ css/malka/icons8-telegram-app.svg
 <svg fill="white" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 19.976562 3.1210938 L 19.611328 3.2695312 C 19.611328 3.2695312 6.6375504 8.5740484 2.6132812 10.267578 L 2.0019531 10.525391 L 2.0019531 12.779297 L 6.9472656 14.755859 L 8.6796875 19.996094 L 10.251953 20.005859 L 12.955078 17.720703 L 16.355469 20.996094 L 18.808594 20.996094 L 21.964844 3.875 L 19.976562 3.1210938 z M 19.646484 5.4179688 L 17.146484 18.980469 L 13.044922 15.029297 L 10.224609 17.410156 L 11 14.375 L 17.28125 8 L 17.082031 7.7988281 C 17.082031 7.7988281 10.706702 11.473998 8.0019531 13.023438 L 4.5371094 11.638672 C 9.0770415 9.7455758 18.697943 5.8058761 19.646484 5.4179688 z"/></svg>
 @@ css/malka/linkedin.svg

@@ -1,5 +1,17 @@
 Revision history for Mojolicious application Slovo
 
+2022.02.02
+    * Fixed bug in canonical_path creation under CGI.
+    * Improved site.css (mobile devices) and added new icons in Themes::Malka.
+    * Removed <aside id="widgets"> as it not really needed.
+    * Other small optimisations in DefaultHelpers.
+    * New codename: U+2C15 GLAGOLITIC CAPITAL LETTER TVRIDO (Ⱅ) - Next letter
+      in the glagolithic alphabet. By coincidence or not, the first external
+      plugin for Slovo, named Slovo::Plugin::Prodan is being developed, so we
+      must get hard (tvridi) and stable. This will be the main spirit of this
+      codename - stability - as little as possible breaking changes.
+     
+
 2021.12.12
     * Set default max-age for Cache-Control HTTP header to one hour.
     * Canonical URL for unicode domain names now are generated with the domain

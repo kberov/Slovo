@@ -226,8 +226,8 @@
       },
       "version" : "1.0",
       "contact" : {
-         "name" : "Company name here",
-         "email" : "company_api@example.com"
+         "name" : "Studio Berov LLC",
+         "email" : "otzivi@studio-berov.eu"
       },
       "description" : "This is the OpenAPI specification for Slovo OpenAPI."
    }

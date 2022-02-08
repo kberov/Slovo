@@ -8,7 +8,7 @@ use utf8;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 my $module_file = 'lib/' . __PACKAGE__ . '.pm';
-my $git_url     = 'https://github.com/kberov/Slovo';
+my $git_url     = 'https://github.com/kberov/' . __PACKAGE__;
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
   'Class::Method::Modifiers'            => '2.13',

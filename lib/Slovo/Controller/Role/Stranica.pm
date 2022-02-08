@@ -97,14 +97,12 @@ sub _around_execute ($execute, $c) {
       pid      => $page->{page_type} eq $str->root_page_type ? $page->{id} : $page->{pid},
       order_by => 'sorting'
     });
-  {
-    my $ihost = $c->ihost_only;
-    $stash->{canonical_path}
-      = ($c->url_for->base =~ s/$host/$ihost/er)
-      . $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
-        {lang => $celina->{language}})->to_abs->path->leading_slash(0)
-      ->canonicalize->to_route;
-  }
+
+  $stash->{canonical_path}
+    = ($c->url_for->base =~ s/$host/$c->ihost_only/er =~ s|/?$||r)
+    . $c->url_for(($stash->{paragraph_alias} ? 'para_with_lang' : 'page_with_lang') =>
+      {lang => $celina->{language}})->path->to_route;
+
   $c->stash(breadcrumb => $str->breadcrumb($page->{id}, $l), menu => $menu);
 
   my $ok = $execute->($c, $page, $user, $l, $preview);

@@ -11,8 +11,8 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2021.12.12';
-our $CODENAME  = 'U+2C14 GLAGOLITIC CAPITAL LETTER SLOVO (Ⱄ)';
+our $VERSION   = '2022.02.02';
+our $CODENAME  = 'U+2C15 GLAGOLITIC CAPITAL LETTER TVRIDO (Ⱅ)';
 my $CLASS = __PACKAGE__;
 
 has resources => sub {
