@@ -161,6 +161,7 @@ lib/Slovo/Task/SendOnboardingEmail.pm
 lib/Slovo/Task/SendPasswEmail.pm
 lib/Slovo/Themes/Malka.pm
 lib/Slovo/Validator.pm
+lib/Test/Mojo/Role/Slovo.pm
 LICENSE
 Makefile.PL
 MANIFEST
@@ -188,7 +189,6 @@ t/015_generate_list.t
 t/data/images/node.png
 t/data/images/perl.gif
 t/data/images/perl6.jpeg
-t/lib/Test/Mojo/Role/Slovo.pm
 t/manifest.t
 t/perl-critic.t
 t/perltidy.t
