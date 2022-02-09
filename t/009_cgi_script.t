@@ -1,6 +1,4 @@
 use Mojo::Base -strict;
-use FindBin qw($Bin);
-use lib "$Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::File qw(path);
@@ -8,7 +6,7 @@ use Mojo::Util qw(decode);
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
 # from => to
-# "$Bin/.." => '/home/berov/opt/t.com/slovo',
+# "." => '/home/berov/opt/t.com/slovo',
 # 0777
 )->new('Slovo');
 my $app     = $t->app;

@@ -1,11 +1,9 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Mojo;
-use FindBin;
 use Mojo::Util qw(punycode_encode);
 use Mojo::Collection 'c';
 
-use lib "$FindBin::Bin/lib";
 my $t   = Test::Mojo->with_roles('+Slovo')->install()->new('Slovo');
 my $app = $t->app;
 my $c   = $app->build_controller;

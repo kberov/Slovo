@@ -1,6 +1,5 @@
 use Mojo::Base -strict;
 use FindBin;
-use lib "$FindBin::Bin/lib";
 use Test::More;
 use Test::Mojo;
 

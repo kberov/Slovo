@@ -1,6 +1,5 @@
 use Mojo::Base -strict;
 use FindBin qw($Bin);
-use lib "$Bin/lib";
 use Test::More;
 use Test::Mojo;
 use Mojo::File qw(path);
