@@ -1,8 +1,9 @@
 Revision history for Mojolicious application Slovo
 
 2022.02.12
-    * Moved Test::Mojo::Role::Slovo from t/lib to lib to make it accessible for
-      external plugins.
+    * Moved Test::Mojo::Role::Slovo from t/lib to lib  and refactored it to
+      make it accessible for external plugins.
+    * Made Slovo->home invokable as a class method too.
 
 2022.02.02
     * Fixed bug in canonical_path creation under CGI.

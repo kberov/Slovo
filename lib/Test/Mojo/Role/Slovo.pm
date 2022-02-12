@@ -11,8 +11,8 @@ use Mojo::File qw(path tempdir);
 use Mojo::ByteStream 'b';
 use Mojo::Util qw(encode sha1_sum);
 use Mojo::IOLoop::Server;
-
-my $default_from = '.';
+use Slovo;
+my $default_from = Slovo->home->to_abs->realpath;
 
 my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1, CLEANUP => 1);
 
@@ -33,8 +33,7 @@ sub new {
 
   # class Test::Mojo__WITH__Test::Mojo::Role::Slovo
   # Unload the used already Slovo to require it from its newly installed location
-  #_unuse_Slovo();
-  # require Slovo;
+  unuse_Slovo();    #if $INC{'Slovo.pm'};
 
   my $t = Test::Mojo::new(@_);
   ok($t->app->dbx->migrations->migrate, 'migrated');
@@ -61,24 +60,35 @@ sub install (
     if $to_tempdir eq $random_tempdir;
   $MOJO_HOME->child('domove/localhost')->make_path({mode => $dir_mode});
   path($from, 'domove/localhost')->list_tree({dir => 1})
-    ->each(sub { _copy_to(@_, $dir_mode) });
-  $MOJO_HOME->child('script')->make_path({mode => $dir_mode});
+    ->each(sub { _copy_to(@_, $from, $dir_mode) });
   $MOJO_HOME->child('data')->make_path({mode => $dir_mode});
+  $MOJO_HOME->child('t')->make_path({mode => $dir_mode});
+  path($from, 't')->list_tree({dir => 1})->each(sub { _copy_to(@_, $from, $dir_mode) });
 
   # warn $/ . '$script_dir:' . $script_dir;
   # warn 'Cwd::getcwd:' . Cwd::getcwd;
   # warn '      $from:' . $from;
   # warn 'slovo exists:' . (-f $script_dir->child('slovo'));
-  path($from, 'script')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
-  path($from, 'lib')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
+  $MOJO_HOME->child('script')->make_path({mode => $dir_mode});
+  path($from, 'script')->list_tree({dir => 1})
+    ->each(sub { _copy_to(@_, $from, $dir_mode) });
+  path($from, 'lib')->list_tree({dir => 1})->each(sub { _copy_to(@_, $from, $dir_mode) });
   unshift @INC, path($to_tempdir, 'lib')->to_string;
   return $class;
 }
 
-sub _copy_to ($f, $i, $dir_mode) {
+sub _copy_to ($f, $i, $root, $dir_mode) {
   $f =~ /\.sqlite$/ && return;    # do not copy existing database
   $f =~ /cached/    && return;    # do not copy cached files
-  my $new = $MOJO_HOME->child($f->to_rel);
+
+  # Leave the relative part from $from to append it to $MOJO_HOME.
+  # warn $root;
+  my ($f_rel) = $f =~ s|\Q$root\E/?||r;
+
+  # warn $f_rel;
+  my $new = $MOJO_HOME->child($f_rel);
+
+  # warn $new;
   (-d $f) && $new->make_path({mode => $dir_mode});
   (-f $f) && $f->copy_to($new);
   return;

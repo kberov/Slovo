@@ -22,8 +22,15 @@ has validator => sub { Slovo::Validator->new };
 
 # We prefer $MOJO_HOME to be the folder where the folders bin or script
 # reside.
-has home => sub {
-  if ($ENV{MOJO_HOME}) { return Mojo::Home->new($ENV{MOJO_HOME}); }
+sub home {
+  my $class_or_self = shift;
+  if (ref($class_or_self) && $class_or_self->{home}) { return $class_or_self->{home}; }
+  if ($ENV{MOJO_HOME}) {
+    return
+      ref($class_or_self)
+      ? ($class_or_self->{home} = Mojo::Home->new($ENV{MOJO_HOME}))
+      : Mojo::Home->new($ENV{MOJO_HOME});
+  }
   my $r = Mojo::Home->new($INC{class_to_path $CLASS})->dirname->to_abs;
   my $m = lc $CLASS;    # moniker *should* have the same name
   while (($r = $r->dirname) && @{$r->to_array} > 2) {
@@ -32,12 +39,18 @@ has home => sub {
       || -x $r->child("script/$m.pl")
       || -x $r->child("bin/$m.pl"))
     {
-      return $r;
+      if (ref($class_or_self)) { return $class_or_self->{home} = $r; }
+      else {
+        return $r;
+      }
     }
     ;
   }
-  return $_[0]->SUPER::home;
-};
+  return
+    ref($class_or_self)
+    ? ($class_or_self->{home} = $class_or_self->SUPER::home)
+    : $class_or_self->SUPER::home;
+}
 
 # Writes to $home/log/slovo.log if $home/log/ exists and is writable.
 has log => sub {
