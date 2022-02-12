@@ -20,7 +20,7 @@ sub all ($self, $opts = {}) {
     = $abstr->select($table, $opts->{columns}, $opts->{where}, $opts->{order_by});
   $sql .= " LIMIT $opts->{limit}" . ($opts->{offset} ? " OFFSET $opts->{offset}" : '');
 
-  #local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return
     eval { $self->dbx->db->query($sql, @bind)->hashes }
     || Carp::croak("Wrong SQL:$sql\n or bind values: @bind\n$@");

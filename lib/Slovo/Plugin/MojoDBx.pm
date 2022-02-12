@@ -53,8 +53,7 @@ sub register ($self, $app, $conf = {}) {
     $app->load_class($class);
     $app->helper(
       $t => sub ($c) {
-        my $m = $class->new(dbx => $c->dbx, c => $c);
-        Scalar::Util::weaken $m->{c};
+        my $m = $class->new(dbx => $dbx, c => $c);
         return $m;
       });
   }

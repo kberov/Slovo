@@ -6,11 +6,12 @@ use Slovo::Model::Celini;
 my $table        = 'stranici';
 my $celini_table = Slovo::Model::Celini->table;
 
-has celini          => sub { $_[0]->c->celini };
-has not_found_id    => 4;
-has root_page_type  => sub { $_[0]->c->stash->{page_types}[0] };
-has table           => $table;
-has title_data_type => sub { $_[0]->c->stash->{data_types}[0] };
+has celini            => sub { $_[0]->c->celini };
+has not_found_id      => 4;
+has regular_page_type => sub { $_[0]->c->stash->{page_types}[1] };
+has root_page_type    => sub { $_[0]->c->stash->{page_types}[0] };
+has table             => $table;
+has title_data_type   => sub { $_[0]->c->stash->{data_types}[0] };
 
 # Returns a list of page aliases and titles in the current language for
 # displaying as breadcrumb. No permission filters are applied because if the
@@ -143,8 +144,10 @@ SQL
 # Returns the id of the new page record or croaks with the eventual database
 # error.
 sub add ($m, $row) {
-  $row->{tstamp} //= time - 1;
-  $row->{start}  //= $row->{tstamp};
+  $row->{dom_id}    //= 0;
+  $row->{page_type} //= $m->regular_page_type;
+  $row->{tstamp}    //= time - 1;
+  $row->{start}     //= $row->{tstamp};
   my $title            = {};
   my $mandatory_fields = [qw(title language body data_format tstamp user_id
     group_id changed_by alias permissions published)];

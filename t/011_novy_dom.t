@@ -23,7 +23,7 @@ isa_ok($command => 'Slovo::Command');
 
 # Default values
 my $buffer  = '';
-my $db_file = $app->resources->child("data/$moniker.$mode.sqlite");
+my $db_file = $app->home->child("data/$moniker.$mode.sqlite");
 subtest 'Default values' => sub {
   {
     open my $handle, '>', \$buffer;

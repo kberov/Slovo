@@ -11,7 +11,7 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2022.02.02';
+our $VERSION   = '2022.02.12';
 our $CODENAME  = 'U+2C15 GLAGOLITIC CAPITAL LETTER TVRIDO (Ⱅ)';
 my $CLASS = __PACKAGE__;
 
@@ -25,11 +25,16 @@ has validator => sub { Slovo::Validator->new };
 has home => sub {
   if ($ENV{MOJO_HOME}) { return Mojo::Home->new($ENV{MOJO_HOME}); }
   my $r = Mojo::Home->new($INC{class_to_path $CLASS})->dirname->to_abs;
-  my $m = $_[0]->moniker;
+  my $m = lc $CLASS;    # moniker *should* have the same name
   while (($r = $r->dirname) && @{$r->to_array} > 2) {
-    if (-x $r->child("bin/$m") || -x $r->child("script/$m")) {
+    if ( -x $r->child("script/$m")
+      || -x $r->child("bin/$m")
+      || -x $r->child("script/$m.pl")
+      || -x $r->child("bin/$m.pl"))
+    {
       return $r;
     }
+    ;
   }
   return $_[0]->SUPER::home;
 };

@@ -5,7 +5,7 @@ use Test::Mojo;
 
 my $t = Test::Mojo->with_roles('+Slovo')->install(
 
-  #$FindBin::Bin, '/tmp/slovo_sign_in'
+#  undef, '/tmp/slovo_sign_in'
 )->new('Slovo');
 isa_ok($t->app, 'Slovo');
 

@@ -1,25 +1,25 @@
 package Test::Mojo::Role::Slovo;
 
-BEGIN {
-  binmode STDOUT => ':utf8';
-  binmode STDERR => ':utf8';
-}
 use Mojo::Base -role, -signatures;
 
+BEGIN {
+  binmode STDOUT => ':encoding(UTF8)';
+  binmode STDERR => ':encoding(UTF8)';
+}
 use Test::More;
 use Mojo::File qw(path tempdir);
 use Mojo::ByteStream 'b';
 use Mojo::Util qw(encode sha1_sum);
 use Mojo::IOLoop::Server;
 
-use FindBin qw($Bin);
-my $default_from   = path($Bin)->dirname;
+my $default_from = '.';
+
 my $random_tempdir = tempdir('slovoXXXX', TMPDIR => 1, CLEANUP => 1);
 
 has authenticated  => 0;
 has login_name     => 'краси';
 has login_password => 'беров';
-sub domain_aliases {'some.domain alias.domain alias2.domain'}
+sub domain_aliases { return 'some.domain alias.domain alias2.domain' };
 
 # Class method
 # Install the app  from a path to a temporary path. Creates a log directory in
@@ -32,6 +32,10 @@ my $MOJO_HOME;
 sub new {
 
   # class Test::Mojo__WITH__Test::Mojo::Role::Slovo
+  # Unload the used already Slovo to require it from its newly installed location
+  #_unuse_Slovo();
+  # require Slovo;
+
   my $t = Test::Mojo::new(@_);
   ok($t->app->dbx->migrations->migrate, 'migrated');
   return $t;
@@ -44,19 +48,29 @@ sub install (
   $dir_mode   = 0700
   )
 {
+  $from //= $default_from;
+  -d $from || Carp::croak "Directory $from does not exist!";
+  note 'installing $from: ' . $from;
   $MOJO_HOME = path($to_tempdir);
-  note '$MOJO_HOME:' . $MOJO_HOME;
+  note '              to: ' . $MOJO_HOME;
 
   # idempotent
   $MOJO_HOME->remove_tree->make_path({mode => $dir_mode});
   ok(-d $MOJO_HOME, "created $MOJO_HOME");
   $MOJO_HOME->child('log')->make_path({mode => $dir_mode})
     if $to_tempdir eq $random_tempdir;
-  path($from, 'lib')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
-  $MOJO_HOME->child('domove')->make_path({mode => $dir_mode});
-  path($from, 'domove')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
+  $MOJO_HOME->child('domove/localhost')->make_path({mode => $dir_mode});
+  path($from, 'domove/localhost')->list_tree({dir => 1})
+    ->each(sub { _copy_to(@_, $dir_mode) });
   $MOJO_HOME->child('script')->make_path({mode => $dir_mode});
+  $MOJO_HOME->child('data')->make_path({mode => $dir_mode});
+
+  # warn $/ . '$script_dir:' . $script_dir;
+  # warn 'Cwd::getcwd:' . Cwd::getcwd;
+  # warn '      $from:' . $from;
+  # warn 'slovo exists:' . (-f $script_dir->child('slovo'));
   path($from, 'script')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
+  path($from, 'lib')->list_tree({dir => 1})->each(sub { _copy_to(@_, $dir_mode) });
   unshift @INC, path($to_tempdir, 'lib')->to_string;
   return $class;
 }
@@ -67,17 +81,16 @@ sub _copy_to ($f, $i, $dir_mode) {
   my $new = $MOJO_HOME->child($f->to_rel);
   (-d $f) && $new->make_path({mode => $dir_mode});
   (-f $f) && $f->copy_to($new);
+  return;
 }
 
 # use this method for the side effect of having a logged in user
 sub login_ok ($t, $login_name = '', $login_password = '', $host = '') {
   subtest login_ok => sub {
     my $login_url = $t->app->url_for('sign_in');
-
     $t->get_ok($host . '/manage')->status_is(302)
       ->header_is(Location => $login_url, 'Location is /in');
     $t->get_ok($host . '/in')->status_is(200)->text_is('fieldset legend' => 'Входъ');
-
     my $form = $t->fill_in_login_form($login_name, $login_password, $host);
     my $body
       = $t->post_ok($host . $login_url, {} => form => $form)->status_is(302)
@@ -110,6 +123,7 @@ sub login ($t, $login_name = '', $login_password = '') {
 }
 
 # Tests creation of a domove record and returns the URL for GET, PUT, DELETE
+## no critic (ValuesAndExpressions::ProhibitQuotesAsQuotelikeOperatorDelimiters)
 sub create_edit_domain_ok ($t) {
 
   #authenticate user if not authenticated
@@ -138,8 +152,8 @@ sub create_edit_domain_ok ($t) {
   $t->put_ok($edit_url => form => $form)->status_is(302)
     ->header_is(Location => $edit_url);
   my $body = $t->get_ok($edit_url)->tx->res->body;
-  like($body => qr/$form->{aliases}/,   'aliases changed');
-  like($body => qr|$form->{templates}|, 'templates changed');
+  like($body => qr/$form->{aliases}/   => 'aliases changed');
+  like($body => qr/$form->{templates}/ => 'templates changed');
   return $edit_url;
 }
 
@@ -162,4 +176,25 @@ sub meta_names_ok ($t) {
   return $t;
 }
 
+# Stollen from Class::Unload and modified. Thanks!
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines,TestingAndDebugging::ProhibitNoStrict)
+sub unuse_Slovo {
+  my $class  = 'Slovo';
+  my $symtab = $class . '::';
+  {
+    no strict 'refs';    # we're fiddling with the symbol table
+    @{$class . '::ISA'} = ();
+
+    # Delete all symbols except other namespaces
+    for my $symbol (keys %$symtab) {
+      next if $symbol =~ /\A[^:]+::\z/;
+      delete $symtab->{$symbol};
+    }
+  }
+
+  my $inc_file = join('/', split /(?:'|::)/, $class) . '.pm';
+  delete $INC{$inc_file};
+
+  return 1;
+}
 1;

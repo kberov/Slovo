@@ -105,7 +105,7 @@ my $create_stranici  = sub {
   $t->post_ok($stranici_url => form => $sform)->status_is(302);
 
   # note $t->tx->res->body;
-  #go to the page nad get the new id as well as title_id
+  #go to the page and get the new id as well as title_id
   $new_page_id = $app->dbx->db->select('stranici', 'max(id) as id')->hash->{id};
   $stranici_url_new .= $new_page_id;
   $t->header_is(
