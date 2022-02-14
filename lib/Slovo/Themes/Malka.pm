@@ -465,9 +465,10 @@ $list->map(sub {
 </section>
 <!-- end _writing -->
 @@ partials/_pisanie_otkysy.html.ep
+<!-- _pisanie_otkysy -->
 <%
-my $col_num = $num == 1 ? '-0' : '-6';
-$col_num = '-0' if ($num == $last) && !($last % 2);
+my $col_num = $num == 1 ? '-12' : '-6';
+$col_num = '-12' if ($num == $last) && !($last % 2);
 
 my $link    = link_to $celina->{title} => para_with_lang => {
     page_alias      => $p->{alias},
@@ -485,9 +486,11 @@ my $html = html_substr($celina->{teaser} // $celina->{body},
 <!-- <%= $celina->{data_type} ." $num" %> exerpt -->
     <div class="card col<%= $col_num %> <%= $celina->{data_type} %>">
         <header><h4><%= $link %></h4></header>
+        <div class="card-body">
         %== $html.$link_bottom
+        </div>
     </div>
-
+<!-- end _pisanie_otkysy -->
 @@ partials/_right.html.ep
     <!-- right -->
     % if ( @$right ) {
@@ -614,7 +617,9 @@ my $link
 %>
     <div class="card col-6 writing" id="page-<%= $p->{id} %>">
         <header><h4><%= $link %></h4></header>
+        <div class="card-body">
         %== html_substr($p->{body}, 'p, blockquote', 220);
+        </div>
     </div>
 <% } %>
 </section>
@@ -759,7 +764,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
 :root {
   --border-radius: 10px;
   --font-size:     2.2rem;
-  --color-success: #23FF04
+  --color-success: #23FF04;
   --grid-maxWidth: 86rem;
 }
 
@@ -767,6 +772,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
   scrollbar-width: auto;
   scrollbar-color: var(--color-lightGrey) var(--color-darkGrey);
 }
+
 *::-webkit-scrollbar {
   width:1rem
 }
@@ -793,26 +799,33 @@ body>header {
 body>footer {
   bottom: 0
 }
+
 #logo {
   display: inline;
   width: 1.5rem;
   vertical-align: middle;
 }
+
 body>header, body>footer, body>header a, body>footer a {
   color: white;
 }
+
 nav .tabs a {
   padding: 0rem 1rem;
   white-space: nowrap;
 }
+
+nav a.active,
 nav .tabs a.active {
   color: var(--color-success) !important;
 }
+
 .dropdown {
   position: relative;
   display: inline-block;
   cursor: pointer;
 }
+
 .dropdown .menu {
   position: absolute;
   padding-right: 1rem;
@@ -820,6 +833,7 @@ nav .tabs a.active {
   display: none;
   width: inherit;
 }
+
 .tabs > .dropdown {
   /* padding: 1rem 2rem;
   */
@@ -828,22 +842,27 @@ nav .tabs a.active {
   border-bottom: 2px solid var(--color-lightGrey);
   text-align: center;
 }
-.dropdown:hover .menu
-, .dropdown:active .menu {
+
+.dropdown:hover .menu,
+.dropdown:active .menu {
   display: block;
   box-shadow: var(--box-shadow);
   z-index: 2;
 }
+
 .dropdown .menu a {
   display: block;
 }
+
 .dropdown .menu a:hover {
   text-decoration: underline;
 }
+
 body>header nav:last-child {
   /*  margin-right: 0;
   */
 }
+
 body>header nav, body>footer nav {
   margin-top: 0.5rem !important;
   margin-bottom: 0.3rem !important;
@@ -909,17 +928,32 @@ header nav.col.nav-center>button.menu {
     display: none;
 }
 
+summary {
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.card header h1,
+.card header h2,
+.card header h3,
+.card header h4 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 700px) {
-    header nav.col.nav-center{
-        justify-content: space-evenly;
-    }
-    header nav.col.nav-center>button.sharer {
-        display: block;
-    }
-    header nav.col-2.nav-right,
-    header nav.col.nav-center>div.tabs {
-        display: none;
-    }
+  header nav.col.nav-center{
+      justify-content: space-evenly;
+  }
+  header nav.col.nav-center>button.sharer {
+      display: block;
+  }
+  header nav.col-2.nav-right,
+  header nav.col.nav-center>div.tabs {
+      display: none;
+  }
 
   html {
       font-size: 90%;
@@ -956,7 +990,18 @@ header nav.col.nav-center>button.menu {
       margin-bottom: 0;
       line-height: 1.1;
   }
-} /* end @media (max-width: 721px) */
+
+  .card {
+    padding: 1rem;
+  }
+  .card .card-body {
+    margin: 0;
+    padding: 0;
+    border: none;
+    max-height: 10rem;
+    overflow: auto;
+  }
+} /* end @media (max-width: 700px) */
 
 @@ css/malka/book-open-page-variant-outline.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M19 1L14 6V17L19 12.5V1M21 5V18.5C19.9 18.15 18.7 18 17.5 18C15.8 18 13.35 18.65 12 19.5V6C10.55 4.9 8.45 4.5 6.5 4.5C4.55 4.5 2.45 4.9 1 6V20.65C1 20.9 1.25 21.15 1.5 21.15C1.6 21.15 1.65 21.1 1.75 21.1C3.1 20.45 5.05 20 6.5 20C8.45 20 10.55 20.4 12 21.5C13.35 20.65 15.8 20 17.5 20C19.15 20 20.85 20.3 22.25 21.05C22.35 21.1 22.4 21.1 22.5 21.1C22.75 21.1 23 20.85 23 20.6V6C22.4 5.55 21.75 5.25 21 5M10 18.41C8.75 18.09 7.5 18 6.5 18C5.44 18 4.18 18.19 3 18.5V7.13C3.91 6.73 5.14 6.5 6.5 6.5C7.86 6.5 9.09 6.73 10 7.13V18.41Z" /></svg>

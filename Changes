@@ -1,5 +1,11 @@
 Revision history for Mojolicious application Slovo
 
+
+2022.2.14
+    * Improved design for small screens.
+    * Changed versioning to not contain preceding zeroes as they are
+      misinterpretted by MakeMaker.
+
 2022.02.12
     * Moved Test::Mojo::Role::Slovo from t/lib to lib  and refactored it to
       make it accessible for external plugins.
