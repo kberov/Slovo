@@ -47,8 +47,8 @@ my $breadcrumb = sub {
     . b('първа-вест.bg-bg.html')->encode->url_escape;
 
   $t->get_ok('/вести.html')->element_exists(qq|header > nav > a[href="/$alias"]|)
-    ->element_exists('main section.row>.card.col-0')
-    ->text_is('main section.row>.card.col-0>header>h4>a' => 'Вътора вест')
+    ->element_exists('main section.row>.card.col-12')
+    ->text_is('main section.row>.card.col-12>header>h4>a' => 'Вътора вест')
     ->element_exists(qq|a[href="$vest_alias"]|);
   $t->get_ok($vest_alias)->text_is('main section h1' => 'Първа вест');
   $t->get_ok('/вести/alabala.html')->status_is(404)
