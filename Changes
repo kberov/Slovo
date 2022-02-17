@@ -1,6 +1,14 @@
 Revision history for Mojolicious application Slovo
 
 
+2022.2.16
+    * Allowed plugins to plug their own content into celini by setting their
+      own semantic 'data_type's. The end user should only chose the new
+      data_type for a newly created celina and it will be rendered in the site
+      by the corresponding template, provided by the plugin.
+    * Made Test::Mojo::Role::Slovo carp if copying of a file for testing does
+      not succeed. This is to debug if later some test fails.
+
 2022.2.14
     * Improved design for small screens.
     * Changed versioning to not contain preceding zeroes as they are

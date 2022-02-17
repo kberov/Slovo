@@ -90,7 +90,7 @@ sub _copy_to ($f, $i, $root, $dir_mode) {
 
   # warn $new;
   (-d $f) && $new->make_path({mode => $dir_mode});
-  (-f $f) && $f->copy_to($new);
+  eval { (-f $f) && $f->copy_to($new); 1; } || Carp::carp $@;
   return;
 }
 

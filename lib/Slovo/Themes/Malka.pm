@@ -167,10 +167,13 @@ layout 'site',
   tstamp      => Time::Piece->new($celina->{tstamp})->ymd,
   created_at  => Time::Piece->new($celina->{created_at})->ymd,
   ;
+
+# Plugins can add their own data_types and their own partial templates.
+my $data_type2template = $d2t->{$celina->{data_type}} // $celina->{data_type};
 %>
 <%=
     include(
-      "partials/$d2t->{$celina->{data_type}}", celina => $celina,
+      "partials/$data_type2template", celina => $celina,
       level => 1)
       || include("partials/_data_type" => row => $celina, level => 1)
 %>
