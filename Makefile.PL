@@ -12,15 +12,15 @@ my $git_url     = 'https://github.com/kberov/' . __PACKAGE__;
 my $PREREQ_PM   = {
   'Authen::SASL'                        => '2.16',
   'Class::Method::Modifiers'            => '2.13',
-  'Cpanel::JSON::XS'                    => '4.27',
-  'Minion::Backend::SQLite'             => '5.0.5',
-  'Mojo::SQLite'                        => '3.007',
-  'Mojolicious'                         => '9.22',
+  'Cpanel::JSON::XS'                    => '4.32',
+  'Minion::Backend::SQLite'             => '5.0.7',
+  'Mojo::SQLite'                        => '3.009',
+  'Mojolicious'                         => '9.28',
   'Mojolicious::Plugin::PODViewer'      => '0.007',
-  'Mojolicious::Plugin::Authentication' => '1.37',
-  'Mojolicious::Plugin::OpenAPI'        => '5.00',
+  'Mojolicious::Plugin::Authentication' => '1.39',
+  'Mojolicious::Plugin::OpenAPI'        => '5.07',
   'Mojolicious::Plugin::RoutesConfig'   => '0.07',
-  'Net::SMTP'                           => '3.13',
+  'Net::SMTP'                           => '3.14',
   'Role::Tiny'                          => '2.002004',
   'EV'                                  => '4.33'
 };
@@ -30,8 +30,8 @@ if ($ENV{TEST_AUTHOR}) {
     %$PREREQ_PM,
     'Test::Pod'          => '1.52',
     'Test::Perl::Critic' => '1.04',
-    'Perl::Critic'       => '1.132',
-    'Test::PerlTidy'     => '20130104'
+    'Perl::Critic'       => '1.140',
+    'Test::PerlTidy'     => '20220902'
   };
 }
 

@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2022.10.22
+    * Upgrade to Mojolicious::Plugin::OpenAPI 5.07, Mojo::SQLite 3.009,
+      Mojolicious 9.28, Cpanel::JSON::XS 4.32, Minion::Backend::SQLite 5.0.7,
+      Mojolicious::Plugin::Authentication 1.39, Mojolicious::Plugin::OpenAPI
+      5.07, Net::SMTP 3.14, Test::PerlTidy 20220902
 
 2022.2.16
     * Allowed plugins to plug their own content into celini by setting their
