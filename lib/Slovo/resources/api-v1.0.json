@@ -16,6 +16,17 @@
          },
          "type" : "array"
       },
+      "DefaultResponse" : {
+         "properties" : {
+            "errors:" : {
+               "$ref" : "#/definitions/Errors"
+            },
+            "valid" : {
+               "type" : "boolean"
+            }
+         },
+         "type" : "object"
+      },
       "ErrorResponse" : {
          "properties" : {
             "errors:" : {
