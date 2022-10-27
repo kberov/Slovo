@@ -18,9 +18,9 @@ my $command    = $COMMAND->new(app => $app);
 my $GENERATORS = 'Mojolicious::Command::Author::generate';
 isa_ok($command => $GENERATORS);
 
-ok $command->description,       'has a description';
-like $command->message,         qr/generate/, 'has a message';
-like $command->hint,            qr/help/,     'has a hint';
+ok $command->description, 'has a description';
+like $command->message, qr/generate/, 'has a message';
+like $command->hint,    qr/help/,     'has a hint';
 is_deeply $command->namespaces, [$COMMAND, $GENERATORS], 'right namespaces';
 my $buffer = '';
 {

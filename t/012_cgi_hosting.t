@@ -64,7 +64,7 @@ my $Deploy = sub {
   like $buffer => qr|write.+/.+slovo.cgi|mx      => 'cgi_script created';
   my ($cgi_file) = $buffer =~ m|write.+($install_dir/slovo\.cgi)|;
   ok -f $cgi_file => "$cgi_file exists";
-  like $buffer    => qr/(?:write|exist).+\/.htaccess/ => '.htaccess created';
+  like $buffer => qr/(?:write|exist).+\/.htaccess/ => '.htaccess created';
   my ($hta_file)
     = $buffer =~ m"(?:write|exist|chmod)\]\s+($ENV{SLOVO_DOCUMENT_ROOT}/.htaccess)";
   ok -f $hta_file => "$hta_file exists";

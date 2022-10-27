@@ -1,9 +1,9 @@
 package Slovo::Command::Author::inflate;
 use Mojo::Base 'Mojolicious::Command::Author::inflate', -signatures;
 
-use Mojo::File qw(path);
+use Mojo::File   qw(path);
 use Mojo::Loader qw(data_section file_is_binary);
-use Mojo::Util qw(encode getopt dumper);
+use Mojo::Util   qw(encode getopt dumper);
 
 has description => 'Inflate embedded files to domains or application folders';
 has usage       => sub {

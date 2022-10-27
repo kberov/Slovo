@@ -2,7 +2,7 @@ use Mojo::Base -strict, -signatures;
 use Test::More;
 use Test::Mojo;
 use Mojo::ByteStream 'b';
-use Mojo::Util qw(slugify encode decode sha1_sum);
+use Mojo::Util   qw(slugify encode decode sha1_sum);
 use Mojo::Loader qw(data_section);
 use Mojo::Collection 'c';
 my $t = Test::Mojo->with_roles('+Slovo')->install(

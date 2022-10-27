@@ -96,7 +96,7 @@ my $public = sub {
   unlike $buffer, qr|Nothing to inflate|,             'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,                     'does not lists inflatable classes';
   unlike $buffer, qr|$home/templates/partials/_head|, 'right STDOUT for -p';
-  like $buffer,   qr|mkdir.+$home/public/css/malka|,
+  like $buffer, qr|mkdir.+$home/public/css/malka|,
     '-p inflates to $home/public/css/malka';
   like $buffer, qr|mkdir.+$home/public/.+/openapi|,
     '-p inflates to $home/public/**/openapi';
@@ -118,7 +118,7 @@ my $public_and_class = sub {
   unlike $buffer, qr|Nothing to inflate|,             'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,                     'does not list inflatable classes';
   unlike $buffer, qr|$home/templates/partials/_head|, 'right STDOUT for -p';
-  like $buffer,   qr|mkdir.+$home/public/css/malka|,
+  like $buffer, qr|mkdir.+$home/public/css/malka|,
     '-p and --class inflate to $home/public/css/malka';
   unlike $buffer, qr|mkdir.+$home/public/.+/openapi|,
     '-p and --class do not inflate to $home/public/**/openapi';
@@ -139,7 +139,7 @@ my $public_templates_and_class = sub {
   # note $buffer;
   unlike $buffer, qr|Nothing to inflate|, 'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,         'does not list inflatable classes';
-  like $buffer,   qr|$home/templates/partials/_head|,
+  like $buffer, qr|$home/templates/partials/_head|,
     '-t and --class inflate to $home/ for this class';
   like $buffer, qr|mkdir.+$home/public/css/malka|,
     '-p and --class inflate to $home/css/malka';
@@ -167,7 +167,7 @@ my $public_templates_and_class = sub {
   note '$COMMAND->new(app => $app)->run(@$params);' . $/ . ' $params = ', explain $params;
   unlike $buffer, qr|Nothing to inflate|, 'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,         'does not list inflatable classes';
-  like $buffer,   qr|$home/templates/partials/_head|,
+  like $buffer, qr|$home/templates/partials/_head|,
     '-p, -t and --class inflate all for these classes';
   like $buffer, qr|mkdir.+$home/templates/layouts|,
     '-p, -t and --class inflate all for these classes';
@@ -198,7 +198,7 @@ my $public_templates_path_and_class = sub {
   note '$params = ', explain $params;
   unlike $buffer, qr|Nothing to inflate|, 'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,         'does not list inflatable classes';
-  like $buffer,   qr|$params->[3]/partials/_head|,
+  like $buffer, qr|$params->[3]/partials/_head|,
     '-p, -t, --path and --class inflate all templates for this class to --path';
   like $buffer, qr|mkdir.+$params->[3]/css/malka|,
     '-p, -t, --path and --class inflate all static files to --path';
@@ -224,7 +224,7 @@ my $public_templates_path_and_class = sub {
   # note $buffer;
   unlike $buffer, qr|Nothing to inflate|, 'right STDERR for -p';
   unlike $buffer, qr|Inflatable|,         'does not list inflatable classes';
-  like $buffer,   qr|$params->[3]/partials/_head|,
+  like $buffer, qr|$params->[3]/partials/_head|,
     '-p, -t, --path and --class inflate all for these classes to --path';
   like $buffer, qr|mkdir.+$params->[3]/podviewer|,
     '-p, -t, --path and --class inflate all for these classes to --path';
