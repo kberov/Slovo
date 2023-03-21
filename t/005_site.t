@@ -322,14 +322,13 @@ subtest 'previewed pages' => $previewed_pages;
 subtest 'site layout'     => $site_layout;
 subtest breadcrumb        => $breadcrumb;
 
-# Disabled until proper test cases are prepared
 subtest multi_language_pages => $multi_language_pages;
 subtest cached_pages         => $cached_pages;
 
 subtest 'Browser cache' => $browser_cache;
 subtest home_page       => $home_page;
+subtest aliases         => $aliases;
 
-subtest aliases   => $aliases;
 done_testing;
 
 
