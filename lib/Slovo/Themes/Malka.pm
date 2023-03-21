@@ -235,7 +235,9 @@ my $data_type2template = $d2t->{$celina->{data_type}} // $celina->{data_type};
 % if(stash->{canonical_path}) {
 %=  include "partials/_footer_right";
 % } else {
-<div class="pull-right text-right social">Тук вече ползваме сесийни бисквитки.</div>
+<div class="pull-right text-right social">Тук вече ползваме бисквитка
+„<%= app->config->{sessions}[1]{cookie_name}%>” за удостоверяване на потребителя за
+ <%= app->config->{sessions}[0]{default_expiration} / (3600 * 24) %> дена.</div>
 %}
 
     <%= link_to 'manage' => 'under_management' => (id=>'manage') if $c->is_user_authenticated %>
@@ -535,7 +537,7 @@ my $list_context = ($controller eq 'stranici' && $celina->{permissions} =~ /^d/)
  %== format_body($celina)
    <section class="row">
     <%
-    my $limit  = 9;
+    my $limit  = 99;
     my $celini = celini->all_for_display_in_stranica(
       $page, $user, $l, $preview,
       {

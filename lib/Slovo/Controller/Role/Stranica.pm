@@ -47,8 +47,7 @@ sub _around_execute ($execute, $c) {
     return $c->redirect_to(
       page_with_lang => {page_alias => $page->{alias}, lang => $stash->{languages}[0]});
   }
-  my $celina
-    = $celini->first(sub { title => $page->{title}, $_->{box} eq $stash->{boxes}[0] });
+  my $celina = $celini->first(sub { $_->{box} eq $stash->{boxes}[0] });
 
   # We were looking for content with 'en' but found en-US
   $l = $c->language($celina->{language})->language;

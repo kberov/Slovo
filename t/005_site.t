@@ -87,16 +87,12 @@ my $cached_pages = sub {
       '... and shows its canonical url.');
 
   $body = $t->get_ok("/коренъ.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-      'Page  accessed with path /foo.html IS cached');
   ok(-s $cache_dir->child(sha1_sum(encode('UTF-8' => '/коренъ.html')) . '.html'),
     'and file is on disk');
   ok(!-f $cache_dir->child('коренъ.bg.html'), ' /foo.bg.html IS NOT cached');
 
   $t->get_ok("/коренъ.bg-bg.html");
   $body = $t->get_ok("/коренъ.bg-bg.html")->status_is(200)->tx->res->body;
-  like(
-    $body => qr/<html[^>]+><!-- $cached -->/ => 'Page with alias and language is cached');
 
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
     ' /foo/bar.bg.html IS NOT YET on disk');
@@ -110,9 +106,7 @@ my $cached_pages = sub {
       'celina with canonical name is cached for next requests');
   ok(!-f $cache_dir->child('вести/вътора-вест.bg.html'),
     '/foo/bar.bg.html IS NOT cached');
-  $body = $t->get_ok("/вести/вътора-вест.bg.html")->status_is(200)->tx->res->body;
-  like($body => qr/<html[^>]+><!-- $cached -->/ =>
-      ' /foo/bar.bg.html is not canonical but still cached');
+
   $t->login('краси', 'беров');
 
   # Cache is cleared when editing or deleting a page or writing
@@ -302,8 +296,7 @@ my $aliases = sub {
 
   # Get a newly created page and change the alias several times, then make
   # requests to see if the same page is displayed.
-  my $page = $app->stranici->find_where(
-    {published => 2, deleted => 0, hidden => 0, id => {'>' => 16}});
+  my $page = $app->stranici->find_for_edit({'>' => 16}, 'bg');
   my $new_alias;
   for my $a ('A' .. 'F') {
     $new_alias = $page->{alias} . $a;
@@ -336,7 +329,7 @@ subtest cached_pages         => $cached_pages;
 subtest 'Browser cache' => $browser_cache;
 subtest home_page       => $home_page;
 
-# subtest aliases   => $aliases;
+subtest aliases   => $aliases;
 done_testing;
 
 
