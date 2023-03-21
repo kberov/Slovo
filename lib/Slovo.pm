@@ -11,7 +11,7 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2022.2.16';
+our $VERSION   = '2023.03.22';
 our $CODENAME  = 'U+2C15 GLAGOLITIC CAPITAL LETTER TVRIDO (Ⱅ)';
 my $CLASS = __PACKAGE__;
 
