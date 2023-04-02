@@ -11,7 +11,7 @@ use Slovo::Cache;
 use Time::Piece;
 
 our $AUTHORITY = 'cpan:BEROV';
-our $VERSION   = '2023.03.22';
+our $VERSION   = '2023.04.04';
 our $CODENAME  = 'U+2C15 GLAGOLITIC CAPITAL LETTER TVRIDO (Ⱅ)';
 my $CLASS = __PACKAGE__;
 
@@ -203,6 +203,9 @@ sub _load_config ($app) {
   # Enable response compression
   if ($config->{response_compression}) {
     $app->renderer->compress(1);
+  }
+  else {
+    $app->renderer->compress(0);
   }
 
   for my $setting (@{$config->{sessions} // []}) {

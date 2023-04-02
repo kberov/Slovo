@@ -1,5 +1,10 @@
 Revision history for Mojolicious application Slovo
 
+2023.04.04
+    * Fixed problem with compressing rendered content, which is now the default
+      since Mojolicious~9.23. We were still asssuming that the default is not to
+      compress.
+
 2023.03.22
     * Tested with Perl 5.36.0, Mojolicious~9.31, Net::SMTP~3.15
       Mojolicious::Plugin::OpenAPI~5.09, Authen::SASL~2.16,
