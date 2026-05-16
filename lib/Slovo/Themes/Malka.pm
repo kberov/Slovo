@@ -278,11 +278,6 @@ my $sharer_url = $canonical_path;
     title="Споделяне в Pinterest">P</a>--><a
 
     class="button outline primary sharer" target="_blank"
-    href="mailto:?subject=<%= title %>&body=<%= $sharer_url %>"
-    aria-label="Напишете писмо на приятел"
-    title="Напишете писмо"><img src="/css/malka/email-fast-outline.svg"></a><a
-
-    class="button outline primary sharer" target="_blank"
     href="tg://msg_url?url=<%= $sharer_url %>&text=<%= title %>"
     aria-label="Споделяне в Telegram"
     title="Споделяне в Telegram"><img src="/css/malka/icons8-telegram-app.svg"></a>
@@ -313,6 +308,10 @@ my $sharer_url = $canonical_path;
     <meta property="og:locale" content="<%= $l %>" />
     <meta property="og:article:published_time" content="<%= $created_at %>" />
     <meta property="og:article:modified_time" content="<%= $tstamp %>" />
+    % if (my $og_image = stash->{celina}{og_image}) {
+    % $og_image = index($og_image,'http') > -1 ? $og_image : $c->url_for->base . $og_image;
+    <meta property="og:image" content="<%= $og_image %>">
+    % }
     %== stylesheets;
     %== javascripts;
   </head>

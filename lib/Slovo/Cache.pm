@@ -1,9 +1,9 @@
 package Slovo::Cache;
-use Mojo::Base 'Mojo::Cache';
+use Mojo::Base 'Cache::FastMmap';
 
 has cache      => sub { {} };
 has key_prefix => '';
-has max_keys   => 111;
+has max_keys   => 1111;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -68,11 +68,11 @@ templates per domain.
   my $max = $cache->max_keys;
   $cache  = $cache->max_keys(50);
 
-Maximum number of cache keys, defaults to C<111>. Setting the value to C<0> will disable caching.
+Maximum number of cache keys, defaults to C<1111>. Setting the value to C<0> will disable caching.
 
 =head1 METHODS
 
-L<Mojo::Cache> inherits all methods from L<Mojo::Base> and implements the following new ones.
+L<Slovo::Cache> inherits all methods from L<Cache::FastMmap> and implements the following new ones.
 
 =head2 get
 
@@ -89,6 +89,7 @@ Set cached value.
 =head1 SEE ALSO
 
 L<Slovo/around_dispatch>,
+L<Cache::FastMmap>,
 L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

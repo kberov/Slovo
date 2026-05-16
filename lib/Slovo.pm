@@ -79,10 +79,7 @@ sub startup ($app) {
   $app->hook(around_action   => \&_around_action);
   $app->hook(around_dispatch => \&_around_dispatch);
   $app->hook(before_dispatch => \&_before_dispatch);
-  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types();
-  my $cache = Slovo::Cache->new();
-  $app->renderer->cache($cache);
-  $app->routes->cache($cache);
+  $app->_set_routes_attrs->_load_config->_load_pugins->_default_paths->_add_media_types()->_load_cache;
   $app->defaults(
 
     # layout => 'default'
@@ -290,6 +287,14 @@ sub load_class ($app, $class) {
   }
   return;
 }
+
+sub _load_cache ($app) {
+  my $cache = Slovo::Cache->new();
+  $app->renderer->cache($cache);
+  $app->routes->cache($cache);
+  return $app;
+}
+
 
 1;
 

@@ -1,5 +1,14 @@
 Revision history for Mojolicious application Slovo
 
+2023.06.11
+    * Added new meta tag for og:image.
+    * Using  Cache::FastMmap as base for Slovo::Cache.
+    * (2026.05.16) Maintenance.
+      Many other unrelated changes during the last years. We now add only fixes
+      until this project is replaced by an implementation in Go. We do not
+      publish new versions to CPAN anymore.
+      * Added example cgi script running in a perlbrew installed Perl.
+      * Added jquery.js, which if I remember, was removed from Mojolicious. 
 2023.03.22
     * Tested with Perl 5.36.0, Mojolicious~9.31, Net::SMTP~3.15
       Mojolicious::Plugin::OpenAPI~5.09, Authen::SASL~2.16,

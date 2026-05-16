@@ -63,7 +63,7 @@ sub _around_execute ($execute, $c) {
     page_alias   => $page->{alias},
     preview      => $preview,
     user         => $user,
-
+    celina       => $celina,
     # data_type to template name
     d2t => {
       'note'      => '_beleyazhka',
