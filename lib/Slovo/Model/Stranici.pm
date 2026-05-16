@@ -129,7 +129,7 @@ sub find_for_display ($m, $alias, $user, $domain_name, $preview) {
     ORDER BY ID DESC LIMIT 1)
 SQL
 
-  #local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
+  # local $m->dbx->db->dbh->{TraceLevel} = "3|SQL";
   return $m->dbx->db->select(
     $table, undef,
     {
@@ -300,8 +300,8 @@ sub all_for_list ($self, $user, $domain_name, $preview, $l, $opts = {}) {
     %{$self->_where_with_permissions($user, $domain_name, $preview)},
     %{$self->celini->where_with_permissions($user, $preview)}, %{$opts->{where} // {}}};
 
-  # local $db->dbh->{TraceLevel} = "3|SQL";
-  return $self->all($opts);
+   # local $self->dbx->db->dbh->{TraceLevel} = "3|SQL";
+   return $self->all($opts);
 }
 
 # Returns all pages for editing under 'home_stranici' or via Swagger API for
